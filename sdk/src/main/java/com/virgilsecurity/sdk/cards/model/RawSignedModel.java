@@ -31,7 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.client.model;
+package com.virgilsecurity.sdk.cards.model;
 
 import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
@@ -40,9 +40,8 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-public class RawSignedModel implements Serializable {
+public class RawSignedModel {
 
     @SerializedName("content_snapshot")
     private byte[] contentSnapshot;

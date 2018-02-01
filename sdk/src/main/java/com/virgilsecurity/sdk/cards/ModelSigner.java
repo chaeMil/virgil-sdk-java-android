@@ -33,15 +33,13 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import com.virgilsecurity.sdk.client.model.RawSignature;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawSignature;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import java.io.ByteArrayOutputStream;
 
 public class ModelSigner {
 

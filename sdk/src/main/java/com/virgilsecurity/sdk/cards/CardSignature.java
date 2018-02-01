@@ -34,6 +34,7 @@
 package com.virgilsecurity.sdk.cards;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class CardSignature {
 
@@ -147,5 +148,21 @@ public class CardSignature {
             cardSignature.signature = this.signature;
             return cardSignature;
         }
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CardSignature that = (CardSignature) o;
+        return Objects.equals(signerId, that.signerId) &&
+                Objects.equals(signerType, that.signerType) &&
+                Objects.equals(signature, that.signature) &&
+                Objects.equals(snapshot, that.snapshot) &&
+                Objects.equals(extraFields, that.extraFields);
+    }
+
+    @Override public int hashCode() {
+
+        return Objects.hash(signerId, signerType, signature, snapshot, extraFields);
     }
 }

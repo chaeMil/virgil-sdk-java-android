@@ -57,4 +57,13 @@ public class VerificationException extends CryptoException {
         super(cause);
     }
 
+    /**
+     * Create a new instance of {@code EncryptionException}
+     *
+     * @param message
+     *            the message which indicates the cause of Exception.
+     */
+    public VerificationException(String message) {
+        super(message);
+    }
 }

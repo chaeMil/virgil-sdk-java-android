@@ -29,14 +29,12 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import com.google.gson.reflect.TypeToken;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.ClassForSerialization;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

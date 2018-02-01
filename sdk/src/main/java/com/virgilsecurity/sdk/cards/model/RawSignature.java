@@ -31,7 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.client.model;
+package com.virgilsecurity.sdk.cards.model;
 
 import com.google.gson.annotations.SerializedName;
 

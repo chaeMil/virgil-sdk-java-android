@@ -36,7 +36,7 @@ import com.sun.tools.javac.util.Pair;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.exception.EmptyArgumentException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
@@ -91,7 +91,7 @@ public class CardClient {
     public Pair<RawSignedModel, Boolean> getCard(String cardId,
                                                  String token) { // TODO: 1/22/18 should return Pair<RawSignedModel, boolean>
         try {
-            URL url = new URL(serviceUrl, "card/" + cardId);
+            URL url = new URL(serviceUrl, "" + cardId);
 
             return new Pair<>(httpClient.execute(url,
                                                  "GET",
@@ -147,7 +147,7 @@ public class CardClient {
             throw new EmptyArgumentException("CardClient -> 'identity' should not be empty");
 
         try {
-            URL url = new URL(serviceUrl, "card/actions/search");
+            URL url = new URL(serviceUrl, "actions/search");
             String body = "{\"identity\":\"" + identity + "\"}";
 
             RawSignedModel[] cardModels =

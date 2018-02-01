@@ -33,6 +33,7 @@
 package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * A public key.
@@ -110,4 +111,18 @@ public class VirgilPublicKey implements PublicKey, Serializable {
         this.rawKey = rawKey;
     }
 
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VirgilPublicKey publicKey = (VirgilPublicKey) o;
+        return Arrays.equals(identifier, publicKey.identifier) &&
+                Arrays.equals(rawKey, publicKey.rawKey);
+    }
+
+    @Override public int hashCode() {
+
+        int result = Arrays.hashCode(identifier);
+        result = 31 * result + Arrays.hashCode(rawKey);
+        return result;
+    }
 }

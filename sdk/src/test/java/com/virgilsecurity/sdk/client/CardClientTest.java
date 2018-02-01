@@ -33,8 +33,7 @@
 
 package com.virgilsecurity.sdk.client;
 
-import com.sun.tools.javah.Gen;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;

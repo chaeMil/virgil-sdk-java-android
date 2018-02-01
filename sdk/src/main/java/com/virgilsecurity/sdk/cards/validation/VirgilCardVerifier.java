@@ -41,7 +41,9 @@ import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.Log;
 import com.virgilsecurity.sdk.utils.Validator;
 
 import java.io.ByteArrayOutputStream;
@@ -88,18 +90,16 @@ public class VirgilCardVerifier implements CardVerifier {
     }
 
     @Override public boolean verifyCard(Card card) throws IOException, CryptoException {
-        ValidationResult validationResult = new ValidationResult();
-
         if (verifySelfSignature)
-            validate(crypto, card, card.getIdentifier(), card.getPublicKey(), SignerType.SELF, validationResult);
+            if (!validate(crypto, card, card.getIdentifier(), card.getPublicKey(), SignerType.SELF))
+                return false;
 
         if (verifyVirgilSignature) {
-            byte[] publicKeyData = ConvertionUtils.toBase64Bytes(virgilPublicKeyBase64);
+            byte[] publicKeyData = ConvertionUtils.base64ToBytes(virgilPublicKeyBase64);
             PublicKey publicKey = crypto.importPublicKey(publicKeyData);
-            if (publicKey == null) {
-                validationResult.addError("Error importing VIRGIL Public Key");
-            }
-            validate(crypto, card, virgilCardId, publicKey, SignerType.VIRGIL, validationResult);
+
+            if (!validate(crypto, card, virgilCardId, publicKey, SignerType.VIRGIL))
+                return false;
         }
 
         boolean containsSignature = false;
@@ -108,64 +108,71 @@ public class VirgilCardVerifier implements CardVerifier {
                 for (CardSignature signerId : card.getSignatures()) {
                     if (signerId.getSignerId().equals(verifierCredentials.getId())) {
                         PublicKey publicKey = crypto.importPublicKey(verifierCredentials.getPublicKey());
-                        if (publicKey != null)
-                            containsSignature = true;
-                        else
-                            validationResult.addError("Error importing Whitelist Public Key for " + verifierCredentials.getId());
+                        containsSignature = true;
+                        if (!validate(crypto, card, signerId.getSignerId(), publicKey, SignerType.EXTRA))
+                            return false;
                     }
                 }
             }
         }
 
-        if (!containsSignature)
-            validationResult.addError("The card does not contain signature from specified Whitelist");
+        if (!whiteLists.isEmpty() && !containsSignature) {
+            Log.d("The card does not contain signature from specified Whitelist");
+            return false;
+        }
 
-        return validationResult.isValid();
+        return true;
     }
 
-    private void validate(CardCrypto crypto,
-                          Card card,
-                          String signerCardId,
-                          PublicKey signerPublicKey,
-                          SignerType signerType,
-                          ValidationResult validationResult) throws IOException, CryptoException {
+    private boolean validate(CardCrypto crypto,
+                             Card card,
+                             String signerCardId,
+                             PublicKey signerPublicKey,
+                             SignerType signerType) throws IOException, CryptoException {
 
         if (card.getSignatures() == null || card.getSignatures().isEmpty()) {
-            validationResult.addError("The card does not contain any signature");
-            return;
+            Log.d("The card does not contain any signature");
+            return false;
         }
 
-        CardSignature signature = card.getSignatures().get(0);
-        if (!signature.getSignerId().equals(signerCardId)) {
-            validationResult.addError("The card does not contain the " + signerType + " signature");
-            return;
+        CardSignature signature = null;
+        for (CardSignature cardSignature : card.getSignatures()) {
+            if (cardSignature.getSignerId().equals(signerCardId))
+                signature = cardSignature;
+        }
+        if (signature == null) {
+            Log.d("The card does not contain the " + signerType + " signature");
+            return false;
         }
 
-        byte[] cardSnapshot = ConvertionUtils.captureSnapshot(card);
-        if (cardSnapshot == null) {
-            validationResult.addError("The card with id " + signerCardId + " was corrupted");
-            return;
+        byte[] cardSnapshot = card.getRawCard(crypto).getContentSnapshot();
+        byte[] combinedSnapshot = cardSnapshot;
+        if (signature.getSnapshot() != null) {
+            byte[] extraDataSnapshot = ConvertionUtils.base64ToBytes(signature.getSnapshot());
+
+            combinedSnapshot = new byte[cardSnapshot.length + extraDataSnapshot.length];
+            System.arraycopy(cardSnapshot,
+                             0,
+                             combinedSnapshot,
+                             0,
+                             cardSnapshot.length);
+            System.arraycopy(extraDataSnapshot,
+                             0,
+                             combinedSnapshot,
+                             cardSnapshot.length,
+                             extraDataSnapshot.length);
         }
 
-        byte[] extraDataSnapshot = new byte[0];
-        if (signerType == SignerType.EXTRA) {
-            byte[] extraSnapshot = ConvertionUtils.captureSnapshot(signature.getExtraFields());
-            if (extraSnapshot == null) {
-                validationResult.addError("The EXTRA signature for " + signerCardId + " was corrupted");
-                return;
-            }
-            extraDataSnapshot = extraSnapshot;
+        byte[] fingerprint = crypto.generateSHA256(combinedSnapshot);
+
+        if (!crypto.verifySignature(ConvertionUtils.base64ToBytes(signature.getSignature()),
+                                    fingerprint,
+                                    signerPublicKey)) {
+            Log.d("The card with id " + signerCardId + " was corrupted");
+            return false;
         }
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        outputStream.write(cardSnapshot);
-        outputStream.write(extraDataSnapshot);
-
-        byte[] fingerprint = crypto.generateSHA256(outputStream.toByteArray());
-
-        if (!crypto.verifySignature(ConvertionUtils.base64ToBytes(signature.getSignature()), fingerprint, signerPublicKey)) {
-            validationResult.addError("The card with id " + signerCardId + " was corrupted");
-        }
+        return true;
     }
 
     public CardCrypto getCardCrypto() {

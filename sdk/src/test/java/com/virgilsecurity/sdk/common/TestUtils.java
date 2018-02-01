@@ -36,9 +36,9 @@ package com.virgilsecurity.sdk.common;
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardSignature;
 import com.virgilsecurity.sdk.cards.SignerType;
-import com.virgilsecurity.sdk.client.model.RawCardContent;
-import com.virgilsecurity.sdk.client.model.RawSignature;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawCardContent;
+import com.virgilsecurity.sdk.cards.model.RawSignature;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Assert;
 
@@ -98,19 +98,19 @@ public class TestUtils {
 
     public static void assertCardsEquals(Card expectedCard, Card actualCard) {
         if (!cardsEqualsSelfSignOnly(expectedCard, actualCard))
-            Assert.fail("Expected card:\n" + expectedCard.toString()
-                                + "\n\n Actual card:\n" + actualCard.toString());
+            Assert.fail("\nExpected card:\n" + expectedCard.toString()
+                                + "\n\nActual card:\n" + actualCard.toString());
     }
 
     public static void assertCardModelsEquals(RawSignedModel expectedCardModel, RawSignedModel actualCardModel) {
         if (!cardModelsEqualsSelfSignOnly(expectedCardModel, actualCardModel))
-            Assert.fail("Expected card:\n" + expectedCardModel.toString()
-                                + "\n\n Actual card:\n" + actualCardModel.toString());
+            Assert.fail("\nExpected card:\n" + expectedCardModel.toString()
+                                + "\n\nActual card:\n" + actualCardModel.toString());
     }
 
     public static void assertCardContentsEquals(RawCardContent expectedCardContent, RawCardContent actualCardContent) {
         if (!cardContentsEqualsSelfSignOnly(expectedCardContent, actualCardContent))
-            Assert.fail("Expected card:\n" + expectedCardContent.toString()
-                                + "\n\n Actual card:\n" + actualCardContent.toString());
+            Assert.fail("\nExpected card:\n" + expectedCardContent.toString()
+                                + "\n\nActual card:\n" + actualCardContent.toString());
     }
 }

@@ -35,13 +35,10 @@ package com.virgilsecurity.sdk.cards;
 
 import com.sun.istack.internal.NotNull;
 import com.sun.tools.javac.util.Pair;
-import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
-import com.virgilsecurity.sdk.cards.Card;
-import com.virgilsecurity.sdk.client.model.RawCardContent;
-import com.virgilsecurity.sdk.client.model.RawSignature;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawCardContent;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PublicKey;

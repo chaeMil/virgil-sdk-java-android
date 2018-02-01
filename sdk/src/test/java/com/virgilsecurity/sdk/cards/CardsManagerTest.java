@@ -35,7 +35,7 @@ package com.virgilsecurity.sdk.cards;
 
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.*;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -98,11 +98,11 @@ public class CardsManagerTest extends PropertyManager {
         Card publishedCard = cardManager.publishCard(cardModel);
 
         assertFalse(publishedCard.isOutdated());
-        assertEquals(generatedCard, publishedCard);
+        TestUtils.assertCardsEquals(generatedCard, publishedCard);
 
         Card cardFromService = cardManager.getCard(generatedCard.getIdentifier());
         assertFalse(cardFromService.isOutdated());
-        assertEquals(generatedCard, cardFromService);
+        TestUtils.assertCardsEquals(generatedCard, cardFromService);
     }
 
     @Test

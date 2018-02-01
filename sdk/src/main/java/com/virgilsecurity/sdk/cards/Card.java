@@ -34,9 +34,9 @@
 package com.virgilsecurity.sdk.cards;
 
 import com.sun.istack.internal.NotNull;
-import com.virgilsecurity.sdk.client.model.RawCardContent;
-import com.virgilsecurity.sdk.client.model.RawSignature;
-import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.model.RawCardContent;
+import com.virgilsecurity.sdk.cards.model.RawSignature;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PublicKey;

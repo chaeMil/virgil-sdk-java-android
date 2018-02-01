@@ -200,9 +200,7 @@ public class ConvertionUtils {
      */
     public static byte[] captureSnapshot(Object snapshotModel) {
         String snapshotModelJson = serializeToJson(snapshotModel);
-        byte[] takenSnapshot = ConvertionUtils.toBytes(snapshotModelJson);
-
-        return takenSnapshot;
+        return ConvertionUtils.toBytes(snapshotModelJson);
     }
 
     /**

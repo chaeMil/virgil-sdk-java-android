@@ -31,28 +31,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.client.exceptions;
+package com.virgilsecurity.sdk.utils;
 
-import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+/**
+ * Logger which is used to print logs to console.
+ */
+public class Log {
 
-public class VirgilCardIsOutdatedException extends RuntimeException {
-
-    private static final long serialVersionUID = 3841365581319657840L;
-    private RawSignedModel cardModel;
-
-    public VirgilCardIsOutdatedException() {
-
+    /**
+     * Logging with Debug level.
+     *
+     * @param message to print in logs.
+     */
+    public static void d(String message) {
+        com.oracle.tools.packager.Log.debug(message);
     }
 
-    public VirgilCardIsOutdatedException(RawSignedModel cardModel) {
-        this.cardModel = cardModel;
+    /**
+     * Logging with Info level.
+     *
+     * @param message to print in logs.
+     */
+    public static void i(String message) {
+        com.oracle.tools.packager.Log.info(message);
     }
 
-    public VirgilCardIsOutdatedException(Exception cause) {
-        super(cause);
-    }
-
-    public RawSignedModel getCardModel() {
-        return cardModel;
+    /**
+     * Logging with Verbose level.
+     *
+     * @param message to print in logs.
+     */
+    public static void v(String message) {
+        com.oracle.tools.packager.Log.verbose(message);
     }
 }

@@ -233,7 +233,7 @@ public class ConvertionUtils {
      * @param serializedObject object to be deserialized
      * @return Map object deserialized from JSON String
      */
-    public static Map<String, Object> deserializeFromJson(String serializedObject) {
+    public static Map<String, String> deserializeFromJson(String serializedObject) {
         Type mapType = new TypeToken<Map<String, Object>>(){}.getType();
         return getGson().fromJson(serializedObject, mapType);
     }

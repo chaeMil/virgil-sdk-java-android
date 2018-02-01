@@ -51,7 +51,7 @@ public class PropertyManager {
     protected final String SERVICE_PUBLIC_KEY_PEM_BASE64 = getPropertyByName("SERVICE_PUBLIC_KEY_PEM_BASE64");
     protected final String SERVICE_PUBLIC_KEY_DER_BASE64 = getPropertyByName("SERVICE_PUBLIC_KEY_DER_BASE64");
 
-    protected final String CARDS_SERVICE_ADDRESS = getPropertyByName("CARDS_SERVICE_ADDRESS");*/
+    protected final String CARDS_SERVICE_URL = getPropertyByName("CARDS_SERVICE_ADDRESS");*/
 
     // -------------- STAGE --------------
     protected final String APP_ID = getPropertyByName("STAGE_APP_ID");
@@ -67,7 +67,7 @@ public class PropertyManager {
     protected final String SERVICE_PUBLIC_KEY_PEM_BASE64 = getPropertyByName("STAGE_SERVICE_PUBLIC_KEY_PEM_BASE64");
     protected final String SERVICE_PUBLIC_KEY_DER_BASE64 = getPropertyByName("STAGE_SERVICE_PUBLIC_KEY_DER_BASE64");
 
-    protected final String CARDS_SERVICE_ADDRESS = getPropertyByName("STAGE_CARDS_SERVICE_ADDRESS");
+    protected final String CARDS_SERVICE_URL = getPropertyByName("STAGE_CARDS_SERVICE_ADDRESS");
 
     public String getPropertyByName(String propertyName) {
         boolean isMacOs = System.getProperty("os.name")

@@ -87,11 +87,11 @@ public class RawCardContent {
         this.identity = identity;
     }
 
-    public String getPublicKeyData() {
+    public String getPublicKey() {
         return publicKey;
     }
 
-    public void setPublicKeyData(String publicKeyData) {
+    public void setPublicKey(String publicKeyData) {
         this.publicKey = publicKeyData;
     }
 

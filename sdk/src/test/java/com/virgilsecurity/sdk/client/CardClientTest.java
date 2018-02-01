@@ -31,24 +31,21 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.cards;
+package com.virgilsecurity.sdk.client;
 
-import com.sun.org.apache.bcel.internal.generic.IDIV;
-import com.sun.xml.internal.bind.v2.model.core.ID;
-import com.virgilsecurity.sdk.client.CardClient;
+import com.sun.tools.javah.Gen;
 import com.virgilsecurity.sdk.client.model.RawSignedModel;
+import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
+import com.virgilsecurity.sdk.common.TestUtils;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jsonWebToken.Jwt;
-import com.virgilsecurity.sdk.jsonWebToken.JwtVerifier;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import sun.util.logging.PlatformLogger;
-
-import java.io.IOException;
 
 public class CardClientTest extends PropertyManager {
 
@@ -59,7 +56,7 @@ public class CardClientTest extends PropertyManager {
 
     @Before
     public void setUp() {
-        cardClient = new CardClient(CARDS_SERVICE_ADDRESS);
+        cardClient = new CardClient(CARDS_SERVICE_URL);
         mocker = new Mocker();
 
         PlatformLogger.getLogger("sun.net.www.protocol.http.HttpURLConnection")
@@ -74,13 +71,15 @@ public class CardClientTest extends PropertyManager {
 
     @Test
     public void validTokenPublishCard() throws CryptoException {
-        RawSignedModel cardModelBeforePublish = mocker.generateCardModel();
+        String identity = Generator.identity();
+
+        RawSignedModel cardModelBeforePublish = mocker.generateCardModel(identity);
 
         RawSignedModel cardModelAfterPublish =
                 cardClient.publishCard(cardModelBeforePublish,
-                                       mocker.generateAccessToken(IDENTITY).toString());
+                                       mocker.generateAccessToken(identity).toString());
 
-        Assert.assertEquals(cardModelBeforePublish, cardModelAfterPublish);
+        TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
     }
 
     @Test

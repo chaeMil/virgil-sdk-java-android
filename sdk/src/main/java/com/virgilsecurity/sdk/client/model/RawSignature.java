@@ -35,6 +35,8 @@ package com.virgilsecurity.sdk.client.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 public class RawSignature {
 
     @SerializedName("signer_id")
@@ -48,6 +50,12 @@ public class RawSignature {
 
     @SerializedName("signature")
     private String signature;
+
+    public RawSignature(String signerId, String signerType, String signature) {
+        this.signerId = signerId;
+        this.signerType = signerType;
+        this.signature = signature;
+    }
 
     public RawSignature(String signerId, String snapshot, String signerType, String signature) {
         this.signerId = signerId;
@@ -86,5 +94,20 @@ public class RawSignature {
 
     public void setSignature(String signature) {
         this.signature = signature;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RawSignature that = (RawSignature) o;
+        return Objects.equals(signerId, that.signerId) &&
+                Objects.equals(snapshot, that.snapshot) &&
+                Objects.equals(signerType, that.signerType) &&
+                Objects.equals(signature, that.signature);
+    }
+
+    @Override public int hashCode() {
+
+        return Objects.hash(signerId, snapshot, signerType, signature);
     }
 }

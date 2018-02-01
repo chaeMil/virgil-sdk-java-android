@@ -54,6 +54,21 @@ public class ModelSigner {
     public void sign(RawSignedModel cardModel,
                      String id,
                      SignerType type,
+                     PrivateKey privateKey) throws CryptoException {
+
+        byte[] fingerprint = crypto.generateSHA256(cardModel.getContentSnapshot());
+        byte[] signature = crypto.generateSignature(fingerprint, privateKey);
+
+        RawSignature rawSignature = new RawSignature(id,
+                                                     type.getRawValue(),
+                                                     ConvertionUtils.toBase64String(signature));
+
+        cardModel.getSignatures().add(rawSignature);
+    }
+
+    public void sign(RawSignedModel cardModel,
+                     String id,
+                     SignerType type,
                      byte[] additionalData,
                      PrivateKey privateKey) throws CryptoException {
 
@@ -81,7 +96,20 @@ public class ModelSigner {
     }
 
     public void selfSign(RawSignedModel cardModel, byte[] additionalData, PrivateKey privateKey) throws CryptoException {
-        String signerId = ConvertionUtils.toHex(crypto.generateSHA256(cardModel.getContentSnapshot()));
+        byte[] combinedSnapshot = new byte[cardModel.getContentSnapshot().length + additionalData.length];
+        System.arraycopy(cardModel.getContentSnapshot(),
+                         0,
+                         combinedSnapshot,
+                         0,
+                         cardModel.getContentSnapshot().length);
+        System.arraycopy(additionalData,
+                         0,
+                         combinedSnapshot,
+                         cardModel.getContentSnapshot().length,
+                         additionalData.length);
+
+        String signerId = ConvertionUtils.toString(crypto.generateSHA256(combinedSnapshot),
+                                                   StringEncoding.HEX);
 
         sign(cardModel, signerId, SignerType.SELF, additionalData, privateKey);
     }
@@ -90,6 +118,6 @@ public class ModelSigner {
         String signerId = ConvertionUtils.toString(crypto.generateSHA256(cardModel.getContentSnapshot()),
                                                    StringEncoding.HEX);
 
-        sign(cardModel, signerId, SignerType.SELF, new byte[0], privateKey);
+        sign(cardModel, signerId, SignerType.SELF, privateKey);
     }
 }

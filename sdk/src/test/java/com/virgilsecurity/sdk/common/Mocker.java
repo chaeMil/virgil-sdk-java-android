@@ -205,6 +205,31 @@ public class Mocker extends PropertyManager {
         return cardModel;
     }
 
+    public RawSignedModel generateCardModel(String identity) throws CryptoException {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, 2018);
+        calendar.set(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        calendar.set(Calendar.HOUR_OF_DAY, 10);
+
+        KeyPairVirgiled keyPairVirgiled = crypto.generateKeys();
+        VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
+        VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
+
+        RawCardContent rawCardContent = new RawCardContent(identity,
+                                                           ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+                                                           "5.0",
+                                                           calendar.getTime());
+
+        RawSignedModel cardModel =
+                new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
+
+        ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
+        signer.selfSign(cardModel, privateKey);
+
+        return cardModel;
+    }
+
     public RawSignedModel rawCard() {
         return new RawSignedModel(ConvertionUtils.captureSnapshot(new RawCardContent()));
     }
@@ -235,5 +260,9 @@ public class Mocker extends PropertyManager {
 
     public JwtVerifier getVerifier() {
         return verifier;
+    }
+
+    public JwtGenerator getJwtGenerator() {
+        return jwtGenerator;
     }
 }

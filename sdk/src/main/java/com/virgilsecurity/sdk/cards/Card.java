@@ -195,37 +195,64 @@ public class Card {
         if (cardModel == null)
             throw new NullArgumentException("Card -> 'cardModel' should not be null");
 
-        RawCardContent rawCardContent = ConvertionUtils.parseSnapshot(cardModel.getContentSnapshot(),
-                                                                      RawCardContent.class);
-        byte[] fingerprint = crypto.generateSHA256(cardModel.getContentSnapshot());
-        String cardId = ConvertionUtils.toHex(fingerprint);
-        PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKeyData()));
+        RawCardContent rawCardContent = ConvertionUtils.deserializeFromJson(new String(cardModel.getContentSnapshot()),
+                                                                            RawCardContent.class);
+        byte[] additionalData = new byte[0];
+        for (RawSignature rawSignature : cardModel.getSignatures()) {
+            if (rawSignature.getSignerType().equals(SignerType.SELF.getRawValue())
+                    && rawSignature.getSnapshot() != null)
+                additionalData = ConvertionUtils.base64ToBytes(rawSignature.getSnapshot());
+        }
+
+        byte[] combinedSnapshot;
+        if (additionalData.length != 0) {
+            combinedSnapshot = new byte[cardModel.getContentSnapshot().length + additionalData.length];
+            System.arraycopy(cardModel.getContentSnapshot(),
+                             0,
+                             combinedSnapshot,
+                             0,
+                             cardModel.getContentSnapshot().length);
+            System.arraycopy(additionalData,
+                             0,
+                             combinedSnapshot,
+                             cardModel.getContentSnapshot().length,
+                             additionalData.length);
+        } else {
+            combinedSnapshot = cardModel.getContentSnapshot();
+        }
+
+        byte[] fingerprint = crypto.generateSHA256(combinedSnapshot);
+        String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
+        PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 
         List<CardSignature> cardSignatures = new ArrayList<>();
         if (cardModel.getSignatures() != null) {
-
             for (RawSignature rawSignature : cardModel.getSignatures()) {
-                CardSignature cardSignature = new CardSignature.CardSignatureBuilder()
+                CardSignature.CardSignatureBuilder cardSignature = new CardSignature.CardSignatureBuilder()
                         .signerId(rawSignature.getSignerId())
                         .signerType(rawSignature.getSignerType())
-                        .signature(rawSignature.getSignature())
-                        .snapshot(rawSignature.getSnapshot())
-                        .extraFields(ConvertionUtils.base64ToString(rawSignature.getSnapshot()))
-                        .build();
+                        .signature(rawSignature.getSignature());
 
-                cardSignatures.add(cardSignature);
+                if (rawSignature.getSnapshot() != null) {
+                    String snapshot = rawSignature.getSnapshot();
+                    Map<String, String> additionalDataSignature =
+                            ConvertionUtils.deserializeFromJson(ConvertionUtils.base64ToString(snapshot));
+
+                    cardSignature.snapshot(snapshot);
+                    cardSignature.extraFields(additionalDataSignature);
+                }
+
+                cardSignatures.add(cardSignature.build());
             }
         }
 
-        Card card = new Card(cardId,
-                             rawCardContent.getIdentity(),
-                             publicKey,
-                             rawCardContent.getVersion(),
-                             rawCardContent.getCreatedAtDate(),
-                             rawCardContent.getPreviousCardId(),
-                             cardSignatures);
-
-        return card;
+        return new Card(cardId,
+                        rawCardContent.getIdentity(),
+                        publicKey,
+                        rawCardContent.getVersion(),
+                        rawCardContent.getCreatedAtDate(),
+                        rawCardContent.getPreviousCardId(),
+                        cardSignatures);
     }
 
     public RawSignedModel getRawCard(CardCrypto cardCrypto) throws CryptoException {
@@ -248,5 +275,18 @@ public class Card {
         }
 
         return cardModel;
+    }
+
+    @Override public int hashCode() {
+
+        return Objects.hash(identifier,
+                            identity,
+                            publicKey,
+                            version,
+                            createdAt,
+                            previousCardId,
+                            previousCard,
+                            signatures,
+                            isOutdated);
     }
 }

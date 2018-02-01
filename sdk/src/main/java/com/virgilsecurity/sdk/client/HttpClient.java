@@ -37,7 +37,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.Map;
 
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
+import com.virgilsecurity.sdk.client.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.ErrorResponse;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StreamUtils;
@@ -103,6 +105,15 @@ public class HttpClient {
                     }
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                         return null;
+                    }
+                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN
+                            && clazz.isAssignableFrom(RawSignedModel.class)) {
+                        try (InputStream instream = new BufferedInputStream(urlConnection.getInputStream())) {
+                            String body = ConvertionUtils.toString(instream);
+                            RawSignedModel cardModel = ConvertionUtils.getGson().fromJson(body,
+                                                                                          RawSignedModel.class);
+                            throw new VirgilCardIsOutdatedException(cardModel);
+                        }
                     }
                     throw new VirgilCardServiceException();
                 } else if (clazz.isAssignableFrom(Void.class)) {

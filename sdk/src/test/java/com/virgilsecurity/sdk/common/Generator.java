@@ -34,14 +34,15 @@
 package com.virgilsecurity.sdk.common;
 
 import com.sun.xml.internal.xsom.impl.scd.Iterators;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.apache.commons.lang.math.RandomUtils;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class Generator {
+    private static final String IDENTITY = "TEST-java-v5-";
+    private static final String ALPHA_NUMERIC_STRING = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
+
 
     private static Random randomizer;
 
@@ -72,6 +73,20 @@ public class Generator {
         return names[randomInt(5)];
     }
 
+    public static String identity() {
+        return IDENTITY + randomAlphaNumeric(32);
+    }
+
+    public static String identity(String prefix) {
+        return prefix + Arrays.toString(randomBytes(32));
+    }
+
+    public static String cardId()
+    {
+        byte[] fingerprint = randomBytes(32);
+        return ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
+    }
+
     public static <T> T randomArrayElement(List<T> list) {
         return list.get(randomInt(list.size() - 1));
     }
@@ -82,5 +97,15 @@ public class Generator {
         calendar.set(Calendar.MONTH, randomInt(11));
         calendar.set(Calendar.DAY_OF_MONTH, randomInt(27));
         return calendar.getTime();
+    }
+
+
+    public static String randomAlphaNumeric(int count) {
+        StringBuilder builder = new StringBuilder();
+        while (count-- != 0) {
+            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+        }
+        return builder.toString();
     }
 }

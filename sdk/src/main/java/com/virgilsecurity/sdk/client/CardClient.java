@@ -32,6 +32,8 @@
  */
 package com.virgilsecurity.sdk.client;
 
+import com.sun.tools.javac.util.Pair;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.client.model.RawSignedModel;
@@ -86,15 +88,18 @@ public class CardClient {
      * @param token  token to authorize the request.
      * @return the card loaded from VIRGIL Cards service.
      */
-    public RawSignedModel getCard(String cardId, String token) { // TODO: 1/22/18 should return Pair<RawSignedModel, boolean>
+    public Pair<RawSignedModel, Boolean> getCard(String cardId,
+                                                 String token) { // TODO: 1/22/18 should return Pair<RawSignedModel, boolean>
         try {
             URL url = new URL(serviceUrl, "card/" + cardId);
 
-            return httpClient.execute(url,
-                                      "GET",
-                                      token,
-                                      null,
-                                      RawSignedModel.class);
+            return new Pair<>(httpClient.execute(url,
+                                                 "GET",
+                                                 token,
+                                                 null,
+                                                 RawSignedModel.class), false);
+        } catch (VirgilCardIsOutdatedException e) {
+            return new Pair<>(e.getCardModel(), true); // FIXME: 1/30/18 temporary workaround with 403 for outdated card
         } catch (VirgilServiceException e) {
             throw e;
         } catch (Exception e) {

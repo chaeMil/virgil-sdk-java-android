@@ -29,20 +29,20 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
-import com.virgilsecurity.sdk.client.model.RawCardContent;
+import com.google.gson.reflect.TypeToken;
 import com.virgilsecurity.sdk.client.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.ClassForSerialization;
-import com.virgilsecurity.sdk.common.Generator;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.Arrays;
-import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for {@linkplain ConvertionUtils}.
@@ -111,6 +111,18 @@ public class ConvertionUtilsTest {
 		RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
 
 		Assert.assertTrue(Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
+	}
+
+	@Test
+	public void deSerializationHashMap() {
+		Map<String, String> additionalData = new HashMap<>();
+		additionalData.put("Info", "best");
+		additionalData.put("Hello", "Buddy");
+
+		String hashMapSerialized = ConvertionUtils.serializeToJson(additionalData);
+		Map<String, String> deserializeFromJson = ConvertionUtils.deserializeFromJson(hashMapSerialized);
+
+		assertEquals(additionalData, deserializeFromJson);
 	}
 
 	@Test

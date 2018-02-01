@@ -34,6 +34,7 @@
 package com.virgilsecurity.sdk.cards;
 
 import com.sun.istack.internal.NotNull;
+import com.sun.tools.javac.util.Pair;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
@@ -50,6 +51,7 @@ import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.utils.Validator;
 
 import java.io.IOException;
 import java.util.*;
@@ -65,11 +67,36 @@ public class CardManager {
     private CardClient cardClient;
     private SignCallback signCallback;
 
-    public CardManager(CardCrypto crypto,
-                       AccessTokenProvider accessTokenProvider,
-                       CardVerifier cardVerifier,
-                       CardClient cardClient,
-                       SignCallback signCallback) {
+    public CardManager(@NotNull CardCrypto crypto,
+                       @NotNull AccessTokenProvider accessTokenProvider,
+                       @NotNull CardVerifier cardVerifier,
+                       @NotNull CardClient cardClient) {
+        Validator.checkIllegalAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkIllegalAgrument(accessTokenProvider,
+                                       "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkIllegalAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkIllegalAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
+
+        this.crypto = crypto;
+        this.accessTokenProvider = accessTokenProvider;
+        this.cardVerifier = cardVerifier;
+        this.cardClient = cardClient;
+
+        this.modelSigner = new ModelSigner(crypto);
+    }
+
+    public CardManager(@NotNull CardCrypto crypto,
+                       @NotNull AccessTokenProvider accessTokenProvider,
+                       @NotNull CardVerifier cardVerifier,
+                       @NotNull CardClient cardClient,
+                       @NotNull SignCallback signCallback) {
+        Validator.checkIllegalAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkIllegalAgrument(accessTokenProvider,
+                                       "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkIllegalAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkIllegalAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
+        Validator.checkIllegalAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
+
         this.crypto = crypto;
         this.accessTokenProvider = accessTokenProvider;
         this.cardVerifier = cardVerifier;
@@ -85,6 +112,14 @@ public class CardManager {
                        @NotNull CardVerifier cardVerifier,
                        @NotNull CardClient cardClient,
                        @NotNull SignCallback signCallback) {
+        Validator.checkIllegalAgrument(modelSigner, "CardManager -> 'modelSigner' should not be null");
+        Validator.checkIllegalAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkIllegalAgrument(accessTokenProvider,
+                                       "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkIllegalAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkIllegalAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
+        Validator.checkIllegalAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
+
         this.modelSigner = modelSigner;
         this.crypto = crypto;
         this.accessTokenProvider = accessTokenProvider;
@@ -94,15 +129,15 @@ public class CardManager {
     }
 
     private void verifyCard(Card card) throws CryptoException, IOException {
-        if (!cardVerifier.verifyCard(card))
-            throw new VerificationException();
+            if (!cardVerifier.verifyCard(card))
+                throw new VerificationException();
     }
 
     public RawSignedModel generateRawCard(PrivateKey privateKey,
                                           PublicKey publicKey,
                                           String identity,
                                           String previousCardId,
-                                          Map<String, String> additionalData) throws Exception {
+                                          Map<String, String> additionalData) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
                                                         ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
                                                         CURRENT_CARD_VERSION,
@@ -113,7 +148,8 @@ public class CardManager {
         RawSignedModel cardModel = new RawSignedModel(snapshot);
         modelSigner.selfSign(cardModel, ConvertionUtils.captureSnapshot(additionalData), privateKey);
 
-        cardModel = signCallback.onSign(cardModel);
+        if (signCallback != null)
+            cardModel = signCallback.onSign(cardModel);
 
         return cardModel;
     }
@@ -121,7 +157,7 @@ public class CardManager {
     public RawSignedModel generateRawCard(PrivateKey privateKey,
                                           PublicKey publicKey,
                                           String identity,
-                                          String previousCardId) throws Exception {
+                                          String previousCardId) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
                                                         ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
                                                         CURRENT_CARD_VERSION,
@@ -132,7 +168,8 @@ public class CardManager {
         RawSignedModel cardModel = new RawSignedModel(snapshot);
         modelSigner.selfSign(cardModel, privateKey);
 
-        cardModel = signCallback.onSign(cardModel);
+        if (signCallback != null)
+            cardModel = signCallback.onSign(cardModel);
 
         return cardModel;
     }
@@ -140,7 +177,7 @@ public class CardManager {
     public RawSignedModel generateRawCard(PrivateKey privateKey,
                                           PublicKey publicKey,
                                           String identity,
-                                          Map<String, String> additionalData) throws Exception {
+                                          Map<String, String> additionalData) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
                                                         ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
                                                         CURRENT_CARD_VERSION,
@@ -150,14 +187,15 @@ public class CardManager {
         RawSignedModel cardModel = new RawSignedModel(snapshot);
         modelSigner.selfSign(cardModel, ConvertionUtils.captureSnapshot(additionalData), privateKey);
 
-        cardModel = signCallback.onSign(cardModel);
+        if (signCallback != null)
+            cardModel = signCallback.onSign(cardModel);
 
         return cardModel;
     }
 
     public RawSignedModel generateRawCard(PrivateKey privateKey,
                                           PublicKey publicKey,
-                                          String identity) throws Exception {
+                                          String identity) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
                                                         ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
                                                         CURRENT_CARD_VERSION,
@@ -167,7 +205,8 @@ public class CardManager {
         RawSignedModel cardModel = new RawSignedModel(snapshot);
         modelSigner.selfSign(cardModel, privateKey);
 
-        cardModel = signCallback.onSign(cardModel);
+        if (signCallback != null)
+            cardModel = signCallback.onSign(cardModel);
 
         return cardModel;
     }
@@ -186,7 +225,7 @@ public class CardManager {
                             PublicKey publicKey,
                             String identity,
                             String previousCardId,
-                            Map<String, String> additionalData) throws Exception {
+                            Map<String, String> additionalData) throws CryptoException, IOException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId, additionalData);
 
@@ -196,7 +235,7 @@ public class CardManager {
     public Card publishCard(PrivateKey privateKey,
                             PublicKey publicKey,
                             String identity,
-                            Map<String, String> additionalData) throws Exception {
+                            Map<String, String> additionalData) throws CryptoException, IOException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, additionalData);
 
@@ -206,14 +245,16 @@ public class CardManager {
     public Card publishCard(PrivateKey privateKey,
                             PublicKey publicKey,
                             String identity,
-                            String previousCardId) throws Exception {
+                            String previousCardId) throws CryptoException, IOException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId);
 
         return publishCard(cardModel);
     }
 
-    public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity) throws Exception {
+    public Card publishCard(PrivateKey privateKey,
+                            PublicKey publicKey,
+                            String identity) throws CryptoException, IOException {
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity);
 
         return publishCard(cardModel);
@@ -221,7 +262,11 @@ public class CardManager {
 
     public Card getCard(String cardId) throws CryptoException, IOException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
-        Card card = Card.parse(crypto, cardClient.getCard(cardId, token.toString()));
+        Pair<RawSignedModel, Boolean> response = cardClient.getCard(cardId, token.toString());
+        Card card = Card.parse(crypto, response.fst);
+
+        if (response.snd)
+            card.setOutdated(true);
 
         verifyCard(card);
 
@@ -257,7 +302,6 @@ public class CardManager {
     }
 
     /**
-     *
      * @param card
      * @return imported card from Base64 String
      */
@@ -274,7 +318,6 @@ public class CardManager {
     }
 
     /**
-     *
      * @param card
      * @return Base64 String from exported card
      */

@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import java.util.Map;
+
 public class CardSignature {
 
     /**
@@ -58,7 +60,7 @@ public class CardSignature {
     /**
      * EXTRA fields
      */
-    private String extraFields;
+    private Map<String, String> extraFields;
 
     public String getSignerId() {
         return signerId;
@@ -92,11 +94,11 @@ public class CardSignature {
         this.snapshot = snapshot;
     }
 
-    public String getExtraFields() {
+    public Map<String, String> getExtraFields() {
         return extraFields;
     }
 
-    private void setExtraFields(String extraFields) {
+    private void setExtraFields(Map<String, String> extraFields) {
         this.extraFields = extraFields;
     }
 
@@ -106,7 +108,7 @@ public class CardSignature {
         private String signerType;
         private String signature;
         private String snapshot;
-        private String extraFields;
+        private Map<String, String> extraFields;
 
         public CardSignatureBuilder() {
         }
@@ -131,7 +133,7 @@ public class CardSignature {
             return this;
         }
 
-        public CardSignatureBuilder extraFields(String extraFields) {
+        public CardSignatureBuilder extraFields(Map<String, String> extraFields) {
             this.extraFields = extraFields;
             return this;
         }

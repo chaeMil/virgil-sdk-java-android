@@ -34,10 +34,29 @@
 package com.virgilsecurity.sdk.storage;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+/**
+ * The {@link PrivateKeyExporter} interface defines a list of methods that
+ * provides private key export and import methods.
+ */
 public interface PrivateKeyExporter {
 
-    byte[] exportPrivateKey(PrivateKey privateKey);
+    /**
+     * Exports the {@code privateKey} into material representation.
+     *
+     * @param privateKey The private key.
+     * @return Private key in material representation of {@code byte[]}.
+     * @throws CryptoException if problems occurred while exporting key.
+     */
+    byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException;
 
-    PrivateKey importPrivateKey(byte[] privateKey);
+    /**
+     * Imports the private key from its material representation.
+     *
+     * @param data The private key material representation bytes.
+     * @return The instance of {@link PrivateKey} imported.
+     * @throws CryptoException if problems occurred while importing key.
+     */
+    PrivateKey importPrivateKey(byte[] data) throws CryptoException;
 }

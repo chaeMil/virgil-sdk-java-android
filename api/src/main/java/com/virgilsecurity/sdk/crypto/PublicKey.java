@@ -33,7 +33,8 @@
 package com.virgilsecurity.sdk.crypto;
 
 /**
- * A public key.
+ * The {@link PublicKey} interface represents an opaque reference to
+ * keying material that is managed by the agent.
  */
 public interface PublicKey {
 

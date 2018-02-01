@@ -3225,7 +3225,7 @@ SWIGEXPORT jbyteArray JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1jav
   arg1 = *(virgil::crypto::VirgilKeyPair **)&jarg1; 
   {
     try {
-      result = ((virgil::crypto::VirgilKeyPair const *)arg1)->apiKey();
+      result = ((virgil::crypto::VirgilKeyPair const *)arg1)->privateKey();
     }
     
     
@@ -14278,6 +14278,88 @@ SWIGEXPORT void JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_d
 }
 
 
+SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_new_1VirgilSigner_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  jlong jresult = 0 ;
+  virgil::crypto::foundation::VirgilHash::Algorithm arg1 ;
+  virgil::crypto::VirgilSigner *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (virgil::crypto::foundation::VirgilHash::Algorithm)jarg1; 
+  {
+    try {
+      result = (virgil::crypto::VirgilSigner *)new virgil::crypto::VirgilSigner(arg1);
+    }
+    
+    
+    
+    
+    
+    
+    catch (const std::exception& exception) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, backtrace_message(exception).c_str());
+      return 0;
+    }
+    catch (...) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, "Unknown exception");
+      return 0;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+  }
+  *(virgil::crypto::VirgilSigner **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_new_1VirgilSigner_1_1SWIG_11(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  virgil::crypto::VirgilSigner *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (virgil::crypto::VirgilSigner *)new virgil::crypto::VirgilSigner();
+    }
+    
+    
+    
+    
+    
+    
+    catch (const std::exception& exception) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, backtrace_message(exception).c_str());
+      return 0;
+    }
+    catch (...) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, "Unknown exception");
+      return 0;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+  }
+  *(virgil::crypto::VirgilSigner **)&jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jbyteArray JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_VirgilSigner_1sign_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jbyteArray jarg2, jbyteArray jarg3, jbyteArray jarg4) {
   jbyteArray jresult = 0 ;
   virgil::crypto::VirgilSigner *arg1 = (virgil::crypto::VirgilSigner *) 0 ;
@@ -14509,46 +14591,6 @@ SWIGEXPORT jboolean JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJ
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_new_1VirgilSigner(JNIEnv *jenv, jclass jcls) {
-  jlong jresult = 0 ;
-  virgil::crypto::VirgilSigner *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  {
-    try {
-      result = (virgil::crypto::VirgilSigner *)new virgil::crypto::VirgilSigner();
-    }
-    
-    
-    
-    
-    
-    
-    catch (const std::exception& exception) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, backtrace_message(exception).c_str());
-      return 0;
-    }
-    catch (...) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, "Unknown exception");
-      return 0;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-  }
-  *(virgil::crypto::VirgilSigner **)&jresult = result; 
-  return jresult;
-}
-
-
 SWIGEXPORT void JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_delete_1VirgilSigner(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   virgil::crypto::VirgilSigner *arg1 = (virgil::crypto::VirgilSigner *) 0 ;
   
@@ -14584,6 +14626,88 @@ SWIGEXPORT void JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_d
     
     
   }
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_new_1VirgilStreamSigner_1_1SWIG_10(JNIEnv *jenv, jclass jcls, jint jarg1) {
+  jlong jresult = 0 ;
+  virgil::crypto::foundation::VirgilHash::Algorithm arg1 ;
+  virgil::crypto::VirgilStreamSigner *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = (virgil::crypto::foundation::VirgilHash::Algorithm)jarg1; 
+  {
+    try {
+      result = (virgil::crypto::VirgilStreamSigner *)new virgil::crypto::VirgilStreamSigner(arg1);
+    }
+    
+    
+    
+    
+    
+    
+    catch (const std::exception& exception) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, backtrace_message(exception).c_str());
+      return 0;
+    }
+    catch (...) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, "Unknown exception");
+      return 0;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+  }
+  *(virgil::crypto::VirgilStreamSigner **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_new_1VirgilStreamSigner_1_1SWIG_11(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  virgil::crypto::VirgilStreamSigner *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  {
+    try {
+      result = (virgil::crypto::VirgilStreamSigner *)new virgil::crypto::VirgilStreamSigner();
+    }
+    
+    
+    
+    
+    
+    
+    catch (const std::exception& exception) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, backtrace_message(exception).c_str());
+      return 0;
+    }
+    catch (...) {
+      jclass clazz = jenv->FindClass("java/lang/Exception");
+      jenv->ThrowNew(clazz, "Unknown exception");
+      return 0;
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+  }
+  *(virgil::crypto::VirgilStreamSigner **)&jresult = result; 
+  return jresult;
 }
 
 
@@ -14799,46 +14923,6 @@ SWIGEXPORT jboolean JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJ
     
   }
   jresult = (jboolean)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_new_1VirgilStreamSigner(JNIEnv *jenv, jclass jcls) {
-  jlong jresult = 0 ;
-  virgil::crypto::VirgilStreamSigner *result = 0 ;
-  
-  (void)jenv;
-  (void)jcls;
-  {
-    try {
-      result = (virgil::crypto::VirgilStreamSigner *)new virgil::crypto::VirgilStreamSigner();
-    }
-    
-    
-    
-    
-    
-    
-    catch (const std::exception& exception) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, backtrace_message(exception).c_str());
-      return 0;
-    }
-    catch (...) {
-      jclass clazz = jenv->FindClass("java/lang/Exception");
-      jenv->ThrowNew(clazz, "Unknown exception");
-      return 0;
-    }
-    
-    
-    
-    
-    
-    
-    
-    
-  }
-  *(virgil::crypto::VirgilStreamSigner **)&jresult = result; 
   return jresult;
 }
 

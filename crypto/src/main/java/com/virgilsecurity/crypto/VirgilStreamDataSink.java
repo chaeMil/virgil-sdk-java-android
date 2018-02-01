@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2016 Virgil Security Inc.
+ * Copyright (C) 2015-2016 Virgil Security Inc.
  *
  * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
@@ -36,23 +36,11 @@
 
 package com.virgilsecurity.crypto;
 
-/**
- * TODO: add type description
- *
- * @author Andrii Iakovenko
- *
- */
 public class VirgilStreamDataSink extends VirgilDataSink implements java.io.Closeable {
     private java.io.OutputStream stream;
 
     public VirgilStreamDataSink(java.io.OutputStream stream) {
         this.stream = stream;
-    }
-
-    @Override
-    public void close() throws java.io.IOException {
-        this.stream.close();
-        this.delete();
     }
 
     @Override
@@ -64,5 +52,11 @@ public class VirgilStreamDataSink extends VirgilDataSink implements java.io.Clos
     @Override
     public void write(byte[] data) throws java.io.IOException {
         this.stream.write(data, 0, data.length);
+    }
+
+    @Override
+    public void close() throws java.io.IOException {
+        this.stream.close();
+        this.delete();
     }
 }

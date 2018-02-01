@@ -8,16 +8,16 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * (1) Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * (2) Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * (3) Neither the name of virgil nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -50,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.virgilsecurity.sdk.common.TestUtils.assertCardsEquals;
 import static org.junit.Assert.*;
 
 public class CardsManagerTest extends PropertyManager {
@@ -98,11 +99,11 @@ public class CardsManagerTest extends PropertyManager {
         Card publishedCard = cardManager.publishCard(cardModel);
 
         assertFalse(publishedCard.isOutdated());
-        TestUtils.assertCardsEquals(generatedCard, publishedCard);
+        assertCardsEquals(generatedCard, publishedCard);
 
         Card cardFromService = cardManager.getCard(generatedCard.getIdentifier());
         assertFalse(cardFromService.isOutdated());
-        TestUtils.assertCardsEquals(generatedCard, cardFromService);
+        assertCardsEquals(generatedCard, cardFromService);
     }
 
     @Test
@@ -122,11 +123,11 @@ public class CardsManagerTest extends PropertyManager {
         Card publishedCard = cardManager.publishCard(cardModel);
 
         assertFalse(publishedCard.isOutdated());
-        assertEquals(generatedCard, publishedCard);
+        assertCardsEquals(generatedCard, publishedCard);
 
         Card cardFromService = cardManager.getCard(generatedCard.getIdentifier());
         assertFalse(cardFromService.isOutdated());
-        assertEquals(generatedCard, cardFromService);
+        assertCardsEquals(generatedCard, cardFromService);
     }
 
     @Test
@@ -141,11 +142,11 @@ public class CardsManagerTest extends PropertyManager {
         Card publishedCardOne = cardManager.publishCard(cardModelOne);
 
         assertFalse(publishedCardOne.isOutdated());
-        assertEquals(generatedCardOne, publishedCardOne);
+        assertCardsEquals(generatedCardOne, publishedCardOne);
 
         Card cardFromServiceOne = cardManager.getCard(generatedCardOne.getIdentifier());
         assertFalse(cardFromServiceOne.isOutdated());
-        assertEquals(generatedCardOne, cardFromServiceOne);
+        assertCardsEquals(generatedCardOne, cardFromServiceOne);
 
 
         KeyPairVirgiled keyPairVirgiledTwo = crypto.generateKeys();
@@ -157,17 +158,17 @@ public class CardsManagerTest extends PropertyManager {
         Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
 
         assertFalse(publishedCardTwo.isOutdated());
-        assertEquals(generatedCardTwo, publishedCardTwo);
+        assertCardsEquals(generatedCardTwo, publishedCardTwo);
 
         Card cardFromServiceTwo = cardManager.getCard(generatedCardTwo.getIdentifier());
         assertFalse(cardFromServiceTwo.isOutdated());
-        assertEquals(generatedCardTwo, cardFromServiceTwo);
+        assertCardsEquals(generatedCardTwo, cardFromServiceTwo);
 
 
         Card outdatedCard = cardManager.getCard(generatedCardOne.getIdentifier());
         assertTrue(outdatedCard.isOutdated());
         outdatedCard.setOutdated(false);
-        assertEquals(generatedCardOne, outdatedCard);
+        assertCardsEquals(generatedCardOne, outdatedCard);
     }
 
     @Test
@@ -207,7 +208,7 @@ public class CardsManagerTest extends PropertyManager {
             }
         }
 
-        assertEquals(publishedCardThree, singleCardFromChain);
+        assertCardsEquals(publishedCardThree, singleCardFromChain);
     }
 
     @Test
@@ -255,6 +256,6 @@ public class CardsManagerTest extends PropertyManager {
 
         Card publishedCard = cardManagerExtraSign.publishCard(cardModel);
 
-        TestUtils.assertCardsEquals(generatedCard, publishedCard);
+        assertCardsEquals(generatedCard, publishedCard);
     }
 }

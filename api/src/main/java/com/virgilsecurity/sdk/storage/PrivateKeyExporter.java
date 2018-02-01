@@ -8,16 +8,16 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * (1) Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * (2) Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * (3) Neither the name of virgil nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -34,10 +34,29 @@
 package com.virgilsecurity.sdk.storage;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+/**
+ * The {@link PrivateKeyExporter} interface defines a list of methods that
+ * provides private key export and import methods.
+ */
 public interface PrivateKeyExporter {
 
-    byte[] exportPrivateKey(PrivateKey privateKey);
+    /**
+     * Exports the {@code privateKey} into material representation.
+     *
+     * @param privateKey The private key.
+     * @return Private key in material representation of {@code byte[]}.
+     * @throws CryptoException if problems occurred while exporting key.
+     */
+    byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException;
 
-    PrivateKey importPrivateKey(byte[] privateKey);
+    /**
+     * Imports the private key from its material representation.
+     *
+     * @param data The private key material representation bytes.
+     * @return The instance of {@link PrivateKey} imported.
+     * @throws CryptoException if problems occurred while importing key.
+     */
+    PrivateKey importPrivateKey(byte[] data) throws CryptoException;
 }

@@ -8,16 +8,16 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * (1) Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * (2) Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * (3) Neither the name of virgil nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -35,15 +35,57 @@ package com.virgilsecurity.sdk.crypto;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+/**
+ * The {@link CardCrypto} interface defines a list of methods that provide a signature
+ * generation and signature verification methods.
+ */
 public interface CardCrypto {
 
+    /**
+     * Generates the digital signature for the specified {@code data} using
+     * the specified {@link PrivateKey}
+     *
+     * @param data       The input data for which to compute the signature.
+     * @param privateKey The private key.
+     * @return The digital signature for the specified data.
+     * @throws CryptoException if problems occurred while generating signature.
+     */
     byte[] generateSignature(byte[] data, PrivateKey privateKey) throws CryptoException;
 
+    /**
+     * Verifies that a digital signature is valid by checking the {@code signature}, with
+     * provided {@code publicKey} and {@code data}.
+     *
+     * @param signature The digital signature for the {@code data}.
+     * @param data      The input data for which the {@code signature} has been generated.
+     * @param publicKey The {@link PublicKey}.
+     * @return {@code true} if signature is valid, {@code false} otherwise.
+     * @throws CryptoException if problems occurred while verifying signature.
+     */
     boolean verifySignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException;
 
+    /**
+     * Exports the {@code publicKey} into material representation.
+     *
+     * @param publicKey The public key.
+     * @return Public key in material representation of {@code byte[]}.
+     * @throws CryptoException if problems occurred while exporting key.
+     */
     byte[] exportPublicKey(PublicKey publicKey) throws CryptoException;
 
+    /**
+     * Imports the public key from its material representation.
+     *
+     * @param data The public key material representation bytes.
+     * @return The instance of {@link PublicKey} imported.
+     */
     PublicKey importPublicKey(byte[] data);
 
+    /**
+     * Generates the fingerprint(256-bit hash) for the specified {@code data}.
+     *
+     * @param data The input data for which to compute the fingerprint.
+     * @return The fingerprint for specified data.
+     */
     byte[] generateSHA256(byte[] data);
 }

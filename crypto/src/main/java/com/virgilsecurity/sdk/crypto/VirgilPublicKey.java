@@ -8,16 +8,16 @@
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * (1) Redistributions of source code must retain the above copyright notice, this
- * list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * (2) Redistributions in binary form must reproduce the above copyright notice,
- * this list of conditions and the following disclaimer in the documentation
- * and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * (3) Neither the name of virgil nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -33,6 +33,7 @@
 package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * A public key.
@@ -110,4 +111,18 @@ public class VirgilPublicKey implements PublicKey, Serializable {
         this.rawKey = rawKey;
     }
 
+    @Override public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VirgilPublicKey publicKey = (VirgilPublicKey) o;
+        return Arrays.equals(identifier, publicKey.identifier) &&
+                Arrays.equals(rawKey, publicKey.rawKey);
+    }
+
+    @Override public int hashCode() {
+
+        int result = Arrays.hashCode(identifier);
+        result = 31 * result + Arrays.hashCode(rawKey);
+        return result;
+    }
 }

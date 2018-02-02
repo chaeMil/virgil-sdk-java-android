@@ -47,6 +47,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
  * @author Andrii Iakovenko
  *
  */
+@Deprecated
 public interface Crypto {
 
     /**
@@ -304,7 +305,8 @@ public interface Crypto {
      * @throws VerificationException
      *             if data couldn't be verified.
      */
-    boolean verifyStreamSignature(InputStream inputStream, byte[] signature, PublicKey signer) throws VerificationException;
+    boolean verifyStreamSignature(InputStream inputStream, byte[] signature, PublicKey signer)
+            throws VerificationException;
 
     /**
      * Sign data and encrypt.

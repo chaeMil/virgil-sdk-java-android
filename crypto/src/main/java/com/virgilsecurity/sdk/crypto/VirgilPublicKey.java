@@ -73,6 +73,16 @@ public class VirgilPublicKey implements PublicKey, Serializable {
         this.rawKey = rawKey;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        VirgilPublicKey publicKey = (VirgilPublicKey) o;
+        return Arrays.equals(identifier, publicKey.identifier) && Arrays.equals(rawKey, publicKey.rawKey);
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -80,6 +90,22 @@ public class VirgilPublicKey implements PublicKey, Serializable {
      */
     public byte[] getIdentifier() {
         return identifier;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.PublicKey#getRawKey()
+     */
+    public byte[] getRawKey() {
+        return rawKey;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(identifier);
+        result = 31 * result + Arrays.hashCode(rawKey);
+        return result;
     }
 
     /**
@@ -92,15 +118,6 @@ public class VirgilPublicKey implements PublicKey, Serializable {
         this.identifier = identifier;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.crypto.PublicKey#getRawKey()
-     */
-    public byte[] getRawKey() {
-        return rawKey;
-    }
-
     /**
      * Set the Public key rawKey.
      * 
@@ -109,20 +126,5 @@ public class VirgilPublicKey implements PublicKey, Serializable {
      */
     public void setRawKey(byte[] rawKey) {
         this.rawKey = rawKey;
-    }
-
-    @Override public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        VirgilPublicKey publicKey = (VirgilPublicKey) o;
-        return Arrays.equals(identifier, publicKey.identifier) &&
-                Arrays.equals(rawKey, publicKey.rawKey);
-    }
-
-    @Override public int hashCode() {
-
-        int result = Arrays.hashCode(identifier);
-        result = 31 * result + Arrays.hashCode(rawKey);
-        return result;
     }
 }

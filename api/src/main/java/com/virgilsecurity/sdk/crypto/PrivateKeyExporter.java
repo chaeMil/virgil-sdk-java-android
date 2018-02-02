@@ -30,44 +30,36 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
-import javax.xml.bind.DatatypeConverter;
-
-import org.junit.Test;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 /**
- * Unit tests for {@link VirgilFingerprint}.
- *
- * @author Andrii Iakovenko
- *
+ * The {@link PrivateKeyExporter} interface defines a list of methods that provides private key export and import
+ * methods.
  */
-public class VirgilFingerprintTest {
+public interface PrivateKeyExporter {
 
-    private static final String FINGERPRINT = "3058300d060960864801650304020205000447304502210094faae1dda67f32a654cdecba0ba555000584d30099c5127cd839a95940ea80702200db99d08bbb31e6214e73c7ded430ce2415de3a4c6a55b3291b13285d92430ec";
+    /**
+     * Exports the {@code privateKey} into material representation.
+     *
+     * @param privateKey
+     *            The private key.
+     * @return Private key in material representation of {@code byte[]}.
+     * @throws CryptoException
+     *             if problems occurred while exporting key.
+     */
+    byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException;
 
-    @Test
-    public void create_fromByteArray() {
-        Fingerprint fingerprint = new VirgilFingerprint(DatatypeConverter.parseHexBinary(FINGERPRINT));
-        assertNotNull(fingerprint.getValue());
-        assertEquals(FINGERPRINT, DatatypeConverter.printHexBinary(fingerprint.getValue()).toLowerCase());
-    }
-
-    @Test
-    public void create_fromString() {
-        Fingerprint fingerprint = new VirgilFingerprint(FINGERPRINT);
-        assertNotNull(fingerprint.getValue());
-        assertEquals(FINGERPRINT, DatatypeConverter.printHexBinary(fingerprint.getValue()).toLowerCase());
-    }
-
-    @Test
-    public void toHex() {
-        Fingerprint fingerprint = new VirgilFingerprint(FINGERPRINT);
-        assertNotNull(fingerprint.getValue());
-        assertEquals(FINGERPRINT, fingerprint.toHex());
-    }
-
+    /**
+     * Imports the private key from its material representation.
+     *
+     * @param data
+     *            The private key material representation bytes.
+     * @return The instance of {@link PrivateKey} imported.
+     * @throws CryptoException
+     *             if problems occurred while importing key.
+     */
+    PrivateKey importPrivateKey(byte[] data) throws CryptoException;
 }

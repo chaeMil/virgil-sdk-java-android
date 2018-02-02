@@ -33,6 +33,7 @@
 package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 /**
  * A private key.
@@ -77,18 +78,31 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
     /*
      * (non-Javadoc)
      * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        VirgilPrivateKey other = (VirgilPrivateKey) obj;
+        if (!Arrays.equals(identifier, other.identifier))
+            return false;
+        if (!Arrays.equals(rawKey, other.rawKey))
+            return false;
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
      * @see com.virgilsecurity.sdk.crypto.PrivateKey#getIdentifier()
      */
     public byte[] getIdentifier() {
         return identifier;
-    }
-
-    /**
-     * @param identifier
-     *            the identifier to set.
-     */
-    public void setIdentifier(byte[] identifier) {
-        this.identifier = identifier;
     }
 
     /*
@@ -98,6 +112,28 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
      */
     public byte[] getRawKey() {
         return rawKey;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + Arrays.hashCode(identifier);
+        result = prime * result + Arrays.hashCode(rawKey);
+        return result;
+    }
+
+    /**
+     * @param identifier
+     *            the identifier to set.
+     */
+    public void setIdentifier(byte[] identifier) {
+        this.identifier = identifier;
     }
 
     /**

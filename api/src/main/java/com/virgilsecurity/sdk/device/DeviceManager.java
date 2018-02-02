@@ -39,6 +39,7 @@ package com.virgilsecurity.sdk.device;
  * @author Andrii Iakovenko
  *
  */
+@Deprecated
 public interface DeviceManager {
 
     /**

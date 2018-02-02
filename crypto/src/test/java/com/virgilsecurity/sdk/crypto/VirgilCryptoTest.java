@@ -43,13 +43,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import com.virgilsecurity.crypto.VirgilHash;
-import com.virgilsecurity.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
@@ -73,314 +73,296 @@ public class VirgilCryptoTest {
             98, 20, -25, 60, 125, -19, 67, 12, -30, 65, 93, -29, -92, -58, -91, 91, 50, -111, -79, 50, -123, -39, 36,
             48, -20 };
 
-    private Crypto crypto;
+    private VirgilCrypto crypto;
 
-//    @Before
-//    public void setUp() {
-//        crypto = new VirgilCrypto();
-//    }
-//
-//    @Test
-//    public void createVirgilHash() {
-//        for (HashAlgorithm algorithm : HashAlgorithm.values()) {
-//            VirgilHash hash = VirgilCrypto.createVirgilHash(algorithm);
-//            assertNotNull(hash);
-//        }
-//    }
-//
-//    @Test
-//    public void toVirgilKeyPairType() {
-//        for (KeysType keysType : KeysType.values()) {
-//            VirgilKeyPair.Type type = VirgilCrypto.toVirgilKeyPairType(keysType);
-//            assertNotNull(type);
-//        }
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void calculateFingerprint_null() {
-//        crypto.calculateFingerprint(null);
-//    }
-//
-//    @Test
-//    public void calculateFingerprint() {
-//        Fingerprint fingerprint = crypto.calculateFingerprint(TEXT.getBytes());
-//        assertNotNull(fingerprint);
-//        assertNotNull(fingerprint.getValue());
-//        assertTrue(fingerprint.getValue().length > 0);
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void computeHash_nullData() {
-//        crypto.computeHash(null, HashAlgorithm.MD5);
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void computeHash() {
-//        for (HashAlgorithm algorithm : HashAlgorithm.values()) {
-//            byte[] hash = crypto.computeHash(null, algorithm);
-//
-//            assertNotNull(hash);
-//            assertTrue(hash.length > 0);
-//        }
-//    }
-//
-//    @Test
-//    public void decrypt() throws VirgilException {
-//        List<PrivateKey> privateKeys = new ArrayList<>();
-//        List<PublicKey> recipients = new ArrayList<>();
-//        for (int i = 0; i < 100; i++) {
-//            KeyPair keyPair = crypto.generateKeys();
-//            privateKeys.add(keyPair.getPrivateKey());
-//            recipients.add(keyPair.getPublicKey());
-//        }
-//        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients.toArray(new PublicKey[0]));
-//        for (PrivateKey privateKey : privateKeys) {
-//            byte[] decrypted = crypto.decrypt(encrypted, privateKey);
-//            assertArrayEquals(TEXT.getBytes(), decrypted);
-//        }
-//    }
-//
-//    @Test
-//    public void decrypt_stream() throws IOException, VirgilException {
-//        List<PrivateKey> privateKeys = new ArrayList<>();
-//        List<PublicKey> recipients = new ArrayList<>();
-//        for (int i = 0; i < 1; i++) {
-//            KeyPair keyPair = crypto.generateKeys();
-//            privateKeys.add(keyPair.getPrivateKey());
-//            recipients.add(keyPair.getPublicKey());
-//        }
-//        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients.toArray(new PublicKey[0]));
-//        try (InputStream is = new ByteArrayInputStream(encrypted);
-//                ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-//            for (PrivateKey privateKey : privateKeys) {
-//                crypto.decrypt(is, os, privateKey);
-//
-//                byte[] decrypted = os.toByteArray();
-//
-//                assertArrayEquals(TEXT.getBytes(), decrypted);
-//            }
-//        }
-//    }
-//
-//    @Test
-//    public void encrypt() throws VirgilException {
-//        List<PublicKey> recipients = new ArrayList<>();
-//        for (int i = 0; i < 100; i++) {
-//            recipients.add(crypto.generateKeys().getPublicKey());
-//        }
-//        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients.toArray(new PublicKey[0]));
-//
-//        assertNotNull(encrypted);
-//    }
-//
-//    @Test
-//    public void encrypt_noRecipients_success() throws VirgilException {
-//        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), new PublicKey[0]);
-//
-//        assertNotNull(encrypted);
-//    }
-//
-//    @Test
-//    public void encrypt_stream() throws IOException, EncryptionException {
-//        List<PublicKey> recipients = new ArrayList<>();
-//        for (int i = 0; i < 100; i++) {
-//            recipients.add(crypto.generateKeys().getPublicKey());
-//        }
-//        try (OutputStream os = new ByteArrayOutputStream()) {
-//            crypto.encrypt(new ByteArrayInputStream(TEXT.getBytes()), os, recipients.toArray(new PublicKey[0]));
-//        }
-//    }
-//
-//    @Test
-//    public void exportPrivateKey() {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] key = crypto.exportPrivateKey(keyPair.getPrivateKey());
-//
-//        assertNotNull(key);
-//        assertTrue(key.length > 0);
-//    }
-//
-//    @Test
-//    public void exportPrivateKey_withPassword() {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] key = crypto.exportPrivateKey(keyPair.getPrivateKey(), PASSWORD);
-//
-//        assertNotNull(key);
-//        assertTrue(key.length > 0);
-//    }
-//
-//    @Test
-//    public void exportPublicKey() {
-//        KeyPair keyPair = crypto.generateKeys();
-//
-//        byte[] key = crypto.exportPublicKey(keyPair.getPublicKey());
-//
-//        assertNotNull(key);
-//        assertTrue(key.length > 0);
-//    }
-//
-//    @Test
-//    public void extractPublicKey() {
-//        KeyPair keyPair = crypto.generateKeys();
-//
-//        PublicKey publicKey = crypto.extractPublicKey(keyPair.getPrivateKey());
-//        assertNotNull(publicKey);
-//        assertArrayEquals(keyPair.getPublicKey().getIdentifier(), publicKey.getIdentifier());
-//        assertArrayEquals(keyPair.getPublicKey().getRawKey(), publicKey.getRawKey());
-//    }
-//
-//    @Test
-//    public void generateKeys() {
-//        KeyPair keyPair = crypto.generateKeys();
-//
-//        assertNotNull(keyPair);
-//
-//        PublicKey publicKey = keyPair.getPublicKey();
-//        assertNotNull(publicKey);
-//        assertNotNull(publicKey.getIdentifier());
-//        assertNotNull(publicKey.getRawKey());
-//
-//        PrivateKey privateKey = keyPair.getPrivateKey();
-//        assertNotNull(privateKey);
-//        assertNotNull(privateKey.getIdentifier());
-//        assertNotNull(privateKey.getRawKey());
-//    }
-//
-//    @Test
-//    public void importPrivateKey() throws CryptoException {
-//        KeyPair keyPair = crypto.generateKeys();
-//
-//        byte[] keyData = crypto.exportPrivateKey(keyPair.getPrivateKey());
-//
-//        PrivateKey importedKey = crypto.importPrivateKey(keyData);
-//
-//        assertNotNull(importedKey);
-//        assertNotNull(importedKey.getIdentifier());
-//        assertNotNull(importedKey.getRawKey());
-//        assertArrayEquals(keyPair.getPrivateKey().getIdentifier(), importedKey.getIdentifier());
-//        assertArrayEquals(keyPair.getPrivateKey().getRawKey(), importedKey.getRawKey());
-//    }
-//
-//    @Test
-//    public void importPrivateKey_withPassword() throws CryptoException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] keyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), PASSWORD);
-//
-//        PrivateKey importedKey = crypto.importPrivateKey(keyData, PASSWORD);
-//
-//        assertNotNull(importedKey);
-//        assertNotNull(importedKey.getIdentifier());
-//        assertNotNull(importedKey.getRawKey());
-//        assertArrayEquals(keyPair.getPrivateKey().getIdentifier(), importedKey.getIdentifier());
-//        assertArrayEquals(keyPair.getPrivateKey().getRawKey(), importedKey.getRawKey());
-//    }
-//
-//    @Test(expected = CryptoException.class)
-//    public void importPrivateKey_withWrongPassword() throws CryptoException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] keyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), PASSWORD);
-//
-//        crypto.importPrivateKey(keyData, PASSWORD + "1");
-//    }
-//
-//    @Test
-//    public void importPublicKey() {
-//        KeyPair keyPair = crypto.generateKeys();
-//
-//        byte[] keyData = crypto.exportPublicKey(keyPair.getPublicKey());
-//        PublicKey publicKey = crypto.importPublicKey(keyData);
-//
-//        assertNotNull(publicKey);
-//        assertNotNull(publicKey.getIdentifier());
-//        assertNotNull(publicKey.getRawKey());
-//        assertArrayEquals(keyPair.getPublicKey().getIdentifier(), publicKey.getIdentifier());
-//        assertArrayEquals(keyPair.getPublicKey().getRawKey(), publicKey.getRawKey());
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void sign_nullData() {
-//        KeyPair keyPair = crypto.generateKeys();
-//        crypto.generateSignature((byte[]) null, keyPair.getPrivateKey());
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void sign_nullPrivateKey() {
-//        crypto.generateSignature(TEXT.getBytes(), null);
-//    }
-//
-//    @Test
-//    public void sign() {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
-//
-//        assertNotNull(signature);
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void sign_stream_nullStream() throws SigningException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        crypto.generateStreamSignature((InputStream) null, keyPair.getPrivateKey());
-//    }
-//
-//    @Test(expected = NullArgumentException.class)
-//    public void sign_stream_nullPrivateKey() throws SigningException {
-//        crypto.generateStreamSignature(new ByteArrayInputStream(TEXT.getBytes()), null);
-//    }
-//
-//    @Test
-//    public void sign_stream() throws SigningException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] signature = crypto.generateStreamSignature(new ByteArrayInputStream(TEXT.getBytes()), keyPair.getPrivateKey());
-//
-//        assertNotNull(signature);
-//    }
-//
-//    @Test
-//    public void sign_stream_compareToByteArraySign() throws SigningException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
-//        byte[] streamSignature = crypto.generateStreamSignature(new ByteArrayInputStream(TEXT.getBytes()), keyPair.getPrivateKey());
-//
-//        assertNotNull(signature);
-//        assertNotNull(streamSignature);
-//        assertArrayEquals(signature, streamSignature);
-//    }
-//
-//    @Test
-//    public void verify() throws VerificationException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
-//        boolean valid = crypto.verifySignature(TEXT.getBytes(), signature, keyPair.getPublicKey());
-//
-//        assertTrue(valid);
-//    }
-//
-//    @Test
-//    public void verify_invalidSignature() throws VerificationException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
-//        boolean valid = crypto.verifySignature(TEXT.getBytes(), INVALID_SIGNATURE, keyPair.getPublicKey());
-//
-//        assertFalse(valid);
-//    }
-//
-//    @Test
-//    public void verify_stream() throws VerificationException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
-//        boolean valid = crypto.verifyStreamSignature(new ByteArrayInputStream(TEXT.getBytes()), signature, keyPair.getPublicKey());
-//
-//        assertTrue(valid);
-//    }
-//
-//    @Test
-//    public void verify_stream_invalidSignature() throws VerificationException {
-//        KeyPair keyPair = crypto.generateKeys();
-//        crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
-//        boolean valid = crypto.verifyStreamSignature(new ByteArrayInputStream(TEXT.getBytes()), INVALID_SIGNATURE,
-//                                                     keyPair.getPublicKey());
-//
-//        assertFalse(valid);
-//    }
+    @Test(expected = NullArgumentException.class)
+    public void computeHash() throws CryptoException {
+        for (HashAlgorithm algorithm : HashAlgorithm.values()) {
+            byte[] hash = crypto.generateHash(null, algorithm);
 
+            assertNotNull(hash);
+            assertTrue(hash.length > 0);
+        }
+    }
+
+    @Test(expected = NullArgumentException.class)
+    public void computeHash_nullData() throws CryptoException {
+        crypto.generateHash(null, HashAlgorithm.MD5);
+    }
+
+    @Test
+    public void decrypt() throws VirgilException {
+        List<VirgilPrivateKey> privateKeys = new ArrayList<>();
+        List<VirgilPublicKey> recipients = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            VirgilKeyPair keyPair = crypto.generateKeys();
+            privateKeys.add(keyPair.getPrivateKey());
+            recipients.add(keyPair.getPublicKey());
+        }
+        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients);
+        for (VirgilPrivateKey privateKey : privateKeys) {
+            byte[] decrypted = crypto.decrypt(encrypted, privateKey);
+            assertArrayEquals(TEXT.getBytes(), decrypted);
+        }
+    }
+
+    @Test
+    public void decrypt_stream() throws IOException, VirgilException {
+        List<VirgilPrivateKey> privateKeys = new ArrayList<>();
+        List<VirgilPublicKey> recipients = new ArrayList<>();
+        for (int i = 0; i < 1; i++) {
+            VirgilKeyPair keyPair = crypto.generateKeys();
+            privateKeys.add(keyPair.getPrivateKey());
+            recipients.add(keyPair.getPublicKey());
+        }
+        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients);
+        try (InputStream is = new ByteArrayInputStream(encrypted);
+                ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+            for (VirgilPrivateKey privateKey : privateKeys) {
+                crypto.decrypt(is, os, privateKey);
+
+                byte[] decrypted = os.toByteArray();
+
+                assertArrayEquals(TEXT.getBytes(), decrypted);
+            }
+        }
+    }
+
+    @Test
+    @Ignore
+    public void decryptThenVerify() {
+
+    }
+
+    @Test
+    public void encrypt() throws VirgilException {
+        List<VirgilPublicKey> recipients = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            recipients.add(crypto.generateKeys().getPublicKey());
+        }
+        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients);
+
+        assertNotNull(encrypted);
+    }
+
+    @Test
+    public void encrypt_noRecipients_success() throws VirgilException {
+        byte[] encrypted = crypto.encrypt(TEXT.getBytes(), Collections.EMPTY_LIST);
+
+        assertNotNull(encrypted);
+    }
+
+    @Test
+    public void encrypt_stream() throws IOException, EncryptionException {
+        List<VirgilPublicKey> recipients = new ArrayList<>();
+        for (int i = 0; i < 100; i++) {
+            recipients.add(crypto.generateKeys().getPublicKey());
+        }
+        try (OutputStream os = new ByteArrayOutputStream()) {
+            crypto.encrypt(new ByteArrayInputStream(TEXT.getBytes()), os, recipients);
+        }
+    }
+
+    @Test
+    public void exportPrivateKey_noPassword() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] key = crypto.exportPrivateKey(keyPair.getPrivateKey(), null);
+
+        assertNotNull(key);
+        assertTrue(key.length > 0);
+    }
+
+    @Test
+    public void exportPrivateKey_withPassword() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] key = crypto.exportPrivateKey(keyPair.getPrivateKey(), PASSWORD);
+
+        assertNotNull(key);
+        assertTrue(key.length > 0);
+    }
+
+    @Test
+    public void exportPublicKey() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+
+        byte[] key = crypto.exportPublicKey(keyPair.getPublicKey());
+
+        assertNotNull(key);
+        assertTrue(key.length > 0);
+    }
+
+    @Test
+    public void generateKeys() {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+
+        assertNotNull(keyPair);
+
+        VirgilPublicKey publicKey = keyPair.getPublicKey();
+        assertNotNull(publicKey);
+        assertNotNull(publicKey.getIdentifier());
+        assertNotNull(publicKey.getRawKey());
+
+        VirgilPrivateKey privateKey = keyPair.getPrivateKey();
+        assertNotNull(privateKey);
+        assertNotNull(privateKey.getIdentifier());
+        assertNotNull(privateKey.getRawKey());
+    }
+
+    @Test
+    public void generateSignature() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
+
+        assertNotNull(signature);
+    }
+
+    @Test(expected = NullArgumentException.class)
+    public void generateSignature_nullData() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        crypto.generateSignature((byte[]) null, keyPair.getPrivateKey());
+    }
+
+    @Test(expected = NullArgumentException.class)
+    public void generateSignature_nullPrivateKey() throws CryptoException {
+        crypto.generateSignature(TEXT.getBytes(), null);
+    }
+
+    @Test
+    public void generateSignature_stream() throws SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] signature = crypto.generateSignature(new ByteArrayInputStream(TEXT.getBytes()), keyPair.getPrivateKey());
+
+        assertNotNull(signature);
+    }
+
+    @Test(expected = NullArgumentException.class)
+    public void generateSignature_stream_nullPrivateKey() throws SigningException {
+        crypto.generateSignature(new ByteArrayInputStream(TEXT.getBytes()), null);
+    }
+
+    @Test(expected = NullArgumentException.class)
+    public void generateSignature_stream_nullStream() throws SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        crypto.generateSignature((InputStream) null, keyPair.getPrivateKey());
+    }
+
+    @Test
+    public void importPrivateKey_noPassword() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+
+        byte[] keyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), null);
+
+        VirgilPrivateKey importedKey = crypto.importPrivateKey(keyData, null);
+
+        assertNotNull(importedKey);
+        assertNotNull(importedKey.getIdentifier());
+        assertNotNull(importedKey.getRawKey());
+        assertArrayEquals(keyPair.getPrivateKey().getIdentifier(), importedKey.getIdentifier());
+        assertArrayEquals(keyPair.getPrivateKey().getRawKey(), importedKey.getRawKey());
+    }
+
+    @Test
+    public void importPrivateKey_withPassword() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] keyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), PASSWORD);
+
+        VirgilPrivateKey importedKey = crypto.importPrivateKey(keyData, PASSWORD);
+
+        assertNotNull(importedKey);
+        assertNotNull(importedKey.getIdentifier());
+        assertNotNull(importedKey.getRawKey());
+        assertArrayEquals(keyPair.getPrivateKey().getIdentifier(), importedKey.getIdentifier());
+        assertArrayEquals(keyPair.getPrivateKey().getRawKey(), importedKey.getRawKey());
+    }
+
+    @Test(expected = CryptoException.class)
+    public void importPrivateKey_withWrongPassword() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] keyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), PASSWORD);
+
+        crypto.importPrivateKey(keyData, PASSWORD + "1");
+    }
+
+    @Test
+    public void importPublicKey() throws CryptoException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+
+        byte[] keyData = crypto.exportPublicKey(keyPair.getPublicKey());
+        VirgilPublicKey publicKey = crypto.importPublicKey(keyData);
+
+        assertNotNull(publicKey);
+        assertNotNull(publicKey.getIdentifier());
+        assertNotNull(publicKey.getRawKey());
+        assertArrayEquals(keyPair.getPublicKey().getIdentifier(), publicKey.getIdentifier());
+        assertArrayEquals(keyPair.getPublicKey().getRawKey(), publicKey.getRawKey());
+    }
+
+    @Before
+    public void setUp() {
+        crypto = new VirgilCrypto();
+    }
+
+    @Test
+    public void sign_stream_compareToByteArraySign() throws SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
+        byte[] streamSignature = crypto.generateSignature(new ByteArrayInputStream(TEXT.getBytes()),
+                keyPair.getPrivateKey());
+
+        assertNotNull(signature);
+        assertNotNull(streamSignature);
+        assertArrayEquals(signature, streamSignature);
+    }
+
+    @Test
+    @Ignore
+    public void signThenEncrypt() {
+
+    }
+
+    @Test
+    public void toVirgilKeyPairType() {
+        for (KeysType keysType : KeysType.values()) {
+            com.virgilsecurity.crypto.VirgilKeyPair.Type type = VirgilCrypto.toVirgilKeyPairType(keysType);
+            assertNotNull(type);
+        }
+    }
+
+    @Test
+    public void verifySignature() throws VerificationException, SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
+        boolean valid = crypto.verifySignature(signature, TEXT.getBytes(), keyPair.getPublicKey());
+
+        assertTrue(valid);
+    }
+
+    @Test
+    public void verifySignature_invalidSignature() throws VerificationException, SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
+        boolean valid = crypto.verifySignature(INVALID_SIGNATURE, TEXT.getBytes(), keyPair.getPublicKey());
+
+        assertFalse(valid);
+    }
+
+    @Test
+    public void verifySignature_stream() throws VerificationException, SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
+        boolean valid = crypto.verifySignature(signature, new ByteArrayInputStream(TEXT.getBytes()),
+                keyPair.getPublicKey());
+
+        assertTrue(valid);
+    }
+
+    @Test
+    public void verifySignature_stream_invalidSignature() throws VerificationException, SigningException {
+        VirgilKeyPair keyPair = crypto.generateKeys();
+        crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
+        boolean valid = crypto.verifySignature(INVALID_SIGNATURE, new ByteArrayInputStream(TEXT.getBytes()),
+                keyPair.getPublicKey());
+
+        assertFalse(valid);
+    }
 }

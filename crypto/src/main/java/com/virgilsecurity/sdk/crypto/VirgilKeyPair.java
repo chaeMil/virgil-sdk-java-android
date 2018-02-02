@@ -30,33 +30,65 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
-package com.virgilsecurity.sdk.storage;
-
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+package com.virgilsecurity.sdk.crypto;
 
 /**
- * The {@link PrivateKeyExporter} interface defines a list of methods that
- * provides private key export and import methods.
+ * The key pair.
  */
-public interface PrivateKeyExporter {
+public class VirgilKeyPair {
+
+    private VirgilPublicKey publicKey;
+
+    private VirgilPrivateKey privateKey;
 
     /**
-     * Exports the {@code privateKey} into material representation.
+     * Create a new instance of {@code KeyPairVirgiled}
      *
-     * @param privateKey The private key.
-     * @return Private key in material representation of {@code byte[]}.
-     * @throws CryptoException if problems occurred while exporting key.
      */
-    byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException;
+    public VirgilKeyPair() {
+    }
 
     /**
-     * Imports the private key from its material representation.
+     * Create a new instance of {@code KeyPair}
      *
-     * @param data The private key material representation bytes.
-     * @return The instance of {@link PrivateKey} imported.
-     * @throws CryptoException if problems occurred while importing key.
+     * @param publicKey
+     *            the Virgil public key.
+     * @param privateKey
+     *            the Virgil private key.
      */
-    PrivateKey importPrivateKey(byte[] data) throws CryptoException;
+    public VirgilKeyPair(VirgilPublicKey publicKey, VirgilPrivateKey privateKey) {
+        this.publicKey = publicKey;
+        this.privateKey = privateKey;
+    }
+
+    /**
+     * @return the Virgil privateKey
+     */
+    public VirgilPrivateKey getPrivateKey() {
+        return privateKey;
+    }
+
+    /**
+     * @return the Virgil publicKey
+     */
+    public VirgilPublicKey getPublicKey() {
+        return publicKey;
+    }
+
+    /**
+     * @param privateKey
+     *            the Virgil privateKey to set
+     */
+    public void setPrivateKey(VirgilPrivateKey privateKey) {
+        this.privateKey = privateKey;
+    }
+
+    /**
+     * @param publicKey
+     *            the Virgil public key to set
+     */
+    public void setPublicKey(VirgilPublicKey publicKey) {
+        this.publicKey = publicKey;
+    }
+
 }

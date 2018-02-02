@@ -41,6 +41,12 @@ package com.virgilsecurity.sdk.crypto;
 public enum KeysType {
     /** Recommended most safe type */
     Default,
+    /** RSA 256 bit (not recommended) */
+    RSA_256,
+    /** RSA 512 bit (not recommended) */
+    RSA_512,
+    /** RSA 1024 bit (not recommended) */
+    RSA_1024,
     /** RSA 2048 bit (not recommended) */
     RSA_2048,
     /** RSA 3072 bit */
@@ -49,6 +55,10 @@ public enum KeysType {
     RSA_4096,
     /** RSA 8192 bit */
     RSA_8192,
+    /** 192-bits NIST curve */
+    EC_SECP192R1,
+    /** 224-bits NIST curve */
+    EC_SECP224R1,
     /** 256-bits NIST curve */
     EC_SECP256R1,
     /** 384-bits NIST curve */
@@ -61,6 +71,10 @@ public enum KeysType {
     EC_BP384R1,
     /** 512-bits Brainpool curve */
     EC_BP512R1,
+    /** 192-bits "Koblitz" curve */
+    EC_SECP192K1,
+    /** 224-bits "Koblitz" curve */
+    EC_SECP224K1,
     /** 256-bits "Koblitz" curve */
     EC_SECP256K1,
     /** Diffie–Hellman X25519 */
@@ -69,5 +83,4 @@ public enum KeysType {
     FAST_EC_X25519,
     /** EdDSA Ed25519 */
     FAST_EC_ED25519
-
 }

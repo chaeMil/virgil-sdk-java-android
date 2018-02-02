@@ -169,7 +169,7 @@ public class Mocker extends PropertyManager {
     public Pair<VerifierCredentials, CardSignature> signerAndSignature() {
         String cardId = cardId();
         VirgilCrypto crypto = new VirgilCrypto();
-        KeyPairVirgiled keyPair = crypto.generateKeys();
+        VirgilKeyPair keyPair = crypto.generateKeys();
         byte[] exportPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
 
         return new Pair<>(new VerifierCredentials(cardId,
@@ -187,7 +187,7 @@ public class Mocker extends PropertyManager {
         calendar.set(Calendar.DAY_OF_MONTH, 6);
         calendar.set(Calendar.HOUR_OF_DAY, 10);
 
-        KeyPairVirgiled keyPairVirgiled = crypto.generateKeys();
+        VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
         VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
@@ -212,7 +212,7 @@ public class Mocker extends PropertyManager {
         calendar.set(Calendar.DAY_OF_MONTH, 6);
         calendar.set(Calendar.HOUR_OF_DAY, 10);
 
-        KeyPairVirgiled keyPairVirgiled = crypto.generateKeys();
+        VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
         VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 

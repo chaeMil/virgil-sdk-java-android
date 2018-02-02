@@ -53,11 +53,22 @@ public class SigningException extends CryptoException {
      * Create a new instance of {@code EncryptionException}
      *
      * @param cause
-     *            the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
+     *            The cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
      *            value is permitted, and indicates that the cause is nonexistent or unknown.)
      */
     public SigningException(Throwable cause) {
         super(cause);
+    }
+
+    /**
+     * Create new instance of {@link SigningException}.
+     * 
+     * @param message
+     *            The detail message. The detail message is saved for later retrieval by the {@link #getMessage()}
+     *            method.
+     */
+    public SigningException(String message) {
+        super(message);
     }
 
 }

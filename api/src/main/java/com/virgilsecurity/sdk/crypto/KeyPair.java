@@ -38,6 +38,7 @@ package com.virgilsecurity.sdk.crypto;
  * @author Andrii Iakovenko
  *
  */
+@Deprecated
 public class KeyPair {
 
     private PublicKey publicKey;

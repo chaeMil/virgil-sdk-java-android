@@ -38,6 +38,7 @@ package com.virgilsecurity.sdk.crypto;
  * @author Andrii Iakovenko
  *
  */
+@Deprecated
 public interface Fingerprint {
 
     /**

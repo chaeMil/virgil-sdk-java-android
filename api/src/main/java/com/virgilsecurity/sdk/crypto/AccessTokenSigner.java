@@ -35,10 +35,9 @@ package com.virgilsecurity.sdk.crypto;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-
 /**
- * The {@link AccessTokenSigner} interface represents an opaque reference to
- * access token signing management objects handled by the agent.
+ * The {@link AccessTokenSigner} interface represents an opaque reference to access token signing management objects
+ * handled by the agent.
  */
 public interface AccessTokenSigner {
 

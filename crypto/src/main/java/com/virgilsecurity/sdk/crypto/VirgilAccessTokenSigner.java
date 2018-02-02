@@ -43,25 +43,28 @@ public class VirgilAccessTokenSigner implements AccessTokenSigner {
         this.virgilCrypto = new VirgilCrypto(KeysType.FAST_EC_ED25519);
     }
 
-    @Override public byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException {
+    @Override
+    public byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException {
         if (!(privateKey instanceof VirgilPrivateKey))
             throw new CryptoException("VirgilAccessTokenSigner -> 'privateKey' should be of 'VirgilPrivateKey' type");
 
         return virgilCrypto.generateSignature(token, (VirgilPrivateKey) privateKey);
     }
 
-    @Override public boolean verifyTokenSignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException {
-        if (!(publicKey instanceof VirgilPublicKey))
-            throw new CryptoException("VirgilAccessTokenSigner -> 'publicKey' should be of 'VirgilPublicKey' type");
-
-        return virgilCrypto.verifySignature(signature, data, (VirgilPublicKey) publicKey);
-    }
-
-    @Override public String getAlgorithm() {
+    @Override
+    public String getAlgorithm() {
         return "VEDS512";
     }
 
     public VirgilCrypto getVirgilCrypto() {
         return virgilCrypto;
+    }
+
+    @Override
+    public boolean verifyTokenSignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException {
+        if (!(publicKey instanceof VirgilPublicKey))
+            throw new CryptoException("VirgilAccessTokenSigner -> 'publicKey' should be of 'VirgilPublicKey' type");
+
+        return virgilCrypto.verifySignature(signature, data, (VirgilPublicKey) publicKey);
     }
 }

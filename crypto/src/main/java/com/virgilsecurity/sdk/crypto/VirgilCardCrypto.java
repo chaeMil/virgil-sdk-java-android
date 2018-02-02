@@ -43,11 +43,34 @@ public class VirgilCardCrypto implements CardCrypto {
         this.virgilCrypto = new VirgilCrypto();
     }
 
-    @Override public byte[] generateSignature(byte[] data, PrivateKey privateKey) throws CryptoException {
+    @Override
+    public byte[] exportPublicKey(PublicKey publicKey) throws CryptoException {
+        if (!(publicKey instanceof VirgilPublicKey))
+            throw new CryptoException("VirgilCrypto -> 'publicKey' should be of 'VirgilPublicKey' type");
+
+        return virgilCrypto.exportPublicKey((VirgilPublicKey) publicKey);
+    }
+
+    @Override
+    public byte[] generateSHA256(byte[] data) throws CryptoException {
+        return virgilCrypto.generateHash(data, HashAlgorithm.SHA256);
+    }
+
+    @Override
+    public byte[] generateSignature(byte[] data, PrivateKey privateKey) throws CryptoException {
         if (!(privateKey instanceof VirgilPrivateKey))
             throw new CryptoException("VirgilCrypto -> 'privateKey' should be of 'VirgilPrivateKey' type");
 
         return virgilCrypto.generateSignature(data, (VirgilPrivateKey) privateKey);
+    }
+
+    public VirgilCrypto getVirgilCrypto() {
+        return virgilCrypto;
+    }
+
+    @Override
+    public PublicKey importPublicKey(byte[] data) throws CryptoException {
+        return virgilCrypto.importPublicKey(data);
     }
 
     @Override
@@ -56,24 +79,5 @@ public class VirgilCardCrypto implements CardCrypto {
             throw new CryptoException("VirgilCrypto -> 'publicKey' should be of 'VirgilPublicKey' type");
 
         return virgilCrypto.verifySignature(signature, data, (VirgilPublicKey) publicKey);
-    }
-
-    @Override public byte[] exportPublicKey(PublicKey publicKey) throws CryptoException {
-        if (!(publicKey instanceof VirgilPublicKey))
-            throw new CryptoException("VirgilCrypto -> 'publicKey' should be of 'VirgilPublicKey' type");
-
-        return virgilCrypto.exportPublicKey((VirgilPublicKey) publicKey);
-    }
-
-    @Override public PublicKey importPublicKey(byte[] data) {
-        return virgilCrypto.importPublicKey(data);
-    }
-
-    @Override public byte[] generateSHA256(byte[] data) {
-        return virgilCrypto.generateHash(data, HashAlgorithm.SHA256);
-    }
-
-    public VirgilCrypto getVirgilCrypto() {
-        return virgilCrypto;
     }
 }

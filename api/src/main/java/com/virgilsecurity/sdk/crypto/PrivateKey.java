@@ -33,8 +33,7 @@
 package com.virgilsecurity.sdk.crypto;
 
 /**
- * The {@link PrivateKey} object represents an opaque reference to
- * keying material that is managed by the agent.
+ * The {@link PrivateKey} object represents an opaque reference to keying material that is managed by the agent.
  */
 public interface PrivateKey {
 

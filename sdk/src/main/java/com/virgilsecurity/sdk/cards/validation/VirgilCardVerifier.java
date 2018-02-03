@@ -41,12 +41,10 @@ import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Log;
 import com.virgilsecurity.sdk.utils.Validator;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +60,7 @@ public class VirgilCardVerifier implements CardVerifier {
     private List<WhiteList> whiteLists;
 
     public VirgilCardVerifier(@NotNull CardCrypto crypto) {
-        Validator.checkIllegalAgrument(crypto, "VirgilCardVerifier -> 'crypto' should not be null");
+        Validator.checkNullAgrument(crypto, "VirgilCardVerifier -> 'crypto' should not be null");
         this.crypto = crypto;
 
         this.whiteLists = new ArrayList<>();
@@ -80,8 +78,8 @@ public class VirgilCardVerifier implements CardVerifier {
                               boolean verifySelfSignature,
                               boolean verifyVirgilSignature,
                               @NotNull List<WhiteList> whiteLists) {
-        Validator.checkIllegalAgrument(crypto, "VirgilCardVerifier -> 'crypto' should not be null");
-        Validator.checkIllegalAgrument(whiteLists, "VirgilCardVerifier -> 'whiteLists' should not be null");
+        Validator.checkNullAgrument(crypto, "VirgilCardVerifier -> 'crypto' should not be null");
+        Validator.checkNullAgrument(whiteLists, "VirgilCardVerifier -> 'whiteLists' should not be null");
 
         this.crypto = crypto;
         this.whiteLists = whiteLists;

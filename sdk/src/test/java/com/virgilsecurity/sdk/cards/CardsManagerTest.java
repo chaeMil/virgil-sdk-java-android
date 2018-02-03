@@ -226,9 +226,14 @@ public class CardsManagerTest extends PropertyManager {
                                         ModelSigner modelSigner = new ModelSigner(cardCrypto);
                                         VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
                                         String signerId =
-                                                ConvertionUtils.toString(cardCrypto.generateSHA256(
-                                                        cardModel.getContentSnapshot()),
-                                                                         StringEncoding.HEX);
+                                                null;
+                                        try {
+                                            signerId = ConvertionUtils.toString(cardCrypto.generateSHA256(
+                                                    cardModel.getContentSnapshot()),
+                                                                                StringEncoding.HEX);
+                                        } catch (CryptoException e) {
+                                            e.printStackTrace();
+                                        }
                                         try {
                                             modelSigner.sign(cardModel,
                                                              signerId,

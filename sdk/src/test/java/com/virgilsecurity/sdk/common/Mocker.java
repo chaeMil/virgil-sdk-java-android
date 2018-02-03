@@ -67,7 +67,7 @@ public class Mocker extends PropertyManager {
 
         VirgilPrivateKey privateKey;
         try {
-            privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64));
+            privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64), null);
         } catch (CryptoException e) {
             e.printStackTrace();
             throw new IllegalArgumentException("Mocker -> 'ACCESS_PRIVATE_KEY_BASE64' seems to has wrong format");
@@ -79,9 +79,13 @@ public class Mocker extends PropertyManager {
                                         APP_ID,
                                         TimeSpan.fromTime(1, TimeUnit.HOURS));
 
-        verifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)),
-                                   API_PUBLIC_KEY_IDENTIFIER,
-                                   accessTokenSigner);
+        try {
+            verifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)),
+                                       API_PUBLIC_KEY_IDENTIFIER,
+                                       accessTokenSigner);
+        } catch (CryptoException e) {
+            e.printStackTrace();
+        }
     }
 
     public Card card() {
@@ -170,7 +174,12 @@ public class Mocker extends PropertyManager {
         String cardId = cardId();
         VirgilCrypto crypto = new VirgilCrypto();
         VirgilKeyPair keyPair = crypto.generateKeys();
-        byte[] exportPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
+        byte[] exportPublicKey = new byte[0];
+        try {
+            exportPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
+        } catch (CryptoException e) {
+            e.printStackTrace();
+        }
 
         return new Pair<>(new VerifierCredentials(cardId,
                                                   exportPublicKey),

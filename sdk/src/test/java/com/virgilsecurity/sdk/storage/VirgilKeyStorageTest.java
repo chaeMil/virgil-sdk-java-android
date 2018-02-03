@@ -32,28 +32,20 @@
  */
 package com.virgilsecurity.sdk.storage;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import com.virgilsecurity.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import com.virgilsecurity.crypto.VirgilKeyPair;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.virgilsecurity.sdk.crypto.Crypto;
-import com.virgilsecurity.sdk.crypto.KeyPair;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@code VirgilKeyStorage}

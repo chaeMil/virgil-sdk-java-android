@@ -73,6 +73,11 @@ public class VirgilPublicKey implements PublicKey, Serializable {
         this.rawKey = rawKey;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o)
@@ -101,6 +106,11 @@ public class VirgilPublicKey implements PublicKey, Serializable {
         return rawKey;
     }
 
+    /*
+     * (non-Javadoc)
+     *
+     * @see java.lang.Object#hashCode()
+     */
     @Override
     public int hashCode() {
         int result = Arrays.hashCode(identifier);
@@ -110,9 +120,8 @@ public class VirgilPublicKey implements PublicKey, Serializable {
 
     /**
      * Set the Public key hash.
-     * 
-     * @param identifier
-     *            the Id to set
+     *
+     * @param identifier the Id to set
      */
     public void setIdentifier(byte[] identifier) {
         this.identifier = identifier;
@@ -120,9 +129,8 @@ public class VirgilPublicKey implements PublicKey, Serializable {
 
     /**
      * Set the Public key rawKey.
-     * 
-     * @param rawKey
-     *            the rawKey to set
+     *
+     * @param rawKey the rawKey to set
      */
     public void setRawKey(byte[] rawKey) {
         this.rawKey = rawKey;

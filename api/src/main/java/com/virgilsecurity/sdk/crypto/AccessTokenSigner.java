@@ -41,9 +41,31 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
  */
 public interface AccessTokenSigner {
 
+    /**
+     * Generate token signature with provided {@link PrivateKey}.
+     *
+     * @param token      the token
+     * @param privateKey the private key
+     * @return the byte [ ]
+     * @throws CryptoException if signature generation issue occurred
+     */
     byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException;
 
+    /**
+     * Verifies the specified signature using original data and signer's {@link PublicKey}.
+     *
+     * @param signature signature bytes for verification
+     * @param data      original data bytes for verification
+     * @param publicKey signer's public key for verification
+     * @return {@code true} if signature is valid, {@code false} otherwise.
+     * @throws CryptoException if signature verification issue occurred
+     */
     boolean verifyTokenSignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException;
 
+    /**
+     * Gets algorithm.
+     *
+     * @return the algorithm
+     */
     String getAlgorithm();
 }

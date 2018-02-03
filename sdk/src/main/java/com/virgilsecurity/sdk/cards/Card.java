@@ -175,7 +175,7 @@ public class Card {
      * Set previous Card that current card is used to override to
      */
     public void setPreviousCard(@NotNull Card previousCard) {
-        Validator.checkIllegalAgrument(previousCard, "Card -> 'previousCard' shoud not be null");
+        Validator.checkNullAgrument(previousCard, "Card -> 'previousCard' shoud not be null");
         this.previousCard = previousCard;
     }
 
@@ -221,9 +221,19 @@ public class Card {
             combinedSnapshot = cardModel.getContentSnapshot();
         }
 
-        byte[] fingerprint = crypto.generateSHA256(combinedSnapshot);
+        byte[] fingerprint = new byte[0];
+        try {
+            fingerprint = crypto.generateSHA256(combinedSnapshot);
+        } catch (CryptoException e) {
+            e.printStackTrace();
+        }
         String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
-        PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
+        PublicKey publicKey = null;
+        try {
+            publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
+        } catch (CryptoException e) {
+            e.printStackTrace();
+        }
 
         List<CardSignature> cardSignatures = new ArrayList<>();
         if (cardModel.getSignatures() != null) {

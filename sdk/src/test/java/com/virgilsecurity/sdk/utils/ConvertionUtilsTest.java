@@ -34,6 +34,7 @@ package com.virgilsecurity.sdk.utils;
 
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.ClassForSerialization;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -146,5 +147,13 @@ public class ConvertionUtilsTest {
 		String base64toRaw = ConvertionUtils.base64ToString(decodedBase64Url);
 
 		assertEquals(raw, base64toRaw);
+	}
+
+	@Test
+	public void backslashJsonSerialization() {
+		String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
+        String serializedToJson = ConvertionUtils.serializeToJson(hello);
+
+        assertEquals(hello, serializedToJson.replace("\"", ""));
 	}
 }

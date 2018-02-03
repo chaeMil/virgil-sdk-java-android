@@ -53,8 +53,8 @@ public class CallbackJwtProvider implements AccessTokenProvider {
     }
 
     @Override public AccessToken getToken(TokenContext context) {
-        Validator.checkIllegalAgrument(getTokenCallback,
-                                       "CallbackJwtProvider -> set getTokenCallback first");
+        Validator.checkNullAgrument(getTokenCallback,
+                                    "CallbackJwtProvider -> set getTokenCallback first");
 
         if (context.isForceReload() || jwtToken == null || jwtToken.isExpired())
             return jwtToken = new Jwt(getTokenCallback.onGetToken());
@@ -63,8 +63,8 @@ public class CallbackJwtProvider implements AccessTokenProvider {
     }
 
     public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
-        Validator.checkIllegalAgrument(getTokenCallback,
-                                       "CallbackJwtProvider -> 'getTokenCallback' should not be null");
+        Validator.checkNullAgrument(getTokenCallback,
+                                    "CallbackJwtProvider -> 'getTokenCallback' should not be null");
 
         this.getTokenCallback = getTokenCallback;
     }

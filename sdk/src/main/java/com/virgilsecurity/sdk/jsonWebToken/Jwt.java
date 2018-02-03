@@ -35,54 +35,53 @@ package com.virgilsecurity.sdk.jsonWebToken;
 
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
+import com.virgilsecurity.sdk.utils.Validator;
 
 public class Jwt implements AccessToken {
 
     private JwtHeaderContent headerContent;
     private JwtBodyContent bodyContent;
     private byte[] signatureData;
+    private String stringRepresentation;
 
     public Jwt(JwtHeaderContent headerContent,
                JwtBodyContent bodyContent) {
-        if (headerContent != null)
-            this.headerContent = headerContent;
-        else
-            throw new IllegalArgumentException("Jwt -> 'headerContent' should not be null");
+        Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
+        Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
 
-        if (bodyContent != null)
-            this.bodyContent = bodyContent;
-        else
-            throw new IllegalArgumentException("Jwt -> 'bodyContent' should not be null");
+        this.headerContent = headerContent;
+        this.bodyContent = bodyContent;
+
+        stringRepresentation = headerBase64url() + "." + bodyBase64url() + ".";
     }
 
     public Jwt(JwtHeaderContent headerContent,
                JwtBodyContent bodyContent,
                byte[] signatureData) {
-        if (headerContent != null)
-            this.headerContent = headerContent;
-        else
-            throw new IllegalArgumentException("Jwt -> 'headerContent' should not be null");
+        Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
+        Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
+        Validator.checkNullEmptyAgrument(signatureData, "Jwt -> 'signatureData' should not be null");
 
-        if (bodyContent != null)
-            this.bodyContent = bodyContent;
-        else
-            throw new IllegalArgumentException("Jwt -> 'bodyContent' should not be null");
+        this.headerContent = headerContent;
+        this.bodyContent = bodyContent;
+        this.signatureData = signatureData;
 
-        if (signatureData != null)
-            this.signatureData = signatureData;
-        else
-            throw new IllegalArgumentException("Jwt -> 'signatureData' should not be null");
+        stringRepresentation = headerBase64url() + "." + bodyBase64url() + "." + signatureBase64url();
     }
 
     public Jwt(String jwtToken) {
         String[] jwtParts = jwtToken.split(".");
 
-        if (jwtParts.length != 3)
+        if (jwtParts.length < 2)
             throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
 
         headerContent = JwtParser.parseJwtHeaderContent(jwtParts[0]);
         bodyContent = JwtParser.parseJwtBodyContent(jwtParts[1]);
-        signatureData = ConvertionUtils.toBase64Bytes(jwtParts[2]);
+
+        if (jwtParts.length == 3)
+            signatureData = ConvertionUtils.toBase64Bytes(jwtParts[2]);
+
+        stringRepresentation = jwtToken;
     }
 
     public JwtHeaderContent getHeaderContent() {
@@ -99,9 +98,14 @@ public class Jwt implements AccessToken {
 
     public void setSignatureData(byte[] signatureData) {
         this.signatureData = signatureData;
+
+        stringRepresentation = headerBase64url() + "." +
+                bodyBase64url() + "." +
+                ConvertionUtils.toBase64String(signatureData);
     }
 
-    @Override public String getIdentity() {
+    @Override
+    public String getIdentity() {
         return bodyContent.getIdentity();
     }
 
@@ -125,11 +129,7 @@ public class Jwt implements AccessToken {
         return (headerBase64url() + "." + bodyBase64url()).getBytes();
     }
 
-    @Override
-    public String toString() {
-        if (signatureData != null)
-            return headerBase64url() + "." + bodyBase64url() + "." + signatureBase64url();
-        else
-            return headerBase64url() + "." + bodyBase64url() + ".";
+    public String stringRepresentation() {
+        return stringRepresentation;
     }
 }

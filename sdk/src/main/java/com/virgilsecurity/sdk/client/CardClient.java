@@ -89,7 +89,7 @@ public class CardClient {
      * @return the card loaded from VIRGIL Cards service.
      */
     public Pair<RawSignedModel, Boolean> getCard(String cardId,
-                                                 String token) { // TODO: 1/22/18 should return Pair<RawSignedModel, boolean>
+                                                 String token) {
         try {
             URL url = new URL(serviceUrl, "" + cardId);
 

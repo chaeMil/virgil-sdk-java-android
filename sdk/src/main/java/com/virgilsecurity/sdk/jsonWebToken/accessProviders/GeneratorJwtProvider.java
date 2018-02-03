@@ -48,14 +48,14 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
     private Map<String, String> additionalData;
 
     public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
-        Validator.checkIllegalAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
 
         this.jwtGenerator = jwtGenerator;
     }
 
     public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
-        Validator.checkIllegalAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkIllegalAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
 
         this.jwtGenerator = jwtGenerator;
         this.additionalData = additionalData;

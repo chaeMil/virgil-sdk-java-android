@@ -37,10 +37,9 @@ import java.util.Arrays;
 
 /**
  * A private key.
- * 
+ *
  * @see VirgilCrypto
  * @see VirgilPublicKey
- * 
  */
 public class VirgilPrivateKey implements PrivateKey, Serializable {
 
@@ -77,7 +76,7 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -96,19 +95,21 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.crypto.PrivateKey#getIdentifier()
+
+    /**
+     * Get identifier byte [ ].
+     *
+     * @return the byte [ ]
      */
     public byte[] getIdentifier() {
         return identifier;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.crypto.PrivateKey#getRawKey()
+
+    /**
+     * Get raw key byte [ ].
+     *
+     * @return the byte [ ]
      */
     public byte[] getRawKey() {
         return rawKey;
@@ -116,7 +117,7 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -128,17 +129,20 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
         return result;
     }
 
+
     /**
-     * @param identifier
-     *            the identifier to set.
+     * Sets identifier.
+     *
+     * @param identifier the identifier
      */
     public void setIdentifier(byte[] identifier) {
         this.identifier = identifier;
     }
 
     /**
-     * @param rawKey
-     *            the rawKey to set
+     * Sets raw key.
+     *
+     * @param rawKey the rawKey to set
      */
     public void setRawKey(byte[] rawKey) {
         this.rawKey = rawKey;

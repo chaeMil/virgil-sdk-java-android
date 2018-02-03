@@ -33,10 +33,28 @@
 
 package com.virgilsecurity.sdk.utils;
 
+import com.virgilsecurity.sdk.exception.EmptyArgumentException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
+
 public class Validator {
 
-    public static void checkIllegalAgrument(Object o, String message) {
+    public static void checkNullAgrument(Object o, String message) {
         if (o == null)
-            throw new IllegalArgumentException(message); // TODO: 1/18/18 replace in all places and check for references to other packages
+            throw new NullArgumentException(message); // TODO: 1/18/18 replace in all places and check for references to other packages
+    }
+
+    public static void checkEmptyAgrument(byte[] data, String message) {
+        if (data.length == 0)
+            throw new EmptyArgumentException(message);
+    }
+
+    public static void checkEmptyAgrument(String string, String message) {
+        if (string.isEmpty())
+            throw new EmptyArgumentException(message);
+    }
+
+    public static void checkNullEmptyAgrument(byte[] data, String message) {
+        checkNullAgrument(data, message);
+        checkEmptyAgrument(data, message);
     }
 }

@@ -35,12 +35,22 @@ package com.virgilsecurity.sdk.crypto;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+/**
+ * The Virgil implementation of access token signer.
+ *
+ * @see AccessTokenSigner
+ * @see PrivateKey
+ * @see PublicKey
+ */
 public class VirgilAccessTokenSigner implements AccessTokenSigner {
 
     private VirgilCrypto virgilCrypto;
 
+    /**
+     * Instantiates a new Virgil access token signer.
+     */
     public VirgilAccessTokenSigner() {
-        this.virgilCrypto = new VirgilCrypto(KeysType.FAST_EC_ED25519);
+        this.virgilCrypto = new VirgilCrypto();
     }
 
     @Override
@@ -56,6 +66,11 @@ public class VirgilAccessTokenSigner implements AccessTokenSigner {
         return "VEDS512";
     }
 
+    /**
+     * Gets virgil crypto.
+     *
+     * @return the virgil crypto
+     */
     public VirgilCrypto getVirgilCrypto() {
         return virgilCrypto;
     }

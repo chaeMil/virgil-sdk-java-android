@@ -31,29 +31,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt.contract;
 
-import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.jwt.TokenContext;
 
-public class JwtVerifier {
+public interface AccessTokenProvider {
 
-    private PublicKey apiPublicKey;
-    private String apiPublicKeyIdentifier;
-    private AccessTokenSigner accessTokenSigner;
-
-    public JwtVerifier(PublicKey apiPublicKey,
-                       String apiPublicKeyIdentifier,
-                       AccessTokenSigner accessTokenSigner) {
-        this.apiPublicKey = apiPublicKey;
-        this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
-        this.accessTokenSigner = accessTokenSigner;
-    }
-
-    public boolean verifyToken(Jwt jwtToken) throws CryptoException {
-        return accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(),
-                                                      jwtToken.snapshotWithoutSignatures(),
-                                                      apiPublicKey);
-    }
+    AccessToken getToken(TokenContext context) throws CryptoException;
 }

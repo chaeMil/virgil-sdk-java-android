@@ -30,32 +30,42 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.jwt;
 
-package com.virgilsecurity.sdk.jsonWebToken;
+import static org.junit.Assert.assertTrue;
 
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JwtParser {
+import com.virgilsecurity.sdk.FakeDataFactory;
+import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-    public static JwtBodyContent parseJwtBodyContent(String jsonWebTokenBody) {
-        if (jsonWebTokenBody == null)
-            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenBody' should not be null");
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class JwtVerifierTest {
 
-        return ConvertionUtils.deserializeFromJson(jsonWebTokenBody, JwtBodyContent.class);
+    private FakeDataFactory fake;
+    private JwtVerifier verifier;
+
+    @Before
+    public void setup() throws CryptoException {
+        this.fake = new FakeDataFactory();
+
+        AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+        this.verifier = new JwtVerifier(fake.getApiPublicKey(), fake.getApiPublicKeyId(), accessTokenSigner);
     }
 
-    public static String buildJwtBody(JwtBodyContent jwtBodyContent) {
-        return ConvertionUtils.serializeToJson(jwtBodyContent);
-    }
+    @Test
+    public void verifyToken() throws CryptoException {
+        Jwt token = fake.generateToken();
 
-    public static JwtHeaderContent parseJwtHeaderContent(String jsonWebTokenHeader) {
-        if (jsonWebTokenHeader != null)
-            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenHeader' should not be null");
-
-        return ConvertionUtils.deserializeFromJson(jsonWebTokenHeader, JwtHeaderContent.class);
+        assertTrue(this.verifier.verifyToken(token));
     }
+    
+    //TODO cover negative cases
 
-    public static String buildJwtHeader(JwtHeaderContent jwtHeaderContent) {
-        return ConvertionUtils.serializeToJson(jwtHeaderContent);
-    }
 }

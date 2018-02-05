@@ -30,24 +30,48 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.jwt;
 
-package com.virgilsecurity.sdk.cards.validation;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ValidationResult {
-    private List<String> errors;
+import com.virgilsecurity.sdk.FakeDataFactory;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-    public ValidationResult() {
-        this.errors = new ArrayList<>();;
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class JWTTest {
+
+    private FakeDataFactory fake;
+    private String identity;
+
+    @Before
+    public void setup() throws CryptoException {
+        this.fake = new FakeDataFactory();
+        this.identity = "IDENTITY_" + fake.getApplicationId();
     }
 
-    public boolean isValid() {
-        return errors.isEmpty();
+    @Test
+    public void generate_byIdentity() throws CryptoException {
+        JwtGenerator generator = fake.getJwtGenerator();
+        Jwt jwt = generator.generateToken(this.identity);
+
+        assertNotNull(jwt);
+        assertEquals(this.identity, jwt.getIdentity());
     }
 
-    public void addError(String error) {
-        errors.add(error);
+    @Test
+    public void instantiate_fromString() throws CryptoException {
+        Jwt jwt = this.fake.generateToken();
+        Jwt importedJwt = new Jwt(jwt.toString());
+
+        assertEquals(jwt, importedJwt);
+        assertEquals(jwt.toString(), importedJwt.toString());
     }
+
 }

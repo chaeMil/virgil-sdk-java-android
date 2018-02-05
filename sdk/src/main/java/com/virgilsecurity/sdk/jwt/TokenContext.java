@@ -31,45 +31,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.JwtGenerator;
-import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
-import com.virgilsecurity.sdk.utils.Validator;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
+public class TokenContext {
 
-import java.util.Map;
+    private String identity;
+    private String operation;
+    private boolean forceReload;
 
-public class GeneratorJwtProvider implements AccessTokenProvider {
-
-    private JwtGenerator jwtGenerator;
-    private Map<String, String> additionalData;
-
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
+    public TokenContext(String operation, boolean forceReload) {
+        this.operation = operation;
+        this.forceReload = forceReload;
     }
 
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
-        this.additionalData = additionalData;
+    public TokenContext(String identity, String operation, boolean forceReload) {
+        this.identity = identity;
+        this.operation = operation;
+        this.forceReload = forceReload;
     }
 
-    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
-        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
+    public String getIdentity() {
+        return identity;
     }
 
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
+    public void setIdentity(String identity) {
+        this.identity = identity;
     }
 
-    public Map<String, String> getAdditionalData() {
-        return additionalData;
+    public String getOperation() {
+        return operation;
+    }
+
+    public boolean isForceReload() {
+        return forceReload;
     }
 }

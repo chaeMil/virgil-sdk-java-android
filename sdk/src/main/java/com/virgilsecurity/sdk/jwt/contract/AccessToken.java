@@ -31,38 +31,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt.contract;
 
-public class TokenContext {
+//TODO discuss stringRepresentation with Alex. 
+public interface AccessToken {
 
-    private String identity;
-    private String operation;
-    private boolean forceReload;
-
-    public TokenContext(String operation, boolean forceReload) {
-        this.operation = operation;
-        this.forceReload = forceReload;
-    }
-
-    public TokenContext(String identity, String operation, boolean forceReload) {
-        this.identity = identity;
-        this.operation = operation;
-        this.forceReload = forceReload;
-    }
-
-    public String getIdentity() {
-        return identity;
-    }
-
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
-
-    public String getOperation() {
-        return operation;
-    }
-
-    public boolean isForceReload() {
-        return forceReload;
-    }
+    String getIdentity();
 }

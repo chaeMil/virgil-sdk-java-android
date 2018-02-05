@@ -31,35 +31,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt.accessProviders;
 
-import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.utils.Validator;
+import com.virgilsecurity.sdk.jwt.JwtGenerator;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 
-public class ConstAccessTokenProvider implements AccessTokenProvider {
+import java.util.Map;
 
-    private Jwt jwtToken;
+public class GeneratorJwtProvider implements AccessTokenProvider {
 
-    public ConstAccessTokenProvider() {
+    private JwtGenerator jwtGenerator;
+    private Map<String, String> additionalData;
+
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+
+        this.jwtGenerator = jwtGenerator;
     }
 
-    public ConstAccessTokenProvider(Jwt jwtToken) {
-        if (jwtToken != null)
-            this.jwtToken = jwtToken;
-        else
-            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
+
+        this.jwtGenerator = jwtGenerator;
+        this.additionalData = additionalData;
     }
 
-    @Override public AccessToken getToken(TokenContext context) {
-        return jwtToken;
+    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
+        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
     }
 
-    public void setJwt(Jwt jwtToken) {
-        if (jwtToken != null)
-            this.jwtToken = jwtToken;
-        else
-            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+    public JwtGenerator getJwtGenerator() {
+        return jwtGenerator;
+    }
+
+    public Map<String, String> getAdditionalData() {
+        return additionalData;
     }
 }

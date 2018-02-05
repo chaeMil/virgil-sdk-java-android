@@ -31,10 +31,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt;
 
+import java.util.Arrays;
+
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
 import com.virgilsecurity.sdk.utils.Validator;
 
 public class Jwt implements AccessToken {
@@ -44,20 +46,18 @@ public class Jwt implements AccessToken {
     private byte[] signatureData;
     private String stringRepresentation;
 
-    public Jwt(JwtHeaderContent headerContent,
-               JwtBodyContent bodyContent) {
+    public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
         Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
 
         this.headerContent = headerContent;
         this.bodyContent = bodyContent;
 
-        stringRepresentation = headerBase64url() + "." + bodyBase64url() + ".";
+        this.stringRepresentation = new StringBuilder().append(headerBase64url()).append(".").append(bodyBase64url())
+                .append(".").toString();
     }
 
-    public Jwt(JwtHeaderContent headerContent,
-               JwtBodyContent bodyContent,
-               byte[] signatureData) {
+    public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
         Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
         Validator.checkNullEmptyAgrument(signatureData, "Jwt -> 'signatureData' should not be null");
@@ -66,22 +66,28 @@ public class Jwt implements AccessToken {
         this.bodyContent = bodyContent;
         this.signatureData = signatureData;
 
-        stringRepresentation = headerBase64url() + "." + bodyBase64url() + "." + signatureBase64url();
+        this.stringRepresentation = new StringBuilder().append(headerBase64url()).append(".").append(bodyBase64url())
+                .append(".").append(signatureBase64url()).toString();
     }
 
     public Jwt(String jwtToken) {
-        String[] jwtParts = jwtToken.split(".");
+        String[] jwtParts = jwtToken.split("[.]");
 
-        if (jwtParts.length < 2)
+        if (jwtParts.length < 2) {
             throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
+        }
 
-        headerContent = JwtParser.parseJwtHeaderContent(jwtParts[0]);
-        bodyContent = JwtParser.parseJwtBodyContent(jwtParts[1]);
+        String headerJson = ConvertionUtils.base64urldecode(jwtParts[0]);
+        headerContent = JwtParser.parseJwtHeaderContent(headerJson);
 
-        if (jwtParts.length == 3)
-            signatureData = ConvertionUtils.toBase64Bytes(jwtParts[2]);
+        String bodyJson = ConvertionUtils.base64urldecode(jwtParts[1]);
+        bodyContent = JwtParser.parseJwtBodyContent(bodyJson);
 
-        stringRepresentation = jwtToken;
+        if (jwtParts.length == 3) {
+            signatureData = ConvertionUtils.base64urldecodeToBytes(jwtParts[2]);
+        }
+
+        this.stringRepresentation = jwtToken;
     }
 
     public JwtHeaderContent getHeaderContent() {
@@ -99,9 +105,8 @@ public class Jwt implements AccessToken {
     public void setSignatureData(byte[] signatureData) {
         this.signatureData = signatureData;
 
-        stringRepresentation = headerBase64url() + "." +
-                bodyBase64url() + "." +
-                ConvertionUtils.toBase64String(signatureData);
+        this.stringRepresentation = new StringBuilder().append(headerBase64url()).append(".").append(bodyBase64url())
+                .append(".").append(signatureBase64url()).toString();
     }
 
     @Override
@@ -114,22 +119,72 @@ public class Jwt implements AccessToken {
     }
 
     private String headerBase64url() {
-        return ConvertionUtils.toBase64Url(ConvertionUtils.toBase64String(ConvertionUtils.captureSnapshot(headerContent)));
+        return ConvertionUtils.base64urlencode(ConvertionUtils.captureSnapshot(headerContent));
     }
 
     private String bodyBase64url() {
-        return ConvertionUtils.toBase64Url(ConvertionUtils.toBase64String(ConvertionUtils.captureSnapshot(bodyContent)));
+        return ConvertionUtils.base64urlencode(ConvertionUtils.captureSnapshot(bodyContent));
     }
 
     private String signatureBase64url() {
-        return ConvertionUtils.toBase64Url(ConvertionUtils.toBase64String(signatureData));
+        return ConvertionUtils.base64urlencode(signatureData);
     }
 
     public byte[] snapshotWithoutSignatures() {
         return (headerBase64url() + "." + bodyBase64url()).getBytes();
     }
 
-    public String stringRepresentation() {
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
         return stringRepresentation;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((bodyContent == null) ? 0 : bodyContent.hashCode());
+        result = prime * result + ((headerContent == null) ? 0 : headerContent.hashCode());
+        result = prime * result + Arrays.hashCode(signatureData);
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Jwt other = (Jwt) obj;
+        if (bodyContent == null) {
+            if (other.bodyContent != null)
+                return false;
+        } else if (!bodyContent.equals(other.bodyContent))
+            return false;
+        if (headerContent == null) {
+            if (other.headerContent != null)
+                return false;
+        } else if (!headerContent.equals(other.headerContent))
+            return false;
+        if (!Arrays.equals(signatureData, other.signatureData))
+            return false;
+        return true;
     }
 }

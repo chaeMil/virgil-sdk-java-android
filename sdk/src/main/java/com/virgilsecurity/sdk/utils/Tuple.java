@@ -30,12 +30,64 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.utils;
 
-package com.virgilsecurity.sdk.jsonWebToken.contract;
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class Tuple<A, B> {
 
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
+    private A left;
 
-public interface AccessManager {
+    private B right;
 
-    Jwt getAccessToken();
+    /**
+     * Create new instance of {@link Tuple}.
+     */
+    public Tuple() {
+    }
+
+    /**
+     * Create new instance of {@link Tuple}.
+     * 
+     * @param left
+     * @param right
+     */
+    public Tuple(A left, B right) {
+        super();
+        this.left = left;
+        this.right = right;
+    }
+
+    /**
+     * @return the left
+     */
+    public A getLeft() {
+        return left;
+    }
+
+    /**
+     * @param left
+     *            the left to set
+     */
+    public void setLeft(A left) {
+        this.left = left;
+    }
+
+    /**
+     * @return the right
+     */
+    public B getRight() {
+        return right;
+    }
+
+    /**
+     * @param right
+     *            the right to set
+     */
+    public void setRight(B right) {
+        this.right = right;
+    }
+
 }

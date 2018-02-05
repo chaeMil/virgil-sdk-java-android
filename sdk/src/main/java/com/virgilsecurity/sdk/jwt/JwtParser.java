@@ -31,45 +31,34 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt;
 
-import com.sun.istack.internal.NotNull;
-import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
-import com.virgilsecurity.sdk.utils.Validator;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
-public class CallbackJwtProvider implements AccessTokenProvider {
+//TODO discuss this implementation with Alex
+public class JwtParser {
 
-    private Jwt jwtToken;
-    private GetTokenCallback getTokenCallback;
+    public static JwtBodyContent parseJwtBodyContent(String jsonWebTokenBody) {
+        if (jsonWebTokenBody == null) {
+            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenBody' should not be null");
+        }
 
-    public CallbackJwtProvider() {
+        return ConvertionUtils.deserializeFromJson(jsonWebTokenBody, JwtBodyContent.class);
     }
 
-    public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
-        this.getTokenCallback = getTokenCallback;
+    public static String buildJwtBody(JwtBodyContent jwtBodyContent) {
+        return ConvertionUtils.serializeToJson(jwtBodyContent);
     }
 
-    @Override public AccessToken getToken(TokenContext context) {
-        Validator.checkNullAgrument(getTokenCallback,
-                                    "CallbackJwtProvider -> set getTokenCallback first");
+    public static JwtHeaderContent parseJwtHeaderContent(String jsonWebTokenHeader) {
+        if (jsonWebTokenHeader == null) {
+            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenHeader' should not be null");
+        }
 
-        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired())
-            return jwtToken = new Jwt(getTokenCallback.onGetToken());
-        else
-            return jwtToken;
+        return ConvertionUtils.deserializeFromJson(jsonWebTokenHeader, JwtHeaderContent.class);
     }
 
-    public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
-        Validator.checkNullAgrument(getTokenCallback,
-                                    "CallbackJwtProvider -> 'getTokenCallback' should not be null");
-
-        this.getTokenCallback = getTokenCallback;
-    }
-
-    public interface GetTokenCallback {
-        String onGetToken();
+    public static String buildJwtHeader(JwtHeaderContent jwtHeaderContent) {
+        return ConvertionUtils.serializeToJson(jwtHeaderContent);
     }
 }

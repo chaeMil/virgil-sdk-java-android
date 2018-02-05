@@ -39,7 +39,7 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.*;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.accessProviders.GeneratorJwtProvider;
+import com.virgilsecurity.sdk.jwt.accessProviders.GeneratorJwtProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -228,7 +228,7 @@ public class CardsManagerTest extends PropertyManager {
                                         String signerId =
                                                 null;
                                         try {
-                                            signerId = ConvertionUtils.toString(cardCrypto.generateSHA256(
+                                            signerId = ConvertionUtils.toString(cardCrypto.generateSHA512(
                                                     cardModel.getContentSnapshot()),
                                                                                 StringEncoding.HEX);
                                         } catch (CryptoException e) {

@@ -31,24 +31,27 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
-
-import com.google.gson.annotations.SerializedName;
-import com.virgilsecurity.sdk.common.TimeSpan;
+package com.virgilsecurity.sdk.jwt;
 
 import java.util.Date;
 import java.util.Map;
+
+import com.google.gson.annotations.SerializedName;
+import com.virgilsecurity.sdk.common.TimeSpan;
 
 public class JwtBodyContent {
 
     private static final String ISSUER_PREFIX = "virgil-";
     private static final String SUBJECT_PREFIX = "identity-";
 
+    private transient String appId;
+    private transient String identity;
+
     @SerializedName("iss")
-    private String appId;
+    private String issuer;
 
     @SerializedName("sub")
-    private String identity;
+    private String subject;
 
     @SerializedName("ada")
     private Map<String, String> additionalData;
@@ -59,23 +62,21 @@ public class JwtBodyContent {
     @SerializedName("iat")
     private long issuedAt;
 
-    public JwtBodyContent(String appId,
-                          String identity,
-                          TimeSpan expiresAt,
-                          Date issuedAt) {
-        this.appId = ISSUER_PREFIX + appId;
-        this.identity = SUBJECT_PREFIX + identity;
+    public JwtBodyContent(String appId, String identity, TimeSpan expiresAt, Date issuedAt) {
+        this.appId = appId;
+        this.identity = identity;
+        this.issuer = ISSUER_PREFIX + appId;
+        this.subject = SUBJECT_PREFIX + identity;
         this.expiresAt = expiresAt.getTimestamp();
         this.issuedAt = issuedAt.getTime() / 1000;
     }
 
-    public JwtBodyContent(String appId,
-                          String identity,
-                          Map<String, String> additionalData,
-                          TimeSpan expiresAt,
-                          Date issuedAt) {
-        this.appId = ISSUER_PREFIX + appId;
-        this.identity = SUBJECT_PREFIX + identity;
+    public JwtBodyContent(String appId, String identity, Map<String, String> additionalData, TimeSpan expiresAt,
+            Date issuedAt) {
+        this.appId = appId;
+        this.identity = identity;
+        this.issuer = ISSUER_PREFIX + appId;
+        this.subject = SUBJECT_PREFIX + identity;
         this.additionalData = additionalData;
         this.expiresAt = expiresAt.getTimestamp();
         this.issuedAt = issuedAt.getTime() / 1000;
@@ -100,4 +101,58 @@ public class JwtBodyContent {
     public Date getIssuedAt() {
         return new Date(issuedAt * 1000);
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((additionalData == null) ? 0 : additionalData.hashCode());
+        result = prime * result + (int) (expiresAt ^ (expiresAt >>> 32));
+        result = prime * result + (int) (issuedAt ^ (issuedAt >>> 32));
+        result = prime * result + ((issuer == null) ? 0 : issuer.hashCode());
+        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        JwtBodyContent other = (JwtBodyContent) obj;
+        if (additionalData == null) {
+            if (other.additionalData != null)
+                return false;
+        } else if (!additionalData.equals(other.additionalData))
+            return false;
+        if (expiresAt != other.expiresAt)
+            return false;
+        if (issuedAt != other.issuedAt)
+            return false;
+        if (issuer == null) {
+            if (other.issuer != null)
+                return false;
+        } else if (!issuer.equals(other.issuer))
+            return false;
+        if (subject == null) {
+            if (other.subject != null)
+                return false;
+        } else if (!subject.equals(other.subject))
+            return false;
+        return true;
+    }
+
 }

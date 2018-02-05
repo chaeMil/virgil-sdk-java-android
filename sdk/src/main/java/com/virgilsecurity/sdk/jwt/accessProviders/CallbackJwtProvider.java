@@ -31,31 +31,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt.accessProviders;
 
-import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.crypto.Crypto;
+import com.sun.istack.internal.NotNull;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.utils.Validator;
 
-public class JWTIntegrationTest extends PropertyManager {
+public class CallbackJwtProvider implements AccessTokenProvider {
 
-    private Crypto crypto;
+    private Jwt jwtToken;
+    private GetTokenCallback getTokenCallback;
 
-//    @Before
-//    public void setUp() {
-//        crypto = new VirgilCrypto();
-//    }
-//    @Test
-//    public CardManager getCardManager(String getIdentity) throws CryptoException {
-//        PrivateKey apiPrivateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY));
-//
-//        HashMap<String, String> data = new HashMap<>();
-//        data.put("username", "my username");
-//
-//        AccessTokenBuilder tokenBuilder = new AccessTokenBuilder(ACCOUNT_ID,
-//                                                                 APP_CARD_ID,
-//                                                                 TimeSpan.fromTime(10, TimeUnit.MINUTES),
-//                                                                 apiPrivateKey,
-//                                                                 crypto);
-//        String jwt = tokenBuilder.create(getIdentity, data);
-//    }
+    public CallbackJwtProvider() {
+    }
+
+    public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
+        this.getTokenCallback = getTokenCallback;
+    }
+
+    @Override public AccessToken getToken(TokenContext context) {
+        Validator.checkNullAgrument(getTokenCallback,
+                                    "CallbackJwtProvider -> set getTokenCallback first");
+
+        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired())
+            return jwtToken = new Jwt(getTokenCallback.onGetToken());
+        else
+            return jwtToken;
+    }
+
+    public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
+        Validator.checkNullAgrument(getTokenCallback,
+                                    "CallbackJwtProvider -> 'getTokenCallback' should not be null");
+
+        this.getTokenCallback = getTokenCallback;
+    }
+
+    public interface GetTokenCallback {
+        String onGetToken();
+    }
 }

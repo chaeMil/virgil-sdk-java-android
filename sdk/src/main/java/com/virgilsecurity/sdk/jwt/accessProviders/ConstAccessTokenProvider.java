@@ -31,41 +31,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.utils;
+package com.virgilsecurity.sdk.jwt.accessProviders;
 
-/**
- * Logger which is used to print logs to console.
- */
-public class Log {
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 
-    /**
-     * Logging with Debug level.
-     *
-     * @param message
-     *            to print in logs.
-     */
-    public static void d(String message) {
-        // FIXME com.oracle.tools.packager.Log.debug(message);
-        // See Java Commons Logging
+public class ConstAccessTokenProvider implements AccessTokenProvider {
+
+    private Jwt jwtToken;
+
+    public ConstAccessTokenProvider() {
     }
 
-    /**
-     * Logging with Info level.
-     *
-     * @param message
-     *            to print in logs.
-     */
-    public static void i(String message) {
-        // com.oracle.tools.packager.Log.info(message);
+    public ConstAccessTokenProvider(Jwt jwtToken) {
+        if (jwtToken != null)
+            this.jwtToken = jwtToken;
+        else
+            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
     }
 
-    /**
-     * Logging with Verbose level.
-     *
-     * @param message
-     *            to print in logs.
-     */
-    public static void v(String message) {
-        // com.oracle.tools.packager.Log.verbose(message);
+    @Override public AccessToken getToken(TokenContext context) {
+        return jwtToken;
+    }
+
+    public void setJwt(Jwt jwtToken) {
+        if (jwtToken != null)
+            this.jwtToken = jwtToken;
+        else
+            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
     }
 }

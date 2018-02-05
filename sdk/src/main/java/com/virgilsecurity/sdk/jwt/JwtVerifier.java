@@ -37,12 +37,23 @@ import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+/**
+ * The {@link JwtVerifier} class is implemented for verification of
+ * {@link Jwt}.
+ */
 public class JwtVerifier {
 
     private PublicKey apiPublicKey;
     private String apiPublicKeyIdentifier;
     private AccessTokenSigner accessTokenSigner;
 
+    /**
+     * Instantiates a new Jwt verifier.
+     *
+     * @param apiPublicKey           the api public key
+     * @param apiPublicKeyIdentifier the api public key identifier
+     * @param accessTokenSigner      the access token signer
+     */
     public JwtVerifier(PublicKey apiPublicKey,
                        String apiPublicKeyIdentifier,
                        AccessTokenSigner accessTokenSigner) {
@@ -51,6 +62,13 @@ public class JwtVerifier {
         this.accessTokenSigner = accessTokenSigner;
     }
 
+    /**
+     * Checks whether the token's signature is valid.
+     *
+     * @param jwtToken the jwt token
+     * @return {@code true} if the token's signature is valid, otherwise {@code false}
+     * @throws CryptoException if issue occurred during token's signature verification
+     */
     public boolean verifyToken(Jwt jwtToken) throws CryptoException {
         return accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(),
                                                       jwtToken.snapshotWithoutSignatures(),

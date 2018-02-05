@@ -38,7 +38,18 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 import java.io.IOException;
 
+/**
+ * The interface Card verifier that provides verify methods.
+ */
 public interface CardVerifier {
 
+    /**
+     * Verify card method that checks whether the provided Card is valid.
+     *
+     * @param card the Card to verify
+     * @return {@code true} if valid, otherwise {@code false}
+     * @throws IOException     if issue occurred during Card verification
+     * @throws CryptoException if issue occurred during Card verification
+     */
     boolean verifyCard(Card card) throws IOException, CryptoException;
 }

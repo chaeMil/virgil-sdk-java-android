@@ -47,7 +47,7 @@ public class VirgilKeyIsAlreadyExistsException extends VirgilClientException {
      *
      */
     public VirgilKeyIsAlreadyExistsException() {
-        super("VIRGIL Key is already exists.");
+        super("Virgil Key is already exists.");
     }
 
 }

@@ -39,6 +39,10 @@ import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
+/**
+ * The {@link Jwt} class implements {@link AccessToken} interface and is used to
+ * get access for network requests.
+ */
 public class Jwt implements AccessToken {
 
     private JwtHeaderContent headerContent;
@@ -46,6 +50,12 @@ public class Jwt implements AccessToken {
     private byte[] signatureData;
     private String stringRepresentation;
 
+    /**
+     * Instantiates a new Jwt.
+     *
+     * @param headerContent the header content
+     * @param bodyContent   the body content
+     */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
         Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
@@ -57,10 +67,17 @@ public class Jwt implements AccessToken {
                 .append(".").toString();
     }
 
+    /**
+     * Instantiates a new Jwt.
+     *
+     * @param headerContent the header content
+     * @param bodyContent   the body content
+     * @param signatureData the signature data
+     */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
         Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
-        Validator.checkNullEmptyAgrument(signatureData, "Jwt -> 'signatureData' should not be null");
+        Validator.checkNullEmptyAgrument(signatureData, "Jwt -> 'signatureData' should not be null or empty");
 
         this.headerContent = headerContent;
         this.bodyContent = bodyContent;
@@ -70,6 +87,13 @@ public class Jwt implements AccessToken {
                 .append(".").append(signatureBase64url()).toString();
     }
 
+    /**
+     * Instantiates a new Jwt.
+     *
+     * @param jwtToken the jwt token in string representation.
+     *                 Should have at least two parts - header and body.
+     *                 (ex. "***.***", where "***" is base64 encoded string)
+     */
     public Jwt(String jwtToken) {
         String[] jwtParts = jwtToken.split("[.]");
 
@@ -90,18 +114,38 @@ public class Jwt implements AccessToken {
         this.stringRepresentation = jwtToken;
     }
 
+    /**
+     * Gets header content.
+     *
+     * @return the header content
+     */
     public JwtHeaderContent getHeaderContent() {
         return headerContent;
     }
 
+    /**
+     * Gets body content.
+     *
+     * @return the body content
+     */
     public JwtBodyContent getBodyContent() {
         return bodyContent;
     }
 
+    /**
+     * Get signature data.
+     *
+     * @return the signature data in byte [ ]
+     */
     public byte[] getSignatureData() {
         return signatureData;
     }
 
+    /**
+     * Sets signature data.
+     *
+     * @param signatureData the signature data
+     */
     public void setSignatureData(byte[] signatureData) {
         this.signatureData = signatureData;
 
@@ -114,6 +158,11 @@ public class Jwt implements AccessToken {
         return bodyContent.getIdentity();
     }
 
+    /**
+     * Whether the token is expired.
+     *
+     * @return if the token is already expired then - {@code true}, otherwise {@code false}
+     */
     public boolean isExpired() {
         return bodyContent.getExpiresAt().isExpired();
     }
@@ -130,6 +179,11 @@ public class Jwt implements AccessToken {
         return ConvertionUtils.base64urlencode(signatureData);
     }
 
+    /**
+     * Snapshot without signatures.
+     *
+     * @return the byte [ ]
+     */
     public byte[] snapshotWithoutSignatures() {
         return (headerBase64url() + "." + bodyBase64url()).getBytes();
     }

@@ -36,23 +36,51 @@ package com.virgilsecurity.sdk.utils;
 import com.virgilsecurity.sdk.exception.EmptyArgumentException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 
+/**
+ * The {@linkplain Validator} is used for validation purposes to
+ * make code cleaner.
+ */
 public class Validator {
 
+    /**
+     * Check whether provided object is null.
+     *
+     * @param o       object to check
+     * @param message the message that will be shown if provided object is null
+     */
     public static void checkNullAgrument(Object o, String message) {
         if (o == null)
             throw new NullArgumentException(message); // TODO: 1/18/18 replace in all places and check for references to other packages
     }
 
+    /**
+     * Check whether provided byte[ ] is empty.
+     *
+     * @param data    the data to check
+     * @param message the message that will be shown if provided byte[ ] is empty
+     */
     public static void checkEmptyAgrument(byte[] data, String message) {
         if (data.length == 0)
             throw new EmptyArgumentException(message);
     }
 
+    /**
+     * Check whether provided string is empty.
+     *
+     * @param string  the string to check
+     * @param message the message that will be shown if provided string is empty
+     */
     public static void checkEmptyAgrument(String string, String message) {
         if (string.isEmpty())
             throw new EmptyArgumentException(message);
     }
 
+    /**
+     * Check whether provided byte[ ] is null or empty.
+     *
+     * @param data    the data to check
+     * @param message the message that will be shown if provided byte[ ] is null or empty
+     */
     public static void checkNullEmptyAgrument(byte[] data, String message) {
         checkNullAgrument(data, message);
         checkEmptyAgrument(data, message);

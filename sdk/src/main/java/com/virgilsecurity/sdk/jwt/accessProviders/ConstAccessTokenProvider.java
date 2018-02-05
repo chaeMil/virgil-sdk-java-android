@@ -37,25 +37,42 @@ import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.utils.Validator;
 
+/**
+ * The {@link ConstAccessTokenProvider} class is implemented for usage
+ * of constant Jwt stored as property.
+ */
 public class ConstAccessTokenProvider implements AccessTokenProvider {
 
     private Jwt jwtToken;
 
+    /**
+     * Instantiates a new Const access token provider.
+     */
     public ConstAccessTokenProvider() {
     }
 
+    /**
+     * Instantiates a new Const access token provider.
+     *
+     * @param jwtToken the jwt token
+     */
     public ConstAccessTokenProvider(Jwt jwtToken) {
-        if (jwtToken != null)
-            this.jwtToken = jwtToken;
-        else
-            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+        Validator.checkNullAgrument(jwtToken, "ConstAccessTokenProvider -> 'jwt' should not be null");
+        this.jwtToken = jwtToken;
     }
 
-    @Override public AccessToken getToken(TokenContext context) {
+    @Override
+    public AccessToken getToken(TokenContext context) {
         return jwtToken;
     }
 
+    /**
+     * Sets jwt.
+     *
+     * @param jwtToken the jwt token
+     */
     public void setJwt(Jwt jwtToken) {
         if (jwtToken != null)
             this.jwtToken = jwtToken;

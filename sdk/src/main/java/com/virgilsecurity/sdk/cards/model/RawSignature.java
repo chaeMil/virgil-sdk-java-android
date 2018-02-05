@@ -37,6 +37,9 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
+/**
+ * The {@link RawSignature} class represents raw model of digital signature.
+ */
 public class RawSignature {
 
     @SerializedName("signer_id")
@@ -51,12 +54,27 @@ public class RawSignature {
     @SerializedName("signature")
     private String signature;
 
+    /**
+     * Instantiates a new Raw signature.
+     *
+     * @param signerId   the signer identifier
+     * @param signerType the signer type. Can be only one of {@link com.virgilsecurity.sdk.cards.SignerType}
+     * @param signature  the signature
+     */
     public RawSignature(String signerId, String signerType, String signature) {
         this.signerId = signerId;
         this.signerType = signerType;
         this.signature = signature;
     }
 
+    /**
+     * Instantiates a new Raw signature.
+     *
+     * @param signerId   the signer identifier
+     * @param snapshot   the snapshot that contains additional data associated with signature
+     * @param signerType the signer type. Can be only one of {@link com.virgilsecurity.sdk.cards.SignerType}
+     * @param signature  the signature
+     */
     public RawSignature(String signerId, String snapshot, String signerType, String signature) {
         this.signerId = signerId;
         this.snapshot = snapshot;
@@ -64,34 +82,74 @@ public class RawSignature {
         this.signature = signature;
     }
 
+    /**
+     * Gets signer identifier.
+     *
+     * @return the signer identifier
+     */
     public String getSignerId() {
         return signerId;
     }
 
+    /**
+     * Sets signer identifier.
+     *
+     * @param signerId the signer identifier
+     */
     public void setSignerId(String signerId) {
         this.signerId = signerId;
     }
 
+    /**
+     * Gets snapshot that contains additional data associated with signature.
+     *
+     * @return the snapshot that contains additional data associated with signature
+     */
     public String getSnapshot() {
         return snapshot;
     }
 
+    /**
+     * Sets snapshot that contains additional data associated with signature.
+     *
+     * @param snapshot the snapshot that contains additional data associated with signature
+     */
     public void setSnapshot(String snapshot) {
         this.snapshot = snapshot;
     }
 
+    /**
+     * Gets signer type.
+     *
+     * @return the signer type of {@link com.virgilsecurity.sdk.cards.SignerType}
+     */
     public String getSignerType() {
         return signerType;
     }
 
+    /**
+     * Sets signer type.
+     *
+     * @param signerType the signer type of {@link com.virgilsecurity.sdk.cards.SignerType}
+     */
     public void setSignerType(String signerType) {
         this.signerType = signerType;
     }
 
+    /**
+     * Gets signature.
+     *
+     * @return the signature
+     */
     public String getSignature() {
         return signature;
     }
 
+    /**
+     * Sets signature.
+     *
+     * @param signature the signature
+     */
     public void setSignature(String signature) {
         this.signature = signature;
     }

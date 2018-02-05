@@ -40,19 +40,33 @@ import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
+/**
+ * The {@link CallbackJwtProvider} class is implemented for usage
+ * of get token callback mechanism which should predefine implementation of generating/receiving
+ * of token.
+ */
 public class CallbackJwtProvider implements AccessTokenProvider {
 
     private Jwt jwtToken;
     private GetTokenCallback getTokenCallback;
 
+    /**
+     * Instantiates a new Callback jwt provider.
+     */
     public CallbackJwtProvider() {
     }
 
+    /**
+     * Instantiates a new Callback jwt provider.
+     *
+     * @param getTokenCallback the get token callback
+     */
     public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
         this.getTokenCallback = getTokenCallback;
     }
 
-    @Override public AccessToken getToken(TokenContext context) {
+    @Override public AccessToken getToken(@NotNull TokenContext context) {
+        Validator.checkNullAgrument(context, "CallbackJwtProvider -> 'context' should not be null");
         Validator.checkNullAgrument(getTokenCallback,
                                     "CallbackJwtProvider -> set getTokenCallback first");
 
@@ -62,6 +76,11 @@ public class CallbackJwtProvider implements AccessTokenProvider {
             return jwtToken;
     }
 
+    /**
+     * Sets get token callback.
+     *
+     * @param getTokenCallback the get token callback
+     */
     public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
         Validator.checkNullAgrument(getTokenCallback,
                                     "CallbackJwtProvider -> 'getTokenCallback' should not be null");
@@ -69,7 +88,15 @@ public class CallbackJwtProvider implements AccessTokenProvider {
         this.getTokenCallback = getTokenCallback;
     }
 
+    /**
+     * The interface Get token callback.
+     */
     public interface GetTokenCallback {
+        /**
+         * On get token string.
+         *
+         * @return the string
+         */
         String onGetToken();
     }
 }

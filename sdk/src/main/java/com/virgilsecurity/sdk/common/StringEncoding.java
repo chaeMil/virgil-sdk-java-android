@@ -33,11 +33,23 @@
 
 package com.virgilsecurity.sdk.common;
 
+/**
+ * The {@link StringEncoding} enum defines common string encodings.
+ */
 public enum StringEncoding {
+    /**
+     * Utf 8 string encoding.
+     */
     UTF8,
+    /**
+     * Base 64 string encoding.
+     */
     BASE64,
+    /**
+     * Hex string encoding.
+     */
     HEX;
 
-    private StringEncoding() {
+    StringEncoding() {
     }
 }

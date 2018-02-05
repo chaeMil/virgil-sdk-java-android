@@ -42,7 +42,7 @@ import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
 
 /**
- * This sample will help you get started using the Crypto Library and VIRGIL Keys Services for the most popular
+ * This sample will help you get started using the Crypto Library and Virgil Keys Services for the most popular
  * platforms and languages.
  * 
  * @author Andrii Iakovenko
@@ -58,7 +58,7 @@ public class Quickstart {
         // Initializing Crypto
         Crypto crypto = new VirgilCrypto();
 
-        // Creating a VIRGIL Card
+        // Creating a Virgil Card
         String appID = "[YOUR_APP_ID_HERE]";
         String appKeyPassword = "[YOUR_APP_KEY_PASSWORD_HERE]";
         byte[] appKeyData = "[YOUR_APP_KEY_HERE]".getBytes();
@@ -80,17 +80,17 @@ public class Quickstart {
 //        requestSigner.selfSign(createCardRequest, aliceKeys.getPrivateKey());
 //        requestSigner.authoritySign(createCardRequest, appID, appKey);
 //
-//        /** Publish a VIRGIL Card */
+//        /** Publish a Virgil Card */
 //        CardModel aliceCard = client.publishCard(createCardRequest);
 //
-//        // Get VIRGIL Card
+//        // Get Virgil Card
 //        CardModel foundCard = client.getCard(aliceCard.getIdentifier());
 
-        // Search for VIRGIL Cards
+        // Search for Virgil Cards
         SearchCriteria criteria = SearchCriteria.byIdentity("alice");
         List<CardModel> cards = client.searchCards(criteria);
 
-        // Validating a VIRGIL Cards
+        // Validating a Virgil Cards
         CardValidator cardValidator = new VirgilCardValidator(crypto);
         client.setCardValidator(cardValidator);
 
@@ -100,7 +100,7 @@ public class Quickstart {
             // Handle validation exception here
         }
 
-        // Revoking a VIRGIL Card
+        // Revoking a Virgil Card
         /** Use your card ID */
 //        String cardId = aliceCard.getIdentifier();
 //

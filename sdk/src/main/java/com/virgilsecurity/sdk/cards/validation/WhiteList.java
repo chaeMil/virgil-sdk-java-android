@@ -37,13 +37,26 @@ import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 
 import java.util.List;
 
+/**
+ * The {@link WhiteList} represents list of trusted signatures for cards verification.
+ */
 public class WhiteList {
     private List<VerifierCredentials> verifiersCredentials;
 
+    /**
+     * Gets verifiers credentials.
+     *
+     * @return the verifiers credentials
+     */
     public List<VerifierCredentials> getVerifiersCredentials() {
         return verifiersCredentials;
     }
 
+    /**
+     * Sets verifiers credentials.
+     *
+     * @param verifiersCredentials the verifiers credentials
+     */
     public void setVerifiersCredentials(List<VerifierCredentials> verifiersCredentials) {
         this.verifiersCredentials = verifiersCredentials;
     }

@@ -33,7 +33,7 @@
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
- * This exception occurred when VIRGIL Card couldn't be found.
+ * This exception occurred when Virgil Card couldn't be found.
  *
  * @author Andrii Iakovenko
  *

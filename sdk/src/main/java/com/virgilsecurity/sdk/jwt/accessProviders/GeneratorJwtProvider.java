@@ -42,17 +42,32 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 
 import java.util.Map;
 
+/**
+ * The {@link GeneratorJwtProvider} class is implemented for generating
+ * {@link com.virgilsecurity.sdk.jwt.Jwt} with provided {@link JwtGenerator}.
+ */
 public class GeneratorJwtProvider implements AccessTokenProvider {
 
     private JwtGenerator jwtGenerator;
     private Map<String, String> additionalData;
 
+    /**
+     * Instantiates a new Generator jwt provider.
+     *
+     * @param jwtGenerator the jwt generator
+     */
     public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
         Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
 
         this.jwtGenerator = jwtGenerator;
     }
 
+    /**
+     * Instantiates a new Generator jwt provider.
+     *
+     * @param jwtGenerator   the jwt generator
+     * @param additionalData the additional data
+     */
     public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
         Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
         Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
@@ -65,11 +80,30 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
         return jwtGenerator.generateToken(context.getIdentity(), additionalData);
     }
 
+    /**
+     * Gets jwt generator.
+     *
+     * @return the jwt generator
+     */
     public JwtGenerator getJwtGenerator() {
         return jwtGenerator;
     }
 
+    /**
+     * Gets additional data.
+     *
+     * @return the additional data
+     */
     public Map<String, String> getAdditionalData() {
         return additionalData;
+    }
+
+    /**
+     * Sets additional data.
+     *
+     * @param additionalData the additional data
+     */
+    public void setAdditionalData(Map<String, String> additionalData) {
+        this.additionalData = additionalData;
     }
 }

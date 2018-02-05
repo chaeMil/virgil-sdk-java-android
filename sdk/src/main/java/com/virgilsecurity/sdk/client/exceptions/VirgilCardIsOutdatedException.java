@@ -35,23 +35,44 @@ package com.virgilsecurity.sdk.client.exceptions;
 
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 
+/**
+ * This exception occurred when returned Virgil Card is outdated.
+ */
 public class VirgilCardIsOutdatedException extends RuntimeException {
 
     private static final long serialVersionUID = 3841365581319657840L;
     private RawSignedModel cardModel;
 
+    /**
+     * Instantiates a new Virgil card is outdated exception.
+     */
     public VirgilCardIsOutdatedException() {
 
     }
 
+    /**
+     * Instantiates a new Virgil card is outdated exception.
+     *
+     * @param cardModel the card model of outdated Card
+     */
     public VirgilCardIsOutdatedException(RawSignedModel cardModel) {
         this.cardModel = cardModel;
     }
 
+    /**
+     * Instantiates a new Virgil card is outdated exception.
+     *
+     * @param cause the cause
+     */
     public VirgilCardIsOutdatedException(Exception cause) {
         super(cause);
     }
 
+    /**
+     * Gets card model.
+     *
+     * @return the card model
+     */
     public RawSignedModel getCardModel() {
         return cardModel;
     }

@@ -36,7 +36,17 @@ package com.virgilsecurity.sdk.jwt.contract;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 
+/**
+ * The interface {@link AccessTokenProvider} describes methods to get token.
+ */
 public interface AccessTokenProvider {
 
+    /**
+     * Gets token.
+     *
+     * @param context the context that is used to get token
+     * @return the token
+     * @throws CryptoException if issue occurred while getting token
+     */
     AccessToken getToken(TokenContext context) throws CryptoException;
 }

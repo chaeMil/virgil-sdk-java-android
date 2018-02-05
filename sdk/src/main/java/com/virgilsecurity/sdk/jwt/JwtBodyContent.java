@@ -39,6 +39,9 @@ import java.util.Map;
 import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.common.TimeSpan;
 
+/**
+ * The {@link JwtBodyContent} represents contents of {@link Jwt} body.
+ */
 public class JwtBodyContent {
 
     private static final String ISSUER_PREFIX = "virgil-";
@@ -62,6 +65,14 @@ public class JwtBodyContent {
     @SerializedName("iat")
     private long issuedAt;
 
+    /**
+     * Instantiates a new Jwt body content.
+     *
+     * @param appId     the application identifier
+     * @param identity  the identity
+     * @param expiresAt a lifetime of token
+     * @param issuedAt  when the token is issued at
+     */
     public JwtBodyContent(String appId, String identity, TimeSpan expiresAt, Date issuedAt) {
         this.appId = appId;
         this.identity = identity;
@@ -71,6 +82,15 @@ public class JwtBodyContent {
         this.issuedAt = issuedAt.getTime() / 1000;
     }
 
+    /**
+     * Instantiates a new Jwt body content.
+     *
+     * @param appId          the application identifier
+     * @param identity       the identity
+     * @param additionalData the additional data associated with token
+     * @param expiresAt      a lifetime of token
+     * @param issuedAt       when the token is issued at
+     */
     public JwtBodyContent(String appId, String identity, Map<String, String> additionalData, TimeSpan expiresAt,
             Date issuedAt) {
         this.appId = appId;
@@ -82,22 +102,47 @@ public class JwtBodyContent {
         this.issuedAt = issuedAt.getTime() / 1000;
     }
 
+    /**
+     * Gets application identifier.
+     *
+     * @return the application identifier
+     */
     public String getAppId() {
         return appId;
     }
 
+    /**
+     * Gets identity.
+     *
+     * @return the identity
+     */
     public String getIdentity() {
         return identity;
     }
 
+    /**
+     * Gets additional data.
+     *
+     * @return the additional data
+     */
     public Map<String, String> getAdditionalData() {
         return additionalData;
     }
 
+    /**
+     * Gets expires at - the lifetime of token.
+     *
+     * @return the expires at - the lifetime of token
+     */
     public TimeSpan getExpiresAt() {
         return new TimeSpan(expiresAt * 1000);
     }
 
+    /**
+     * Gets issued at.
+     *
+     * @return the issued at
+     */
     public Date getIssuedAt() {
         return new Date(issuedAt * 1000);
     }

@@ -41,29 +41,15 @@ import java.util.Objects;
  */
 public class CardSignature {
 
-    /**
-     * The signer identifier.
-     */
     private String signerId;
 
-    /**
-     * The type of signer signature. Can be only one of the {@link SignerType}.
-     */
+
     private String signerType;
 
-    /**
-     * The generated digital signature.
-     */
     private String signature;
 
-    /**
-     * The digital snapshot.
-     */
     private String snapshot;
 
-    /**
-     * Custom fields associated with the signature.
-     */
     private Map<String, String> extraFields;
 
     /**
@@ -75,21 +61,13 @@ public class CardSignature {
         return signerId;
     }
 
-    private void setSignerId(String signerId) {
-        this.signerId = signerId;
-    }
-
     /**
-     * Gets signer type.
+     * Gets signer type of {@link SignerType} type
      *
      * @return the signer type
      */
     public String getSignerType() {
         return signerType;
-    }
-
-    private void setSignerType(String signerType) {
-        this.signerType = signerType;
     }
 
     /**
@@ -101,10 +79,6 @@ public class CardSignature {
         return signature;
     }
 
-    private void setSignature(String signature) {
-        this.signature = signature;
-    }
-
     /**
      * Gets snapshot.
      *
@@ -114,23 +88,14 @@ public class CardSignature {
         return snapshot;
     }
 
-    private void setSnapshot(String snapshot) {
-        this.snapshot = snapshot;
-    }
-
     /**
      * Gets extra fields associated with the signature.
      *
-     * @return the extra fields
+     * @return the extra fields associated with the signature
      */
     public Map<String, String> getExtraFields() {
         return extraFields;
     }
-
-    private void setExtraFields(Map<String, String> extraFields) {
-        this.extraFields = extraFields;
-    }
-
 
     /**
      * The type Card signature builder.

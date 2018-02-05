@@ -36,10 +36,14 @@ package com.virgilsecurity.sdk.common;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * The {@link TimeSpan} class is implemented to simplify work
+ * with time spans. You can easily specify time span for 5 min
+ * for example.
+ */
 public class TimeSpan {
 
     private Date date;
-    // TODO: 1/19/18 move to sdk package
 
     /**
      * Represents time interval in specified time unit

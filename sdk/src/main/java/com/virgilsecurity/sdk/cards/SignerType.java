@@ -33,10 +33,25 @@
 
 package com.virgilsecurity.sdk.cards;
 
+/**
+ * The {@link SignerType} enum defines supported signer types by Virgil Cards service.
+ */
 public enum SignerType {
+    /**
+     * Self signer type.
+     */
     SELF("self"),
+    /**
+     * App signer type.
+     */
     APP("app"),
+    /**
+     * Extra signer type.
+     */
     EXTRA("extra"),
+    /**
+     * Virgil signer type.
+     */
     VIRGIL("virgil");
 
     private final String signerType;
@@ -45,6 +60,12 @@ public enum SignerType {
         this.signerType = signerType;
     }
 
+    /**
+     * Gets the raw value based on chosen enum type.
+     * (ex. SignerType.SELF.getRawValue() will output "self").
+     *
+     * @return the raw value
+     */
     public String getRawValue() {
         return signerType;
     }

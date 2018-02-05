@@ -161,7 +161,7 @@ public class VirgilCardVerifier implements CardVerifier {
                              extraDataSnapshot.length);
         }
 
-        byte[] fingerprint = crypto.generateSHA256(combinedSnapshot);
+        byte[] fingerprint = crypto.generateSHA512(combinedSnapshot);
 
         if (!crypto.verifySignature(ConvertionUtils.base64ToBytes(signature.getSignature()),
                                     fingerprint,

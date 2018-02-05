@@ -30,32 +30,48 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.jwt;
 
-package com.virgilsecurity.sdk.jsonWebToken;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
-import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.crypto.Crypto;
+import org.junit.Before;
+import org.junit.Test;
 
-public class JWTIntegrationTest extends PropertyManager {
+import com.virgilsecurity.sdk.FakeDataFactory;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-    private Crypto crypto;
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class JWTTest {
 
-//    @Before
-//    public void setUp() {
-//        crypto = new VirgilCrypto();
-//    }
-//    @Test
-//    public CardManager getCardManager(String getIdentity) throws CryptoException {
-//        PrivateKey apiPrivateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY));
-//
-//        HashMap<String, String> data = new HashMap<>();
-//        data.put("username", "my username");
-//
-//        AccessTokenBuilder tokenBuilder = new AccessTokenBuilder(ACCOUNT_ID,
-//                                                                 APP_CARD_ID,
-//                                                                 TimeSpan.fromTime(10, TimeUnit.MINUTES),
-//                                                                 apiPrivateKey,
-//                                                                 crypto);
-//        String jwt = tokenBuilder.create(getIdentity, data);
-//    }
+    private FakeDataFactory fake;
+    private String identity;
+
+    @Before
+    public void setup() throws CryptoException {
+        this.fake = new FakeDataFactory();
+        this.identity = "IDENTITY_" + fake.getApplicationId();
+    }
+
+    @Test
+    public void generate_byIdentity() throws CryptoException {
+        JwtGenerator generator = fake.getJwtGenerator();
+        Jwt jwt = generator.generateToken(this.identity);
+
+        assertNotNull(jwt);
+        assertEquals(this.identity, jwt.getIdentity());
+    }
+
+    @Test
+    public void instantiate_fromString() throws CryptoException {
+        Jwt jwt = this.fake.generateToken();
+        Jwt importedJwt = new Jwt(jwt.toString());
+
+        assertEquals(jwt, importedJwt);
+        assertEquals(jwt.toString(), importedJwt.toString());
+    }
+
 }

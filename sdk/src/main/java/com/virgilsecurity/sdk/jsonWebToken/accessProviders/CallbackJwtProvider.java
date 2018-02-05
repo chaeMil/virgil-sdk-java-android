@@ -34,10 +34,10 @@
 package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
 
 import com.sun.istack.internal.NotNull;
-import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.utils.Validator;
 
 public class CallbackJwtProvider implements AccessTokenProvider {

@@ -240,7 +240,7 @@ public class VirgilCrypto {
                 throw new SignatureIsNotValidException();
             }
 
-            boolean isValid = signer.verify(signature, decryptedData, signerPublicKey.getRawKey());
+            boolean isValid = signer.verify(decryptedData, signature, signerPublicKey.getRawKey());
             if (!isValid) {
                 throw new SignatureIsNotValidException();
             }
@@ -519,6 +519,9 @@ public class VirgilCrypto {
      * @throws CryptoException
      */
     public VirgilPublicKey importPublicKey(byte[] keyData) throws CryptoException {
+        if (keyData == null) {
+            throw new NullArgumentException("keyData");
+        }
         try {
             byte[] receiverId = computePublicKeyHash(keyData);
             byte[] value = VirgilKeyPair.publicKeyToDER(keyData);

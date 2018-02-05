@@ -43,6 +43,7 @@ import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 /**
  * @author Andrii Iakovenko
@@ -86,6 +87,16 @@ public class VirgilPrivateKeyExporterTest {
         VirgilPrivateKey importedKey = (VirgilPrivateKey) exporter.importPrivateKey(exportedKeyData);
         assertNotNull(importedKey);
         assertEquals(privateKey, importedKey);
+    }
+    
+    @Test(expected = NullArgumentException.class)
+    public void importPrivateKey_null() throws CryptoException {
+        exporter.importPrivateKey(null);
+    }
+    
+    @Test(expected = CryptoException.class)
+    public void importPrivateKey_invalidData() throws CryptoException {
+        exporter.importPrivateKey("wrong_data".getBytes());
     }
 
 }

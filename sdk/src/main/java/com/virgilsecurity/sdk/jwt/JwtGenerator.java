@@ -31,15 +31,15 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt;
+
+import java.util.Date;
+import java.util.Map;
 
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-
-import java.util.Date;
-import java.util.Map;
 
 public class JwtGenerator {
 
@@ -49,16 +49,13 @@ public class JwtGenerator {
     private final String appId;
     private final TimeSpan ttl;
 
-    public JwtGenerator(PrivateKey apiKey,
-                        String apiPublicKeyIdentifier,
-                        AccessTokenSigner accessTokenSigner,
-                        String appId,
-                        TimeSpan ttl) {
+    public JwtGenerator(String appId, PrivateKey apiKey, String apiPublicKeyIdentifier, TimeSpan ttl,
+            AccessTokenSigner accessTokenSigner) {
+        this.appId = appId;
         this.apiKey = apiKey;
         this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
-        this.accessTokenSigner = accessTokenSigner;
-        this.appId = appId;
         this.ttl = ttl;
+        this.accessTokenSigner = accessTokenSigner;
     }
 
     public Jwt generateToken(String identity, Map<String, String> additionalData) throws CryptoException {
@@ -66,8 +63,8 @@ public class JwtGenerator {
         JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, additionalData, ttl, new Date());
 
         Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
-        jwtToken.setSignatureData(accessTokenSigner.generateTokenSignature(jwtToken.snapshotWithoutSignatures(),
-                                                                           apiKey));
+        jwtToken.setSignatureData(
+                accessTokenSigner.generateTokenSignature(jwtToken.snapshotWithoutSignatures(), apiKey));
 
         return jwtToken;
     }
@@ -77,8 +74,8 @@ public class JwtGenerator {
         JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, ttl, new Date());
 
         Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
-        jwtToken.setSignatureData(accessTokenSigner.generateTokenSignature(jwtToken.snapshotWithoutSignatures(),
-                                                                           apiKey));
+        jwtToken.setSignatureData(
+                accessTokenSigner.generateTokenSignature(jwtToken.snapshotWithoutSignatures(), apiKey));
 
         return jwtToken;
     }

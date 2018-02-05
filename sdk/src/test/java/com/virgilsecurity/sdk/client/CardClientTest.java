@@ -39,7 +39,7 @@ import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.common.TestUtils;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
+import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Assert;
 import org.junit.Before;

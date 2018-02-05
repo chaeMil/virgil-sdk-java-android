@@ -60,7 +60,7 @@ public interface CardCrypto {
      * @return The fingerprint for specified data.
      * @throws CryptoException
      */
-    byte[] generateSHA256(byte[] data) throws CryptoException;
+    byte[] generateSHA512(byte[] data) throws CryptoException;
 
     /**
      * Generates the digital signature for the specified {@code data} using the specified {@link PrivateKey}

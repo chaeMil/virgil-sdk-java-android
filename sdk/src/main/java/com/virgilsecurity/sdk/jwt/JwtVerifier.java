@@ -31,31 +31,29 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt;
 
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.PublicKey;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-public class JwtParser {
+public class JwtVerifier {
 
-    public static JwtBodyContent parseJwtBodyContent(String jsonWebTokenBody) {
-        if (jsonWebTokenBody == null)
-            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenBody' should not be null");
+    private PublicKey apiPublicKey;
+    private String apiPublicKeyIdentifier;
+    private AccessTokenSigner accessTokenSigner;
 
-        return ConvertionUtils.deserializeFromJson(jsonWebTokenBody, JwtBodyContent.class);
+    public JwtVerifier(PublicKey apiPublicKey,
+                       String apiPublicKeyIdentifier,
+                       AccessTokenSigner accessTokenSigner) {
+        this.apiPublicKey = apiPublicKey;
+        this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
+        this.accessTokenSigner = accessTokenSigner;
     }
 
-    public static String buildJwtBody(JwtBodyContent jwtBodyContent) {
-        return ConvertionUtils.serializeToJson(jwtBodyContent);
-    }
-
-    public static JwtHeaderContent parseJwtHeaderContent(String jsonWebTokenHeader) {
-        if (jsonWebTokenHeader != null)
-            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenHeader' should not be null");
-
-        return ConvertionUtils.deserializeFromJson(jsonWebTokenHeader, JwtHeaderContent.class);
-    }
-
-    public static String buildJwtHeader(JwtHeaderContent jwtHeaderContent) {
-        return ConvertionUtils.serializeToJson(jwtHeaderContent);
+    public boolean verifyToken(Jwt jwtToken) throws CryptoException {
+        return accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(),
+                                                      jwtToken.snapshotWithoutSignatures(),
+                                                      apiPublicKey);
     }
 }

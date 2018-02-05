@@ -32,19 +32,21 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.common.ClassForSerialization;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
-import org.junit.Assert;
-import org.junit.Test;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.common.ClassForSerialization;
 
 /**
  * Unit tests for {@linkplain ConvertionUtils}.
@@ -55,105 +57,115 @@ import static org.junit.Assert.assertTrue;
  */
 public class ConvertionUtilsTest {
 
-	private static final String TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+    private static final String TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-	@Test
-	public void base64String() {
-		String base64string = ConvertionUtils.toBase64String(TEXT);
-		String str = ConvertionUtils.base64ToString(base64string);
+    @Test
+    public void base64String() {
+        String base64string = ConvertionUtils.toBase64String(TEXT);
+        String str = ConvertionUtils.base64ToString(base64string);
 
-		assertEquals(TEXT, str);
-	}
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void base64ByteArray() {
-		byte[] base64bytes = ConvertionUtils.toBase64Bytes(TEXT);
-		String str = ConvertionUtils.base64ToString(base64bytes);
+    @Test
+    public void base64ByteArray() {
+        byte[] base64bytes = ConvertionUtils.toBase64Bytes(TEXT);
+        String str = ConvertionUtils.base64ToString(base64bytes);
 
-		assertEquals(TEXT, str);
-	}
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void toBytes() {
-		byte[] bytes = ConvertionUtils.toBytes(TEXT);
-		String str = ConvertionUtils.toString(bytes);
-		assertEquals(TEXT, str);
-	}
+    @Test
+    public void toBytes() {
+        byte[] bytes = ConvertionUtils.toBytes(TEXT);
+        String str = ConvertionUtils.toString(bytes);
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void toHEX() {
-		byte[] bytes = ConvertionUtils.toBytes(TEXT);
-		String str = ConvertionUtils.toHex(bytes);
-		bytes = ConvertionUtils.hexToBytes(str);
-		str = ConvertionUtils.toString(bytes);
-		assertEquals(TEXT, str);
-	}
+    @Test
+    public void toHEX() {
+        byte[] bytes = ConvertionUtils.toBytes(TEXT);
+        String str = ConvertionUtils.toHex(bytes);
+        bytes = ConvertionUtils.hexToBytes(str);
+        str = ConvertionUtils.toString(bytes);
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void serialization() throws IOException, ClassNotFoundException {
+    @Test
+    public void serialization() throws IOException, ClassNotFoundException {
 
-		ClassForSerialization classForSerialization = new ClassForSerialization("Gregory", "Gilbert".getBytes());
+        ClassForSerialization classForSerialization = new ClassForSerialization("Gregory", "Gilbert".getBytes());
 
-		assertEquals(classForSerialization.getName(), "Gregory");
+        assertEquals(classForSerialization.getName(), "Gregory");
         assertEquals(new String(classForSerialization.getData()), "Gilbert");
 
-		String serializedObject = ConvertionUtils.serializeObject(classForSerialization);
+        String serializedObject = ConvertionUtils.serializeObject(classForSerialization);
 
-		System.out.println(serializedObject);
+        System.out.println(serializedObject);
 
-		ClassForSerialization deserializedClassForSerialization = (ClassForSerialization) ConvertionUtils.deserializeObject(serializedObject);
+        ClassForSerialization deserializedClassForSerialization = (ClassForSerialization) ConvertionUtils
+                .deserializeObject(serializedObject);
 
         assertEquals(deserializedClassForSerialization.getName(), "Gregory");
         assertEquals(new String(deserializedClassForSerialization.getData()), "Gilbert");
-	}
+    }
 
-	@Test
-	public void deSerializationJson() {
-		String rawJson = "{ \"id\": \"12345\", \"content_snapshot\":\"AQIDBAU=\" }";
-		RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
+    @Test
+    public void deSerializationJson() {
+        String rawJson = "{ \"id\": \"12345\", \"content_snapshot\":\"AQIDBAU=\" }";
+        RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
 
-		Assert.assertTrue(Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
-	}
+        Assert.assertTrue(Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
+    }
 
-	@Test
-	public void deSerializationHashMap() {
-		Map<String, String> additionalData = new HashMap<>();
-		additionalData.put("Info", "best");
-		additionalData.put("Hello", "Buddy");
+    @Test
+    public void deSerializationHashMap() {
+        Map<String, String> additionalData = new HashMap<>();
+        additionalData.put("Info", "best");
+        additionalData.put("Hello", "Buddy");
 
-		String hashMapSerialized = ConvertionUtils.serializeToJson(additionalData);
-		Map<String, String> deserializeFromJson = ConvertionUtils.deserializeFromJson(hashMapSerialized);
+        String hashMapSerialized = ConvertionUtils.serializeToJson(additionalData);
+        Map<String, String> deserializeFromJson = ConvertionUtils.deserializeMapFromJson(hashMapSerialized);
 
-		assertEquals(additionalData, deserializeFromJson);
-	}
+        assertEquals(additionalData, deserializeFromJson);
+    }
 
-	@Test
-	public void byteEquals() {
-		String hello = "Hello";
-		byte[] bArr1 = hello.getBytes();
-		byte[] bArr2 = hello.getBytes();
+    @Test
+    public void byteEquals() {
+        String hello = "Hello";
+        byte[] bArr1 = hello.getBytes();
+        byte[] bArr2 = hello.getBytes();
 
-		assertTrue(Arrays.equals(bArr1, bArr2));
-	}
+        assertTrue(Arrays.equals(bArr1, bArr2));
+    }
 
-	@Test
-	public void base64UrlConvertion() {
-		String raw = "This is the best string ever!";
-		String rawToB64 = ConvertionUtils.toBase64String(raw);
+    @Test
+    public void base64UrlConvertion() {
+        String raw = "This is the best string ever!";
 
-		String encodedBase64Url = ConvertionUtils.toBase64Url(rawToB64);
-		String decodedBase64Url = ConvertionUtils.fromBase64Url(encodedBase64Url);
+        String encodedBase64Url = ConvertionUtils.base64urlencode(raw);
+        String base64toRaw = ConvertionUtils.base64urldecode(encodedBase64Url);
 
-		String base64toRaw = ConvertionUtils.base64ToString(decodedBase64Url);
+        assertEquals(raw, base64toRaw);
+    }
 
-		assertEquals(raw, base64toRaw);
-	}
+    @Test
+    public void base64UrlBytesConvertion() {
+        Random random = new Random();
+        byte[] data = new byte[100];
+        random.nextBytes(data);
 
-	@Test
-	public void backslashJsonSerialization() {
-		String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
+        String encoded = ConvertionUtils.base64urlencode(data);
+        byte[] decoded = ConvertionUtils.base64urldecodeToBytes(encoded);
+
+        assertArrayEquals(data, decoded);
+    }
+
+    @Test
+    public void backslashJsonSerialization() {
+        String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
         String serializedToJson = ConvertionUtils.serializeToJson(hello);
 
         assertEquals(hello, serializedToJson.replace("\"", ""));
-	}
+    }
 }

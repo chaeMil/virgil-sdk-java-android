@@ -31,45 +31,31 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.utils.Validator;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jwt.JwtGenerator;
-import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.common.PropertyManager;
+import com.virgilsecurity.sdk.crypto.Crypto;
 
-import java.util.Map;
+public class JWTIntegrationTest extends PropertyManager {
 
-public class GeneratorJwtProvider implements AccessTokenProvider {
+    private Crypto crypto;
 
-    private JwtGenerator jwtGenerator;
-    private Map<String, String> additionalData;
-
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
-    }
-
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
-        this.additionalData = additionalData;
-    }
-
-    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
-        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
-    }
-
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
-    }
-
-    public Map<String, String> getAdditionalData() {
-        return additionalData;
-    }
+//    @Before
+//    public void setUp() {
+//        crypto = new VirgilCrypto();
+//    }
+//    @Test
+//    public CardManager getCardManager(String getIdentity) throws CryptoException {
+//        PrivateKey apiPrivateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY));
+//
+//        HashMap<String, String> data = new HashMap<>();
+//        data.put("username", "my username");
+//
+//        AccessTokenBuilder tokenBuilder = new AccessTokenBuilder(ACCOUNT_ID,
+//                                                                 APP_CARD_ID,
+//                                                                 TimeSpan.fromTime(10, TimeUnit.MINUTES),
+//                                                                 apiPrivateKey,
+//                                                                 crypto);
+//        String jwt = tokenBuilder.create(getIdentity, data);
+//    }
 }

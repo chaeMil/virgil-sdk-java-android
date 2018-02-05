@@ -31,7 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -49,31 +49,31 @@ public class JwtHeaderContent {
     @SerializedName("kid")
     private String keyIdentifier;
 
+    /**
+     * Create new instance of {@link JwtHeaderContent}.
+     */
     public JwtHeaderContent() {
-    }
-
-    public JwtHeaderContent(String keyIdentifier) {
-        this.keyIdentifier = keyIdentifier;
-
         this.algorithm = "VEDS512";
         this.type = "JWT";
         this.contentType = "virgil-jwt;v=1";
     }
 
+    public JwtHeaderContent(String keyIdentifier) {
+        this();
+        this.keyIdentifier = keyIdentifier;
+    }
+
     public JwtHeaderContent(String algorithm, String keyIdentifier) {
+        this();
         this.algorithm = algorithm;
         this.keyIdentifier = keyIdentifier;
-
-        this.type = "JWT";
-        this.contentType = "virgil-jwt;v=1";
     }
 
     public JwtHeaderContent(String algorithm, String type, String keyIdentifier) {
+        this();
         this.algorithm = algorithm;
         this.type = type;
         this.keyIdentifier = keyIdentifier;
-
-        this.contentType = "virgil-jwt;v=1";
     }
 
     public JwtHeaderContent(String algorithm, String type, String contentType, String keyIdentifier) {
@@ -114,4 +114,58 @@ public class JwtHeaderContent {
     void setKeyIdentifier(String keyIdentifier) {
         this.keyIdentifier = keyIdentifier;
     }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((algorithm == null) ? 0 : algorithm.hashCode());
+        result = prime * result + ((contentType == null) ? 0 : contentType.hashCode());
+        result = prime * result + ((keyIdentifier == null) ? 0 : keyIdentifier.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        JwtHeaderContent other = (JwtHeaderContent) obj;
+        if (algorithm == null) {
+            if (other.algorithm != null)
+                return false;
+        } else if (!algorithm.equals(other.algorithm))
+            return false;
+        if (contentType == null) {
+            if (other.contentType != null)
+                return false;
+        } else if (!contentType.equals(other.contentType))
+            return false;
+        if (keyIdentifier == null) {
+            if (other.keyIdentifier != null)
+                return false;
+        } else if (!keyIdentifier.equals(other.keyIdentifier))
+            return false;
+        if (type == null) {
+            if (other.type != null)
+                return false;
+        } else if (!type.equals(other.type))
+            return false;
+        return true;
+    }
+
 }

@@ -34,10 +34,11 @@
 package com.virgilsecurity.sdk.crypto;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 /**
- * The {@link VirgilCardCrypto} class provides a cryptographic operations in applications, such as hashing,
- * signature generation and verification, and encryption and decryption.
+ * The {@link VirgilCardCrypto} class provides a cryptographic operations in applications, such as hashing, signature
+ * generation and verification, and encryption and decryption.
  *
  * @see CardCrypto
  * @see PrivateKey
@@ -57,14 +58,19 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
+     * 
      * <pre>
-     * {@code
-     * VirgilCardCrypto crypto = new VirgilCardCrypto();
+     * {
+     *     &#64;code
+     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
      * }
      * </pre>
      */
     @Override
     public byte[] exportPublicKey(PublicKey publicKey) throws CryptoException {
+        if (publicKey == null) {
+            throw new NullArgumentException("publicKey");
+        }
         if (!(publicKey instanceof VirgilPublicKey))
             throw new CryptoException("VirgilCrypto -> 'publicKey' should be of 'VirgilPublicKey' type");
 
@@ -72,22 +78,28 @@ public class VirgilCardCrypto implements CardCrypto {
     }
 
     @Override
-    public byte[] generateSHA256(byte[] data) throws CryptoException { // TODO: 2/2/18 change to sha512
-        return virgilCrypto.generateHash(data, HashAlgorithm.SHA256);
+    public byte[] generateSHA512(byte[] data) throws CryptoException {
+        return virgilCrypto.generateHash(data, HashAlgorithm.SHA512);
     }
 
     /**
      * Example of usage:
+     * 
      * <pre>
-     * {@code
-     * VirgilCardCrypto crypto = new VirgilCardCrypto();
+     * {
+     *     &#64;code
+     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
      * }
      * </pre>
      */
     @Override
     public byte[] generateSignature(byte[] data, PrivateKey privateKey) throws CryptoException {
-        if (!(privateKey instanceof VirgilPrivateKey))
+        if (privateKey == null) {
+            throw new NullArgumentException("privateKey");
+        }
+        if (!(privateKey instanceof VirgilPrivateKey)) {
             throw new CryptoException("VirgilCrypto -> 'privateKey' should be of 'VirgilPrivateKey' type");
+        }
 
         return virgilCrypto.generateSignature(data, (VirgilPrivateKey) privateKey);
     }
@@ -103,9 +115,11 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
+     * 
      * <pre>
-     * {@code
-     * VirgilCardCrypto crypto = new VirgilCardCrypto();
+     * {
+     *     &#64;code
+     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
      * }
      * </pre>
      * <p>
@@ -118,19 +132,25 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
+     * 
      * <pre>
-     * {@code
-     * VirgilCardCrypto crypto = new VirgilCardCrypto();
+     * {
+     *     &#64;code
+     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
      * }
      * </pre>
      * <p>
-     * How to get signature see the {@link #generateSignature(byte[], PrivateKey)}
-     * How to get exportedPublicKey see the {@link #exportPublicKey(PublicKey)}
+     * How to get signature see the {@link #generateSignature(byte[], PrivateKey)} How to get exportedPublicKey see the
+     * {@link #exportPublicKey(PublicKey)}
      */
     @Override
     public boolean verifySignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException {
-        if (!(publicKey instanceof VirgilPublicKey))
+        if (publicKey == null) {
+            throw new NullArgumentException("publicKey");
+        }
+        if (!(publicKey instanceof VirgilPublicKey)) {
             throw new CryptoException("VirgilCrypto -> 'publicKey' should be of 'VirgilPublicKey' type");
+        }
 
         return virgilCrypto.verifySignature(signature, data, (VirgilPublicKey) publicKey);
     }

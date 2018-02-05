@@ -33,7 +33,7 @@
 
 package com.virgilsecurity.sdk.jsonWebToken.contract;
 
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
+import com.virgilsecurity.sdk.jwt.Jwt;
 
 public interface AccessManager {
 

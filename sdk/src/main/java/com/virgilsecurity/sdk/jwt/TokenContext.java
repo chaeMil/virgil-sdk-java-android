@@ -31,29 +31,38 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken;
+package com.virgilsecurity.sdk.jwt;
 
-import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.PublicKey;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+public class TokenContext {
 
-public class JwtVerifier {
+    private String identity;
+    private String operation;
+    private boolean forceReload;
 
-    private PublicKey apiPublicKey;
-    private String apiPublicKeyIdentifier;
-    private AccessTokenSigner accessTokenSigner;
-
-    public JwtVerifier(PublicKey apiPublicKey,
-                       String apiPublicKeyIdentifier,
-                       AccessTokenSigner accessTokenSigner) {
-        this.apiPublicKey = apiPublicKey;
-        this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
-        this.accessTokenSigner = accessTokenSigner;
+    public TokenContext(String operation, boolean forceReload) {
+        this.operation = operation;
+        this.forceReload = forceReload;
     }
 
-    public boolean verifyToken(Jwt jwtToken) throws CryptoException {
-        return accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(),
-                                                      jwtToken.snapshotWithoutSignatures(),
-                                                      apiPublicKey);
+    public TokenContext(String identity, String operation, boolean forceReload) {
+        this.identity = identity;
+        this.operation = operation;
+        this.forceReload = forceReload;
+    }
+
+    public String getIdentity() {
+        return identity;
+    }
+
+    public void setIdentity(String identity) {
+        this.identity = identity;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public boolean isForceReload() {
+        return forceReload;
     }
 }

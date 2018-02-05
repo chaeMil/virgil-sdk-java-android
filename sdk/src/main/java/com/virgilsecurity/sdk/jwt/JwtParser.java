@@ -31,45 +31,33 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.utils.Validator;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jwt.JwtGenerator;
-import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
-import java.util.Map;
+public class JwtParser {
 
-public class GeneratorJwtProvider implements AccessTokenProvider {
+    public static JwtBodyContent parseJwtBodyContent(String jsonWebTokenBody) {
+        if (jsonWebTokenBody == null) {
+            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenBody' should not be null");
+        }
 
-    private JwtGenerator jwtGenerator;
-    private Map<String, String> additionalData;
-
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
+        return ConvertionUtils.deserializeFromJson(jsonWebTokenBody, JwtBodyContent.class);
     }
 
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
-        this.additionalData = additionalData;
+    public static String buildJwtBody(JwtBodyContent jwtBodyContent) {
+        return ConvertionUtils.serializeToJson(jwtBodyContent);
     }
 
-    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
-        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
+    public static JwtHeaderContent parseJwtHeaderContent(String jsonWebTokenHeader) {
+        if (jsonWebTokenHeader == null) {
+            throw new IllegalArgumentException("JwtParser -> 'jsonWebTokenHeader' should not be null");
+        }
+
+        return ConvertionUtils.deserializeFromJson(jsonWebTokenHeader, JwtHeaderContent.class);
     }
 
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
-    }
-
-    public Map<String, String> getAdditionalData() {
-        return additionalData;
+    public static String buildJwtHeader(JwtHeaderContent jwtHeaderContent) {
+        return ConvertionUtils.serializeToJson(jwtHeaderContent);
     }
 }

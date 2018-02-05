@@ -44,10 +44,10 @@ import com.virgilsecurity.sdk.common.ClassForSerialization;
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
-import com.virgilsecurity.sdk.jsonWebToken.JwtGenerator;
-import com.virgilsecurity.sdk.jsonWebToken.JwtVerifier;
 import com.virgilsecurity.sdk.jsonWebToken.accessProviders.ConstAccessTokenProvider;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.JwtGenerator;
+import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -86,7 +86,7 @@ public class CrossCompatibilityTest {
 
         String serialized = ConvertionUtils.serializeToJson(classForSerialization);
 
-        Map<String, String> mapJson = ConvertionUtils.deserializeFromJson(serialized);
+        Map<String, String> mapJson = ConvertionUtils.deserializeMapFromJson(serialized);
         String data = "";
         for (Map.Entry<String, String> entry : mapJson.entrySet())
             if (entry.getKey().equals("data"))

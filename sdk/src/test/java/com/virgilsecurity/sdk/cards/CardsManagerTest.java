@@ -228,7 +228,7 @@ public class CardsManagerTest extends PropertyManager {
                                         String signerId =
                                                 null;
                                         try {
-                                            signerId = ConvertionUtils.toString(cardCrypto.generateSHA256(
+                                            signerId = ConvertionUtils.toString(cardCrypto.generateSHA512(
                                                     cardModel.getContentSnapshot()),
                                                                                 StringEncoding.HEX);
                                         } catch (CryptoException e) {

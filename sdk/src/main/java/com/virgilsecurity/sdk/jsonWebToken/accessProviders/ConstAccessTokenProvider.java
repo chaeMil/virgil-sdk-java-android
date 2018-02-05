@@ -33,10 +33,10 @@
 
 package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
 
-import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.TokenContext;
 
 public class ConstAccessTokenProvider implements AccessTokenProvider {
 

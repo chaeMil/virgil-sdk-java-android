@@ -30,39 +30,45 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.jwt;
 
-package com.virgilsecurity.sdk.jsonWebToken;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-public class TokenContext {
+import org.junit.Before;
+import org.junit.Test;
 
-    private String identity;
-    private String operation;
-    private boolean forceReload;
+import com.virgilsecurity.sdk.FakeDataFactory;
+import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-    public TokenContext(String operation, boolean forceReload) {
-        this.operation = operation;
-        this.forceReload = forceReload;
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class JwtVerifierTest {
+
+    private FakeDataFactory fake;
+    private JwtVerifier verifier;
+
+    @Before
+    public void setup() throws CryptoException {
+        this.fake = new FakeDataFactory();
+
+        AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+        this.verifier = new JwtVerifier(fake.getApiPublicKey(), fake.getApiPublicKeyId(), accessTokenSigner);
     }
 
-    public TokenContext(String identity, String operation, boolean forceReload) {
-        this.identity = identity;
-        this.operation = operation;
-        this.forceReload = forceReload;
+    @Test
+    public void verifyToken() throws CryptoException {
+        Jwt token = fake.generateToken();
+        Jwt importedToken = new Jwt(token.toString());
+
+        assertEquals(importedToken, token);
+        assertEquals(importedToken.toString(), token.toString());
+
+        assertTrue(this.verifier.verifyToken(token));
     }
 
-    public String getIdentity() {
-        return identity;
-    }
-
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
-
-    public String getOperation() {
-        return operation;
-    }
-
-    public boolean isForceReload() {
-        return forceReload;
-    }
 }

@@ -75,7 +75,7 @@ public class ModelSigner {
                      SignerType type,
                      PrivateKey privateKey) throws CryptoException {
 
-        byte[] fingerprint = crypto.generateSHA256(cardModel.getContentSnapshot());
+        byte[] fingerprint = crypto.generateSHA512(cardModel.getContentSnapshot());
         byte[] signature = crypto.generateSignature(fingerprint, privateKey);
 
         RawSignature rawSignature = new RawSignature(id,
@@ -113,7 +113,7 @@ public class ModelSigner {
                          cardModel.getContentSnapshot().length,
                          additionalData.length);
 
-        byte[] fingerprint = crypto.generateSHA256(combinedSnapshot);
+        byte[] fingerprint = crypto.generateSHA512(combinedSnapshot);
         byte[] signature = crypto.generateSignature(fingerprint, privateKey);
 
         RawSignature rawSignature = new RawSignature(id,
@@ -148,7 +148,7 @@ public class ModelSigner {
                          cardModel.getContentSnapshot().length,
                          additionalData.length);
 
-        String signerId = ConvertionUtils.toString(crypto.generateSHA256(combinedSnapshot),
+        String signerId = ConvertionUtils.toString(crypto.generateSHA512(combinedSnapshot),
                                                    StringEncoding.HEX);
 
         sign(cardModel, signerId, SignerType.SELF, additionalData, privateKey);
@@ -163,7 +163,7 @@ public class ModelSigner {
      * @see #sign(RawSignedModel, String, SignerType, PrivateKey)
      */
     public void selfSign(RawSignedModel cardModel, PrivateKey privateKey) throws CryptoException {
-        String signerId = ConvertionUtils.toString(crypto.generateSHA256(cardModel.getContentSnapshot()),
+        String signerId = ConvertionUtils.toString(crypto.generateSHA512(cardModel.getContentSnapshot()),
                                                    StringEncoding.HEX);
 
         sign(cardModel, signerId, SignerType.SELF, privateKey);

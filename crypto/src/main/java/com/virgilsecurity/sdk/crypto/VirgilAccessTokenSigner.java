@@ -34,6 +34,7 @@
 package com.virgilsecurity.sdk.crypto;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 /**
  * The Virgil implementation of access token signer.
@@ -43,6 +44,8 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
  * @see PublicKey
  */
 public class VirgilAccessTokenSigner implements AccessTokenSigner {
+
+    private static final String ALGORITHM = "VEDS512";
 
     private VirgilCrypto virgilCrypto;
 
@@ -55,21 +58,25 @@ public class VirgilAccessTokenSigner implements AccessTokenSigner {
 
     @Override
     public byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException {
-        if (!(privateKey instanceof VirgilPrivateKey))
+        if (privateKey == null) {
+            throw new NullArgumentException("privateKey");
+        }
+        if (!(privateKey instanceof VirgilPrivateKey)) {
             throw new CryptoException("VirgilAccessTokenSigner -> 'privateKey' should be of 'VirgilPrivateKey' type");
+        }
 
         return virgilCrypto.generateSignature(token, (VirgilPrivateKey) privateKey);
     }
 
     @Override
     public String getAlgorithm() {
-        return "VEDS512";
+        return ALGORITHM;
     }
 
     /**
-     * Gets virgil crypto.
+     * Gets Virgil crypto.
      *
-     * @return the virgil crypto
+     * @return the Virgil crypto
      */
     public VirgilCrypto getVirgilCrypto() {
         return virgilCrypto;

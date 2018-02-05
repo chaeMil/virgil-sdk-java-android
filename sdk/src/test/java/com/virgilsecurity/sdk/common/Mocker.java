@@ -41,12 +41,12 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.Jwt;
-import com.virgilsecurity.sdk.jsonWebToken.JwtGenerator;
-import com.virgilsecurity.sdk.jsonWebToken.JwtVerifier;
-import com.virgilsecurity.sdk.jsonWebToken.TokenContext;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
 import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.JwtGenerator;
+import com.virgilsecurity.sdk.jwt.JwtVerifier;
+import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import javafx.util.Pair;
 

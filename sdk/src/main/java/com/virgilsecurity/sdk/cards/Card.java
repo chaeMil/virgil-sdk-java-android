@@ -223,7 +223,7 @@ public class Card {
 
         byte[] fingerprint = new byte[0];
         try {
-            fingerprint = crypto.generateSHA256(combinedSnapshot);
+            fingerprint = crypto.generateSHA512(combinedSnapshot);
         } catch (CryptoException e) {
             e.printStackTrace();
         }
@@ -246,7 +246,7 @@ public class Card {
                 if (rawSignature.getSnapshot() != null) {
                     String snapshot = rawSignature.getSnapshot();
                     Map<String, String> additionalDataSignature =
-                            ConvertionUtils.deserializeFromJson(ConvertionUtils.base64ToString(snapshot));
+                            ConvertionUtils.deserializeMapFromJson(ConvertionUtils.base64ToString(snapshot));
 
                     cardSignature.snapshot(snapshot);
                     cardSignature.extraFields(additionalDataSignature);

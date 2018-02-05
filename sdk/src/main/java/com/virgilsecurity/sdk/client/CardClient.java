@@ -32,20 +32,20 @@
  */
 package com.virgilsecurity.sdk.client;
 
-import com.sun.tools.javac.util.Pair;
-import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
-import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
-import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
-import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.exception.EmptyArgumentException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
+
+import com.sun.tools.javac.util.Pair;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
+import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
+import com.virgilsecurity.sdk.exception.EmptyArgumentException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 
 public class CardClient {

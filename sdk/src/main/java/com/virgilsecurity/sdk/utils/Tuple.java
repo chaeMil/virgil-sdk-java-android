@@ -30,42 +30,64 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.virgilsecurity.sdk.utils;
 
 /**
- * Logger which is used to print logs to console.
+ * @author Andrii Iakovenko
+ *
  */
-public class Log {
+public class Tuple<A, B> {
+
+    private A left;
+
+    private B right;
 
     /**
-     * Logging with Debug level.
-     *
-     * @param message
-     *            to print in logs.
+     * Create new instance of {@link Tuple}.
      */
-    public static void d(String message) {
-        // FIXME com.oracle.tools.packager.Log.debug(message);
-        // See Java Commons Logging
+    public Tuple() {
     }
 
     /**
-     * Logging with Info level.
-     *
-     * @param message
-     *            to print in logs.
+     * Create new instance of {@link Tuple}.
+     * 
+     * @param left
+     * @param right
      */
-    public static void i(String message) {
-        // com.oracle.tools.packager.Log.info(message);
+    public Tuple(A left, B right) {
+        super();
+        this.left = left;
+        this.right = right;
     }
 
     /**
-     * Logging with Verbose level.
-     *
-     * @param message
-     *            to print in logs.
+     * @return the left
      */
-    public static void v(String message) {
-        // com.oracle.tools.packager.Log.verbose(message);
+    public A getLeft() {
+        return left;
     }
+
+    /**
+     * @param left
+     *            the left to set
+     */
+    public void setLeft(A left) {
+        this.left = left;
+    }
+
+    /**
+     * @return the right
+     */
+    public B getRight() {
+        return right;
+    }
+
+    /**
+     * @param right
+     *            the right to set
+     */
+    public void setRight(B right) {
+        this.right = right;
+    }
+
 }

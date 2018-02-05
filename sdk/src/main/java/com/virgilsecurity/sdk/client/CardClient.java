@@ -38,7 +38,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
-import com.sun.tools.javac.util.Pair;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -46,6 +45,7 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.exception.EmptyArgumentException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.Tuple;
 
 
 public class CardClient {
@@ -88,18 +88,18 @@ public class CardClient {
      * @param token  token to authorize the request.
      * @return the card loaded from VIRGIL Cards service.
      */
-    public Pair<RawSignedModel, Boolean> getCard(String cardId,
+    public Tuple<RawSignedModel, Boolean> getCard(String cardId,
                                                  String token) {
         try {
             URL url = new URL(serviceUrl, "" + cardId);
 
-            return new Pair<>(httpClient.execute(url,
+            return new Tuple<>(httpClient.execute(url,
                                                  "GET",
                                                  token,
                                                  null,
                                                  RawSignedModel.class), false);
         } catch (VirgilCardIsOutdatedException e) {
-            return new Pair<>(e.getCardModel(), true); // FIXME: 1/30/18 temporary workaround with 403 for outdated card
+            return new Tuple<>(e.getCardModel(), true); // FIXME: 1/30/18 temporary workaround with 403 for outdated card
         } catch (VirgilServiceException e) {
             throw e;
         } catch (Exception e) {

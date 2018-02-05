@@ -33,24 +33,10 @@
 
 package com.virgilsecurity.sdk;
 
-import com.virgilsecurity.sdk.cards.Card;
-import com.virgilsecurity.sdk.cards.CardManager;
-import com.virgilsecurity.sdk.cards.ModelSigner;
-import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.cards.model.RawCardContent;
-import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.common.ClassForSerialization;
-import com.virgilsecurity.sdk.common.TimeSpan;
-import com.virgilsecurity.sdk.crypto.*;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.accessProviders.ConstAccessTokenProvider;
-import com.virgilsecurity.sdk.jwt.Jwt;
-import com.virgilsecurity.sdk.jwt.JwtGenerator;
-import com.virgilsecurity.sdk.jwt.JwtVerifier;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import org.junit.Test;
-import org.mockito.Mockito;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -60,7 +46,29 @@ import java.util.Calendar;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import com.virgilsecurity.sdk.cards.Card;
+import com.virgilsecurity.sdk.cards.CardManager;
+import com.virgilsecurity.sdk.cards.ModelSigner;
+import com.virgilsecurity.sdk.cards.model.RawCardContent;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
+import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.common.ClassForSerialization;
+import com.virgilsecurity.sdk.common.TimeSpan;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.jsonWebToken.accessProviders.ConstAccessTokenProvider;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.JwtGenerator;
+import com.virgilsecurity.sdk.jwt.JwtVerifier;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 public class CrossCompatibilityTest {
 
@@ -72,7 +80,7 @@ public class CrossCompatibilityTest {
 
         assertEquals(cardContent.getIdentity(), "test");
         assertEquals(ConvertionUtils.toBase64String(cardContent.getPublicKey()),
-                     "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO: 1/24/18 check strings equals
+                "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO: 1/24/18 check strings equals
         assertEquals(cardContent.getVersion(), "5.0");
         assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
         assertNull(cardContent.getPreviousCardId());
@@ -80,9 +88,9 @@ public class CrossCompatibilityTest {
     }
 
     @Test
-    public void autoByteToBase64StringSerialization() { // FIXME: 1/29/18 Check where we can change String with byte[] in models - gson automatically will transform it
-        ClassForSerialization classForSerialization =
-                new ClassForSerialization("Petro", "Grigorovych".getBytes());
+    public void autoByteToBase64StringSerialization() { // FIXME: 1/29/18 Check where we can change String with byte[]
+                                                        // in models - gson automatically will transform it
+        ClassForSerialization classForSerialization = new ClassForSerialization("Petro", "Grigorovych".getBytes());
 
         String serialized = ConvertionUtils.serializeToJson(classForSerialization);
 
@@ -111,8 +119,11 @@ public class CrossCompatibilityTest {
         RawCardContent cardContent = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()));
 
         assertEquals(cardContent.getIdentity(), "test");
-        assertEquals(cardContent.getPublicKey(),
-                     "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO: 1/24/18 check strings equals
+        assertEquals(cardContent.getPublicKey(), "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO:
+                                                                                                                  // 1/24/18
+                                                                                                                  // check
+                                                                                                                  // strings
+                                                                                                                  // equals
         assertEquals(cardContent.getVersion(), "5.0");
         assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
         assertNull(cardContent.getPreviousCardId());
@@ -135,36 +146,36 @@ public class CrossCompatibilityTest {
         RawCardContent cardContent = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()));
 
         assertEquals(cardContent.getIdentity(), "test");
-        assertEquals(cardContent.getPublicKey(),
-                     "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO: 1/24/18 check strings equals
+        assertEquals(cardContent.getPublicKey(), "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO:
+                                                                                                                  // 1/24/18
+                                                                                                                  // check
+                                                                                                                  // strings
+                                                                                                                  // equals
         assertEquals(cardContent.getVersion(), "5.0");
         assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
         assertEquals(cardContent.getPreviousCardId(),
-                     "a666318071274adb738af3f67b8c7ec29d954de2cabfd71a942e6ea38e59fff9");
+                "a666318071274adb738af3f67b8c7ec29d954de2cabfd71a942e6ea38e59fff9");
         assertEquals(cardModel.getSignatures().size(), 3);
 
         assertEquals(cardModel.getSignatures().get(0).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQFfpZUY8aD0SzmU7rJh49bm4CD7wyTtYeTWLddJzJDS+0HpST3DulxMfBjQfWq5Y3upj49odzQNhOaATz3fF3gg=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQFfpZUY8aD0SzmU7rJh49bm4CD7wyTtYeTWLddJzJDS+0HpST3DulxMfBjQfWq5Y3upj49odzQNhOaATz3fF3gg=");
         assertEquals(cardModel.getSignatures().get(0).getSignerId(),
-                     "e6fbcad760b3d89610a96230718a6c0522d0dbb1dd264273401d9634c1bb5be0");
-        assertEquals(cardModel.getSignatures().get(0).getSignerType(),
-                     "self");
+                "e6fbcad760b3d89610a96230718a6c0522d0dbb1dd264273401d9634c1bb5be0");
+        assertEquals(cardModel.getSignatures().get(0).getSignerType(), "self");
         assertNull(cardModel.getSignatures().get(0).getSnapshot());
 
         assertEquals(cardModel.getSignatures().get(1).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQKLcj0Tx0dOTET6vmFmc+xk9BKOfsidoXdcl0BWr4hwL3SaEiQR3E2PT7VcVr6yIKMEneUmmlvL/mqbRCZ1dwQo=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQKLcj0Tx0dOTET6vmFmc+xk9BKOfsidoXdcl0BWr4hwL3SaEiQR3E2PT7VcVr6yIKMEneUmmlvL/mqbRCZ1dwQo=");
         assertEquals(cardModel.getSignatures().get(1).getSignerId(),
-                     "5b748aa6890d90c4fe199300f8ff10b4e1fdfd50140774ca6b03adb121ee94e1");
-        assertEquals(cardModel.getSignatures().get(1).getSignerType(),
-                     "virgil");
+                "5b748aa6890d90c4fe199300f8ff10b4e1fdfd50140774ca6b03adb121ee94e1");
+        assertEquals(cardModel.getSignatures().get(1).getSignerType(), "virgil");
         assertNull(cardModel.getSignatures().get(1).getSnapshot());
 
         assertEquals(cardModel.getSignatures().get(2).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQHqRoiTjhbbDZfYLsXexjdywiNOH2HlEe84yZaWKIo5AiKGTAVsE31JgSBCCNvBn5FBymNSpbtNGH3Td17xePAQ=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQHqRoiTjhbbDZfYLsXexjdywiNOH2HlEe84yZaWKIo5AiKGTAVsE31JgSBCCNvBn5FBymNSpbtNGH3Td17xePAQ=");
         assertEquals(cardModel.getSignatures().get(2).getSignerId(),
-                     "d729624f302f03f4cf83062bd24af9c44aa35b11670a155300bf3a8560dfa30f");
-        assertEquals(cardModel.getSignatures().get(2).getSignerType(),
-                     "extra");
+                "d729624f302f03f4cf83062bd24af9c44aa35b11670a155300bf3a8560dfa30f");
+        assertEquals(cardModel.getSignatures().get(2).getSignerType(), "extra");
         assertNull(cardModel.getSignatures().get(2).getSnapshot());
     }
 
@@ -184,46 +195,46 @@ public class CrossCompatibilityTest {
         RawCardContent cardContent = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()));
 
         assertEquals(cardContent.getIdentity(), "test");
-        assertEquals(cardContent.getPublicKey(),
-                     "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO: 1/24/18 check strings equals
+        assertEquals(cardContent.getPublicKey(), "MCowBQYDK2VwAyEA3J0Ivcs4/ahBafrn6mB4t+UI+IBhWjC/toVDrPJcCZk="); // TODO:
+                                                                                                                  // 1/24/18
+                                                                                                                  // check
+                                                                                                                  // strings
+                                                                                                                  // equals
         assertEquals(cardContent.getVersion(), "5.0");
         assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
         assertEquals(cardContent.getPreviousCardId(),
-                     "a666318071274adb738af3f67b8c7ec29d954de2cabfd71a942e6ea38e59fff9");
+                "a666318071274adb738af3f67b8c7ec29d954de2cabfd71a942e6ea38e59fff9");
         assertEquals(cardModel.getSignatures().size(), 3);
 
         assertEquals(cardModel.getSignatures().get(0).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQBZXfYW66lifuWn9rmVg6XWWLXmisVcOScL/ZeX68cdIFrtpfZN+nE+CKMSjQxQ6kDChPuijwSm17KTORth6dwM=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQBZXfYW66lifuWn9rmVg6XWWLXmisVcOScL/ZeX68cdIFrtpfZN+nE+CKMSjQxQ6kDChPuijwSm17KTORth6dwM=");
         assertEquals(cardModel.getSignatures().get(0).getSignerId(),
-                     "e6fbcad760b3d89610a96230718a6c0522d0dbb1dd264273401d9634c1bb5be0");
-        assertEquals(cardModel.getSignatures().get(0).getSignerType(),
-                     "self");
+                "e6fbcad760b3d89610a96230718a6c0522d0dbb1dd264273401d9634c1bb5be0");
+        assertEquals(cardModel.getSignatures().get(0).getSignerType(), "self");
         assertNull(cardModel.getSignatures().get(0).getSnapshot());
 
         assertEquals(cardModel.getSignatures().get(1).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQMnSEhoPYG9ZURa22Cd1aClcSt6KPrOKST/jSr/TSx+KPmf+X9qKzSLJcT3fN1+ViDS4FdouqOOxmHo+75NsOQo=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQMnSEhoPYG9ZURa22Cd1aClcSt6KPrOKST/jSr/TSx+KPmf+X9qKzSLJcT3fN1+ViDS4FdouqOOxmHo+75NsOQo=");
         assertEquals(cardModel.getSignatures().get(1).getSignerId(),
-                     "85b229cf9dc183b1f90980900149f7200ae9667e938279cc130e4f71f47e94ef");
-        assertEquals(cardModel.getSignatures().get(1).getSignerType(),
-                     "virgil");
+                "85b229cf9dc183b1f90980900149f7200ae9667e938279cc130e4f71f47e94ef");
+        assertEquals(cardModel.getSignatures().get(1).getSignerType(), "virgil");
         assertNull(cardModel.getSignatures().get(1).getSnapshot());
 
         assertEquals(cardModel.getSignatures().get(2).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQNKnaa9I7BSR8wJUOCjE2XVS48XbBZqiQ3R2oynQ5YtHzC7o4wp1ZZRktR+ZTwhCKrLdwINRUqbwRvhrMygPwAE=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQNKnaa9I7BSR8wJUOCjE2XVS48XbBZqiQ3R2oynQ5YtHzC7o4wp1ZZRktR+ZTwhCKrLdwINRUqbwRvhrMygPwAE=");
         assertEquals(cardModel.getSignatures().get(2).getSignerId(),
-                     "e0f7a620202a26891faa175d8a8552b7c81a7b7678247c02385dbb8f7112bc7b");
-        assertEquals(cardModel.getSignatures().get(2).getSignerType(),
-                     "extra");
+                "e0f7a620202a26891faa175d8a8552b7c81a7b7678247c02385dbb8f7112bc7b");
+        assertEquals(cardModel.getSignatures().get(2).getSignerType(), "extra");
         assertNull(cardModel.getSignatures().get(2).getSnapshot());
     }
 
     @Test
     public void parseSnapsot() {
-        String snapshot = "eyJpZGVudGl0eSI6IlRFU1QiLCJwdWJsaWNfa2V5IjoiTUNvd0JRWURLMlZ3QXlFQVpUdHZkVmE2YnhLUENWcDZVW" +
-                "nBwMFhJNDdhN3lNTlNNb2FYZ0R5VHQvak09IiwidmVyc2lvbiI6IjUuMCIsImNyZWF0ZWRfYXQiOjE1MTc5MDQ2NzN9";
+        String snapshot = "eyJpZGVudGl0eSI6IlRFU1QiLCJwdWJsaWNfa2V5IjoiTUNvd0JRWURLMlZ3QXlFQVpUdHZkVmE2YnhLUENWcDZVW"
+                + "nBwMFhJNDdhN3lNTlNNb2FYZ0R5VHQvak09IiwidmVyc2lvbiI6IjUuMCIsImNyZWF0ZWRfYXQiOjE1MTc5MDQ2NzN9";
 
         RawCardContent cardContent = ConvertionUtils.deserializeFromJson(ConvertionUtils.base64ToString(snapshot),
-                                                                         RawCardContent.class);
+                RawCardContent.class);
 
         String serializedSnapshot = ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(cardContent));
         assertEquals(snapshot, serializedSnapshot);
@@ -235,12 +246,9 @@ public class CrossCompatibilityTest {
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
 
-        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto),
-                                                  cardCrypto,
-                                                  new ConstAccessTokenProvider(),
-                                                  cardVerifier,
-                                                  new CardClient(),
-                                                  Mockito.mock(CardManager.SignCallback.class));
+        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto), cardCrypto,
+                new ConstAccessTokenProvider(), cardVerifier, new CardClient(),
+                Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromJson = readFile("t3_as_json.txt");
         Card card = cardManager.importCardAsJson(importedFromJson);
@@ -268,12 +276,9 @@ public class CrossCompatibilityTest {
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
 
-        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto),
-                                                  cardCrypto,
-                                                  new ConstAccessTokenProvider(),
-                                                  cardVerifier,
-                                                  new CardClient(),
-                                                  Mockito.mock(CardManager.SignCallback.class));
+        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto), cardCrypto,
+                new ConstAccessTokenProvider(), cardVerifier, new CardClient(),
+                Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromJson = readFile("t3_as_str.txt");
         Card card = cardManager.importCardAsJson(ConvertionUtils.base64ToString(importedFromJson));
@@ -302,12 +307,9 @@ public class CrossCompatibilityTest {
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
 
-        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto),
-                                                  cardCrypto,
-                                                  new ConstAccessTokenProvider(),
-                                                  cardVerifier,
-                                                  new CardClient(),
-                                                  Mockito.mock(CardManager.SignCallback.class));
+        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto), cardCrypto,
+                new ConstAccessTokenProvider(), cardVerifier, new CardClient(),
+                Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromJson = readFile("t4_as_json.txt");
         Card card = cardManager.importCardAsJson(importedFromJson);
@@ -329,27 +331,24 @@ public class CrossCompatibilityTest {
         assertEquals(card.getSignatures().size(), 3);
 
         assertEquals(card.getSignatures().get(0).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQD/hFd+IvQ+gZWeyw2G8ajnlQmPPCtd8HwcuHqaUt0SYBkLOw9yN7btER0fw3ErLljtgVxasFfwuJhnginUc9Q4=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQD/hFd+IvQ+gZWeyw2G8ajnlQmPPCtd8HwcuHqaUt0SYBkLOw9yN7btER0fw3ErLljtgVxasFfwuJhnginUc9Q4=");
         assertEquals(card.getSignatures().get(0).getSignerId(),
-                     "665e7fa683538fe94701a012e92ffba9261de2504e235eed28076ae73a39ce61");
-        assertEquals(card.getSignatures().get(0).getSignerType(),
-                     "self");
+                "665e7fa683538fe94701a012e92ffba9261de2504e235eed28076ae73a39ce61");
+        assertEquals(card.getSignatures().get(0).getSignerType(), "self");
         assertNull(card.getSignatures().get(0).getSnapshot());
 
         assertEquals(card.getSignatures().get(1).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQBa6lxRDHhiUYw+VxFr8S25GZ75YEg1yPFJtHpB0+2sZNCIlQnhrtEdfhmubP2wb8a5mMvdreaNqAFqe4UUVCg8=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQBa6lxRDHhiUYw+VxFr8S25GZ75YEg1yPFJtHpB0+2sZNCIlQnhrtEdfhmubP2wb8a5mMvdreaNqAFqe4UUVCg8=");
         assertEquals(card.getSignatures().get(1).getSignerId(),
-                     "6493f2e1031e20923db2e3a463b84f8ba7666385b5d8f491393a10af7ed32da9");
-        assertEquals(card.getSignatures().get(1).getSignerType(),
-                     "virgil");
+                "6493f2e1031e20923db2e3a463b84f8ba7666385b5d8f491393a10af7ed32da9");
+        assertEquals(card.getSignatures().get(1).getSignerType(), "virgil");
         assertNull(card.getSignatures().get(1).getSnapshot());
 
         assertEquals(card.getSignatures().get(2).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQJMl893Iki6qMN7nWgAIglMKJ2O4xdqhfC9w0FM6a3bd+J9plJz9DDSyRs++RjCkJ3xRcZbyA0SpI2TtKoEIzQ0=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQJMl893Iki6qMN7nWgAIglMKJ2O4xdqhfC9w0FM6a3bd+J9plJz9DDSyRs++RjCkJ3xRcZbyA0SpI2TtKoEIzQ0=");
         assertEquals(card.getSignatures().get(2).getSignerId(),
-                     "071c7e3db1a6ccd04de3a916823070dcbeef75af8283df8c9e60a8c80d711369");
-        assertEquals(card.getSignatures().get(2).getSignerType(),
-                     "extra");
+                "071c7e3db1a6ccd04de3a916823070dcbeef75af8283df8c9e60a8c80d711369");
+        assertEquals(card.getSignatures().get(2).getSignerType(), "extra");
         assertNull(card.getSignatures().get(2).getSnapshot());
     }
 
@@ -359,12 +358,9 @@ public class CrossCompatibilityTest {
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
 
-        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto),
-                                                  cardCrypto,
-                                                  new ConstAccessTokenProvider(),
-                                                  cardVerifier,
-                                                  new CardClient(),
-                                                  Mockito.mock(CardManager.SignCallback.class));
+        CardManager cardManager = new CardManager(new ModelSigner(cardCrypto), cardCrypto,
+                new ConstAccessTokenProvider(), cardVerifier, new CardClient(),
+                Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromJson = readFile("t4_as_str.txt");
         Card card = cardManager.importCardAsJson(ConvertionUtils.base64ToString(importedFromJson));
@@ -386,27 +382,24 @@ public class CrossCompatibilityTest {
         assertEquals(card.getSignatures().size(), 3);
 
         assertEquals(card.getSignatures().get(0).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQD/hFd+IvQ+gZWeyw2G8ajnlQmPPCtd8HwcuHqaUt0SYBkLOw9yN7btER0fw3ErLljtgVxasFfwuJhnginUc9Q4=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQD/hFd+IvQ+gZWeyw2G8ajnlQmPPCtd8HwcuHqaUt0SYBkLOw9yN7btER0fw3ErLljtgVxasFfwuJhnginUc9Q4=");
         assertEquals(card.getSignatures().get(0).getSignerId(),
-                     "665e7fa683538fe94701a012e92ffba9261de2504e235eed28076ae73a39ce61");
-        assertEquals(card.getSignatures().get(0).getSignerType(),
-                     "self");
+                "665e7fa683538fe94701a012e92ffba9261de2504e235eed28076ae73a39ce61");
+        assertEquals(card.getSignatures().get(0).getSignerType(), "self");
         assertNull(card.getSignatures().get(0).getSnapshot());
 
         assertEquals(card.getSignatures().get(1).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQBa6lxRDHhiUYw+VxFr8S25GZ75YEg1yPFJtHpB0+2sZNCIlQnhrtEdfhmubP2wb8a5mMvdreaNqAFqe4UUVCg8=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQBa6lxRDHhiUYw+VxFr8S25GZ75YEg1yPFJtHpB0+2sZNCIlQnhrtEdfhmubP2wb8a5mMvdreaNqAFqe4UUVCg8=");
         assertEquals(card.getSignatures().get(1).getSignerId(),
-                     "6493f2e1031e20923db2e3a463b84f8ba7666385b5d8f491393a10af7ed32da9");
-        assertEquals(card.getSignatures().get(1).getSignerType(),
-                     "virgil");
+                "6493f2e1031e20923db2e3a463b84f8ba7666385b5d8f491393a10af7ed32da9");
+        assertEquals(card.getSignatures().get(1).getSignerType(), "virgil");
         assertNull(card.getSignatures().get(1).getSnapshot());
 
         assertEquals(card.getSignatures().get(2).getSignature(),
-                     "MFEwDQYJYIZIAWUDBAICBQAEQJMl893Iki6qMN7nWgAIglMKJ2O4xdqhfC9w0FM6a3bd+J9plJz9DDSyRs++RjCkJ3xRcZbyA0SpI2TtKoEIzQ0=");
+                "MFEwDQYJYIZIAWUDBAICBQAEQJMl893Iki6qMN7nWgAIglMKJ2O4xdqhfC9w0FM6a3bd+J9plJz9DDSyRs++RjCkJ3xRcZbyA0SpI2TtKoEIzQ0=");
         assertEquals(card.getSignatures().get(2).getSignerId(),
-                     "071c7e3db1a6ccd04de3a916823070dcbeef75af8283df8c9e60a8c80d711369");
-        assertEquals(card.getSignatures().get(2).getSignerType(),
-                     "extra");
+                "071c7e3db1a6ccd04de3a916823070dcbeef75af8283df8c9e60a8c80d711369");
+        assertEquals(card.getSignatures().get(2).getSignerType(), "extra");
         assertNull(card.getSignatures().get(2).getSnapshot());
     }
 
@@ -417,8 +410,7 @@ public class CrossCompatibilityTest {
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
         VirgilCrypto crypto = new VirgilCrypto();
         JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                                                  apiPublicKeyIdentifier,
-                                                  accessTokenSigner);
+                apiPublicKeyIdentifier, accessTokenSigner);
 
         String jwtImported = readFile("jwt.txt");
         Jwt jwt = new Jwt(jwtImported);
@@ -433,14 +425,10 @@ public class CrossCompatibilityTest {
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
         VirgilCrypto crypto = new VirgilCrypto();
         JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                                                  apiPublicKeyIdentifier,
-                                                  accessTokenSigner);
+                apiPublicKeyIdentifier, accessTokenSigner);
 
-        JwtGenerator jwtGenerator = new JwtGenerator(Mockito.mock(PrivateKey.class),
-                                                     "API_PUBLIC_KEY_IDENTIFIER",
-                                                     accessTokenSigner,
-                                                     "APP_ID",
-                                                     TimeSpan.fromTime(1, TimeUnit.HOURS));
+        JwtGenerator jwtGenerator = new JwtGenerator("APP_ID", Mockito.mock(PrivateKey.class),
+                "API_PUBLIC_KEY_IDENTIFIER", TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
         Jwt jwt = jwtGenerator.generateToken("test");
 
         assertTrue(jwtVerifier.verifyToken(jwt));

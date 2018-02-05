@@ -48,6 +48,10 @@ import java.util.Arrays;
 import java.util.List;
 
 
+/**
+ * The {@link CardClient} class represents a Virgil Security service
+ * client and contains all methods for interaction with server.
+ */
 public class CardClient {
 
     private URL serviceUrl;
@@ -62,6 +66,8 @@ public class CardClient {
 
     /**
      * Create a new instance of {@code CardClient}
+     *
+     * @param serviceUrl the service url to fire requests to
      */
     public CardClient(String serviceUrl) {
         try {
@@ -75,6 +81,8 @@ public class CardClient {
 
     /**
      * Create a new instance of {@code CardClient}
+     *
+     * @param serviceUrl the service url to fire requests to
      */
     public CardClient(URL serviceUrl) {
         this.serviceUrl = serviceUrl;
@@ -82,11 +90,11 @@ public class CardClient {
     }
 
     /**
-     * Get card by identifier.
+     * Get card from Virgil Services by specified identifier.
      *
      * @param cardId the card identifier.
      * @param token  token to authorize the request.
-     * @return the card loaded from VIRGIL Cards service.
+     * @return the card loaded from Virgil Cards service.
      */
     public Pair<RawSignedModel, Boolean> getCard(String cardId,
                                                  String token) {
@@ -110,10 +118,10 @@ public class CardClient {
     /**
      * Publishes card in Virgil Cards service.
      *
-     * @param rawCard the create card request.
+     * @param rawCard raw signed model of card to be published.
      * @param token   token to authorize the request.
-     * @return the card that is published to VIRGIL Cards service.
-     * @throws VirgilServiceException if an error occurred.
+     * @return the {@link RawSignedModel} of the Card that is published to Virgil Cards service.
+     * @throws VirgilServiceException if an error occurred while publishing Card.
      */
     public RawSignedModel publishCard(RawSignedModel rawCard, String token) throws VirgilServiceException {
         try {
@@ -133,11 +141,11 @@ public class CardClient {
     }
 
     /**
-     * Search cards by criteria.
+     * Search cards Virgil Services by specified identity.
      *
      * @param identity the identity for search.
      * @param token    token to authorize the request.
-     * @return the found cards list.
+     * @return A list of found cards.
      */
     public List<RawSignedModel> searchCards(String identity, String token) {
         if (identity == null)
@@ -165,14 +173,29 @@ public class CardClient {
         }
     }
 
+    /**
+     * Gets http client that is used to fire requests.
+     *
+     * @return the http client
+     */
     public HttpClient getHttpClient() {
         return httpClient;
     }
 
+    /**
+     * Sets http client that is used to fire requests.
+     *
+     * @param httpClient the http client
+     */
     public void setHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;
     }
 
+    /**
+     * Gets service url that is used to fire requests to.
+     *
+     * @return the service url
+     */
     public URL getServiceUrl() {
         return serviceUrl;
     }

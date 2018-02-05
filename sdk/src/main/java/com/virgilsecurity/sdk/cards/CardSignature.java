@@ -36,33 +36,41 @@ package com.virgilsecurity.sdk.cards;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * The {@link CardSignature} class represents set of data that defines signature of Card.
+ */
 public class CardSignature {
 
     /**
-     * The card ID.
+     * The signer identifier.
      */
     private String signerId;
 
     /**
-     * Gets the type of signer signature.
+     * The type of signer signature. Can be only one of the {@link SignerType}.
      */
     private String signerType;
 
     /**
-     * The digital signature
+     * The generated digital signature.
      */
     private String signature;
 
     /**
-     * The digital snapshot
+     * The digital snapshot.
      */
     private String snapshot;
 
     /**
-     * EXTRA fields
+     * Custom fields associated with the signature.
      */
     private Map<String, String> extraFields;
 
+    /**
+     * Gets signer identifier.
+     *
+     * @return the signer identifier
+     */
     public String getSignerId() {
         return signerId;
     }
@@ -71,6 +79,11 @@ public class CardSignature {
         this.signerId = signerId;
     }
 
+    /**
+     * Gets signer type.
+     *
+     * @return the signer type
+     */
     public String getSignerType() {
         return signerType;
     }
@@ -79,6 +92,11 @@ public class CardSignature {
         this.signerType = signerType;
     }
 
+    /**
+     * Gets signer signature.
+     *
+     * @return the signature
+     */
     public String getSignature() {
         return signature;
     }
@@ -87,6 +105,11 @@ public class CardSignature {
         this.signature = signature;
     }
 
+    /**
+     * Gets snapshot.
+     *
+     * @return the snapshot
+     */
     public String getSnapshot() {
         return snapshot;
     }
@@ -95,6 +118,11 @@ public class CardSignature {
         this.snapshot = snapshot;
     }
 
+    /**
+     * Gets extra fields associated with the signature.
+     *
+     * @return the extra fields
+     */
     public Map<String, String> getExtraFields() {
         return extraFields;
     }
@@ -104,6 +132,9 @@ public class CardSignature {
     }
 
 
+    /**
+     * The type Card signature builder.
+     */
     public static final class CardSignatureBuilder {
         private String signerId;
         private String signerType;
@@ -111,34 +142,72 @@ public class CardSignature {
         private String snapshot;
         private Map<String, String> extraFields;
 
+        /**
+         * Instantiates a new Card signature builder.
+         */
         public CardSignatureBuilder() {
         }
 
+        /**
+         * Set signer identifier.
+         *
+         * @param signerId the signer id
+         * @return the card signature builder
+         */
         public CardSignatureBuilder signerId(String signerId) {
             this.signerId = signerId;
             return this;
         }
 
+        /**
+         * Set signer type of {@link SignerType}.
+         *
+         * @param signerType the signer type
+         * @return the card signature builder
+         */
         public CardSignatureBuilder signerType(String signerType) {
             this.signerType = signerType;
             return this;
         }
 
+        /**
+         * Set signature.
+         *
+         * @param signature the signature
+         * @return the card signature builder
+         */
         public CardSignatureBuilder signature(String signature) {
             this.signature = signature;
             return this;
         }
 
+        /**
+         * Set snapshot.
+         *
+         * @param snapshot the snapshot
+         * @return the card signature builder
+         */
         public CardSignatureBuilder snapshot(String snapshot) {
             this.snapshot = snapshot;
             return this;
         }
 
+        /**
+         * Set extra fields.
+         *
+         * @param extraFields the extra fields
+         * @return the card signature builder
+         */
         public CardSignatureBuilder extraFields(Map<String, String> extraFields) {
             this.extraFields = extraFields;
             return this;
         }
 
+        /**
+         * Build {@link CardSignature}.
+         *
+         * @return the card signature
+         */
         public CardSignature build() {
             CardSignature cardSignature = new CardSignature();
             cardSignature.snapshot = this.snapshot;
@@ -150,7 +219,8 @@ public class CardSignature {
         }
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CardSignature that = (CardSignature) o;
@@ -161,7 +231,8 @@ public class CardSignature {
                 Objects.equals(extraFields, that.extraFields);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
 
         return Objects.hash(signerId, signerType, signature, snapshot, extraFields);
     }

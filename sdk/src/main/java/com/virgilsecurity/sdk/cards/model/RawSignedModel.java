@@ -41,6 +41,9 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The Raw signed model.
+ */
 public class RawSignedModel {
 
     @SerializedName("content_snapshot")
@@ -49,46 +52,101 @@ public class RawSignedModel {
     @SerializedName("signatures")
     private List<RawSignature> signatures;
 
+    /**
+     * Instantiates a new Raw signed model.
+     *
+     * @param contentSnapshot the content snapshot
+     */
     public RawSignedModel(byte[] contentSnapshot) {
         this.contentSnapshot = contentSnapshot;
 
         signatures = new ArrayList<>();
     }
 
+    /**
+     * Instantiates a new Raw signed model.
+     *
+     * @param contentSnapshot the content snapshot
+     * @param signatures      the list of signatures
+     */
     public RawSignedModel(byte[] contentSnapshot,
                           List<RawSignature> signatures) {
         this.contentSnapshot = contentSnapshot;
         this.signatures = signatures;
     }
 
+    /**
+     * Get content snapshot.
+     *
+     * @return the byte [ ]
+     */
     public byte[] getContentSnapshot() {
         return contentSnapshot;
     }
 
+    /**
+     * Sets content snapshot.
+     *
+     * @param contentSnapshot the content snapshot
+     */
     public void setContentSnapshot(byte[] contentSnapshot) {
         this.contentSnapshot = contentSnapshot;
     }
 
+    /**
+     * Gets list of signatures.
+     *
+     * @return the signatures
+     */
     public List<RawSignature> getSignatures() {
         return signatures;
     }
 
+    /**
+     * Sets list of signatures.
+     *
+     * @param signatures the list of signatures
+     */
     public void setSignatures(List<RawSignature> signatures) {
         this.signatures = signatures;
     }
 
+    /**
+     * Export as base64 string.
+     *
+     * @return the string
+     * @throws IOException the io exception
+     */
     public String exportAsString() throws IOException {
         return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
     }
 
+    /**
+     * Export as json in string format.
+     *
+     * @return the string
+     * @throws IOException the io exception
+     */
     public String exportAsJson() throws IOException {
         return ConvertionUtils.serializeToJson(this);
     }
 
+    /**
+     * Instantiate {@link RawSignedModel} from provided base64 string.
+     *
+     * @param cardModel the card model
+     * @return the raw signed model
+     */
     public static RawSignedModel fromString(String cardModel) {
         return ConvertionUtils.deserializeFromJson(ConvertionUtils.base64ToString(cardModel), RawSignedModel.class);
     }
 
+    /**
+     * Instantiate {@link RawSignedModel} from provided string.
+     *
+     * @param cardModel the card model
+     * @return the raw signed model
+     */
     public static RawSignedModel fromJson(String cardModel) {
         return ConvertionUtils.deserializeFromJson(cardModel, RawSignedModel.class);
     }

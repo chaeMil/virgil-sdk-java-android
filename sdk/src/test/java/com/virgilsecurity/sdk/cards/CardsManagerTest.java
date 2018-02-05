@@ -50,11 +50,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.virgilsecurity.sdk.common.TestUtils.assertCardsEquals;
+import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
 import static org.junit.Assert.*;
 
 public class CardsManagerTest extends PropertyManager {
 
+    private static final String SIGNER_TYPE_EXTRA = "bestsignerever";
 
     private Mocker mocker;
     private VirgilCrypto crypto;
@@ -73,7 +74,7 @@ public class CardsManagerTest extends PropertyManager {
         cardVerifier = new VirgilCardVerifier(cardCrypto);
         cardManager = new CardManager(new ModelSigner(cardCrypto),
                                       cardCrypto,
-                                      new GeneratorJwtProvider(mocker.getJwtGenerator()),
+                                      new GeneratorJwtProvider(mocker.getJwtGenerator(), Generator.identity()),
                                       cardVerifier,
                                       cardClient,
                                       new CardManager.SignCallback() {
@@ -217,7 +218,7 @@ public class CardsManagerTest extends PropertyManager {
         CardManager cardManagerExtraSign =
                 new CardManager(new ModelSigner(cardCrypto),
                                 cardCrypto,
-                                new GeneratorJwtProvider(mocker.getJwtGenerator()),
+                                new GeneratorJwtProvider(mocker.getJwtGenerator(), Generator.identity()),
                                 cardVerifier,
                                 cardClient,
                                 new CardManager.SignCallback() {
@@ -237,7 +238,7 @@ public class CardsManagerTest extends PropertyManager {
                                         try {
                                             modelSigner.sign(cardModel,
                                                              signerId,
-                                                             SignerType.EXTRA,
+                                                             SIGNER_TYPE_EXTRA,
                                                              keyPairVirgiled.getPrivateKey());
                                         } catch (CryptoException e) {
                                             e.printStackTrace();

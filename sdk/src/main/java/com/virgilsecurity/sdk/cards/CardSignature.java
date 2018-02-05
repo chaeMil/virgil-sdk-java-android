@@ -33,6 +33,7 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,33 +42,18 @@ import java.util.Objects;
  */
 public class CardSignature {
 
-    private String signerId;
-
-
-    private String signerType;
-
-    private String signature;
-
-    private String snapshot;
-
+    private String signer;
+    private byte[] signature;
+    private byte[] snapshot;
     private Map<String, String> extraFields;
 
     /**
-     * Gets signer identifier.
+     * Gets signer.
      *
      * @return the signer identifier
      */
-    public String getSignerId() {
-        return signerId;
-    }
-
-    /**
-     * Gets signer type of {@link SignerType} type
-     *
-     * @return the signer type
-     */
-    public String getSignerType() {
-        return signerType;
+    public String getSigner() {
+        return signer;
     }
 
     /**
@@ -75,7 +61,7 @@ public class CardSignature {
      *
      * @return the signature
      */
-    public String getSignature() {
+    public byte[] getSignature() {
         return signature;
     }
 
@@ -84,7 +70,7 @@ public class CardSignature {
      *
      * @return the snapshot
      */
-    public String getSnapshot() {
+    public byte[] getSnapshot() {
         return snapshot;
     }
 
@@ -98,67 +84,36 @@ public class CardSignature {
     }
 
     /**
-     * The type Card signature builder.
+     * The Card signature builder.
      */
     public static final class CardSignatureBuilder {
-        private String signerId;
-        private String signerType;
-        private String signature;
-        private String snapshot;
+        private String signer;
+        private byte[] signature;
+        private byte[] snapshot;
         private Map<String, String> extraFields;
 
         /**
          * Instantiates a new Card signature builder.
          */
-        public CardSignatureBuilder() {
-        }
-
-        /**
-         * Set signer identifier.
-         *
-         * @param signerId the signer id
-         * @return the card signature builder
-         */
-        public CardSignatureBuilder signerId(String signerId) {
-            this.signerId = signerId;
-            return this;
-        }
-
-        /**
-         * Set signer type of {@link SignerType}.
-         *
-         * @param signerType the signer type
-         * @return the card signature builder
-         */
-        public CardSignatureBuilder signerType(String signerType) {
-            this.signerType = signerType;
-            return this;
-        }
-
-        /**
-         * Set signature.
-         *
-         * @param signature the signature
-         * @return the card signature builder
-         */
-        public CardSignatureBuilder signature(String signature) {
+        public CardSignatureBuilder(String signer,
+                                    byte[] signature) {
+            this.signer = signer;
             this.signature = signature;
-            return this;
         }
 
         /**
-         * Set snapshot.
+         * Sets snapshot. It's optional property.
          *
          * @param snapshot the snapshot
          * @return the card signature builder
          */
-        public CardSignatureBuilder snapshot(String snapshot) {
+        public CardSignatureBuilder snapshot(byte[] snapshot) {
             this.snapshot = snapshot;
             return this;
         }
 
         /**
-         * Set extra fields.
+         * Sets extra fields. It's optional property.
          *
          * @param extraFields the extra fields
          * @return the card signature builder
@@ -175,11 +130,11 @@ public class CardSignature {
          */
         public CardSignature build() {
             CardSignature cardSignature = new CardSignature();
-            cardSignature.snapshot = this.snapshot;
-            cardSignature.signerType = this.signerType;
-            cardSignature.signerId = this.signerId;
-            cardSignature.extraFields = this.extraFields;
+            cardSignature.signer = this.signer;
             cardSignature.signature = this.signature;
+            cardSignature.snapshot = this.snapshot;
+            cardSignature.extraFields = this.extraFields;
+
             return cardSignature;
         }
     }
@@ -189,16 +144,18 @@ public class CardSignature {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CardSignature that = (CardSignature) o;
-        return Objects.equals(signerId, that.signerId) &&
-                Objects.equals(signerType, that.signerType) &&
-                Objects.equals(signature, that.signature) &&
-                Objects.equals(snapshot, that.snapshot) &&
+        return Objects.equals(signer, that.signer) &&
+                Arrays.equals(signature, that.signature) &&
+                Arrays.equals(snapshot, that.snapshot) &&
                 Objects.equals(extraFields, that.extraFields);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(signerId, signerType, signature, snapshot, extraFields);
+        int result = Objects.hash(signer, extraFields);
+        result = 31 * result + Arrays.hashCode(signature);
+        result = 31 * result + Arrays.hashCode(snapshot);
+        return result;
     }
 }

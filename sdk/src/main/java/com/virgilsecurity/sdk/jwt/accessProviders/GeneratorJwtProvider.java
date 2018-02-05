@@ -50,16 +50,21 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
 
     private JwtGenerator jwtGenerator;
     private Map<String, String> additionalData;
+    private String defaultIdentity;
 
     /**
      * Instantiates a new Generator jwt provider.
      *
      * @param jwtGenerator the jwt generator
      */
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity) {
+        Validator.checkNullAgrument(jwtGenerator,
+                                    "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(defaultIdentity,
+                                    "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
 
         this.jwtGenerator = jwtGenerator;
+        this.defaultIdentity = defaultIdentity;
     }
 
     /**
@@ -68,16 +73,25 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
      * @param jwtGenerator   the jwt generator
      * @param additionalData the additional data
      */
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator,
+                                String defaultIdentity,
+                                Map<String, String> additionalData) {
+        Validator.checkNullAgrument(jwtGenerator,
+                                    "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(defaultIdentity,
+                                    "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
+        Validator.checkNullAgrument(additionalData,
+                                    "GeneratorJwtProvider -> 'additionalData' should not be null");
 
         this.jwtGenerator = jwtGenerator;
+        this.defaultIdentity = defaultIdentity;
         this.additionalData = additionalData;
     }
 
-    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
-        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
+    @Override
+    public AccessToken getToken(TokenContext context) throws CryptoException {
+        return jwtGenerator.generateToken(context.getIdentity() != null ? context.getIdentity() : defaultIdentity,
+                                          additionalData);
     }
 
     /**

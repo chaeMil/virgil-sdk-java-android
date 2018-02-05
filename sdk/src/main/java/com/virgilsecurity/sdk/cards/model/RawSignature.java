@@ -42,14 +42,11 @@ import java.util.Objects;
  */
 public class RawSignature {
 
-    @SerializedName("signer_id")
-    private String signerId;
-
     @SerializedName("snapshot")
     private String snapshot;
 
     @SerializedName("signer_type")
-    private String signerType;
+    private String signer;
 
     @SerializedName("signature")
     private String signature;
@@ -57,47 +54,25 @@ public class RawSignature {
     /**
      * Instantiates a new Raw signature.
      *
-     * @param signerId   the signer identifier
-     * @param signerType the signer type. Can be only one of {@link com.virgilsecurity.sdk.cards.SignerType}
-     * @param signature  the signature
+     * @param signer    the signer type
+     * @param signature the signature
      */
-    public RawSignature(String signerId, String signerType, String signature) {
-        this.signerId = signerId;
-        this.signerType = signerType;
+    public RawSignature(String signer, String signature) {
+        this.signer = signer;
         this.signature = signature;
     }
 
     /**
      * Instantiates a new Raw signature.
      *
-     * @param signerId   the signer identifier
-     * @param snapshot   the snapshot that contains additional data associated with signature
-     * @param signerType the signer type. Can be only one of {@link com.virgilsecurity.sdk.cards.SignerType}
-     * @param signature  the signature
+     * @param snapshot  the snapshot that contains additional data associated with signature
+     * @param signer    the signer type
+     * @param signature the signature
      */
-    public RawSignature(String signerId, String snapshot, String signerType, String signature) {
-        this.signerId = signerId;
+    public RawSignature(String snapshot, String signer, String signature) {
         this.snapshot = snapshot;
-        this.signerType = signerType;
+        this.signer = signer;
         this.signature = signature;
-    }
-
-    /**
-     * Gets signer identifier.
-     *
-     * @return the signer identifier
-     */
-    public String getSignerId() {
-        return signerId;
-    }
-
-    /**
-     * Sets signer identifier.
-     *
-     * @param signerId the signer identifier
-     */
-    public void setSignerId(String signerId) {
-        this.signerId = signerId;
     }
 
     /**
@@ -121,19 +96,19 @@ public class RawSignature {
     /**
      * Gets signer type.
      *
-     * @return the signer type of {@link com.virgilsecurity.sdk.cards.SignerType}
+     * @return the signer
      */
-    public String getSignerType() {
-        return signerType;
+    public String getSigner() {
+        return signer;
     }
 
     /**
      * Sets signer type.
      *
-     * @param signerType the signer type of {@link com.virgilsecurity.sdk.cards.SignerType}
+     * @param signer the signer
      */
-    public void setSignerType(String signerType) {
-        this.signerType = signerType;
+    public void setSigner(String signer) {
+        this.signer = signer;
     }
 
     /**
@@ -154,18 +129,19 @@ public class RawSignature {
         this.signature = signature;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RawSignature that = (RawSignature) o;
-        return Objects.equals(signerId, that.signerId) &&
-                Objects.equals(snapshot, that.snapshot) &&
-                Objects.equals(signerType, that.signerType) &&
+        return Objects.equals(snapshot, that.snapshot) &&
+                Objects.equals(signer, that.signer) &&
                 Objects.equals(signature, that.signature);
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
 
-        return Objects.hash(signerId, snapshot, signerType, signature);
+        return Objects.hash(snapshot, signer, signature);
     }
 }

@@ -37,36 +37,36 @@ package com.virgilsecurity.sdk.cards.validation;
  * The {@link VerifierCredentials} class represents data set of verifier.
  */
 public class VerifierCredentials {
-    private String id;
+    private String signer;
     private byte[] publicKey;
 
     /**
      * Instantiates a new Verifier credentials.
      *
-     * @param id        the identifier of verifier
+     * @param signer    the signer
      * @param publicKey the public key of verifier
      */
-    public VerifierCredentials(String id, byte[] publicKey) {
-        this.id = id;
+    public VerifierCredentials(String signer, byte[] publicKey) {
+        this.signer = signer;
         this.publicKey = publicKey;
     }
 
     /**
-     * Gets identifier of verifier.
+     * Gets signer.
      *
-     * @return the identifier of verifier
+     * @return the signer
      */
-    public String getId() {
-        return id;
+    public String getSigner() {
+        return signer;
     }
 
     /**
-     * Sets identifier of verifier.
+     * Sets signer.
      *
-     * @param id the identifier of verifier
+     * @param signer the signer
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setSigner(String signer) {
+        this.signer = signer;
     }
 
     /**
@@ -79,7 +79,7 @@ public class VerifierCredentials {
     }
 
     /**
-     * Sets public key  of verifier.
+     * Sets public key of verifier.
      *
      * @param publicKey the public key
      */

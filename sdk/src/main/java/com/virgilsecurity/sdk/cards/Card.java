@@ -33,7 +33,6 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import com.sun.istack.internal.NotNull;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -154,7 +153,6 @@ public class Card {
      * @param previousCard   the previous Card that current card is used to override
      * @param signatures     the list of signatures
      * @param isOutdated     whether the card is overridden by another card
-
      */
     public Card(String identifier,
                 String identity,
@@ -243,7 +241,7 @@ public class Card {
      *
      * @param previousCard the previous card
      */
-    public void setPreviousCard(@NotNull Card previousCard) {
+    public void setPreviousCard(Card previousCard) {
         Validator.checkNullAgrument(previousCard, "Card -> 'previousCard' shoud not be null");
         this.previousCard = previousCard;
     }
@@ -290,7 +288,7 @@ public class Card {
                                                                             RawCardContent.class);
         byte[] additionalData = new byte[0];
         for (RawSignature rawSignature : cardModel.getSignatures()) {
-            if (rawSignature.getSignerType().equals(SignerType.SELF.getRawValue())
+            if (rawSignature.getSigner().equals(SignerType.SELF.getRawValue())
                     && rawSignature.getSnapshot() != null)
                 additionalData = ConvertionUtils.base64ToBytes(rawSignature.getSnapshot());
         }
@@ -329,17 +327,15 @@ public class Card {
         List<CardSignature> cardSignatures = new ArrayList<>();
         if (cardModel.getSignatures() != null) {
             for (RawSignature rawSignature : cardModel.getSignatures()) {
-                CardSignature.CardSignatureBuilder cardSignature = new CardSignature.CardSignatureBuilder()
-                        .signerId(rawSignature.getSignerId())
-                        .signerType(rawSignature.getSignerType())
-                        .signature(rawSignature.getSignature());
-
+                CardSignature.CardSignatureBuilder cardSignature =
+                        new CardSignature.CardSignatureBuilder(rawSignature.getSigner(),
+                                                               ConvertionUtils.base64ToBytes(rawSignature.getSignature()));
                 if (rawSignature.getSnapshot() != null) {
                     String snapshot = rawSignature.getSnapshot();
                     Map<String, String> additionalDataSignature =
                             ConvertionUtils.deserializeMapFromJson(ConvertionUtils.base64ToString(snapshot));
 
-                    cardSignature.snapshot(snapshot);
+                    cardSignature.snapshot(ConvertionUtils.base64ToBytes(snapshot));
                     cardSignature.extraFields(additionalDataSignature);
                 }
 
@@ -375,17 +371,26 @@ public class Card {
 
         RawSignedModel cardModel = new RawSignedModel(snapshot);
 
-        for (CardSignature signature : signatures) {
-            cardModel.getSignatures().add(new RawSignature(signature.getSignerId(),
-                                                           signature.getSnapshot(),
-                                                           signature.getSignerType(),
-                                                           signature.getSignature()));
+        for (CardSignature signature : signatures) { // TODO: 2/5/18 check whether the snapshot and signature will be good without decoding from b64
+            cardModel.getSignatures().add(new RawSignature(new String(signature.getSnapshot()),
+                                                           signature.getSigner(),
+                                                           new String(signature.getSignature())));
         }
 
         return cardModel;
     }
 
-    @Override public int hashCode() {
+    public CardSignature getSelfSignature() {
+        for (CardSignature cardSignature : signatures) {
+            if (cardSignature.getSigner().equals(SignerType.SELF.getRawValue()))
+                return cardSignature;
+        }
+
+        throw new NullPointerException("Card -> card must have 'self' signature");
+    }
+
+    @Override
+    public int hashCode() {
 
         return Objects.hash(identifier,
                             identity,

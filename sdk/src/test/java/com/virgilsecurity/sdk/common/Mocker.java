@@ -33,30 +33,11 @@
 
 package com.virgilsecurity.sdk.common;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import com.sun.istack.internal.NotNull;
-import com.virgilsecurity.sdk.cards.Card;
-import com.virgilsecurity.sdk.cards.CardManager;
-import com.virgilsecurity.sdk.cards.CardSignature;
-import com.virgilsecurity.sdk.cards.ModelSigner;
-import com.virgilsecurity.sdk.cards.SignerType;
+import com.virgilsecurity.sdk.cards.*;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.PublicKey;
-import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
@@ -65,7 +46,12 @@ import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import com.virgilsecurity.sdk.utils.Tuple;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Mocker extends PropertyManager {
 
@@ -88,11 +74,11 @@ public class Mocker extends PropertyManager {
         }
 
         jwtGenerator = new JwtGenerator(APP_ID, privateKey, API_PUBLIC_KEY_IDENTIFIER,
-                TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+                                        TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
         try {
             verifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)),
-                    API_PUBLIC_KEY_IDENTIFIER, accessTokenSigner);
+                                       API_PUBLIC_KEY_IDENTIFIER, accessTokenSigner);
         } catch (CryptoException e) {
             e.printStackTrace();
         }
@@ -109,22 +95,20 @@ public class Mocker extends PropertyManager {
         String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
 
         List<CardSignature> signatures = new ArrayList<>();
-        signatures
-                .add(new CardSignature.CardSignatureBuilder().signerId(cardId).signerType(SignerType.SELF.getRawValue())
-                        .signature(ConvertionUtils.toBase64String(signatureSelf)).build());
+        signatures.add(new CardSignature.CardSignatureBuilder(SignerType.SELF.getRawValue(),
+                                                              signatureSelf).build());
 
-        signatures.add(
-                new CardSignature.CardSignatureBuilder().signerId(cardId).signerType(SignerType.VIRGIL.getRawValue())
-                        .signature(ConvertionUtils.toBase64String(signatureVirgil)).build());
+        signatures.add(new CardSignature.CardSignatureBuilder(SignerType.VIRGIL.getRawValue(),
+                                                              signatureVirgil).build());
 
         VirgilCrypto virgilCrypto = new VirgilCrypto();
         PublicKey somePublicKey = virgilCrypto.generateKeys().getPublicKey();
 
         return new Card(cardId, Generator.firstName(), somePublicKey,
-                Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
+                        Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
     }
 
-    public Card card(boolean addSelfSignature, boolean addVirgilSignature, @NotNull List<CardSignature> signatures) {
+    public Card card(boolean addSelfSignature, boolean addVirgilSignature, List<CardSignature> signatures) {
 
         if (signatures == null)
             throw new IllegalArgumentException("Generator -> 'signatures' should not be null");
@@ -139,21 +123,20 @@ public class Mocker extends PropertyManager {
 
         if (addSelfSignature) {
             signatures.add(
-                    new CardSignature.CardSignatureBuilder().signerId(cardId).signerType(SignerType.SELF.getRawValue())
-                            .signature(ConvertionUtils.toBase64String(signatureSelf)).build());
+                    new CardSignature.CardSignatureBuilder(SignerType.SELF.getRawValue(),
+                                                           signatureSelf).build());
         }
 
         if (addVirgilSignature) {
-            signatures.add(new CardSignature.CardSignatureBuilder().signerId(cardId)
-                    .signerType(SignerType.VIRGIL.getRawValue())
-                    .signature(ConvertionUtils.toBase64String(signatureVirgil)).build());
+            signatures.add(new CardSignature.CardSignatureBuilder(SignerType.VIRGIL.getRawValue(),
+                                                                  signatureVirgil).build());
         }
 
         VirgilCrypto virgilCrypto = new VirgilCrypto();
         PublicKey somePublicKey = virgilCrypto.generateKeys().getPublicKey();
 
         return new Card(cardId, Generator.firstName(), somePublicKey,
-                Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
+                        Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
     }
 
     public String cardId() {
@@ -162,20 +145,20 @@ public class Mocker extends PropertyManager {
         return ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
     }
 
-    public Tuple<VerifierCredentials, CardSignature> signerAndSignature() {
-        String cardId = cardId();
-        VirgilCrypto crypto = new VirgilCrypto();
-        VirgilKeyPair keyPair = crypto.generateKeys();
-        byte[] exportPublicKey = new byte[0];
-        try {
-            exportPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
-        } catch (CryptoException e) {
-            e.printStackTrace();
-        }
-
-        return new Tuple<>(new VerifierCredentials(cardId, exportPublicKey), new CardSignature.CardSignatureBuilder()
-                .signerId(cardId).signature(ConvertionUtils.toBase64String(Generator.randomBytes(64))).build());
-    }
+//    public Tuple<VerifierCredentials, CardSignature> signerAndSignature() {
+//        String cardId = cardId();
+//        VirgilCrypto crypto = new VirgilCrypto();
+//        VirgilKeyPair keyPair = crypto.generateKeys();
+//        byte[] exportPublicKey = new byte[0];
+//        try {
+//            exportPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
+//        } catch (CryptoException e) {
+//            e.printStackTrace();
+//        }
+//
+//        return new Tuple<>(new VerifierCredentials(cardId, exportPublicKey), new CardSignature.CardSignatureBuilder()
+//                .signerId(cardId).signature(ConvertionUtils.toBase64String(Generator.randomBytes(64))).build());
+//    }
 
     public RawSignedModel generateCardModel() throws CryptoException {
         Calendar calendar = Calendar.getInstance();
@@ -189,7 +172,8 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
         RawCardContent rawCardContent = new RawCardContent(IDENTITY,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
+                                                           ConvertionUtils.toBase64String(crypto.exportPublicKey(
+                                                                   publicKey)), "5.0", calendar.getTime());
 
         RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
 
@@ -211,7 +195,8 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
         RawCardContent rawCardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
+                                                           ConvertionUtils.toBase64String(crypto.exportPublicKey(
+                                                                   publicKey)), "5.0", calendar.getTime());
 
         RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
 

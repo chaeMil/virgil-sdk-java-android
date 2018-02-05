@@ -33,7 +33,6 @@
 
 package com.virgilsecurity.sdk.cards.validation;
 
-import com.sun.istack.internal.NotNull;
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardSignature;
 import com.virgilsecurity.sdk.cards.SignerType;
@@ -44,19 +43,17 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Log;
 import com.virgilsecurity.sdk.utils.Validator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The {@link VirgilCardVerifier} is used to verify cards.
  */
 public class VirgilCardVerifier implements CardVerifier {
-
-    private String virgilCardId = "a3dda3d499d91d8287194d399f992c2317f9b6c529d9a0e4972c6e244c399f25";
     private String virgilPublicKeyBase64 = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
 
-    private CardCrypto crypto;
+    private CardCrypto cardCrypto;
     private boolean verifySelfSignature = true;
     private boolean verifyVirgilSignature = true;
     private List<WhiteList> whiteLists;
@@ -64,11 +61,11 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Instantiates a new Virgil card verifier.
      *
-     * @param crypto the crypto
+     * @param cardCrypto the crypto
      */
-    public VirgilCardVerifier(@NotNull CardCrypto crypto) {
-        Validator.checkNullAgrument(crypto, "VirgilCardVerifier -> 'crypto' should not be null");
-        this.crypto = crypto;
+    public VirgilCardVerifier(CardCrypto cardCrypto) {
+        Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
+        this.cardCrypto = cardCrypto;
 
         this.whiteLists = new ArrayList<>();
     }
@@ -76,46 +73,47 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Instantiates a new Virgil card verifier.
      *
-     * @param crypto                the crypto
+     * @param cardCrypto            the card crypto
      * @param verifySelfSignature   whether the self signature should be verified
      * @param verifyVirgilSignature whether the virgil signature should be verified
      * @param whiteLists            the white lists that should contain Card signatures, otherwise Card validation
      *                              will be failed
      */
-    public VirgilCardVerifier(@NotNull CardCrypto crypto,
+    public VirgilCardVerifier(CardCrypto cardCrypto,
                               boolean verifySelfSignature,
                               boolean verifyVirgilSignature,
-                              @NotNull List<WhiteList> whiteLists) {
-        Validator.checkNullAgrument(crypto, "VirgilCardVerifier -> 'crypto' should not be null");
+                              List<WhiteList> whiteLists) {
+        Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
         Validator.checkNullAgrument(whiteLists, "VirgilCardVerifier -> 'whiteLists' should not be null");
 
-        this.crypto = crypto;
+        this.cardCrypto = cardCrypto;
         this.whiteLists = whiteLists;
         this.verifySelfSignature = verifySelfSignature;
         this.verifyVirgilSignature = verifyVirgilSignature;
     }
 
-    @Override public boolean verifyCard(Card card) throws IOException, CryptoException {
+    @Override
+    public boolean verifyCard(Card card) throws CryptoException {
         if (verifySelfSignature)
-            if (!validate(crypto, card, card.getIdentifier(), card.getPublicKey(), SignerType.SELF))
+            if (!verify(card, SignerType.SELF.getRawValue(), card.getPublicKey()))
                 return false;
 
         if (verifyVirgilSignature) {
             byte[] publicKeyData = ConvertionUtils.base64ToBytes(virgilPublicKeyBase64);
-            PublicKey publicKey = crypto.importPublicKey(publicKeyData);
+            PublicKey publicKey = cardCrypto.importPublicKey(publicKeyData);
 
-            if (!validate(crypto, card, virgilCardId, publicKey, SignerType.VIRGIL))
+            if (!verify(card, SignerType.VIRGIL.getRawValue(), publicKey))
                 return false;
         }
 
         boolean containsSignature = false;
         for (WhiteList whiteList : whiteLists) {
             for (VerifierCredentials verifierCredentials : whiteList.getVerifiersCredentials()) {
-                for (CardSignature signerId : card.getSignatures()) {
-                    if (signerId.getSignerId().equals(verifierCredentials.getId())) {
-                        PublicKey publicKey = crypto.importPublicKey(verifierCredentials.getPublicKey());
+                for (CardSignature cardSignature : card.getSignatures()) {
+                    if (Objects.equals(cardSignature.getSigner(), verifierCredentials.getSigner())) {
+                        PublicKey publicKey = cardCrypto.importPublicKey(verifierCredentials.getPublicKey());
                         containsSignature = true;
-                        if (!validate(crypto, card, signerId.getSignerId(), publicKey, SignerType.EXTRA))
+                        if (!verify(card, cardSignature.getSigner(), publicKey))
                             return false;
                     }
                 }
@@ -131,62 +129,59 @@ public class VirgilCardVerifier implements CardVerifier {
     }
 
     /**
-     * Validates provided Card.
+     * Verifies provided Card.
      *
-     * @param crypto the crypto
-     * @param card the card
-     * @param signerCardId the signer's identifier
+     * @param card            the card
+     * @param signer          the signer
      * @param signerPublicKey the signer's public key
-     * @param signerType the signer's type of {@link SignerType}
      * @return {@code true} if Card is valid, otherwise {@code false}
-     * @throws IOException if validation issue i occurred
-     * @throws CryptoException if validation issue i occurred
      */
-    private boolean validate(CardCrypto crypto,
-                             Card card,
-                             String signerCardId,
-                             PublicKey signerPublicKey,
-                             SignerType signerType) throws IOException, CryptoException {
+    private boolean verify(Card card, String signer, PublicKey signerPublicKey) {
+        CardSignature cardSignature = null;
+        for (CardSignature signature : card.getSignatures()) {
+            if (Objects.equals(signature.getSigner(), signer))
+                cardSignature = signature;
+        }
 
-        if (card.getSignatures() == null || card.getSignatures().isEmpty()) {
-            Log.d("The card does not contain any signature");
+        if (cardSignature == null) {
+            Log.d("The card does not contain the " + signer + " signature");
             return false;
         }
 
-        CardSignature signature = null;
-        for (CardSignature cardSignature : card.getSignatures()) {
-            if (cardSignature.getSignerId().equals(signerCardId))
-                signature = cardSignature;
-        }
-        if (signature == null) {
-            Log.d("The card does not contain the " + signerType + " signature");
+        byte[] cardSnapshot;
+        try {
+            cardSnapshot = card.getRawCard(cardCrypto).getContentSnapshot();
+        } catch (CryptoException e) {
+            e.printStackTrace();
             return false;
         }
 
-        byte[] cardSnapshot = card.getRawCard(crypto).getContentSnapshot();
-        byte[] combinedSnapshot = cardSnapshot;
-        if (signature.getSnapshot() != null) {
-            byte[] extraDataSnapshot = ConvertionUtils.base64ToBytes(signature.getSnapshot());
+        byte[] additionalData = cardSignature.getSnapshot();
+        byte[] combinedSnapshot = new byte[cardSnapshot.length + additionalData.length];
+        System.arraycopy(cardSnapshot,
+                         0,
+                         combinedSnapshot,
+                         0,
+                         cardSnapshot.length);
+        System.arraycopy(additionalData,
+                         0,
+                         combinedSnapshot,
+                         cardSnapshot.length,
+                         additionalData.length);
 
-            combinedSnapshot = new byte[cardSnapshot.length + extraDataSnapshot.length];
-            System.arraycopy(cardSnapshot,
-                             0,
-                             combinedSnapshot,
-                             0,
-                             cardSnapshot.length);
-            System.arraycopy(extraDataSnapshot,
-                             0,
-                             combinedSnapshot,
-                             cardSnapshot.length,
-                             extraDataSnapshot.length);
+        byte[] fingerprint;
+        try {
+            fingerprint = cardCrypto.generateSHA512(combinedSnapshot);
+        } catch (CryptoException e) {
+            e.printStackTrace();
+            return false;
         }
 
-        byte[] fingerprint = crypto.generateSHA512(combinedSnapshot);
-
-        if (!crypto.verifySignature(ConvertionUtils.base64ToBytes(signature.getSignature()),
-                                    fingerprint,
-                                    signerPublicKey)) {
-            Log.d("The card with id " + signerCardId + " was corrupted");
+        try {
+            if (!cardCrypto.verifySignature(cardSignature.getSignature(), fingerprint, signerPublicKey))
+                return false;
+        } catch (CryptoException e) {
+            e.printStackTrace();
             return false;
         }
 
@@ -199,7 +194,7 @@ public class VirgilCardVerifier implements CardVerifier {
      * @return the card crypto
      */
     public CardCrypto getCardCrypto() {
-        return crypto;
+        return cardCrypto;
     }
 
     /**
@@ -248,31 +243,11 @@ public class VirgilCardVerifier implements CardVerifier {
     }
 
     /**
-     * Gets virgil card identifier.
-     *
-     * @return the virgil card identifier
-     */
-    public String getVirgilCardId() {
-        return virgilCardId;
-    }
-
-    /**
      * Gets virgil public key in base64 string.
      *
      * @return the virgil public key in base64 string
      */
     public String getVirgilPublicKeyBase64() {
         return virgilPublicKeyBase64;
-    }
-
-    /**
-     * Change service credentials.
-     *
-     * @param virgilCardId          the virgil card identifier
-     * @param virgilPublicKeyBase64 the virgil public key in base64 string
-     */
-    public void changeServiceCredentials(String virgilCardId, String virgilPublicKeyBase64) {
-        this.virgilCardId = virgilCardId;
-        this.virgilPublicKeyBase64 = virgilPublicKeyBase64;
     }
 }

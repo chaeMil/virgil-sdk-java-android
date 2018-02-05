@@ -41,6 +41,8 @@ import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
+import java.util.Map;
+
 /**
  * The {@link ModelSigner} provides cryptographic operation as signing.
  *
@@ -49,6 +51,8 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
  * @see RawSignature
  */
 public class ModelSigner {
+
+    private static final String SIGNER_TYPE_SELF = "self";
 
     private CardCrypto crypto;
 
@@ -66,20 +70,20 @@ public class ModelSigner {
      *
      * @param cardModel  the card model to be signed
      * @param id         the id of signer
-     * @param type       the type of sign
+     * @param signer     the type of sign
      * @param privateKey the private key for signing
      * @throws CryptoException if signing issue occurred
      */
     public void sign(RawSignedModel cardModel,
                      String id,
-                     SignerType type,
+                     String signer,
                      PrivateKey privateKey) throws CryptoException {
 
         byte[] fingerprint = crypto.generateSHA512(cardModel.getContentSnapshot());
         byte[] signature = crypto.generateSignature(fingerprint, privateKey);
 
         RawSignature rawSignature = new RawSignature(id,
-                                                     type.getRawValue(),
+                                                     signer,
                                                      ConvertionUtils.toBase64String(signature));
 
         cardModel.getSignatures().add(rawSignature);
@@ -90,14 +94,14 @@ public class ModelSigner {
      *
      * @param cardModel      the card model to be signed
      * @param id             the id of signer
-     * @param type           the type of sign
+     * @param signer         the type of sign
      * @param additionalData the additional data to be stored in the signature
      * @param privateKey     the private key for signing
      * @throws CryptoException if signing issue occurred
      */
     public void sign(RawSignedModel cardModel,
                      String id,
-                     SignerType type,
+                     String signer,
                      byte[] additionalData,
                      PrivateKey privateKey) throws CryptoException {
 
@@ -118,10 +122,29 @@ public class ModelSigner {
 
         RawSignature rawSignature = new RawSignature(id,
                                                      ConvertionUtils.toBase64String(additionalData),
-                                                     type.getRawValue(),
+                                                     signer,
                                                      ConvertionUtils.toBase64String(signature));
 
         cardModel.getSignatures().add(rawSignature);
+    }
+
+    /**
+     * Signs the {@link RawSignedModel} using specified signer parameters and private key.
+     *
+     * @param cardModel      the card model to be signed
+     * @param id             the id of signer
+     * @param signer         the type of sign
+     * @param extraFields    the extra fields to be stored in the signature
+     * @param privateKey     the private key for signing
+     * @throws CryptoException if signing issue occurred
+     */
+    public void sign(RawSignedModel cardModel,
+                     String id,
+                     String signer,
+                     Map<String, String> extraFields,
+                     PrivateKey privateKey) throws CryptoException {
+        byte[] additionalData = ConvertionUtils.captureSnapshot(extraFields);
+        sign(cardModel, id, signer, additionalData, privateKey);
     }
 
     /**
@@ -131,7 +154,7 @@ public class ModelSigner {
      * @param additionalData the additional data to be stored in the signature
      * @param privateKey     the private key for signing
      * @throws CryptoException if signing issue occurred
-     * @see #sign(RawSignedModel, String, SignerType, byte[], PrivateKey)
+     * @see #sign(RawSignedModel, String, String, byte[], PrivateKey)
      */
     public void selfSign(RawSignedModel cardModel,
                          byte[] additionalData,
@@ -151,7 +174,23 @@ public class ModelSigner {
         String signerId = ConvertionUtils.toString(crypto.generateSHA512(combinedSnapshot),
                                                    StringEncoding.HEX);
 
-        sign(cardModel, signerId, SignerType.SELF, additionalData, privateKey);
+        sign(cardModel, signerId, SIGNER_TYPE_SELF, additionalData, privateKey);
+    }
+
+    /**
+     * Signing {@link RawSignedModel} using specified signer parameters and private key with self signature type.
+     *
+     * @param cardModel      the card model to be signed
+     * @param extraFields    the extra fields to be stored in the signature
+     * @param privateKey     the private key for signing
+     * @throws CryptoException if signing issue occurred
+     * @see #sign(RawSignedModel, String, String, byte[], PrivateKey)
+     */
+    public void selfSign(RawSignedModel cardModel,
+                         Map<String, String> extraFields,
+                         PrivateKey privateKey) throws CryptoException {
+        byte[] additionalData = ConvertionUtils.captureSnapshot(extraFields);
+        selfSign(cardModel, additionalData, privateKey);
     }
 
     /**
@@ -160,12 +199,12 @@ public class ModelSigner {
      * @param cardModel  the card model to be signed
      * @param privateKey the private key for signing
      * @throws CryptoException if signing issue occurred
-     * @see #sign(RawSignedModel, String, SignerType, PrivateKey)
+     * @see #sign(RawSignedModel, String, String, PrivateKey)
      */
     public void selfSign(RawSignedModel cardModel, PrivateKey privateKey) throws CryptoException {
         String signerId = ConvertionUtils.toString(crypto.generateSHA512(cardModel.getContentSnapshot()),
                                                    StringEncoding.HEX);
 
-        sign(cardModel, signerId, SignerType.SELF, privateKey);
+        sign(cardModel, signerId, SIGNER_TYPE_SELF, privateKey);
     }
 }

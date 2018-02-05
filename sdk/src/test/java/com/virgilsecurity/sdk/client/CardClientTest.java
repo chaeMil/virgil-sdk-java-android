@@ -41,7 +41,7 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.common.TestUtils;
+import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;

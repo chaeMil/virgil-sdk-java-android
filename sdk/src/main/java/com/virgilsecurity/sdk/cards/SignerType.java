@@ -42,25 +42,30 @@ public enum SignerType {
      */
     SELF("self"),
     /**
-     * App signer type.
-     */
-    APP("app"),
-    /**
-     * Extra signer type.
-     */
-    EXTRA("extra"),
-    /**
      * Virgil signer type.
      */
     VIRGIL("virgil");
 
+    /**
+     *
+     * !!!!!
+     * If you're reading this and don't know what signer type you should use:
+     * You should Never use 'self' or 'virgil' signature!
+     * Use your Own signature with any signer type - for example 'mycustomservice'.
+     * !!!!!
+     *
+     */
     private final String signerType;
 
-    private SignerType(String signerType) {
+    SignerType(String signerType) {
         this.signerType = signerType;
     }
 
     /**
+     * If you're reading this and don't know what signer type you should use:
+     * You should Never use 'self' or 'virgil' signature!
+     * Use your Own signature with any signer type - for example 'mycustomservice'.
+     *
      * Gets the raw value based on chosen enum type.
      * (ex. SignerType.SELF.getRawValue() will output "self").
      *

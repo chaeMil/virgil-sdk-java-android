@@ -33,7 +33,6 @@
 
 package com.virgilsecurity.sdk.jwt.accessProviders;
 
-import com.sun.istack.internal.NotNull;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
@@ -65,7 +64,7 @@ public class CallbackJwtProvider implements AccessTokenProvider {
         this.getTokenCallback = getTokenCallback;
     }
 
-    @Override public AccessToken getToken(@NotNull TokenContext context) {
+    @Override public AccessToken getToken(TokenContext context) {
         Validator.checkNullAgrument(context, "CallbackJwtProvider -> 'context' should not be null");
         Validator.checkNullAgrument(getTokenCallback,
                                     "CallbackJwtProvider -> set getTokenCallback first");
@@ -81,7 +80,7 @@ public class CallbackJwtProvider implements AccessTokenProvider {
      *
      * @param getTokenCallback the get token callback
      */
-    public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
+    public void setGetTokenCallback(GetTokenCallback getTokenCallback) {
         Validator.checkNullAgrument(getTokenCallback,
                                     "CallbackJwtProvider -> 'getTokenCallback' should not be null");
 

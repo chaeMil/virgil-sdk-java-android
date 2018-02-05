@@ -32,8 +32,6 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import com.virgilsecurity.sdk.cards.SignerType;
-
 /**
  * Operations on {@link java.lang.String} that are {@code null} safe.
  *
@@ -59,26 +57,5 @@ public class StringUtils {
             }
         }
         return true;
-    }
-
-    /**
-     * Converts string representation of signer type to {@link SignerType}
-     *
-     * @param signer string representation of signer type
-     * @return {@link SignerType} type corresponding to input string signer type
-     */
-    public static SignerType fromStringSignerType(String signer) {
-        switch (signer) {
-            case "self":
-                return SignerType.SELF;
-            case "app":
-                return SignerType.APP;
-            case "extra":
-                return SignerType.EXTRA;
-            case "virgil":
-                return SignerType.VIRGIL;
-            default:
-                return null;
-        }
     }
 }

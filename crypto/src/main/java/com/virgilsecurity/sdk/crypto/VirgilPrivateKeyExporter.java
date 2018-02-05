@@ -33,7 +33,6 @@
 
 package com.virgilsecurity.sdk.crypto;
 
-import com.sun.istack.internal.NotNull;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 /**
@@ -72,7 +71,7 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
      * @param virgilCrypto
      *            The {@link VirgilCrypto}.
      */
-    public VirgilPrivateKeyExporter(@NotNull VirgilCrypto virgilCrypto) {
+    public VirgilPrivateKeyExporter(VirgilCrypto virgilCrypto) {
         if (virgilCrypto == null)
             throw new IllegalArgumentException("VirgilPrivateKeyExporter -> 'virgilCrypto' should not be null");
 

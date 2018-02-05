@@ -39,7 +39,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.istack.internal.NotNull;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
@@ -73,17 +72,13 @@ public class CardManager {
     /**
      * Instantiates a new Card manager with default {@link ModelSigner} initialized with provided {@link CardCrypto}.
      *
-     * @param crypto
-     *            the crypto
-     * @param accessTokenProvider
-     *            the access token provider
-     * @param cardVerifier
-     *            the card verifier
-     * @param cardClient
-     *            the card client
+     * @param crypto              the crypto
+     * @param accessTokenProvider the access token provider
+     * @param cardVerifier        the card verifier
+     * @param cardClient          the card client
      */
-    public CardManager(@NotNull CardCrypto crypto, @NotNull AccessTokenProvider accessTokenProvider,
-            @NotNull CardVerifier cardVerifier, @NotNull CardClient cardClient) {
+    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
+                       CardVerifier cardVerifier, CardClient cardClient) {
         Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
         Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
         Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
@@ -100,19 +95,17 @@ public class CardManager {
     /**
      * Instantiates a new Card manager with default {@link ModelSigner} initialized with provided {@link CardCrypto}.
      *
-     * @param crypto
-     *            the crypto
-     * @param accessTokenProvider
-     *            the access token provider
-     * @param cardVerifier
-     *            the card verifier
-     * @param cardClient
-     *            the card client
-     * @param signCallback
-     *            the sign callback
+     * @param crypto              the crypto
+     * @param accessTokenProvider the access token provider
+     * @param cardVerifier        the card verifier
+     * @param cardClient          the card client
+     * @param signCallback        the sign callback
      */
-    public CardManager(@NotNull CardCrypto crypto, @NotNull AccessTokenProvider accessTokenProvider,
-            @NotNull CardVerifier cardVerifier, @NotNull CardClient cardClient, @NotNull SignCallback signCallback) {
+    public CardManager(CardCrypto crypto,
+                       AccessTokenProvider accessTokenProvider,
+                       CardVerifier cardVerifier,
+                       CardClient cardClient,
+                       SignCallback signCallback) {
         Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
         Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
         Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
@@ -131,22 +124,16 @@ public class CardManager {
     /**
      * Instantiates a new Card manager.
      *
-     * @param modelSigner
-     *            the model signer
-     * @param crypto
-     *            the crypto
-     * @param accessTokenProvider
-     *            the access token provider
-     * @param cardVerifier
-     *            the card verifier
-     * @param cardClient
-     *            the card client
-     * @param signCallback
-     *            the sign callback
+     * @param modelSigner         the model signer
+     * @param crypto              the crypto
+     * @param accessTokenProvider the access token provider
+     * @param cardVerifier        the card verifier
+     * @param cardClient          the card client
+     * @param signCallback        the sign callback
      */
-    public CardManager(@NotNull ModelSigner modelSigner, @NotNull CardCrypto crypto,
-            @NotNull AccessTokenProvider accessTokenProvider, @NotNull CardVerifier cardVerifier,
-            @NotNull CardClient cardClient, @NotNull SignCallback signCallback) {
+    public CardManager(ModelSigner modelSigner, CardCrypto crypto,
+                       AccessTokenProvider accessTokenProvider, CardVerifier cardVerifier,
+                       CardClient cardClient, SignCallback signCallback) {
         Validator.checkNullAgrument(modelSigner, "CardManager -> 'modelSigner' should not be null");
         Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
         Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
@@ -165,10 +152,8 @@ public class CardManager {
     /**
      * Verifies whether provided {@link Card} is valid with provided {@link CardVerifier}.
      *
-     * @param card
-     *            to verify
-     * @throws CryptoException
-     *             if verification of card issue occurred
+     * @param card to verify
+     * @throws CryptoException if verification of card issue occurred
      * @throws IOException
      */
     private void verifyCard(Card card) throws CryptoException, IOException {
@@ -189,11 +174,16 @@ public class CardManager {
      * @return a new instance of {@link RawSignedModel}
      * @throws CryptoException if issue occurred during exporting public key or self sign operation
      */
-    public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-            String previousCardId, Map<String, String> additionalData) throws CryptoException {
+    public RawSignedModel generateRawCard(PrivateKey privateKey,
+                                          PublicKey publicKey,
+                                          String identity,
+                                          String previousCardId,
+                                          Map<String, String> additionalData) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date(),
-                previousCardId);
+                                                        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+                                                        CURRENT_CARD_VERSION,
+                                                        new Date(),
+                                                        previousCardId);
 
         byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
         RawSignedModel cardModel = new RawSignedModel(snapshot);
@@ -218,10 +208,12 @@ public class CardManager {
      * @throws CryptoException if issue occurred during exporting public key or self sign operation
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-            String previousCardId) throws CryptoException {
+                                          String previousCardId) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date(),
-                previousCardId);
+                                                        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+                                                        CURRENT_CARD_VERSION,
+                                                        new Date(),
+                                                        previousCardId);
 
         byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
         RawSignedModel cardModel = new RawSignedModel(snapshot);
@@ -246,9 +238,11 @@ public class CardManager {
      * @throws CryptoException if issue occurred during exporting public key or self sign operation
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-            Map<String, String> additionalData) throws CryptoException {
+                                          Map<String, String> additionalData) throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date());
+                                                        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+                                                        CURRENT_CARD_VERSION,
+                                                        new Date());
 
         byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
         RawSignedModel cardModel = new RawSignedModel(snapshot);
@@ -274,7 +268,9 @@ public class CardManager {
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity)
             throws CryptoException {
         RawCardContent cardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date());
+                                                        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+                                                        CURRENT_CARD_VERSION,
+                                                        new Date());
 
         byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
         RawSignedModel cardModel = new RawSignedModel(snapshot);
@@ -310,14 +306,14 @@ public class CardManager {
     /**
      * Publish card to the Virgil Cards service.
      * <p>
-     *     Internally {@link #generateRawCard(PrivateKey, PublicKey, String, String, Map)} method will be called
-     *     to generate {@link RawSignedModel} with provided parameters after that card model will be
-     *     published via {@link #publishCard(RawSignedModel)} method
+     * Internally {@link #generateRawCard(PrivateKey, PublicKey, String, String, Map)} method will be called
+     * to generate {@link RawSignedModel} with provided parameters after that card model will be
+     * published via {@link #publishCard(RawSignedModel)} method
      * </p>
      *
-     * @param privateKey the private key that used to generate self signature
-     * @param publicKey  the public key
-     * @param identity   the unique identity value
+     * @param privateKey     the private key that used to generate self signature
+     * @param publicKey      the public key
+     * @param identity       the unique identity value
      * @param previousCardId the previous card id that current card is used to override
      * @param additionalData the additional data associated with the card
      * @return the card that is returned from the Virgil Cards service after successful publishing
@@ -327,7 +323,7 @@ public class CardManager {
      *                         was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity, String previousCardId,
-            Map<String, String> additionalData) throws CryptoException, IOException {
+                            Map<String, String> additionalData) throws CryptoException, IOException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId, additionalData);
 
@@ -337,14 +333,14 @@ public class CardManager {
     /**
      * Publish card to the Virgil Cards service.
      * <p>
-     *     Internally {@link #generateRawCard(PrivateKey, PublicKey, String, Map)} method will be called
-     *     to generate {@link RawSignedModel} with provided parameters after that card model will be
-     *     published via {@link #publishCard(RawSignedModel)} method
+     * Internally {@link #generateRawCard(PrivateKey, PublicKey, String, Map)} method will be called
+     * to generate {@link RawSignedModel} with provided parameters after that card model will be
+     * published via {@link #publishCard(RawSignedModel)} method
      * </p>
      *
-     * @param privateKey the private key that used to generate self signature
-     * @param publicKey  the public key
-     * @param identity   the unique identity value
+     * @param privateKey     the private key that used to generate self signature
+     * @param publicKey      the public key
+     * @param identity       the unique identity value
      * @param additionalData the additional data associated with the card
      * @return the card that is returned from the Virgil Cards service after successful publishing
      * @throws CryptoException if issue occurred during get generating token or verifying card that
@@ -353,7 +349,7 @@ public class CardManager {
      *                         was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-            Map<String, String> additionalData) throws CryptoException, IOException {
+                            Map<String, String> additionalData) throws CryptoException, IOException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, additionalData);
 
@@ -363,14 +359,14 @@ public class CardManager {
     /**
      * Publish card to the Virgil Cards service.
      * <p>
-     *     Internally {@link #generateRawCard(PrivateKey, PublicKey, String, String)} method will be called
-     *     to generate {@link RawSignedModel} with provided parameters after that card model will be
-     *     published via {@link #publishCard(RawSignedModel)} method
+     * Internally {@link #generateRawCard(PrivateKey, PublicKey, String, String)} method will be called
+     * to generate {@link RawSignedModel} with provided parameters after that card model will be
+     * published via {@link #publishCard(RawSignedModel)} method
      * </p>
      *
-     * @param privateKey the private key that used to generate self signature
-     * @param publicKey  the public key
-     * @param identity   the unique identity value
+     * @param privateKey     the private key that used to generate self signature
+     * @param publicKey      the public key
+     * @param identity       the unique identity value
      * @param previousCardId the previous card id that current card is used to override
      * @return the card that is returned from the Virgil Cards service after successful publishing
      * @throws CryptoException if issue occurred during get generating token or verifying card that
@@ -389,9 +385,9 @@ public class CardManager {
     /**
      * Publish card to the Virgil Cards service.
      * <p>
-     *     Internally {@link #generateRawCard(PrivateKey, PublicKey, String)} method will be called
-     *     to generate {@link RawSignedModel} with provided parameters after that card model will be
-     *     published via {@link #publishCard(RawSignedModel)} method
+     * Internally {@link #generateRawCard(PrivateKey, PublicKey, String)} method will be called
+     * to generate {@link RawSignedModel} with provided parameters after that card model will be
+     * published via {@link #publishCard(RawSignedModel)} method
      * </p>
      *
      * @param privateKey the private key that used to generate self signature
@@ -470,8 +466,7 @@ public class CardManager {
     /**
      * Import card from base64 string .
      *
-     * @param card
-     *            the card
+     * @param card the card
      * @return imported card from Base64 String
      */
     public Card importCardAsString(String card) {
@@ -481,8 +476,7 @@ public class CardManager {
     /**
      * Import card from json in string format.
      *
-     * @param card
-     *            the card
+     * @param card the card
      * @return the card
      */
     public Card importCardAsJson(String card) {
@@ -492,8 +486,7 @@ public class CardManager {
     /**
      * Import card from raw signed model.
      *
-     * @param cardModel
-     *            the card model
+     * @param cardModel the card model
      * @return the card
      */
     public Card importCardAsRawModel(RawSignedModel cardModel) {
@@ -503,8 +496,7 @@ public class CardManager {
     /**
      * Export card as base64 string.
      *
-     * @param card
-     *            the card
+     * @param card the card
      * @return Base64 String from exported card
      */
     public String exportCardAsString(Card card) {
@@ -514,8 +506,7 @@ public class CardManager {
     /**
      * Export card as json in string format.
      *
-     * @param card
-     *            the card
+     * @param card the card
      * @return the string
      */
     public String exportCardAsJson(Card card) {
@@ -525,11 +516,9 @@ public class CardManager {
     /**
      * Export raw signed model from the provided card.
      *
-     * @param card
-     *            the card
+     * @param card the card
      * @return the raw signed model
-     * @throws CryptoException
-     *             the crypto exception
+     * @throws CryptoException the crypto exception
      */
     public RawSignedModel exportCardAsRawModel(Card card) throws CryptoException {
         return card.getRawCard(crypto);
@@ -543,8 +532,7 @@ public class CardManager {
         /**
          * On sign raw signed model callback than will be called when raw card is about to be generated.
          *
-         * @param rawSignedModel
-         *            the raw signed model
+         * @param rawSignedModel the raw signed model
          * @return the raw signed model
          * @see #generateRawCard(PrivateKey, PublicKey, String, String, Map)
          */

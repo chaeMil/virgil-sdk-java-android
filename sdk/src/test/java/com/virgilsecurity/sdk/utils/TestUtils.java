@@ -31,7 +31,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.common;
+package com.virgilsecurity.sdk.utils;
 
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardSignature;
@@ -80,7 +80,7 @@ public class TestUtils {
 
     private static CardSignature getSelfSignature(Card card) {
         for (CardSignature cardSignature : card.getSignatures()) {
-            if (cardSignature.getSignerType().equals(SignerType.SELF.getRawValue()))
+            if (cardSignature.getSigner().equals(SignerType.SELF.getRawValue()))
                 return cardSignature;
         }
 
@@ -89,7 +89,7 @@ public class TestUtils {
 
     private static RawSignature getSelfSignature(RawSignedModel cardModel) {
         for (RawSignature cardSignature : cardModel.getSignatures()) {
-            if (cardSignature.getSignerType().equals(SignerType.SELF.getRawValue()))
+            if (cardSignature.getSigner().equals(SignerType.SELF.getRawValue()))
                 return cardSignature;
         }
 

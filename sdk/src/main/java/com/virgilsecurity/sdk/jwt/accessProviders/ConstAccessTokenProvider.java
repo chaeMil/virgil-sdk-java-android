@@ -31,11 +31,35 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.contract;
+package com.virgilsecurity.sdk.jwt.accessProviders;
 
-public interface AccessToken {
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 
-    String toString();
+public class ConstAccessTokenProvider implements AccessTokenProvider {
 
-    String getIdentity();
+    private Jwt jwtToken;
+
+    public ConstAccessTokenProvider() {
+    }
+
+    public ConstAccessTokenProvider(Jwt jwtToken) {
+        if (jwtToken != null)
+            this.jwtToken = jwtToken;
+        else
+            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+    }
+
+    @Override public AccessToken getToken(TokenContext context) {
+        return jwtToken;
+    }
+
+    public void setJwt(Jwt jwtToken) {
+        if (jwtToken != null)
+            this.jwtToken = jwtToken;
+        else
+            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+    }
 }

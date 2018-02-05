@@ -32,7 +32,6 @@
  */
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -63,12 +62,10 @@ public class JwtVerifierTest {
     @Test
     public void verifyToken() throws CryptoException {
         Jwt token = fake.generateToken();
-        Jwt importedToken = new Jwt(token.toString());
-
-        assertEquals(importedToken, token);
-        assertEquals(importedToken.toString(), token.toString());
 
         assertTrue(this.verifier.verifyToken(token));
     }
+    
+    //TODO cover negative cases
 
 }

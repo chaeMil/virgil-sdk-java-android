@@ -31,11 +31,10 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.contract;
+package com.virgilsecurity.sdk.jwt.contract;
 
-import com.virgilsecurity.sdk.jwt.Jwt;
+//TODO discuss stringRepresentation with Alex. 
+public interface AccessToken {
 
-public interface AccessManager {
-
-    Jwt getAccessToken();
+    String getIdentity();
 }

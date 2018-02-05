@@ -35,7 +35,7 @@ package com.virgilsecurity.sdk.jwt;
 
 import java.util.Arrays;
 
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 

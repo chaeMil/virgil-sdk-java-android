@@ -64,10 +64,10 @@ import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jsonWebToken.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
+import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 public class CrossCompatibilityTest {

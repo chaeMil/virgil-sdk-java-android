@@ -31,45 +31,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt.accessProviders;
 
-import com.sun.istack.internal.NotNull;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jwt.Jwt;
-import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.Validator;
+import com.virgilsecurity.sdk.jwt.JwtGenerator;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 
-public class CallbackJwtProvider implements AccessTokenProvider {
+import java.util.Map;
 
-    private Jwt jwtToken;
-    private GetTokenCallback getTokenCallback;
+public class GeneratorJwtProvider implements AccessTokenProvider {
 
-    public CallbackJwtProvider() {
+    private JwtGenerator jwtGenerator;
+    private Map<String, String> additionalData;
+
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+
+        this.jwtGenerator = jwtGenerator;
     }
 
-    public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
-        this.getTokenCallback = getTokenCallback;
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
+
+        this.jwtGenerator = jwtGenerator;
+        this.additionalData = additionalData;
     }
 
-    @Override public AccessToken getToken(TokenContext context) {
-        Validator.checkNullAgrument(getTokenCallback,
-                                    "CallbackJwtProvider -> set getTokenCallback first");
-
-        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired())
-            return jwtToken = new Jwt(getTokenCallback.onGetToken());
-        else
-            return jwtToken;
+    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
+        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
     }
 
-    public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
-        Validator.checkNullAgrument(getTokenCallback,
-                                    "CallbackJwtProvider -> 'getTokenCallback' should not be null");
-
-        this.getTokenCallback = getTokenCallback;
+    public JwtGenerator getJwtGenerator() {
+        return jwtGenerator;
     }
 
-    public interface GetTokenCallback {
-        String onGetToken();
+    public Map<String, String> getAdditionalData() {
+        return additionalData;
     }
 }

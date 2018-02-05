@@ -31,35 +31,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt.accessProviders;
 
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
+import com.sun.istack.internal.NotNull;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.utils.Validator;
 
-public class ConstAccessTokenProvider implements AccessTokenProvider {
+public class CallbackJwtProvider implements AccessTokenProvider {
 
     private Jwt jwtToken;
+    private GetTokenCallback getTokenCallback;
 
-    public ConstAccessTokenProvider() {
+    public CallbackJwtProvider() {
     }
 
-    public ConstAccessTokenProvider(Jwt jwtToken) {
-        if (jwtToken != null)
-            this.jwtToken = jwtToken;
-        else
-            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+    public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
+        this.getTokenCallback = getTokenCallback;
     }
 
     @Override public AccessToken getToken(TokenContext context) {
-        return jwtToken;
+        Validator.checkNullAgrument(getTokenCallback,
+                                    "CallbackJwtProvider -> set getTokenCallback first");
+
+        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired())
+            return jwtToken = new Jwt(getTokenCallback.onGetToken());
+        else
+            return jwtToken;
     }
 
-    public void setJwt(Jwt jwtToken) {
-        if (jwtToken != null)
-            this.jwtToken = jwtToken;
-        else
-            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+    public void setGetTokenCallback(@NotNull GetTokenCallback getTokenCallback) {
+        Validator.checkNullAgrument(getTokenCallback,
+                                    "CallbackJwtProvider -> 'getTokenCallback' should not be null");
+
+        this.getTokenCallback = getTokenCallback;
+    }
+
+    public interface GetTokenCallback {
+        String onGetToken();
     }
 }

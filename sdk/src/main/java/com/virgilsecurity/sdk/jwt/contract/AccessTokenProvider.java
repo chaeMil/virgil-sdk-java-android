@@ -31,45 +31,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jsonWebToken.accessProviders;
+package com.virgilsecurity.sdk.jwt.contract;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.utils.Validator;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessToken;
-import com.virgilsecurity.sdk.jsonWebToken.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 
-import java.util.Map;
+public interface AccessTokenProvider {
 
-public class GeneratorJwtProvider implements AccessTokenProvider {
-
-    private JwtGenerator jwtGenerator;
-    private Map<String, String> additionalData;
-
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
-    }
-
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
-
-        this.jwtGenerator = jwtGenerator;
-        this.additionalData = additionalData;
-    }
-
-    @Override public AccessToken getToken(TokenContext context) throws CryptoException {
-        return jwtGenerator.generateToken(context.getIdentity(), additionalData);
-    }
-
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
-    }
-
-    public Map<String, String> getAdditionalData() {
-        return additionalData;
-    }
+    AccessToken getToken(TokenContext context) throws CryptoException;
 }

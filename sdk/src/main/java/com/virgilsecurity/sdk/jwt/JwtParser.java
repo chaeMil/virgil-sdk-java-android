@@ -35,6 +35,7 @@ package com.virgilsecurity.sdk.jwt;
 
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
+//TODO discuss this implementation with Alex
 public class JwtParser {
 
     public static JwtBodyContent parseJwtBodyContent(String jsonWebTokenBody) {

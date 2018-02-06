@@ -51,5 +51,5 @@ public interface AccessToken {
      *
      * @return string representation of access token that is saved during it's lifetime
      */
-    String toString();
+    String stringRepresentation();
 }

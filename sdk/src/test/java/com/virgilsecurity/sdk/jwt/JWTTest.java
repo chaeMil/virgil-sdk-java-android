@@ -68,10 +68,10 @@ public class JWTTest {
     @Test
     public void instantiate_fromString() throws CryptoException {
         Jwt jwt = this.fake.generateToken();
-        Jwt importedJwt = new Jwt(jwt.toString());
+        Jwt importedJwt = new Jwt(jwt.stringRepresentation());
 
         assertEquals(jwt, importedJwt);
-        assertEquals(jwt.toString(), importedJwt.toString());
+        assertEquals(jwt.stringRepresentation(), importedJwt.stringRepresentation());
     }
 
 }

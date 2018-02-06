@@ -325,7 +325,7 @@ public class Card {
             combinedSnapshot = cardModel.getContentSnapshot();
         }
 
-        // TODO generate card id with proper hash
+        // FIXME generate card id with proper hash
         byte[] fingerprint = Arrays.copyOfRange(new VirgilCrypto().generateHash(combinedSnapshot, HashAlgorithm.SHA256), 0, 32);
 //        byte[] fingerprint = Arrays.copyOfRange(crypto.generateSHA512(combinedSnapshot), 0, 32);
         String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);

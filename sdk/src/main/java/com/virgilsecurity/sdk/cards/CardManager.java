@@ -262,7 +262,7 @@ public class CardManager {
      */
     public Card publishCard(RawSignedModel cardModel) throws CryptoException, IOException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
-        Card card = Card.parse(crypto, cardClient.publishCard(cardModel, token.toString()));
+        Card card = Card.parse(crypto, cardClient.publishCard(cardModel, token.stringRepresentation()));
 
         verifyCard(card);
 
@@ -405,7 +405,7 @@ public class CardManager {
      */
     public Card getCard(String cardId) throws CryptoException, IOException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
-        Tuple<RawSignedModel, Boolean> response = cardClient.getCard(cardId, token.toString());
+        Tuple<RawSignedModel, Boolean> response = cardClient.getCard(cardId, token.stringRepresentation());
         Card card = Card.parse(crypto, response.getLeft());
 
         if (response.getRight()) {
@@ -429,7 +429,7 @@ public class CardManager {
     public List<Card> searchCards(String identity) throws CryptoException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
 
-        List<RawSignedModel> cardModels = cardClient.searchCards(identity, token.toString());
+        List<RawSignedModel> cardModels = cardClient.searchCards(identity, token.stringRepresentation());
 
         List<Card> cards = new ArrayList<>();
         for (RawSignedModel cardModel : cardModels)

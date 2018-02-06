@@ -200,7 +200,7 @@ public class Jwt implements AccessToken {
      * @see java.lang.Object#toString()
      */
     @Override
-    public String toString() {
+    public String stringRepresentation() {
         return stringRepresentation;
     }
 

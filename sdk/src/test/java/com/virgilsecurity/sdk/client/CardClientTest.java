@@ -76,7 +76,7 @@ public class CardClientTest extends PropertyManager {
         RawSignedModel cardModelBeforePublish = mocker.generateCardModel(identity);
 
         RawSignedModel cardModelAfterPublish = cardClient.publishCard(cardModelBeforePublish,
-                mocker.generateAccessToken(identity).toString());
+                mocker.generateAccessToken(identity).stringRepresentation());
 
         TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
     }
@@ -96,7 +96,7 @@ public class CardClientTest extends PropertyManager {
                 RawSignedModel.class);
 
         RawSignedModel cardModelAfterPublish = cardClient.publishCard(cardModelBeforePublish,
-                mocker.generateAccessToken(IDENTITY).toString());
+                mocker.generateAccessToken(IDENTITY).stringRepresentation());
 
         Assert.assertEquals(cardModelBeforePublish, cardModelAfterPublish);
     }

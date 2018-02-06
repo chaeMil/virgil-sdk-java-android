@@ -98,6 +98,7 @@ public class TestUtils {
 
     public static void assertCardsEquals(Card expectedCard, Card actualCard) {
         if (!cardsEqualsSelfSignOnly(expectedCard, actualCard))
+            //TODO show card more clear
             Assert.fail("\nExpected card:\n" + expectedCard.toString()
                                 + "\n\nActual card:\n" + actualCard.toString());
     }

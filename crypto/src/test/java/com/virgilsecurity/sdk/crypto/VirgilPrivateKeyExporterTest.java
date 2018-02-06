@@ -69,7 +69,7 @@ public class VirgilPrivateKeyExporterTest {
     }
 
     @Before
-    public void setup() {
+    public void setup() throws CryptoException {
         this.crypto = new VirgilCrypto();
         this.privateKey = this.crypto.generateKeys().getPrivateKey();
     }

@@ -30,30 +30,41 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.utils;
 
-package com.virgilsecurity.sdk.common;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-import com.virgilsecurity.sdk.cards.CardManager;
-import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import org.junit.Before;
+import java.util.Random;
 
-public class IntegrationHelper extends PropertyManager {
+import org.junit.Test;
 
-    private VirgilCardCrypto cardCrypto;
-    private VirgilCrypto virgilCrypto;
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class Base64UrlTest {
 
-    public IntegrationHelper() {
-        cardCrypto = new VirgilCardCrypto();
-        virgilCrypto = new VirgilCrypto();
+    @Test
+    public void string_convertion() {
+        String raw = "This is the best string ever!";
+
+        String encodedBase64Url = Base64Url.encode(raw);
+        String base64toRaw = Base64Url.decode(encodedBase64Url);
+
+        assertEquals(raw, base64toRaw);
     }
 
-    public CardManager getManager(String username) {
-        //FIXME
-//        VirgilCardVerifier cardVerifier = new VirgilCardVerifier(true, true);
-//        cardVerifier.changeServiceCredentials(SERVICE_CARD_ID, SERVICE_PUBLIC_KEY_DER_BASE64);
+    @Test
+    public void bytes_convertion() {
+        Random random = new Random();
+        byte[] data = new byte[100];
+        random.nextBytes(data);
 
-        return null;
+        String encoded = Base64Url.encode(data);
+        byte[] decoded = Base64Url.decodeToBytes(encoded);
+
+        assertArrayEquals(data, decoded);
     }
+
 }

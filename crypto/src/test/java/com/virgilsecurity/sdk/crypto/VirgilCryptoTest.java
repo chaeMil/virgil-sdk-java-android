@@ -51,9 +51,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
-import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 
@@ -74,6 +72,11 @@ public class VirgilCryptoTest {
             48, -20 };
 
     private VirgilCrypto crypto;
+
+    @Before
+    public void setup() {
+        crypto = new VirgilCrypto();
+    }
 
     @Test(expected = NullArgumentException.class)
     public void computeHash() throws CryptoException {
@@ -153,7 +156,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void encrypt_stream() throws IOException, EncryptionException {
+    public void encrypt_stream() throws IOException, CryptoException {
         List<VirgilPublicKey> recipients = new ArrayList<>();
         for (int i = 0; i < 100; i++) {
             recipients.add(crypto.generateKeys().getPublicKey());
@@ -192,7 +195,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void generateKeys() {
+    public void generateKeys() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
 
         assertNotNull(keyPair);
@@ -228,7 +231,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void generateSignature_stream() throws SigningException {
+    public void generateSignature_stream() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         byte[] signature = crypto.generateSignature(new ByteArrayInputStream(TEXT.getBytes()), keyPair.getPrivateKey());
 
@@ -241,7 +244,7 @@ public class VirgilCryptoTest {
     }
 
     @Test(expected = NullArgumentException.class)
-    public void generateSignature_stream_nullStream() throws SigningException {
+    public void generateSignature_stream_nullStream() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         crypto.generateSignature((InputStream) null, keyPair.getPrivateKey());
     }
@@ -297,13 +300,8 @@ public class VirgilCryptoTest {
         assertArrayEquals(keyPair.getPublicKey().getRawKey(), publicKey.getRawKey());
     }
 
-    @Before
-    public void setUp() {
-        crypto = new VirgilCrypto();
-    }
-
     @Test
-    public void sign_stream_compareToByteArraySign() throws SigningException {
+    public void sign_stream_compareToByteArraySign() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
         byte[] streamSignature = crypto.generateSignature(new ByteArrayInputStream(TEXT.getBytes()),
@@ -329,7 +327,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void verifySignature() throws VerificationException, SigningException {
+    public void verifySignature() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
         boolean valid = crypto.verifySignature(signature, TEXT.getBytes(), keyPair.getPublicKey());
@@ -338,7 +336,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void verifySignature_invalidSignature() throws VerificationException, SigningException {
+    public void verifySignature_invalidSignature() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
         boolean valid = crypto.verifySignature(INVALID_SIGNATURE, TEXT.getBytes(), keyPair.getPublicKey());
@@ -347,7 +345,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void verifySignature_stream() throws VerificationException, SigningException {
+    public void verifySignature_stream() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         byte[] signature = crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
         boolean valid = crypto.verifySignature(signature, new ByteArrayInputStream(TEXT.getBytes()),
@@ -357,7 +355,7 @@ public class VirgilCryptoTest {
     }
 
     @Test
-    public void verifySignature_stream_invalidSignature() throws VerificationException, SigningException {
+    public void verifySignature_stream_invalidSignature() throws CryptoException {
         VirgilKeyPair keyPair = crypto.generateKeys();
         crypto.generateSignature(TEXT.getBytes(), keyPair.getPrivateKey());
         boolean valid = crypto.verifySignature(INVALID_SIGNATURE, new ByteArrayInputStream(TEXT.getBytes()),

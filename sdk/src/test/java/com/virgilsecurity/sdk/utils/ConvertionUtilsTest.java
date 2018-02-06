@@ -32,7 +32,6 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -40,7 +39,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -137,28 +135,6 @@ public class ConvertionUtilsTest {
         byte[] bArr2 = hello.getBytes();
 
         assertTrue(Arrays.equals(bArr1, bArr2));
-    }
-
-    @Test
-    public void base64UrlConvertion() {
-        String raw = "This is the best string ever!";
-
-        String encodedBase64Url = ConvertionUtils.base64urlencode(raw);
-        String base64toRaw = ConvertionUtils.base64urldecode(encodedBase64Url);
-
-        assertEquals(raw, base64toRaw);
-    }
-
-    @Test
-    public void base64UrlBytesConvertion() {
-        Random random = new Random();
-        byte[] data = new byte[100];
-        random.nextBytes(data);
-
-        String encoded = ConvertionUtils.base64urlencode(data);
-        byte[] decoded = ConvertionUtils.base64urldecodeToBytes(encoded);
-
-        assertArrayEquals(data, decoded);
     }
 
     @Test

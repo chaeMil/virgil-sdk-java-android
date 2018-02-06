@@ -33,13 +33,12 @@
 
 package com.virgilsecurity.sdk.cards.model;
 
-import com.google.gson.annotations.SerializedName;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.google.gson.annotations.SerializedName;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
  * The Raw signed model.
@@ -55,7 +54,8 @@ public class RawSignedModel {
     /**
      * Instantiates a new Raw signed model.
      *
-     * @param contentSnapshot the content snapshot
+     * @param contentSnapshot
+     *            the content snapshot
      */
     public RawSignedModel(byte[] contentSnapshot) {
         this.contentSnapshot = contentSnapshot;
@@ -66,11 +66,12 @@ public class RawSignedModel {
     /**
      * Instantiates a new Raw signed model.
      *
-     * @param contentSnapshot the content snapshot
-     * @param signatures      the list of signatures
+     * @param contentSnapshot
+     *            the content snapshot
+     * @param signatures
+     *            the list of signatures
      */
-    public RawSignedModel(byte[] contentSnapshot,
-                          List<RawSignature> signatures) {
+    public RawSignedModel(byte[] contentSnapshot, List<RawSignature> signatures) {
         this.contentSnapshot = contentSnapshot;
         this.signatures = signatures;
     }
@@ -87,7 +88,8 @@ public class RawSignedModel {
     /**
      * Sets content snapshot.
      *
-     * @param contentSnapshot the content snapshot
+     * @param contentSnapshot
+     *            the content snapshot
      */
     public void setContentSnapshot(byte[] contentSnapshot) {
         this.contentSnapshot = contentSnapshot;
@@ -105,7 +107,8 @@ public class RawSignedModel {
     /**
      * Sets list of signatures.
      *
-     * @param signatures the list of signatures
+     * @param signatures
+     *            the list of signatures
      */
     public void setSignatures(List<RawSignature> signatures) {
         this.signatures = signatures;
@@ -115,7 +118,8 @@ public class RawSignedModel {
      * Export as base64 string.
      *
      * @return the string
-     * @throws IOException the io exception
+     * @throws IOException
+     *             the io exception
      */
     public String exportAsString() throws IOException {
         return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
@@ -125,7 +129,8 @@ public class RawSignedModel {
      * Export as json in string format.
      *
      * @return the string
-     * @throws IOException the io exception
+     * @throws IOException
+     *             the io exception
      */
     public String exportAsJson() throws IOException {
         return ConvertionUtils.serializeToJson(this);
@@ -134,17 +139,19 @@ public class RawSignedModel {
     /**
      * Instantiate {@link RawSignedModel} from provided base64 string.
      *
-     * @param cardModel the card model
+     * @param cardModel
+     *            the card model
      * @return the raw signed model
      */
     public static RawSignedModel fromString(String cardModel) {
-        return ConvertionUtils.deserializeFromJson(ConvertionUtils.base64ToString(cardModel), RawSignedModel.class);
+        return fromJson(ConvertionUtils.base64ToString(cardModel));
     }
 
     /**
      * Instantiate {@link RawSignedModel} from provided string.
      *
-     * @param cardModel the card model
+     * @param cardModel
+     *            the card model
      * @return the raw signed model
      */
     public static RawSignedModel fromJson(String cardModel) {

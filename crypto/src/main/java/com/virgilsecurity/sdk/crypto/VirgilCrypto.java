@@ -146,12 +146,14 @@ public class VirgilCrypto {
     }
 
     private KeysType defaultKeyPairType;
+    private boolean useSHA256Fingerprints;
 
     /**
      * Create new instance of {@link VirgilCrypto}.
      */
     public VirgilCrypto() {
         this.defaultKeyPairType = KeysType.Default;
+        this.useSHA256Fingerprints = true;
     }
 
     /**
@@ -161,6 +163,7 @@ public class VirgilCrypto {
      */
     public VirgilCrypto(KeysType keysType) {
         this.defaultKeyPairType = keysType;
+        this.useSHA256Fingerprints = true;
     }
 
     /**
@@ -396,8 +399,9 @@ public class VirgilCrypto {
      * Generates asymmetric key pair that is comprised of both public and private keys.
      * 
      * @return Generated key pair.
+     * @throws CryptoException
      */
-    public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys() {
+    public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys() throws CryptoException {
         return generateKeys(this.defaultKeyPairType);
     }
 
@@ -407,8 +411,9 @@ public class VirgilCrypto {
      * @param keysType
      *            Type of the generated keys. The possible values can be found in {@link KeysType}.
      * @return Generated key pair.
+     * @throws CryptoException
      */
-    public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys(KeysType keysType) {
+    public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys(KeysType keysType) throws CryptoException {
         VirgilKeyPair keyPair = VirgilKeyPair.generate(toVirgilKeyPairType(keysType));
 
         byte[] keyPairId = this.computePublicKeyHash(keyPair.publicKey());
@@ -647,14 +652,36 @@ public class VirgilCrypto {
         }
     }
 
-    private byte[] computePublicKeyHash(byte[] publicKey) {
+    private byte[] computePublicKeyHash(byte[] publicKey) throws CryptoException {
         byte[] publicKeyDER = VirgilKeyPair.publicKeyToDER(publicKey);
         try {
-            return this.generateHash(publicKeyDER, HashAlgorithm.SHA256);
+            byte[] hash;
+            if (useSHA256Fingerprints) {
+                hash = this.generateHash(publicKeyDER, HashAlgorithm.SHA256);
+            } else {
+                hash = this.generateHash(publicKeyDER, HashAlgorithm.SHA512);
+                hash = Arrays.copyOfRange(hash, 0, 8);
+            }
+            return hash;
         } catch (Exception e) {
             // This should never happen
-            return null;
+            throw new CryptoException(e);
         }
+    }
+
+    /**
+     * @return the useSHA256Fingerprints
+     */
+    public boolean isUseSHA256Fingerprints() {
+        return useSHA256Fingerprints;
+    }
+
+    /**
+     * @param useSHA256Fingerprints
+     *            the useSHA256Fingerprints to set
+     */
+    public void setUseSHA256Fingerprints(boolean useSHA256Fingerprints) {
+        this.useSHA256Fingerprints = useSHA256Fingerprints;
     }
 
 }

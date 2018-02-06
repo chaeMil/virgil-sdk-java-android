@@ -57,6 +57,16 @@ public class VirgilCardCrypto implements CardCrypto {
     }
 
     /**
+     * Create new instance of {@link VirgilCardCrypto}.
+     * 
+     * @param virgilCrypto
+     *            The Virgil Crypto.
+     */
+    public VirgilCardCrypto(VirgilCrypto virgilCrypto) {
+        this.virgilCrypto = virgilCrypto;
+    }
+
+    /**
      * Example of usage:
      * 
      * <pre>

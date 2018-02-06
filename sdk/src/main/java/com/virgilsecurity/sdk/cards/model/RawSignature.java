@@ -45,7 +45,7 @@ public class RawSignature {
     @SerializedName("snapshot")
     private String snapshot;
 
-    @SerializedName("signer_type")
+    @SerializedName("signer")
     private String signer;
 
     @SerializedName("signature")

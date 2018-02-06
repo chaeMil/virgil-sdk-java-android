@@ -36,12 +36,12 @@ package com.virgilsecurity.sdk.jwt;
 import java.util.Arrays;
 
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
+import com.virgilsecurity.sdk.utils.Base64Url;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
 /**
- * The {@link Jwt} class implements {@link AccessToken} interface and is used to
- * get access for network requests.
+ * The {@link Jwt} class implements {@link AccessToken} interface and is used to get access for network requests.
  */
 public class Jwt implements AccessToken {
 
@@ -53,8 +53,10 @@ public class Jwt implements AccessToken {
     /**
      * Instantiates a new Jwt.
      *
-     * @param headerContent the header content
-     * @param bodyContent   the body content
+     * @param headerContent
+     *            the header content
+     * @param bodyContent
+     *            the body content
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
@@ -70,9 +72,12 @@ public class Jwt implements AccessToken {
     /**
      * Instantiates a new Jwt.
      *
-     * @param headerContent the header content
-     * @param bodyContent   the body content
-     * @param signatureData the signature data
+     * @param headerContent
+     *            the header content
+     * @param bodyContent
+     *            the body content
+     * @param signatureData
+     *            the signature data
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
@@ -90,9 +95,9 @@ public class Jwt implements AccessToken {
     /**
      * Instantiates a new Jwt.
      *
-     * @param jwtToken the jwt token in string representation.
-     *                 Should have at least two parts - header and body.
-     *                 (ex. "***.***", where "***" is base64 encoded string)
+     * @param jwtToken
+     *            the jwt token in string representation. Should have at least two parts - header and body. (ex.
+     *            "***.***", where "***" is base64 encoded string)
      */
     public Jwt(String jwtToken) {
         String[] jwtParts = jwtToken.split("[.]");
@@ -101,14 +106,14 @@ public class Jwt implements AccessToken {
             throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
         }
 
-        String headerJson = ConvertionUtils.base64urldecode(jwtParts[0]);
+        String headerJson = Base64Url.decode(jwtParts[0]);
         headerContent = JwtParser.parseJwtHeaderContent(headerJson);
 
-        String bodyJson = ConvertionUtils.base64urldecode(jwtParts[1]);
+        String bodyJson = Base64Url.decode(jwtParts[1]);
         bodyContent = JwtParser.parseJwtBodyContent(bodyJson);
 
         if (jwtParts.length == 3) {
-            signatureData = ConvertionUtils.base64urldecodeToBytes(jwtParts[2]);
+            signatureData = Base64Url.decodeToBytes(jwtParts[2]);
         }
 
         this.stringRepresentation = jwtToken;
@@ -144,7 +149,8 @@ public class Jwt implements AccessToken {
     /**
      * Sets signature data.
      *
-     * @param signatureData the signature data
+     * @param signatureData
+     *            the signature data
      */
     public void setSignatureData(byte[] signatureData) {
         this.signatureData = signatureData;
@@ -168,15 +174,15 @@ public class Jwt implements AccessToken {
     }
 
     private String headerBase64url() {
-        return ConvertionUtils.base64urlencode(ConvertionUtils.captureSnapshot(headerContent));
+        return Base64Url.encode(ConvertionUtils.captureSnapshot(headerContent));
     }
 
     private String bodyBase64url() {
-        return ConvertionUtils.base64urlencode(ConvertionUtils.captureSnapshot(bodyContent));
+        return Base64Url.encode(ConvertionUtils.captureSnapshot(bodyContent));
     }
 
     private String signatureBase64url() {
-        return ConvertionUtils.base64urlencode(signatureData);
+        return Base64Url.encode(signatureData);
     }
 
     /**

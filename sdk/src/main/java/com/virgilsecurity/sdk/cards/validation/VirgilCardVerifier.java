@@ -149,12 +149,7 @@ public class VirgilCardVerifier implements CardVerifier {
         }
 
         byte[] cardSnapshot;
-        try {
-            cardSnapshot = card.getRawCard(cardCrypto).getContentSnapshot();
-        } catch (CryptoException e) {
-            e.printStackTrace();
-            return false;
-        }
+        cardSnapshot = card.getRawCard().getContentSnapshot();
 
         byte[] additionalData = cardSignature.getSnapshot();
         byte[] combinedSnapshot = new byte[cardSnapshot.length + additionalData.length];

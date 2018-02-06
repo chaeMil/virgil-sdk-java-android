@@ -476,8 +476,9 @@ public class CardManager {
      *            the card
      * @return the card
      */
-    public Card importCardAsJson(String card) {
-        return ConvertionUtils.deserializeFromJson(card, Card.class);
+    public Card importCardAsJson(String card) throws CryptoException {
+        RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(card, RawSignedModel.class);
+        return importCardAsRawModel(cardModel);
     }
 
     /**
@@ -524,7 +525,7 @@ public class CardManager {
      *             the crypto exception
      */
     public RawSignedModel exportCardAsRawModel(Card card) throws CryptoException {
-        return card.getRawCard(crypto);
+        return card.getRawCard();
     }
 
     /**

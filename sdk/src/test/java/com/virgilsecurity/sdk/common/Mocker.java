@@ -95,7 +95,7 @@ public class Mocker extends PropertyManager {
         }
     }
 
-    public Card card() {
+    /*public Card card() {
 
         final String virgilCardId = "3e29d43373348cfb373b7eae189214dc01d7237765e572db685839b64adca853";
 
@@ -121,9 +121,9 @@ public class Mocker extends PropertyManager {
 
         return new Card(cardId, Generator.firstName(), somePublicKey,
                 Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
-    }
+    }*/
 
-    public Card card(boolean addSelfSignature, boolean addVirgilSignature, List<CardSignature> signatures) {
+    /*public Card card(boolean addSelfSignature, boolean addVirgilSignature, List<CardSignature> signatures) {
 
         if (signatures == null)
             throw new IllegalArgumentException("Generator -> 'signatures' should not be null");
@@ -156,7 +156,7 @@ public class Mocker extends PropertyManager {
 
         return new Card(cardId, Generator.firstName(), somePublicKey,
                 Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
-    }
+    }*/
 
     public String cardId() {
         byte[] fingerprint = Generator.randomBytes(32);

@@ -53,7 +53,7 @@ public interface CardCrypto {
     byte[] exportPublicKey(PublicKey publicKey) throws CryptoException;
 
     /**
-     * Generates the fingerprint(256-bit hash) for the specified {@code data}.
+     * Generates the fingerprint(512-bit hash) for the specified {@code data}.
      *
      * @param data
      *            The input data for which to compute the fingerprint.

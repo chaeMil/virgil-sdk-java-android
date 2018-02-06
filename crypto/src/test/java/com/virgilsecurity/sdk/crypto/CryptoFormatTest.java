@@ -30,48 +30,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.client.requests;
 
-import java.util.Map;
+package com.virgilsecurity.sdk.crypto;
 
-import org.junit.Before;
-import org.junit.Test;
-
-/**
- * Unit tests for {@code SignedRequest}
- *
- * @author Andrii Iakovenko
- *
- */
-public class GenericSignableRequestTest {
-/*
-	private SignedRequest<String> request;
-
-	@Before
-	public void setUp() {
-		request = new SignedRequest<String>() {
-        };
-	}
-
-	@Test(expected = UnsupportedOperationException.class)
-	public void getSigns_modifyMap_prohibited() {
-		Map<String, byte[]> map = request.getSignatures();
-		map.put("1", new byte[0]);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void appendSignature_nullFingerprint() {
-		request.appendSignature(null, new byte[0]);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void appendSignature_blankFingerprint() {
-		request.appendSignature("\t \n", new byte[0]);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void appendSignature_nullSignature() {
-		request.appendSignature("123", null);
-	}
-*/
+public class CryptoFormatTest {
 }

@@ -33,20 +33,19 @@
 
 package com.virgilsecurity.sdk.client;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.TestUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import sun.util.logging.PlatformLogger;
+import java.util.logging.Logger;
 
 public class CardClientTest extends PropertyManager {
 
@@ -59,8 +58,7 @@ public class CardClientTest extends PropertyManager {
     public void setUp() {
         cardClient = new CardClient(CARDS_SERVICE_URL);
         mocker = new Mocker();
-
-        PlatformLogger.getLogger("sun.net.www.protocol.http.HttpURLConnection").setLevel(PlatformLogger.Level.ALL);
+//        PlatformLogger.getLogger("sun.net.www.protocol.http.HttpURLConnection").setLevel(PlatformLogger.Level.ALL);
     }
 
     @Test

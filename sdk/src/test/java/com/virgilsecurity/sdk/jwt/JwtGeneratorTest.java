@@ -84,7 +84,7 @@ public class JwtGeneratorTest {
         Jwt jwt = this.generator.generateToken(null);
 
         assertNotNull(jwt);
-        assertNull(jwt.getIdentity());;
+        assertNull(jwt.getIdentity());
         assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), jwt.snapshotWithoutSignatures(),
                 fake.getApiPublicKey()));
     }

@@ -129,19 +129,27 @@ public class ConvertionUtilsTest {
     }
 
     @Test
-    public void byteEquals() {
-        String hello = "Hello";
-        byte[] bArr1 = hello.getBytes();
-        byte[] bArr2 = hello.getBytes();
-
-        assertTrue(Arrays.equals(bArr1, bArr2));
-    }
-
-    @Test
     public void backslashJsonSerialization() {
         String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
         String serializedToJson = ConvertionUtils.serializeToJson(hello);
 
         assertEquals(hello, serializedToJson.replace("\"", ""));
+    }
+
+    @Test
+    public void autoByteToBase64StringSerialization() {
+        // FIXME: 1/29/18 Check where we can change String with byte[]
+        // in models - gson automatically will transform it
+        ClassForSerialization classForSerialization = new ClassForSerialization("Petro", "Grigorovych".getBytes());
+
+        String serialized = ConvertionUtils.serializeToJson(classForSerialization);
+
+        Map<String, String> mapJson = ConvertionUtils.deserializeMapFromJson(serialized);
+        String data = "";
+        for (Map.Entry<String, String> entry : mapJson.entrySet())
+            if (entry.getKey().equals("data"))
+                data = mapJson.get(entry.getKey());
+
+        assertEquals(ConvertionUtils.base64ToString(data), "Grigorovych");
     }
 }

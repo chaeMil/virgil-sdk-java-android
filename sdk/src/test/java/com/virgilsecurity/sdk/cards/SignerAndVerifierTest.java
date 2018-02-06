@@ -30,45 +30,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.client.requests;
 
-/**
- * Unit tests for {@linkplain PublishCardRequest}
- *
- * @author Andrii Iakovenko
- *
- */
-public class PublishCardRequestTest {
-/*
-    private static final String IDENTITY = "test@mail.com";
-    private static final String IDENTITY_TYPE = GlobalCardIdentityType.APPLICATION.getRawKey();
+package com.virgilsecurity.sdk.cards;
 
-    private Crypto crypto;
-    private PublishCardRequest request;
-    private CardInfoModel cardInfo;
-
-    @Before
-    public void setUp() {
-        crypto = new VirgilCrypto();
-        KeyPair keyPair = crypto.generateKeys();
-        byte[] publicKey = crypto.exportPublicKey(keyPair.getPublicKey());
-
-        cardInfo = new CardInfoModel();
-        cardInfo.setDevice("Google Nexus 6");
-        cardInfo.setDeviceName("MyDevice");
-
-        request = new PublishCardRequest(IDENTITY, IDENTITY_TYPE, publicKey, cardInfo);
-    }
-
-    @Test
-    public void export_import() {
-        String exportedRequest = request.exportRequest();
-        PublishCardRequest importedRequest = new PublishCardRequest(exportedRequest);
-
-        assertArrayEquals(request.getSnapshot(), importedRequest.getSnapshot());
-        assertArrayEquals(request.getRequestModel().getContentSnapshot(), importedRequest.getRequestModel().getContentSnapshot());
-        assertEquals(request.getRequestModel().getMeta().getValidation(), request.getRequestModel().getMeta().getValidation());
-        assertEquals(request.getSignatures(), importedRequest.getSignatures());
-    }
-*/
+public class SignerAndVerifierTest {
 }

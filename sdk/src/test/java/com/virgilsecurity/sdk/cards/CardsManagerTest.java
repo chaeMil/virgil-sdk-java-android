@@ -33,20 +33,6 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
@@ -61,8 +47,16 @@ import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.accessProviders.GeneratorJwtProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.junit.Before;
+import org.junit.Test;
 
-import sun.util.logging.PlatformLogger;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
+import static org.junit.Assert.*;
 
 public class CardsManagerTest extends PropertyManager {
 
@@ -91,7 +85,7 @@ public class CardsManagerTest extends PropertyManager {
                     }
                 });
 
-        PlatformLogger.getLogger("sun.net.www.protocol.http.HttpURLConnection").setLevel(PlatformLogger.Level.ALL);
+//        PlatformLogger.getLogger("sun.net.www.protocol.http.HttpURLConnection").setLevel(PlatformLogger.Level.ALL);
     }
 
     @Test

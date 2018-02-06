@@ -507,12 +507,25 @@ public class VirgilCrypto {
 
             byte[] receiverId = computePublicKeyHash(publicKey);
             byte[] value = VirgilKeyPair.privateKeyToDER(privateKeyBytes);
-            VirgilPrivateKey privateKey = new VirgilPrivateKey(receiverId, value);
 
-            return privateKey;
+            return new VirgilPrivateKey(receiverId, value);
         } catch (Exception e) {
             throw new CryptoException(e);
         }
+    }
+
+    /**
+     * Imports the Private key from material representation.
+     *
+     * @param keyData
+     *            Private key material representation bytes.
+     * @param password
+     *            The password.
+     * @return Imported private key.
+     * @throws CryptoException
+     */
+    public VirgilPrivateKey importPrivateKey(byte[] keyData) throws CryptoException {
+        return importPrivateKey(keyData, null);
     }
 
     /**

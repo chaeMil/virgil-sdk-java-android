@@ -104,11 +104,11 @@ public class CardManagerCrossCompatibilityTest {
 
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2018);
-        cal.set(Calendar.MONTH, 2018);
-        cal.set(Calendar.DAY_OF_MONTH, 2018);
-        cal.set(Calendar.HOUR, 2018);
-        cal.set(Calendar.MINUTE, 2018);
-        cal.set(Calendar.SECOND, 2018);
+        cal.set(Calendar.MONTH, 0);
+        cal.set(Calendar.DAY_OF_MONTH, 11);
+        cal.set(Calendar.HOUR, 17);
+        cal.set(Calendar.MINUTE, 57);
+        cal.set(Calendar.SECOND, 25);
         cal.set(Calendar.MILLISECOND, 0);
 
         assertEquals("551a933671d4e20524bc7f42e3062e810a1d62250fcbb217263c34c762de9dd0", card1.getIdentifier());

@@ -34,17 +34,21 @@
 package com.virgilsecurity.sdk.cards;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.virgilsecurity.crypto.VirgilHash;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.HashAlgorithm;
 import com.virgilsecurity.sdk.crypto.PublicKey;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
@@ -322,7 +326,8 @@ public class Card {
         }
 
         // TODO generate card id with proper hash
-        byte[] fingerprint = crypto.generateSHA512(combinedSnapshot);
+        byte[] fingerprint = Arrays.copyOfRange(new VirgilCrypto().generateHash(combinedSnapshot, HashAlgorithm.SHA256), 0, 32);
+//        byte[] fingerprint = Arrays.copyOfRange(crypto.generateSHA512(combinedSnapshot), 0, 32);
         String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
         PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 

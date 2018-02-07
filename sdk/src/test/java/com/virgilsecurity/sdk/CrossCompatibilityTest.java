@@ -33,41 +33,47 @@
 
 package com.virgilsecurity.sdk;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Calendar;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.virgilsecurity.sdk.cards.CardSignature;
-import com.virgilsecurity.sdk.cards.model.RawSignature;
-import com.virgilsecurity.sdk.crypto.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
+import com.virgilsecurity.sdk.cards.CardSignature;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
+import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.common.ClassForSerialization;
 import com.virgilsecurity.sdk.common.TimeSpan;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import static org.junit.Assert.*;
 
 public class CrossCompatibilityTest {
 

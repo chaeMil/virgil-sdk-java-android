@@ -30,8 +30,24 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.virgilsecurity.sdk.crypto;
 
-public class CryptoFormatTest {
+import org.junit.Test;
+
+import com.virgilsecurity.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class ForSergeyTest {
+    
+    @Test
+    public void test() throws CryptoException {
+        VirgilKeyPair keyPair = VirgilKeyPair.generate(VirgilKeyPair.Type.RSA_4096);
+        VirgilKeyPair.publicKeyToDER(keyPair.publicKey());
+        VirgilKeyPair.privateKeyToDER(keyPair.privateKey());
+    }
+
 }

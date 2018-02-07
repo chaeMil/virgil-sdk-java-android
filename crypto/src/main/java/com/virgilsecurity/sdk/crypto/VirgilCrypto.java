@@ -153,7 +153,7 @@ public class VirgilCrypto {
      */
     public VirgilCrypto() {
         this.defaultKeyPairType = KeysType.Default;
-        this.useSHA256Fingerprints = true;
+        this.useSHA256Fingerprints = false;
     }
 
     /**
@@ -163,7 +163,7 @@ public class VirgilCrypto {
      */
     public VirgilCrypto(KeysType keysType) {
         this.defaultKeyPairType = keysType;
-        this.useSHA256Fingerprints = true;
+        this.useSHA256Fingerprints = false;
     }
 
     /**

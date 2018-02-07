@@ -38,6 +38,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import com.virgilsecurity.sdk.client.exceptions.HttpError;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -79,7 +80,6 @@ public class HttpClient {
             case "PUT":
             case "PATCH":
                 urlConnection.setDoOutput(true);
-                urlConnection.setChunkedStreamingMode(0);
                 break;
         }
 
@@ -105,7 +105,9 @@ public class HttpClient {
                         String body = ConvertionUtils.toString(in);
                         if (!StringUtils.isBlank(body)) {
                             ErrorResponse error = ConvertionUtils.getGson().fromJson(body, ErrorResponse.class);
-                            throw new VirgilCardServiceException(error.getCode(), error.getMessage());
+                            HttpError httpError = new HttpError(urlConnection.getResponseCode(),
+                                                                urlConnection.getResponseMessage());
+                            throw new VirgilCardServiceException(error.getCode(), error.getMessage(), httpError);
                         }
                     }
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {

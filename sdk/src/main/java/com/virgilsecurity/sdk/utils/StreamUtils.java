@@ -44,6 +44,13 @@ import java.io.OutputStream;
  */
 public class StreamUtils {
 
+    /**
+     * Copies stream from input to the output.
+     *
+     * @param input to copy from
+     * @param output to receive to
+     * @throws IOException
+     */
     public static void copyStream(InputStream input, OutputStream output) throws IOException {
         byte[] buffer = new byte[1024];
         int bytesRead;

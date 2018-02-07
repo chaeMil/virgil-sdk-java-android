@@ -44,6 +44,7 @@ import com.virgilsecurity.sdk.utils.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import sun.util.logging.PlatformLogger;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -97,7 +98,7 @@ public class CardClientTest extends PropertyManager {
 //                                   "Try our fried tokens");
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getErrorCode());
+            assertEquals(401, e.getHttpError().getCode());
         }
     }
 
@@ -112,7 +113,7 @@ public class CardClientTest extends PropertyManager {
                                "Try our fried tokens");
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getErrorCode());
+            assertEquals(401, e.getHttpError().getCode());
         }
     }
 
@@ -125,7 +126,22 @@ public class CardClientTest extends PropertyManager {
                                    mocker.generateFakeAccessToken(identity).stringRepresentation());
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getErrorCode());
+            assertEquals(401, e.getHttpError().getCode());
+        }
+    }
+
+    @Test
+    public void STC_27() throws CryptoException {
+        String identity = Generator.identity();
+        String identitySecond = Generator.identity();
+
+        try {
+            cardClient.publishCard(mocker.generateCardModel(identity),
+                                   mocker.generateAccessToken(identitySecond).stringRepresentation());
+        } catch (VirgilServiceException e) {
+            e.printStackTrace();
+            assertEquals(401, e.getHttpError().getCode());
+            // FIXME: 2/7/18 after service will handle this - refactor error handling in this case
         }
     }
 }

@@ -30,79 +30,75 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
- * Exception class for Virgil Cards Service operations.
- *
- * @author Andrii Iakovenko
- *
+ * The Http error class represents data set pf {@link java.net.HttpURLConnection} error.
  */
-public class VirgilCardServiceException extends VirgilServiceException {
+public class HttpError {
 
-    private static final long serialVersionUID = -6168211821016742313L;
+    private int code;
+    private String message;
 
     /**
-     * Create a new instance of {@code VirgilCardServiceException}
+     * Instantiates a new Http error.
      *
      * @param code
-     *            the error code.
+     *         the code
      */
-    public VirgilCardServiceException(int code) {
-        super(code);
+    public HttpError(int code) {
+        this.code = code;
     }
 
     /**
-     * Create a new instance of {@code VirgilCardServiceException}
+     * Instantiates a new Http error.
      *
      * @param code
-     *            The error code.
+     *         the code
      * @param message
-     *            The error message.
+     *         the message
      */
-    public VirgilCardServiceException(int code, String message) {
-        super(code, message);
+    public HttpError(int code, String message) {
+        this.code = code;
+        this.message = message;
     }
 
     /**
-     * Create a new instance of {@code VirgilCardServiceException}
+     * Gets code.
+     *
+     * @return the code
+     */
+    public int getCode() {
+        return code;
+    }
+
+    /**
+     * Sets code.
      *
      * @param code
-     *         The error code from Virgil Services.
+     *         the code
+     */
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    /**
+     * Gets message.
+     *
+     * @return the message
+     */
+    public String getMessage() {
+        return message;
+    }
+
+    /**
+     * Sets message.
+     *
      * @param message
-     *         The error message from Virgil Services.
-     * @param httpError
-     *         the http error by itself
+     *         the message
      */
-    public VirgilCardServiceException(int code, String message, HttpError httpError) {
-        super(code, message, httpError);
+    public void setMessage(String message) {
+        this.message = message;
     }
-
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     */
-    public VirgilCardServiceException() {
-    }
-
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     * @param e
-     *            the exception.
-     */
-    public VirgilCardServiceException(Exception e) {
-        super(e);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException# getMessageBundleName()
-     */
-    @Override
-    protected String getMessageBundleName() {
-        return "CardsServiceMessages";
-    }
-
 }

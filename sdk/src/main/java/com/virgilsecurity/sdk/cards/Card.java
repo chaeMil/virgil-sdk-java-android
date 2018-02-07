@@ -348,7 +348,7 @@ public class Card {
         }
 
         byte[] fingerprint = Arrays
-                .copyOfRange(crypto.generateSHA512(combinedSnapshot), 0, 32);
+                .copyOfRange(crypto.generateSHA512(combinedSnapshot), 0, 8);
         String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
         PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 

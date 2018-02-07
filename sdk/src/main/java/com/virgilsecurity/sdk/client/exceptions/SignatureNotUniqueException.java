@@ -30,75 +30,30 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
- * The Http error class represents data set pf {@link java.net.HttpURLConnection} error.
+ * @author Andrii Iakovenko
+ *
  */
-public class HttpError {
+public class SignatureNotUniqueException extends RuntimeException {
 
-    private int code;
-    private String message;
+
+    private static final long serialVersionUID = -391243883815607617L;
 
     /**
-     * Instantiates a new Http error.
-     *
-     * @param code
-     *         the code
+     * Create new instance of {@link SignatureNotUniqueException}.
      */
-    public HttpError(int code) {
-        this.code = code;
+    public SignatureNotUniqueException() {
     }
 
     /**
-     * Instantiates a new Http error.
+     * Create new instance of {@link SignatureNotUniqueException}.
      *
-     * @param code
-     *         the code
-     * @param message
-     *         the message
+     * @param message The message.
      */
-    public HttpError(int code, String message) {
-        this.code = code;
-        this.message = message;
+    public SignatureNotUniqueException(String message) {
+        super(message);
     }
 
-    /**
-     * Gets code.
-     *
-     * @return the code
-     */
-    public int getCode() {
-        return code;
-    }
-
-    /**
-     * Sets code.
-     *
-     * @param code
-     *         the code
-     */
-    public void setCode(int code) {
-        this.code = code;
-    }
-
-    /**
-     * Gets message.
-     *
-     * @return the message
-     */
-    public String getMessage() {
-        return message;
-    }
-
-    /**
-     * Sets message.
-     *
-     * @param message
-     *         the message
-     */
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }

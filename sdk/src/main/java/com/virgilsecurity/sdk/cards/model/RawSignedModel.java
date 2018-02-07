@@ -33,12 +33,14 @@
 
 package com.virgilsecurity.sdk.cards.model;
 
+import com.google.gson.annotations.SerializedName;
+import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.Validator;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.google.gson.annotations.SerializedName;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
  * The Raw signed model.
@@ -55,9 +57,12 @@ public class RawSignedModel {
      * Instantiates a new Raw signed model.
      *
      * @param contentSnapshot
-     *            the content snapshot
+     *         the content snapshot
      */
     public RawSignedModel(byte[] contentSnapshot) {
+        Validator.checkNullEmptyAgrument(contentSnapshot,
+                                         "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+
         this.contentSnapshot = contentSnapshot;
 
         signatures = new ArrayList<>();
@@ -67,11 +72,18 @@ public class RawSignedModel {
      * Instantiates a new Raw signed model.
      *
      * @param contentSnapshot
-     *            the content snapshot
+     *         the content snapshot
      * @param signatures
-     *            the list of signatures
+     *         the list of signatures
      */
     public RawSignedModel(byte[] contentSnapshot, List<RawSignature> signatures) {
+        Validator.checkNullEmptyAgrument(contentSnapshot,
+                                         "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+        Validator.checkNullEmptyAgrument(signatures, "RawSignedModel -> 'signatures' should not be null or empty");
+
+        if (!isAllSignaturesUnique(signatures))
+            throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
+
         this.contentSnapshot = contentSnapshot;
         this.signatures = signatures;
     }
@@ -89,7 +101,7 @@ public class RawSignedModel {
      * Sets content snapshot.
      *
      * @param contentSnapshot
-     *            the content snapshot
+     *         the content snapshot
      */
     public void setContentSnapshot(byte[] contentSnapshot) {
         this.contentSnapshot = contentSnapshot;
@@ -108,10 +120,53 @@ public class RawSignedModel {
      * Sets list of signatures.
      *
      * @param signatures
-     *            the list of signatures
+     *         the list of signatures
      */
     public void setSignatures(List<RawSignature> signatures) {
+        if (signatures.size() > 8)
+            throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
+
+        if (!isAllSignaturesUnique(signatures))
+            throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
+
         this.signatures = signatures;
+    }
+
+    /**
+     * Add signature. The signature that is about to add must be unique (by signer).
+     * Max number of signatures is up to 8.
+     *
+     * @param rawSignature
+     *         the raw signature
+     */
+    public void addSignature(RawSignature rawSignature) {// TODO: 2/7/18 should user have possibility of removing signatures?
+        if (signatures.size() > 7)
+            throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
+
+        if (!isSignaturesUnique(rawSignature))
+            throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
+
+        signatures.add(rawSignature);
+    }
+
+    private boolean isAllSignaturesUnique(List<RawSignature> signatures) {
+        for (RawSignature rawSignatureOuter : signatures) {
+            for (RawSignature rawSignatureInner : signatures) {
+                if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner()))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isSignaturesUnique(RawSignature signature) {
+        for (RawSignature rawSignatureOuter : signatures) {
+            if (rawSignatureOuter.getSigner().equals(signature.getSigner()))
+                return false;
+        }
+
+        return true;
     }
 
     /**
@@ -119,7 +174,7 @@ public class RawSignedModel {
      *
      * @return the string
      * @throws IOException
-     *             the io exception
+     *         the io exception
      */
     public String exportAsString() throws IOException {
         return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
@@ -130,7 +185,7 @@ public class RawSignedModel {
      *
      * @return the string
      * @throws IOException
-     *             the io exception
+     *         the io exception
      */
     public String exportAsJson() throws IOException {
         return ConvertionUtils.serializeToJson(this);
@@ -140,7 +195,7 @@ public class RawSignedModel {
      * Instantiate {@link RawSignedModel} from provided base64 string.
      *
      * @param cardModel
-     *            the card model
+     *         the card model
      * @return the raw signed model
      */
     public static RawSignedModel fromString(String cardModel) {
@@ -151,7 +206,7 @@ public class RawSignedModel {
      * Instantiate {@link RawSignedModel} from provided string.
      *
      * @param cardModel
-     *            the card model
+     *         the card model
      * @return the raw signed model
      */
     public static RawSignedModel fromJson(String cardModel) {

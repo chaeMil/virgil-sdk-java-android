@@ -112,18 +112,19 @@ public class Mocker extends PropertyManager {
         return new JwtGenerator(appId, privateKey, apiPublicKeyIdentifier, timeSpan, accessTokenSigner);
     }
 
-    public RawSignedModel generateCardModel() throws CryptoException {
+    public RawSignedModel generateCardModelSigned() throws CryptoException {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2018);
         calendar.set(Calendar.MONTH, 1);
         calendar.set(Calendar.DAY_OF_MONTH, 6);
         calendar.set(Calendar.HOUR_OF_DAY, 10);
+        calendar.clear(Calendar.MILLISECOND);
 
         VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
         VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
-        RawCardContent rawCardContent = new RawCardContent(IDENTITY,
+        RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
                                                            ConvertionUtils
                                                                    .toBase64String(crypto.exportPublicKey(publicKey)),
                                                            "5.0", calendar.getTime());
@@ -134,6 +135,22 @@ public class Mocker extends PropertyManager {
         signer.selfSign(cardModel, privateKey);
 
         return cardModel;
+    }
+
+    public RawSignedModel generateCardModelUnsigned(VirgilPublicKey publicKey) throws CryptoException {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR, 2018);
+        calendar.set(Calendar.MONTH, 1);
+        calendar.set(Calendar.DAY_OF_MONTH, 6);
+        calendar.set(Calendar.HOUR_OF_DAY, 10);
+        calendar.clear(Calendar.MILLISECOND);
+
+        RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
+                                                           ConvertionUtils
+                                                                   .toBase64String(crypto.exportPublicKey(publicKey)),
+                                                           "5.0", calendar.getTime());
+
+        return new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
     }
 
     public RawSignedModel generateCardModel(String identity) throws CryptoException {

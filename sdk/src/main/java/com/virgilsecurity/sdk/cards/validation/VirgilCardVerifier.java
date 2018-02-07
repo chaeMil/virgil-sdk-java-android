@@ -61,7 +61,8 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Instantiates a new Virgil card verifier.
      *
-     * @param cardCrypto the crypto
+     * @param cardCrypto
+     *         the crypto
      */
     public VirgilCardVerifier(CardCrypto cardCrypto) {
         Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
@@ -73,11 +74,15 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Instantiates a new Virgil card verifier.
      *
-     * @param cardCrypto            the card crypto
-     * @param verifySelfSignature   whether the self signature should be verified
-     * @param verifyVirgilSignature whether the virgil signature should be verified
-     * @param whiteLists            the white lists that should contain Card signatures, otherwise Card validation
-     *                              will be failed
+     * @param cardCrypto
+     *         the card crypto
+     * @param verifySelfSignature
+     *         whether the self signature should be verified
+     * @param verifyVirgilSignature
+     *         whether the virgil signature should be verified
+     * @param whiteLists
+     *         the white lists that should contain Card signatures, otherwise Card validation
+     *         will be failed
      */
     public VirgilCardVerifier(CardCrypto cardCrypto,
                               boolean verifySelfSignature,
@@ -131,9 +136,12 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Verifies provided Card.
      *
-     * @param card            the card
-     * @param signer          the signer
-     * @param signerPublicKey the signer's public key
+     * @param card
+     *         the card
+     * @param signer
+     *         the signer
+     * @param signerPublicKey
+     *         the signer's public key
      * @return {@code true} if Card is valid, otherwise {@code false}
      */
     private boolean verify(Card card, String signer, PublicKey signerPublicKey) {
@@ -148,21 +156,8 @@ public class VirgilCardVerifier implements CardVerifier {
             return false;
         }
 
-        byte[] cardSnapshot;
-        cardSnapshot = card.getRawCard().getContentSnapshot();
-
-        byte[] additionalData = cardSignature.getSnapshot();
-        byte[] combinedSnapshot = new byte[cardSnapshot.length + additionalData.length];
-        System.arraycopy(cardSnapshot,
-                         0,
-                         combinedSnapshot,
-                         0,
-                         cardSnapshot.length);
-        System.arraycopy(additionalData,
-                         0,
-                         combinedSnapshot,
-                         cardSnapshot.length,
-                         additionalData.length);
+        byte[] combinedSnapshot = ConvertionUtils
+                .concatenate(card.getRawCard().getContentSnapshot(), cardSignature.getSnapshot());
 
         byte[] fingerprint;
         try {
@@ -204,7 +199,8 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Sets whether the self signature verification should be ignored.
      *
-     * @param ignoreSelfSignature {@code true} if the self signature verification should be ignored, otherwise {@code false}
+     * @param ignoreSelfSignature
+     *         {@code true} if the self signature verification should be ignored, otherwise {@code false}
      */
     public void setIgnoreSelfSignature(boolean ignoreSelfSignature) {
         this.verifySelfSignature = ignoreSelfSignature;
@@ -222,7 +218,8 @@ public class VirgilCardVerifier implements CardVerifier {
     /**
      * Sets whether the virgil signature verification should be ignored.
      *
-     * @param ignoreVirgilSignature {@code true} if the virgil signature verification should be ignored, otherwise {@code false}
+     * @param ignoreVirgilSignature
+     *         {@code true} if the virgil signature verification should be ignored, otherwise {@code false}
      */
     public void setIgnoreVirgilSignature(boolean ignoreVirgilSignature) {
         this.verifyVirgilSignature = ignoreVirgilSignature;

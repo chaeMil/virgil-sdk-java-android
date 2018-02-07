@@ -275,12 +275,9 @@ public class CardsManagerTest extends PropertyManager {
                     @Override
                     public RawSignedModel onSign(RawSignedModel cardModel) {
                         ModelSigner modelSigner = new ModelSigner(cardCrypto);
-                        String signerId = null;
                         try {
                             VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
-                            signerId = ConvertionUtils.toString(
-                                    cardCrypto.generateSHA512(cardModel.getContentSnapshot()), StringEncoding.HEX);
-                            modelSigner.sign(cardModel, signerId, SIGNER_TYPE_EXTRA, keyPairVirgiled.getPrivateKey());
+                            modelSigner.sign(cardModel, SIGNER_TYPE_EXTRA, keyPairVirgiled.getPrivateKey());
                         } catch (CryptoException e) {
                             e.printStackTrace();
                             fail();

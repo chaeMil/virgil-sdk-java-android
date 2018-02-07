@@ -38,7 +38,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.virgilsecurity.sdk.client.exceptions.HttpError;
+import com.virgilsecurity.sdk.common.HttpError;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;

@@ -32,13 +32,15 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
+import com.virgilsecurity.sdk.common.StringEncoding;
+
+import javax.xml.bind.DatatypeConverter;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -46,25 +48,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 
-import javax.xml.bind.DatatypeConverter;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.TypeAdapter;
-import com.google.gson.TypeAdapterFactory;
-import com.google.gson.reflect.TypeToken;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 //import com.virgilsecurity.crypto.VirgilBase64;
-import com.virgilsecurity.sdk.common.StringEncoding;
 
 /**
  * Utilities class for data conversion.
@@ -389,6 +373,15 @@ public class ConvertionUtils {
         default:
             return new String(inputBytes, StandardCharsets.UTF_8);
         }
+    }
+
+    public static byte[] concatenate(byte[] first, byte[] second) {
+        byte[] result = new byte[first.length + second.length];
+        System.arraycopy(first, 0, result, 0, first.length);
+        System.arraycopy(second, 0, result, first.length,
+                         second.length);
+
+        return result;
     }
 
 }

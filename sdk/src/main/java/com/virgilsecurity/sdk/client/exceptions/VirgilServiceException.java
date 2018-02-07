@@ -32,7 +32,8 @@
  */
 package com.virgilsecurity.sdk.client.exceptions;
 
-import javax.xml.ws.http.HTTPException;
+import com.virgilsecurity.sdk.common.HttpError;
+
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 

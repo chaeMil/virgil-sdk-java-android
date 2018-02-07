@@ -33,13 +33,6 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -50,6 +43,8 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
+
+import java.util.*;
 
 /**
  * The {@link Card} class is the main entity of Virgil Services. Every user/device is represented with a Virgil Card
@@ -338,17 +333,12 @@ public class Card {
 
         byte[] combinedSnapshot;
         if (additionalData.length != 0) {
-            combinedSnapshot = new byte[cardModel.getContentSnapshot().length + additionalData.length];
-            System.arraycopy(cardModel.getContentSnapshot(), 0, combinedSnapshot, 0,
-                             cardModel.getContentSnapshot().length);
-            System.arraycopy(additionalData, 0, combinedSnapshot, cardModel.getContentSnapshot().length,
-                             additionalData.length);
+            combinedSnapshot = ConvertionUtils.concatenate(cardModel.getContentSnapshot(), additionalData);
         } else {
             combinedSnapshot = cardModel.getContentSnapshot();
         }
 
-        byte[] fingerprint = Arrays
-                .copyOfRange(crypto.generateSHA512(combinedSnapshot), 0, 8);
+        byte[] fingerprint = Arrays.copyOfRange(crypto.generateSHA512(combinedSnapshot), 0, 8);
         String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
         PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 
@@ -387,11 +377,12 @@ public class Card {
 
         RawSignedModel cardModel = new RawSignedModel(snapshot);
 
-        for (CardSignature signature : signatures) { // TODO: 2/5/18 check whether the snapshot and signature will be
+        for (CardSignature signature : signatures) {
+            // TODO: 2/5/18 check whether the snapshot and signature will be
             // good without decoding from b64
-            cardModel.getSignatures().add(new RawSignature(ConvertionUtils.toBase64String(signature.getSnapshot()),
-                                                           signature.getSigner(),
-                                                           ConvertionUtils.toBase64String(signature.getSignature())));
+            cardModel.addSignature(new RawSignature(ConvertionUtils.toBase64String(signature.getSnapshot()),
+                                                    signature.getSigner(),
+                                                    ConvertionUtils.toBase64String(signature.getSignature())));
         }
 
         return cardModel;
@@ -410,6 +401,6 @@ public class Card {
     public int hashCode() {
 
         return Objects.hash(identifier, identity, publicKey, version, createdAt, previousCardId, previousCard,
-                signatures, isOutdated);
+                            signatures, isOutdated);
     }
 }

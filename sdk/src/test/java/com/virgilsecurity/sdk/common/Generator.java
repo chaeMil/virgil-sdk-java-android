@@ -92,7 +92,7 @@ public class Generator {
 
         try {
             return ConvertionUtils
-                    .toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32), StringEncoding.HEX);
+                    .toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 8), StringEncoding.HEX);
         } catch (CryptoException e) {
             e.printStackTrace();
         }

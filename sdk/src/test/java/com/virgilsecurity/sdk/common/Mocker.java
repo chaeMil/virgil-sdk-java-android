@@ -67,8 +67,10 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 public class Mocker extends PropertyManager {
 
     private static final String IDENTITY = "TEST";
+    private static final String FAKE_PRIVATE_KEY_BASE64 = "MC4CAQAwBQYDK2VwBCIEIFxOB4ppNAm8J/C95hPiIJ/A9gPRoERMxjRQN7HcGYnW";
 
     private JwtGenerator jwtGenerator;
+    private JwtGenerator jwtGeneratorFake;
     private VirgilCrypto crypto;
     private JwtVerifier verifier;
 
@@ -77,107 +79,38 @@ public class Mocker extends PropertyManager {
         AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
         VirgilPrivateKey privateKey;
+        VirgilPrivateKey privateKeyFake;
         try {
             privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64), null);
         } catch (CryptoException e) {
             e.printStackTrace();
             throw new IllegalArgumentException("Mocker -> 'ACCESS_PRIVATE_KEY_BASE64' seems to has wrong format");
         }
+        try {
+            privateKeyFake = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64), null);
+        } catch (CryptoException e) {
+            e.printStackTrace();
+            throw new IllegalArgumentException("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");
+        }
 
-        jwtGenerator = new JwtGenerator(APP_ID, privateKey, API_PUBLIC_KEY_IDENTIFIER,
-                TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+        jwtGenerator = initJwtGenerator(APP_ID, privateKey, API_PUBLIC_KEY_IDENTIFIER,
+                                        TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+
+        jwtGeneratorFake = initJwtGenerator(APP_ID, privateKeyFake, API_PUBLIC_KEY_IDENTIFIER,
+                                            TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
         try {
             verifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)),
-                    API_PUBLIC_KEY_IDENTIFIER, accessTokenSigner);
+                                       API_PUBLIC_KEY_IDENTIFIER, accessTokenSigner);
         } catch (CryptoException e) {
             e.printStackTrace();
         }
     }
 
-    /*public Card card() {
-
-        final String virgilCardId = "3e29d43373348cfb373b7eae189214dc01d7237765e572db685839b64adca853";
-
-        byte[] fingerprint = Generator.randomBytes(32);
-        byte[] signatureSelf = Generator.randomBytes(64);
-        byte[] signatureVirgil = Generator.randomBytes(64);
-
-        String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
-
-        List<CardSignature> signatures = new ArrayList<>();
-        signatures.add(new CardSignature.CardSignatureBuilder(SignerType.SELF.getRawValue(), signatureSelf).build());
-
-        signatures
-                .add(new CardSignature.CardSignatureBuilder(SignerType.VIRGIL.getRawValue(), signatureVirgil).build());
-
-        PublicKey somePublicKey = null;
-        try {
-            somePublicKey = this.crypto.generateKeys().getPublicKey();
-        } catch (CryptoException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return new Card(cardId, Generator.firstName(), somePublicKey,
-                Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
-    }*/
-
-    /*public Card card(boolean addSelfSignature, boolean addVirgilSignature, List<CardSignature> signatures) {
-
-        if (signatures == null)
-            throw new IllegalArgumentException("Generator -> 'signatures' should not be null");
-
-        final String virgilCardId = "3e29d43373348cfb373b7eae189214dc01d7237765e572db685839b64adca853";
-
-        byte[] fingerprint = Generator.randomBytes(32);
-        byte[] signatureSelf = Generator.randomBytes(64);
-        byte[] signatureVirgil = Generator.randomBytes(64);
-
-        String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
-
-        if (addSelfSignature) {
-            signatures
-                    .add(new CardSignature.CardSignatureBuilder(SignerType.SELF.getRawValue(), signatureSelf).build());
-        }
-
-        if (addVirgilSignature) {
-            signatures.add(
-                    new CardSignature.CardSignatureBuilder(SignerType.VIRGIL.getRawValue(), signatureVirgil).build());
-        }
-
-        PublicKey somePublicKey = null;
-        try {
-            somePublicKey = this.crypto.generateKeys().getPublicKey();
-        } catch (CryptoException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-
-        return new Card(cardId, Generator.firstName(), somePublicKey,
-                Generator.randomArrayElement(Arrays.asList("4.0", "5.0")), Generator.randomDate(), signatures);
-    }*/
-
-    public String cardId() {
-        byte[] fingerprint = Generator.randomBytes(32);
-
-        return ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
+    private JwtGenerator initJwtGenerator(String appId, VirgilPrivateKey privateKey, String apiPublicKeyIdentifier,
+                                          TimeSpan timeSpan, AccessTokenSigner accessTokenSigner) {
+        return new JwtGenerator(appId, privateKey, apiPublicKeyIdentifier, timeSpan, accessTokenSigner);
     }
-
-    // public Tuple<VerifierCredentials, CardSignature> signerAndSignature() {
-    // String cardId = cardId();
-    // VirgilCrypto crypto = new VirgilCrypto();
-    // VirgilKeyPair keyPair = crypto.generateKeys();
-    // byte[] exportPublicKey = new byte[0];
-    // try {
-    // exportPublicKey = crypto.exportPublicKey(keyPair.getPublicKey());
-    // } catch (CryptoException e) {
-    // e.printStackTrace();
-    // }
-    //
-    // return new Tuple<>(new VerifierCredentials(cardId, exportPublicKey), new CardSignature.CardSignatureBuilder()
-    // .signerId(cardId).signature(ConvertionUtils.toBase64String(Generator.randomBytes(64))).build());
-    // }
 
     public RawSignedModel generateCardModel() throws CryptoException {
         Calendar calendar = Calendar.getInstance();
@@ -191,7 +124,9 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
         RawCardContent rawCardContent = new RawCardContent(IDENTITY,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
+                                                           ConvertionUtils
+                                                                   .toBase64String(crypto.exportPublicKey(publicKey)),
+                                                           "5.0", calendar.getTime());
 
         RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
 
@@ -213,7 +148,9 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
         RawCardContent rawCardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
+                                                           ConvertionUtils
+                                                                   .toBase64String(crypto.exportPublicKey(publicKey)),
+                                                           "5.0", calendar.getTime());
 
         RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
 
@@ -247,6 +184,10 @@ public class Mocker extends PropertyManager {
 
     public Jwt generateAccessToken(String identity) throws CryptoException {
         return jwtGenerator.generateToken(identity);
+    }
+
+    public Jwt generateFakeAccessToken(String identity) throws CryptoException {
+        return jwtGeneratorFake.generateToken(identity);
     }
 
     public JwtVerifier getVerifier() {

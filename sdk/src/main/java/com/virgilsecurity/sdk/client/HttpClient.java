@@ -41,6 +41,7 @@ import java.net.URL;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.ErrorResponse;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StreamUtils;
@@ -60,8 +61,10 @@ public class HttpClient {
     /**
      * Create and configure http connection.
      *
-     * @param url    The URL.
-     * @param method The HTTP method.
+     * @param url
+     *         The URL.
+     * @param method
+     *         The HTTP method.
      * @return The connection.
      * @throws IOException
      */
@@ -88,7 +91,8 @@ public class HttpClient {
         return urlConnection;
     }
 
-    public <T> T execute(URL url, String method, String token, InputStream inputStream, Class<T> clazz) {
+    public <T> T execute(URL url, String method, String token, InputStream inputStream,
+                         Class<T> clazz) throws VirgilServiceException {
         try {
             HttpURLConnection urlConnection = createConnection(url, method, token);
             if (inputStream != null) {
@@ -116,7 +120,8 @@ public class HttpClient {
                             throw new VirgilCardIsOutdatedException(cardModel);
                         }
                     }
-                    throw new VirgilCardServiceException();
+                    throw new VirgilCardServiceException(urlConnection.getResponseCode(),
+                                                         urlConnection.getResponseMessage());
                 } else if (clazz.isAssignableFrom(Void.class)) {
                     return null;
                 } else {

@@ -34,18 +34,19 @@
 package com.virgilsecurity.sdk.client;
 
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.logging.Logger;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class CardClientTest extends PropertyManager {
 
@@ -68,43 +69,63 @@ public class CardClientTest extends PropertyManager {
     }
 
     @Test
-    public void validTokenPublishCard() throws CryptoException {
+    public void validTokenPublish() throws CryptoException {
         String identity = Generator.identity();
 
         RawSignedModel cardModelBeforePublish = mocker.generateCardModel(identity);
 
-        RawSignedModel cardModelAfterPublish = cardClient.publishCard(cardModelBeforePublish,
-                mocker.generateAccessToken(identity).stringRepresentation());
+        RawSignedModel cardModelAfterPublish = null;
+        try {
+            cardModelAfterPublish = cardClient.publishCard(cardModelBeforePublish,
+                                                           mocker.generateAccessToken(identity).stringRepresentation());
+        } catch (VirgilServiceException e) {
+            e.printStackTrace();
+            fail();
+        }
 
         TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
     }
 
     @Test
-    public void validTokenPublishCardExported() throws CryptoException {
-        String jsonCardModel = "{\"content_snapshot\":\"ewogICJ2ZXJzaW9uIiA6ICI1LjAiLAogICJwdWJsaWNfa2"
-                + "V5IiA6ICJMUzB0TFMxQ1JVZEpUaUJRVlVKTVNVTWdTMFZaTFMwdExTMEtUVU52ZDBKUldVUkxNbFozUVhsRlF"
-                + "XSTBTRlVyZUVsclVDdDJkM0F2VmpZeU5tZHNlWE5SWjJWaFdYbFJNV2RCT1ZkVFNreDZkVzQ0WkdzOUNpMHRM"
-                + "UzB0UlU1RUlGQlZRa3hKUXlCTFJWa3RMUzB0TFFvPSIsCiAgImlkZW50aXR5IiA6ICJpZGVudGl0eSIsCiAgI"
-                + "mNyZWF0ZWRfYXQiIDogMTUxNjk3MjAwOQp9\",\"signatures\":[{\"signer_type\":\"self\",\"sig"
-                + "nature\":\"MFEwDQYJYIZIAWUDBAICBQAEQINRagKzeNyk2juS5G6Ratlk5sNYFDB4TtIJ2ELQflYJSq9LoP"
-                + "H541IRdbl0q/jzEJw94v4VCfNhEioXBRv0hAU=\",\"snapshot\":\"\",\"signer_id\":\"56d5df161e"
-                + "f884a2d3702c41ad9487036720208a68c425b968f86cd1a45fb75e\"}]}";
+    public void STC_25_publish() throws CryptoException {
+        String identity = Generator.identity();
 
-        RawSignedModel cardModelBeforePublish = ConvertionUtils.deserializeFromJson(jsonCardModel,
-                RawSignedModel.class);
-
-        RawSignedModel cardModelAfterPublish = cardClient.publishCard(cardModelBeforePublish,
-                mocker.generateAccessToken(IDENTITY).stringRepresentation());
-
-        Assert.assertEquals(cardModelBeforePublish, cardModelAfterPublish);
+        try {
+            cardClient.publishCard(mocker.generateCardModel(identity),
+                                   mocker.generateFakeAccessToken(identity).stringRepresentation());
+//            cardClient.publishCard(mocker.generateCardModel(identity),
+//                                   "Try our fried tokens");
+        } catch (VirgilServiceException e) {
+            e.printStackTrace();
+            assertEquals(401, e.getErrorCode());
+        }
     }
 
     @Test
-    public void fakeTokenPublishCard() throws CryptoException {
-        RawSignedModel cardModelBeforePublish = mocker.generateCardModel();
+    public void STC_25_get() throws CryptoException {
+        String identity = Generator.identity();
 
-        RawSignedModel cardModelAfterPublish = cardClient.publishCard(cardModelBeforePublish, "Try our tokens");
+        try {
+//            cardClient.getCard(Generator.cardId(),
+//                                   mocker.generateFakeAccessToken(identity).stringRepresentation());
+            cardClient.getCard(Generator.cardId(),
+                               "Try our fried tokens");
+        } catch (VirgilServiceException e) {
+            e.printStackTrace();
+            assertEquals(401, e.getErrorCode());
+        }
+    }
 
-        Assert.assertEquals(cardModelBeforePublish, cardModelAfterPublish);
+    @Test
+    public void STC_25_search() throws CryptoException {
+        String identity = Generator.identity();
+
+        try {
+            cardClient.searchCards(Generator.identity(),
+                                   mocker.generateFakeAccessToken(identity).stringRepresentation());
+        } catch (VirgilServiceException e) {
+            e.printStackTrace();
+            assertEquals(401, e.getErrorCode());
+        }
     }
 }

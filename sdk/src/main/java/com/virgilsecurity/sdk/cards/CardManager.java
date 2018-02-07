@@ -43,6 +43,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PublicKey;
@@ -260,7 +261,7 @@ public class CardManager {
      *             if issue occurred verifying card that was received from the Virgil Cards service
      * @see #generateRawCard(PrivateKey, PublicKey, String)
      */
-    public Card publishCard(RawSignedModel cardModel) throws CryptoException, IOException {
+    public Card publishCard(RawSignedModel cardModel) throws CryptoException, IOException, VirgilServiceException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
         Card card = Card.parse(crypto, cardClient.publishCard(cardModel, token.stringRepresentation()));
 
@@ -295,7 +296,7 @@ public class CardManager {
      *             if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity, String previousCardId,
-            Map<String, String> additionalData) throws CryptoException, IOException {
+            Map<String, String> additionalData) throws CryptoException, IOException, VirgilServiceException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId, additionalData);
 
@@ -326,7 +327,7 @@ public class CardManager {
      *             if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-            Map<String, String> additionalData) throws CryptoException, IOException {
+            Map<String, String> additionalData) throws CryptoException, IOException, VirgilServiceException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, additionalData);
 
@@ -357,7 +358,7 @@ public class CardManager {
      *             if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity, String previousCardId)
-            throws CryptoException, IOException {
+            throws CryptoException, IOException, VirgilServiceException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId);
 
@@ -386,7 +387,7 @@ public class CardManager {
      *             if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity)
-            throws CryptoException, IOException {
+            throws CryptoException, IOException, VirgilServiceException {
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity);
 
         return publishCard(cardModel);
@@ -403,7 +404,7 @@ public class CardManager {
      * @throws IOException
      *             the io exception
      */
-    public Card getCard(String cardId) throws CryptoException, IOException {
+    public Card getCard(String cardId) throws CryptoException, IOException, VirgilServiceException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
         Tuple<RawSignedModel, Boolean> response = cardClient.getCard(cardId, token.stringRepresentation());
         Card card = Card.parse(crypto, response.getLeft());
@@ -426,7 +427,7 @@ public class CardManager {
      * @throws CryptoException
      *             the crypto exception
      */
-    public List<Card> searchCards(String identity) throws CryptoException {
+    public List<Card> searchCards(String identity) throws CryptoException, VirgilServiceException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
 
         List<RawSignedModel> cardModels = cardClient.searchCards(identity, token.stringRepresentation());

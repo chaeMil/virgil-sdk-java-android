@@ -38,16 +38,26 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 /**
  * This exception occurred when returned Virgil Card is outdated.
  */
-public class VirgilCardIsOutdatedException extends RuntimeException {
+public class VirgilCardIsOutdatedException extends VirgilServiceException {
 
     private static final long serialVersionUID = 3841365581319657840L;
     private RawSignedModel cardModel;
+    private String message;
 
     /**
      * Instantiates a new Virgil card is outdated exception.
      */
     public VirgilCardIsOutdatedException() {
 
+    }
+
+    /**
+     * Instantiates a new Virgil card is outdated exception.
+     *
+     * @param message message to be stored to get it later
+     */
+    public VirgilCardIsOutdatedException(String message) {
+        this.message = message;
     }
 
     /**
@@ -66,6 +76,11 @@ public class VirgilCardIsOutdatedException extends RuntimeException {
      */
     public VirgilCardIsOutdatedException(Exception cause) {
         super(cause);
+    }
+
+    @Override
+    protected String getMessageBundleName() {
+        return message != null ? message : "Message was not set.";
     }
 
     /**

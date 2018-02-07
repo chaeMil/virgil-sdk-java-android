@@ -41,7 +41,7 @@ import java.util.ResourceBundle;
  * @author Andrii Iakovenko
  *
  */
-public abstract class VirgilServiceException extends RuntimeException {
+public abstract class VirgilServiceException extends Exception {
 
     private static final long serialVersionUID = -1143173438484224903L;
 

@@ -39,6 +39,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 public class Generator {
@@ -66,12 +69,12 @@ public class Generator {
     }
 
     public static String firstName() {
-        String[] names = new String[] {"Alice", "Bob", "Greg", "Jenny", "John", "Molly"};
+        String[] names = new String[]{"Alice", "Bob", "Greg", "Jenny", "John", "Molly"};
         return names[randomInt(5)];
     }
 
     public static String lastName() {
-        String[] names = new String[] {"Archer", "Slater", "Cook", "Fisher", "Hunter", "Glover"};
+        String[] names = new String[]{"Archer", "Slater", "Cook", "Fisher", "Hunter", "Glover"};
         return names[randomInt(5)];
     }
 
@@ -83,10 +86,18 @@ public class Generator {
         return prefix + Arrays.toString(randomBytes(32));
     }
 
-    public static String cardId()
-    {
+    public static String cardId() {
         byte[] fingerprint = randomBytes(32);
-        return ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
+        CardCrypto crypto = new VirgilCardCrypto();
+
+        try {
+            return ConvertionUtils
+                    .toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32), StringEncoding.HEX);
+        } catch (CryptoException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static <T> T randomArrayElement(List<T> list) {
@@ -105,7 +116,7 @@ public class Generator {
     public static String randomAlphaNumeric(int count) {
         StringBuilder builder = new StringBuilder();
         while (count-- != 0) {
-            int character = (int)(Math.random()*ALPHA_NUMERIC_STRING.length());
+            int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
             builder.append(ALPHA_NUMERIC_STRING.charAt(character));
         }
         return builder.toString();

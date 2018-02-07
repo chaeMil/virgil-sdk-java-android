@@ -67,7 +67,8 @@ public class CardClient {
     /**
      * Create a new instance of {@code CardClient}
      *
-     * @param serviceUrl the service url to fire requests to
+     * @param serviceUrl
+     *         the service url to fire requests to
      */
     public CardClient(String serviceUrl) {
         try {
@@ -82,7 +83,8 @@ public class CardClient {
     /**
      * Create a new instance of {@code CardClient}
      *
-     * @param serviceUrl the service url to fire requests to
+     * @param serviceUrl
+     *         the service url to fire requests to
      */
     public CardClient(URL serviceUrl) {
         this.serviceUrl = serviceUrl;
@@ -92,22 +94,25 @@ public class CardClient {
     /**
      * Get card from Virgil Services by specified identifier.
      *
-     * @param cardId the card identifier.
-     * @param token  token to authorize the request.
+     * @param cardId
+     *         the card identifier.
+     * @param token
+     *         token to authorize the request.
      * @return the card loaded from Virgil Cards service.
      */
     public Tuple<RawSignedModel, Boolean> getCard(String cardId,
-                                                 String token) {
+                                                  String token) throws VirgilServiceException {
         try {
             URL url = new URL(serviceUrl, "" + cardId);
 
             return new Tuple<>(httpClient.execute(url,
-                                                 "GET",
-                                                 token,
-                                                 null,
-                                                 RawSignedModel.class), false);
+                                                  "GET",
+                                                  token,
+                                                  null,
+                                                  RawSignedModel.class), false);
         } catch (VirgilCardIsOutdatedException e) {
-            return new Tuple<>(e.getCardModel(), true); // FIXME: 1/30/18 temporary workaround with 403 for outdated card
+            return new Tuple<>(e.getCardModel(),
+                               true); // FIXME: 1/30/18 temporary workaround with 403 for outdated card
         } catch (VirgilServiceException e) {
             throw e;
         } catch (Exception e) {
@@ -118,10 +123,13 @@ public class CardClient {
     /**
      * Publishes card in Virgil Cards service.
      *
-     * @param rawCard raw signed model of card to be published.
-     * @param token   token to authorize the request.
+     * @param rawCard
+     *         raw signed model of card to be published.
+     * @param token
+     *         token to authorize the request.
      * @return the {@link RawSignedModel} of the Card that is published to Virgil Cards service.
-     * @throws VirgilServiceException if an error occurred while publishing Card.
+     * @throws VirgilServiceException
+     *         if an error occurred while publishing Card.
      */
     public RawSignedModel publishCard(RawSignedModel rawCard, String token) throws VirgilServiceException {
         try {
@@ -143,11 +151,13 @@ public class CardClient {
     /**
      * Search cards Virgil Services by specified identity.
      *
-     * @param identity the identity for search.
-     * @param token    token to authorize the request.
+     * @param identity
+     *         the identity for search.
+     * @param token
+     *         token to authorize the request.
      * @return A list of found cards.
      */
-    public List<RawSignedModel> searchCards(String identity, String token) {
+    public List<RawSignedModel> searchCards(String identity, String token) throws VirgilServiceException {
         if (identity == null)
             throw new NullArgumentException("CardClient -> 'identity' should not be null");
 
@@ -185,7 +195,8 @@ public class CardClient {
     /**
      * Sets http client that is used to fire requests.
      *
-     * @param httpClient the http client
+     * @param httpClient
+     *         the http client
      */
     public void setHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;

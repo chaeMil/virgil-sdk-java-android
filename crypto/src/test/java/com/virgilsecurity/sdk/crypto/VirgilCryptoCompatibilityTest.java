@@ -61,7 +61,6 @@ public class VirgilCryptoCompatibilityTest {
     @Before
     public void setup() {
         this.crypto = new VirgilCrypto();
-        this.crypto.setUseSHA256Fingerprints(true);
 
         sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(this.getClass().getClassLoader()
                 .getResourceAsStream("com/virgilsecurity/sdk/crypto/crypto_compatibility_data.json")));

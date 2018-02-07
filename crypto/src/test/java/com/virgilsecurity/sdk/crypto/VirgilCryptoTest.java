@@ -49,6 +49,9 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
@@ -61,6 +64,7 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
  * @author Andrii Iakovenko
  *
  */
+@RunWith(Parameterized.class)
 public class VirgilCryptoTest {
 
     private static final String TEXT = "This text is used for unit tests";
@@ -71,11 +75,24 @@ public class VirgilCryptoTest {
             98, 20, -25, 60, 125, -19, 67, 12, -30, 65, 93, -29, -92, -58, -91, 91, 50, -111, -79, 50, -123, -39, 36,
             48, -20 };
 
+    private KeysType keysType;
     private VirgilCrypto crypto;
+
+    @Parameters(name = "keyType={0}")
+    public static KeysType[] params() {
+        return KeysType.values();
+    }
+
+    /**
+     * Create new instance of {@link VirgilCryptoTest}.
+     */
+    public VirgilCryptoTest(KeysType keysType) {
+        this.keysType = keysType;
+    }
 
     @Before
     public void setup() {
-        crypto = new VirgilCrypto();
+        crypto = new VirgilCrypto(this.keysType);
     }
 
     @Test(expected = NullArgumentException.class)

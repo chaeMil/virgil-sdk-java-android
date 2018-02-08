@@ -43,7 +43,7 @@
 	</parent>
 	<artifactId>api</artifactId>
 	<packaging>jar</packaging>
-	<name>Virgil SDK API</name>
+	<name>Virgil SDK - API</name>
 	<description>
 		Virgil is a stack of security libraries (ECIES with Crypto Agility wrapped in Virgil Cryptogram) and all the necessary infrastructure to enable seamless, end-to-end encryption for any application, platform or device.
 		Learn about Virgil Crypto Library https://virgilsecurity.com/api-docs/java-android/crypto-library

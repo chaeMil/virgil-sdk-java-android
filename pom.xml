@@ -99,6 +99,7 @@
         <module>crypto</module>
 		<module>crypto-android</module>
 		<module>sdk</module>
+        <module>sdk-android</module>
 	</modules>
 
 	<dependencyManagement>
@@ -203,7 +204,7 @@
 				<plugin>
 					<groupId>com.simpligility.maven.plugins</groupId>
 					<artifactId>android-maven-plugin</artifactId>
-					<version>4.3.0</version>
+					<version>4.5.0</version>
 					<extensions>true</extensions>
 					<configuration>
 						<ndkArchitectures>arm64-v8a armeabi armeabi-v7a mips mips64 x86

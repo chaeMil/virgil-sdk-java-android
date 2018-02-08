@@ -1,10 +1,3 @@
-import com.virgilsecurity.sdk.crypto.Crypto;
-import com.virgilsecurity.sdk.crypto.KeyPair;
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.PublicKey;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
-
 /*
  * Copyright (c) 2015-2018, Virgil Security, Inc.
  *
@@ -37,29 +30,48 @@ import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.jwt;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import com.virgilsecurity.sdk.FakeDataFactory;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 /**
- * This is sample of operations with Crypto Keys.
- *
  * @author Andrii Iakovenko
  *
  */
-public class CryptoKeys {
+public class JwtTest {
 
-    public static void main(String[] args) throws VirgilException {
-        // Initialize Crypto
-        Crypto crypto = new VirgilCrypto();
+    private FakeDataFactory fake;
+    private String identity;
 
-        // Generate key pair
-        KeyPair aliceKeys = crypto.generateKeys();
+    @Before
+    public void setup() throws CryptoException {
+        this.fake = new FakeDataFactory();
+        this.identity = "IDENTITY_" + fake.getApplicationId();
+    }
 
-        // Export keys
-        byte[] exportedPrivateKey = crypto.exportPrivateKey(aliceKeys.getPrivateKey());
-        byte[] exportedPublicKey = crypto.exportPublicKey(aliceKeys.getPublicKey());
+    @Test
+    public void generate_byIdentity() throws CryptoException {
+        JwtGenerator generator = fake.getJwtGenerator();
+        Jwt jwt = generator.generateToken(this.identity);
 
-        // Import keys
-        PrivateKey privateKey = crypto.importPrivateKey(exportedPrivateKey);
-        PublicKey publicKey = crypto.importPublicKey(exportedPublicKey);
+        assertNotNull(jwt);
+        assertEquals(this.identity, jwt.getIdentity());
+    }
+
+    @Test
+    public void instantiate_fromString() throws CryptoException {
+        Jwt jwt = this.fake.generateToken();
+        Jwt importedJwt = new Jwt(jwt.stringRepresentation());
+
+        assertEquals(jwt, importedJwt);
+        assertEquals(jwt.stringRepresentation(), importedJwt.stringRepresentation());
     }
 
 }

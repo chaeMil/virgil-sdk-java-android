@@ -47,9 +47,6 @@ public class JwtBodyContent {
     private static final String ISSUER_PREFIX = "virgil-";
     private static final String SUBJECT_PREFIX = "identity-";
 
-    private transient String appId;
-    private transient String identity;
-
     @SerializedName("iss")
     private String issuer;
 
@@ -68,100 +65,45 @@ public class JwtBodyContent {
     /**
      * Instantiates a new Jwt body content.
      *
-     * @param appId     the application identifier
-     * @param identity  the identity
-     * @param expiresAt a lifetime of token
-     * @param issuedAt  when the token is issued at
+     * @param appId
+     *            the application identifier
+     * @param identity
+     *            the identity
+     * @param additionalData
+     *            the additional data associated with token
+     * @param expiresAt
+     *            a lifetime of token
+     * @param issuedAt
+     *            when the token is issued at
      */
-    public JwtBodyContent(String appId, String identity, TimeSpan expiresAt, Date issuedAt) {
-        this.appId = appId;
-        this.identity = identity;
-        this.issuer = ISSUER_PREFIX + appId;
-        this.subject = SUBJECT_PREFIX + identity;
-        this.expiresAt = expiresAt.getTimestamp();
-        this.issuedAt = issuedAt.getTime() / 1000;
+    public JwtBodyContent(String appId, String identity, Map<String, String> additionalData, TimeSpan expiresAt,
+            Date issuedAt) {
+        this(appId, identity, expiresAt, issuedAt);
+
+        this.additionalData = additionalData;
     }
 
     /**
      * Instantiates a new Jwt body content.
      *
-     * @param appId          the application identifier
-     * @param identity       the identity
-     * @param additionalData the additional data associated with token
-     * @param expiresAt      a lifetime of token
-     * @param issuedAt       when the token is issued at
+     * @param appId
+     *            the application identifier
+     * @param identity
+     *            the identity
+     * @param expiresAt
+     *            a lifetime of token
+     * @param issuedAt
+     *            when the token is issued at
      */
-    public JwtBodyContent(String appId, String identity, Map<String, String> additionalData, TimeSpan expiresAt,
-            Date issuedAt) {
-        this.appId = appId;
-        this.identity = identity;
-        this.issuer = ISSUER_PREFIX + appId;
-        this.subject = SUBJECT_PREFIX + identity;
-        this.additionalData = additionalData;
+    public JwtBodyContent(String appId, String identity, TimeSpan expiresAt, Date issuedAt) {
+        if (appId != null) {
+            this.issuer = ISSUER_PREFIX + appId;
+        }
+        if (identity != null) {
+            this.subject = SUBJECT_PREFIX + identity;
+        }
         this.expiresAt = expiresAt.getTimestamp();
         this.issuedAt = issuedAt.getTime() / 1000;
-    }
-
-    /**
-     * Gets application identifier.
-     *
-     * @return the application identifier
-     */
-    public String getAppId() {
-        return appId;
-    }
-
-    /**
-     * Gets identity.
-     *
-     * @return the identity
-     */
-    public String getIdentity() {
-        return identity;
-    }
-
-    /**
-     * Gets additional data.
-     *
-     * @return the additional data
-     */
-    public Map<String, String> getAdditionalData() {
-        return additionalData;
-    }
-
-    /**
-     * Gets expires at - the lifetime of token.
-     *
-     * @return the expires at - the lifetime of token
-     */
-    public TimeSpan getExpiresAt() {
-        return new TimeSpan(expiresAt * 1000);
-    }
-
-    /**
-     * Gets issued at.
-     *
-     * @return the issued at
-     */
-    public Date getIssuedAt() {
-        return new Date(issuedAt * 1000);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((additionalData == null) ? 0 : additionalData.hashCode());
-        result = prime * result + (int) (expiresAt ^ (expiresAt >>> 32));
-        result = prime * result + (int) (issuedAt ^ (issuedAt >>> 32));
-        result = prime * result + ((issuer == null) ? 0 : issuer.hashCode());
-        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
-        return result;
     }
 
     /*
@@ -198,6 +140,88 @@ public class JwtBodyContent {
         } else if (!subject.equals(other.subject))
             return false;
         return true;
+    }
+
+    /**
+     * Gets additional data.
+     *
+     * @return the additional data
+     */
+    public Map<String, String> getAdditionalData() {
+        return additionalData;
+    }
+
+    /**
+     * Gets application identifier.
+     *
+     * @return the application identifier
+     */
+    public String getAppId() {
+        if (issuer == null) {
+            return null;
+        }
+        return issuer.substring(ISSUER_PREFIX.length());
+    }
+
+    /**
+     * Gets expires at - the lifetime of token.
+     *
+     * @return the expires at - the lifetime of token
+     */
+    public TimeSpan getExpiresAt() {
+        return new TimeSpan(expiresAt * 1000);
+    }
+
+    /**
+     * Gets identity.
+     *
+     * @return the identity
+     */
+    public String getIdentity() {
+        if (subject == null) {
+            return null;
+        }
+        return subject.substring(SUBJECT_PREFIX.length());
+    }
+
+    /**
+     * Gets issued at.
+     *
+     * @return the issued at
+     */
+    public Date getIssuedAt() {
+        return new Date(issuedAt * 1000);
+    }
+
+    /**
+     * @return the issuer
+     */
+    public String getIssuer() {
+        return issuer;
+    }
+
+    /**
+     * @return the subject
+     */
+    public String getSubject() {
+        return subject;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((additionalData == null) ? 0 : additionalData.hashCode());
+        result = prime * result + (int) (expiresAt ^ (expiresAt >>> 32));
+        result = prime * result + (int) (issuedAt ^ (issuedAt >>> 32));
+        result = prime * result + ((issuer == null) ? 0 : issuer.hashCode());
+        result = prime * result + ((subject == null) ? 0 : subject.hashCode());
+        return result;
     }
 
 }

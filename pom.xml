@@ -269,7 +269,6 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
-				<!-- <module>samples</module> -->
 			</modules>
 		</profile>
 	</profiles>

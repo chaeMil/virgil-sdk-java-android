@@ -41,13 +41,7 @@ package com.virgilsecurity.sdk.crypto;
 public enum KeysType {
     /** Recommended most safe type */
     Default,
-    /** RSA 256 bit (not recommended) */
-    RSA_256,
-    /** RSA 512 bit (not recommended) */
-    RSA_512,
-    /** RSA 1024 bit (not recommended) */
-    RSA_1024,
-    /** RSA 2048 bit (not recommended) */
+    // RSA with key size less than 2k are unsecured and shouldn't be supported
     RSA_2048,
     /** RSA 3072 bit */
     RSA_3072,

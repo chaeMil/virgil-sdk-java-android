@@ -98,12 +98,7 @@ public class VirgilCrypto {
         switch (keysType) {
         case Default:
             return VirgilKeyPair.Type.FAST_EC_ED25519;
-        case RSA_256:
-            return VirgilKeyPair.Type.RSA_256;
-        case RSA_512:
-            return VirgilKeyPair.Type.RSA_512;
-        case RSA_1024:
-            return VirgilKeyPair.Type.RSA_1024;
+        // RSA with key size less than 2k are unsecured and shouldn't be supported
         case RSA_2048:
             return VirgilKeyPair.Type.RSA_2048;
         case RSA_3072:

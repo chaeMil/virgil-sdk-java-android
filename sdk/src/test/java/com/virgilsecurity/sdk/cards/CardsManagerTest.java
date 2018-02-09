@@ -40,14 +40,12 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.accessProviders.GeneratorJwtProvider;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -103,6 +101,7 @@ public class CardsManagerTest extends PropertyManager {
         } catch (VirgilServiceException e) {
             e.printStackTrace();
         }
+        assertNotNull(publishedCard);
 
         assertFalse(publishedCard.isOutdated());
         assertCardsEquals(generatedCard, publishedCard);
@@ -135,6 +134,7 @@ public class CardsManagerTest extends PropertyManager {
         } catch (VirgilServiceException e) {
             e.printStackTrace();
         }
+        assertNotNull(publishedCard);
 
         assertFalse(publishedCard.isOutdated());
         assertCardsEquals(generatedCard, publishedCard);
@@ -163,6 +163,7 @@ public class CardsManagerTest extends PropertyManager {
         } catch (VirgilServiceException e) {
             e.printStackTrace();
         }
+        assertNotNull(publishedCardOne);
 
         assertFalse(publishedCardOne.isOutdated());
         assertCardsEquals(generatedCardOne, publishedCardOne);
@@ -223,6 +224,7 @@ public class CardsManagerTest extends PropertyManager {
         } catch (VirgilServiceException e) {
             e.printStackTrace();
         }
+        assertNotNull(publishedCardOne);
 
         VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
         RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),

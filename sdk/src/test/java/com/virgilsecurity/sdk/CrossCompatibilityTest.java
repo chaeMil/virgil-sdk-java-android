@@ -42,6 +42,9 @@ import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.common.Generator;
+import com.virgilsecurity.sdk.common.Mocker;
+import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -62,13 +65,15 @@ import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
 import static org.junit.Assert.*;
 
-public class CrossCompatibilityTest {
+public class CrossCompatibilityTest extends PropertyManager {
 
     private CompatibilityDataProvider dataProvider;
+    private Mocker mocker;
 
     @Before
     public void setUp() {
         dataProvider = new CompatibilityDataProvider();
+        mocker = new Mocker();
     }
 
     @Test
@@ -367,15 +372,27 @@ public class CrossCompatibilityTest {
     @Test
     public void STC_22() throws CryptoException {
         final String apiPublicKey = dataProvider
-                .getJsonByKey(22, "api_public_key_base64"); // TODO: 2/6/18 from test_data
+                .getJsonByKey(22, "api_public_key_base64");
         final String apiPublicKeyIdentifier = dataProvider.getJsonByKey(22, "api_key_id");
-        VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
-        VirgilCrypto crypto = new VirgilCrypto();
-        JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
+        final VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+        final VirgilCrypto crypto = new VirgilCrypto();
+        final JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
                                                   apiPublicKeyIdentifier, accessTokenSigner);
 
-        String jwtImported = dataProvider.getJsonByKey(22, "jwt");
-        Jwt jwt = new Jwt(jwtImported);
+        final String jwtImported = dataProvider.getJsonByKey(22, "jwt");
+        final Jwt jwt = new Jwt(jwtImported);
+
+        assertTrue(jwtVerifier.verifyToken(jwt));
+    }
+
+    @Test // TODO: 2/9/18 remove this one
+    public void jsonTempDelete() throws CryptoException {
+        final String identity = Generator.identity();
+        final Jwt jwt = mocker.generateAccessToken(identity);
+        VirgilCrypto crypto = new VirgilCrypto();
+        VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+        final JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)),
+                                                        API_PUBLIC_KEY_IDENTIFIER, accessTokenSigner);
 
         assertTrue(jwtVerifier.verifyToken(jwt));
     }
@@ -392,10 +409,24 @@ public class CrossCompatibilityTest {
         PrivateKey privateKey = crypto.importPrivateKey(
                 ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(23, "api_private_key_base64")));
         JwtGenerator jwtGenerator = new JwtGenerator(dataProvider.getJsonByKey(23, "app_id"), privateKey,
-                                                     dataProvider.getJsonByKey(23, "api_public_key_base64"),
+                                                     apiPublicKeyIdentifier,
                                                      TimeSpan.fromTime(1, TimeUnit.HOURS),
                                                      accessTokenSigner);
         Jwt jwt = jwtGenerator.generateToken("test");
+
+        assertTrue(jwtVerifier.verifyToken(jwt));
+    }
+
+    @Test
+    public void STC_23_iOS_Compatibility() throws CryptoException {
+        final String apiPublicKey = dataProvider.getJsonByKey(23, "api_public_key_base64");
+        final String apiPublicKeyIdentifier = dataProvider.getJsonByKey(23, "api_key_id");
+        VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+        VirgilCrypto crypto = new VirgilCrypto();
+        JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
+                                                  apiPublicKeyIdentifier, accessTokenSigner);
+
+        Jwt jwt = new Jwt("eyJraWQiOiI3ZGM5NGUyNTRmNTg5NTIxZTA0NWQyZjk1NTIwMTgwZmFiZThiZjM2MTQxZmJmM2ZkMGZmODlkNmU0Zjk5NTBkZTVhN2M0NTU5ZDNiOTZkMGU0NTI3MmYwMWY5NGMzZWI1ZmM4ODk5MTNlMzNjMWYxMzZkMTJiODgyMDE5ZTMxMyIsInR5cCI6IkpXVCIsImFsZyI6IlZFRFM1MTIiLCJjdHkiOiJ2aXJnaWwtand0O3Y9MSJ9.eyJleHAiOjE1MTgxODMyMzEsImlzcyI6InZpcmdpbC0wZjNiMjZlMjExNGRjZTNmYWExY2M0OTE3ZmMwYTU0OTU1ZGFiMWVhMDk1MDIzOWZkZTYwZDY4ZGNhNDAwYjNlIiwiYWRhIjp7InVzZXJuYW1lIjoic29tZV91c2VybmFtZSJ9LCJzdWIiOiJpZGVudGl0eS1zb21lX2lkZW50aXR5IiwiaWF0IjoxNTE4MTgyMjMxfQ.MFEwDQYJYIZIAWUDBAIDBQAEQAiBH61Eo_94dJ7VX5f079WtmXh8_oz9JkAL64L1hQsaE4bEVCZ9uS-_TmIiYUwpqkZANcaX3MF2RN261ZFuzwE");
 
         assertTrue(jwtVerifier.verifyToken(jwt));
     }

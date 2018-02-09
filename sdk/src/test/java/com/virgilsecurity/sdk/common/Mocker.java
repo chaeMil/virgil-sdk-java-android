@@ -69,13 +69,13 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey;
         VirgilPrivateKey privateKeyFake;
         try {
-            privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64), null);
+            privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64));
         } catch (CryptoException e) {
             e.printStackTrace();
             throw new IllegalArgumentException("Mocker -> 'ACCESS_PRIVATE_KEY_BASE64' seems to has wrong format");
         }
         try {
-            privateKeyFake = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64), null);
+            privateKeyFake = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64));
         } catch (CryptoException e) {
             e.printStackTrace();
             throw new IllegalArgumentException("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");

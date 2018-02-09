@@ -58,9 +58,9 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Create new instance of {@link VirgilCardCrypto}.
-     * 
+     *
      * @param virgilCrypto
-     *            The Virgil Crypto.
+     *         The Virgil Crypto.
      */
     public VirgilCardCrypto(VirgilCrypto virgilCrypto) {
         this.virgilCrypto = virgilCrypto;
@@ -68,12 +68,11 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
-     * 
+     * <p>
      * <pre>
-     * {
-     *     &#64;code
-     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
-     * }
+     *      {@code
+     *      VirgilCardCrypto crypto = new VirgilCardCrypto();
+     *      }
      * </pre>
      */
     @Override
@@ -94,12 +93,11 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
-     * 
+     * <p>
      * <pre>
-     * {
-     *     &#64;code
-     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
-     * }
+     *      {@code
+     *      VirgilCardCrypto crypto = new VirgilCardCrypto();
+     *      }
      * </pre>
      */
     @Override
@@ -125,12 +123,11 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
-     * 
+     * <p>
      * <pre>
-     * {
-     *     &#64;code
-     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
-     * }
+     *      {@code
+     *      VirgilCardCrypto crypto = new VirgilCardCrypto();
+     *      }
      * </pre>
      * <p>
      * How to get exportedPublicKey see the {@link #exportPublicKey(PublicKey)}
@@ -142,12 +139,11 @@ public class VirgilCardCrypto implements CardCrypto {
 
     /**
      * Example of usage:
-     * 
+     * <p>
      * <pre>
-     * {
-     *     &#64;code
+     *     {@code
      *     VirgilCardCrypto crypto = new VirgilCardCrypto();
-     * }
+     *     }
      * </pre>
      * <p>
      * How to get signature see the {@link #generateSignature(byte[], PrivateKey)} How to get exportedPublicKey see the

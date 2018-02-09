@@ -71,6 +71,30 @@ public class VirgilCardVerifier implements CardVerifier {
         this.whiteLists = new ArrayList<>();
     }
 
+
+
+    /**
+     * Instantiates a new Virgil card verifier.
+     *
+     * @param cardCrypto
+     *         the card crypto
+     * @param verifySelfSignature
+     *         whether the self signature should be verified
+     * @param verifyVirgilSignature
+     *         whether the virgil signature should be verified
+     */
+    public VirgilCardVerifier(CardCrypto cardCrypto,
+                              boolean verifySelfSignature,
+                              boolean verifyVirgilSignature) {
+        Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
+
+        this.cardCrypto = cardCrypto;
+        this.verifySelfSignature = verifySelfSignature;
+        this.verifyVirgilSignature = verifyVirgilSignature;
+
+        this.whiteLists = new ArrayList<>();
+    }
+
     /**
      * Instantiates a new Virgil card verifier.
      *
@@ -156,8 +180,13 @@ public class VirgilCardVerifier implements CardVerifier {
             return false;
         }
 
-        byte[] combinedSnapshot = ConvertionUtils
-                .concatenate(card.getRawCard().getContentSnapshot(), cardSignature.getSnapshot());
+        byte[] combinedSnapshot;
+        if (cardSignature.getSnapshot() != null) {
+            combinedSnapshot = ConvertionUtils
+                    .concatenate(card.getRawCard().getContentSnapshot(), cardSignature.getSnapshot());
+        } else {
+            combinedSnapshot = card.getRawCard().getContentSnapshot();
+        }
 
         byte[] fingerprint;
         try {
@@ -188,41 +217,41 @@ public class VirgilCardVerifier implements CardVerifier {
     }
 
     /**
-     * Gets whether the self signature verification should be ignored.
+     * Gets whether the self signature verification should be verified.
      *
-     * @return {@code true} if the self signature verification should be ignored, otherwise {@code false}
+     * @return {@code true} if the self signature verification should be verified, otherwise {@code false}
      */
-    public boolean isIgnoreSelfSignature() {
+    public boolean isVerifySelfSignature() {
         return verifySelfSignature;
     }
 
     /**
-     * Sets whether the self signature verification should be ignored.
+     * Sets whether the self signature verification should be verified.
      *
-     * @param ignoreSelfSignature
-     *         {@code true} if the self signature verification should be ignored, otherwise {@code false}
+     * @param verifySelfSignature
+     *         {@code true} if the self signature verification should be verified, otherwise {@code false}
      */
-    public void setIgnoreSelfSignature(boolean ignoreSelfSignature) {
-        this.verifySelfSignature = ignoreSelfSignature;
+    public void setVerifySelfSignature(boolean verifySelfSignature) {
+        this.verifySelfSignature = verifySelfSignature;
     }
 
     /**
-     * Gets whether the virgil signature verification should be ignored.
+     * Gets whether the virgil signature verification should be verified.
      *
-     * @return {@code true} if the virgil signature verification should be ignored, otherwise {@code false}
+     * @return {@code true} if the virgil signature verification should be verified, otherwise {@code false}
      */
-    public boolean isIgnoreVirgilSignature() {
+    public boolean isVerifyVirgilSignature() {
         return verifyVirgilSignature;
     }
 
     /**
-     * Sets whether the virgil signature verification should be ignored.
+     * Sets whether the virgil signature verification should be verified.
      *
-     * @param ignoreVirgilSignature
-     *         {@code true} if the virgil signature verification should be ignored, otherwise {@code false}
+     * @param verifyVirgilSignature
+     *         {@code true} if the virgil signature verification should be verified, otherwise {@code false}
      */
-    public void setIgnoreVirgilSignature(boolean ignoreVirgilSignature) {
-        this.verifyVirgilSignature = ignoreVirgilSignature;
+    public void setVerifyVirgilSignature(boolean verifyVirgilSignature) {
+        this.verifyVirgilSignature = verifyVirgilSignature;
     }
 
     /**
@@ -230,8 +259,28 @@ public class VirgilCardVerifier implements CardVerifier {
      *
      * @return the white list
      */
-    public List<WhiteList> getWhiteList() {
+    public List<WhiteList> getWhiteLists() {
         return whiteLists;
+    }
+
+    /**
+     * Sets white lists.
+     *
+     * @param whiteLists
+     *         the white lists
+     */
+    public void setWhiteLists(List<WhiteList> whiteLists) {
+        this.whiteLists = whiteLists;
+    }
+
+    /**
+     * Sets white lists.
+     *
+     * @param whiteList
+     *         the white lists
+     */
+    public void addWhiteList(WhiteList whiteList) {
+        this.whiteLists.add(whiteList);
     }
 
     /**

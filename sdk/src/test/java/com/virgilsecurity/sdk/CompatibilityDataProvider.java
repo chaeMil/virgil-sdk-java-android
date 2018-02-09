@@ -31,53 +31,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.cards.validation;
+package com.virgilsecurity.sdk;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
-/**
- * The {@link WhiteList} represents list of trusted signatures for cards verification.
- */
-public class WhiteList {
-    private List<VerifierCredentials> verifiersCredentials;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
-    public WhiteList() {
+public class CompatibilityDataProvider {
+
+    public static final String JSON = "json";
+    public static final String STRING = "string";
+
+    private JsonObject sampleJson;
+
+    public CompatibilityDataProvider() {
+        sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(
+                this.getClass().getClassLoader().getResourceAsStream("com/virgilsecurity/sdk/test_data.txt")));
     }
 
-    public WhiteList(List<VerifierCredentials> verifiersCredentials) {
-        this.verifiersCredentials = verifiersCredentials;
+    public CompatibilityDataProvider(JsonObject sampleJson) {
+        this.sampleJson = sampleJson;
     }
 
-    /**
-     * Gets verifiers credentials.
-     *
-     * @return the verifiers credentials
-     */
-    public List<VerifierCredentials> getVerifiersCredentials() {
-        return verifiersCredentials;
+    public String getTestDataAs(int number, String type) {
+        return sampleJson.get("STC-" + number + ".as_" + type).getAsString();
     }
 
-    /**
-     * Sets verifiers credentials.
-     *
-     * @param verifiersCredentials
-     *         the verifiers credentials
-     */
-    public void setVerifiersCredentials(List<VerifierCredentials> verifiersCredentials) {
-        this.verifiersCredentials = verifiersCredentials;
+    public String getJsonByKey(int number, String key) {
+        return sampleJson.get("STC-" + number + "." + key).getAsString();
     }
 
-    /**
-     * Add verifiers credential.
-     *
-     * @param verifiersCredential
-     *         the verifiers credentials
-     */
-    public void addVerifiersCredentials(VerifierCredentials verifiersCredential) {
-        if (verifiersCredentials == null)
-            this.verifiersCredentials = new ArrayList<>();
-
-        this.verifiersCredentials.add(verifiersCredential);
+    public String readFile(String name) throws IOException {
+        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(name)) {
+            return ConvertionUtils.toString(is);
+        }
     }
 }

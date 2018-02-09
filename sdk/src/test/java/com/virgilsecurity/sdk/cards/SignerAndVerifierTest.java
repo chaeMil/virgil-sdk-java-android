@@ -33,27 +33,37 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
+import com.virgilsecurity.sdk.cards.validation.WhiteList;
+import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
+import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
+import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.common.PropertyManager;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.jwt.Jwt;
+import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.util.*;
 
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
 import static org.junit.Assert.*;
 
-public class SignerAndVerifierTest {
+public class SignerAndVerifierTest extends PropertyManager {
 
     @Rule
     public final ExpectedException exception = ExpectedException.none();
@@ -69,6 +79,9 @@ public class SignerAndVerifierTest {
     private ModelSigner modelSigner;
     private Mocker mocker;
     private VirgilCardVerifier verifier;
+    private CardClient cardClient;
+    private CardManager cardManager;
+    private CompatibilityDataProvider dataProvider;
 
     @Before
     public void setUp() {
@@ -77,6 +90,17 @@ public class SignerAndVerifierTest {
         modelSigner = new ModelSigner(cardCrypto);
         mocker = new Mocker();
         verifier = new VirgilCardVerifier(cardCrypto);
+        cardClient = new CardClient(CARDS_SERVICE_URL);
+        cardManager = new CardManager(cardCrypto, Mockito.mock(AccessTokenProvider.class),
+                                      Mockito.mock(ModelSigner.class), cardClient, verifier,
+                                      new CardManager.SignCallback() {
+                                          @Override
+                                          public RawSignedModel onSign(
+                                                  RawSignedModel rawSignedModel) {
+                                              return rawSignedModel;
+                                          }
+                                      });
+        dataProvider = new CompatibilityDataProvider();
     }
 
     @Test
@@ -254,5 +278,177 @@ public class SignerAndVerifierTest {
 
         exception.expect(SignatureNotUniqueException.class);
         modelSigner.sign(cardModel, TEST_SIGNER_TYPE, keyPairTwo.getPrivateKey());
+    }
+
+    @Test
+    public void STC_10() throws CryptoException {
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(10, STRING));
+        Card card = Card.parse(cardCrypto, rawSignedModel);
+
+        VirgilPrivateKey privateKey = virgilCrypto.importPrivateKey(ConvertionUtils
+                                                                            .base64ToBytes(dataProvider.getJsonByKey(10,
+                                                                                                                     "private_key1_base64")));
+
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
+                                                                       Collections.<WhiteList>emptyList());
+        assertTrue(virgilCardVerifier.verifyCard(card));
+
+        virgilCardVerifier.setVerifySelfSignature(true);
+        assertTrue(virgilCardVerifier.verifyCard(card));
+
+//        virgilCardVerifier.setVerifyVirgilSignature(true); // FIXME: 2/8/18 enable when services are live
+//        assertTrue(virgilCardVerifier.verifyCard(card));
+
+        VirgilPublicKey publicKey = virgilCrypto.extractPublicKey(privateKey);
+        List<VerifierCredentials> verifierCredentialsList = new ArrayList<>();
+        verifierCredentialsList.add(new VerifierCredentials(SignerType.SELF.getRawValue(), publicKey.getRawKey()));
+        WhiteList whiteListOne = new WhiteList(verifierCredentialsList);
+
+        virgilCardVerifier.addWhiteList(whiteListOne);
+        assertTrue(virgilCardVerifier.verifyCard(card));
+
+        VirgilPublicKey publicKeyTwo = mocker.generatePublicKey();
+        verifierCredentialsList.add(new VerifierCredentials(SignerType.SELF.getRawValue(), publicKeyTwo.getRawKey()));
+        WhiteList whiteListTwo = new WhiteList(verifierCredentialsList);
+        List<WhiteList> whiteLists = new ArrayList<>();
+        whiteLists.add(whiteListTwo);
+
+        virgilCardVerifier.setWhiteLists(whiteLists);
+        assertTrue(virgilCardVerifier.verifyCard(card));
+
+        VirgilPublicKey publicKeyThree = mocker.generatePublicKey();
+        List<VerifierCredentials> verifierCredentialsListTwo = new ArrayList<>();
+        List<VerifierCredentials> verifierCredentialsListThree = new ArrayList<>();
+        verifierCredentialsListTwo
+                .add(new VerifierCredentials(SignerType.SELF.getRawValue(), publicKey.getRawKey()));
+        verifierCredentialsListTwo
+                .add(new VerifierCredentials(SignerType.SELF.getRawValue(), publicKeyTwo.getRawKey()));
+        verifierCredentialsListThree
+                .add(new VerifierCredentials(SignerType.SELF.getRawValue(), publicKeyThree.getRawKey()));
+        WhiteList whiteListThree = new WhiteList(verifierCredentialsListTwo);
+        WhiteList whiteListFour = new WhiteList(verifierCredentialsListThree);
+        List<WhiteList> whiteListsTwo = new ArrayList<>();
+        whiteListsTwo.add(whiteListThree);
+        whiteListsTwo.add(whiteListFour);
+
+        virgilCardVerifier.setWhiteLists(whiteListsTwo);
+        assertFalse(virgilCardVerifier.verifyCard(card));
+    }
+
+    @Test
+    public void STC_11() throws CryptoException {
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(11, STRING));
+        Card card = Card.parse(cardCrypto, rawSignedModel);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
+                                                                       Collections.<WhiteList>emptyList());
+        assertTrue(virgilCardVerifier.verifyCard(card));
+
+        virgilCardVerifier.setVerifySelfSignature(true);
+        assertFalse(virgilCardVerifier.verifyCard(card));
+    }
+
+    @Test
+    public void STC_12() throws CryptoException {
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(12, STRING));
+        Card card = Card.parse(cardCrypto, rawSignedModel);
+
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false);
+        assertTrue(virgilCardVerifier.verifyCard(card));
+
+        virgilCardVerifier.setVerifyVirgilSignature(true);
+        assertFalse(virgilCardVerifier.verifyCard(card));
+    }
+
+    @Test
+    public void STC_14() throws CryptoException {
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(14, STRING));
+        Card card = Card.parse(cardCrypto, rawSignedModel);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, true);
+        assertFalse(virgilCardVerifier.verifyCard(card));
+    }
+
+    @Test
+    public void STC_15() throws CryptoException {
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(15, STRING));
+        Card card = Card.parse(cardCrypto, rawSignedModel);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false);
+        assertFalse(virgilCardVerifier.verifyCard(card));
+    }
+
+    @Test
+    public void STC_16() throws CryptoException {
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(16, STRING));
+        VirgilPublicKey publicKey = (VirgilPublicKey) cardCrypto
+                .importPublicKey(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(16, "public_key1_base64")));
+
+        VirgilPublicKey publicKeyTwo = mocker.generatePublicKey();
+        List<VerifierCredentials> verifierCredentialsList = new ArrayList<>();
+        verifierCredentialsList.add(new VerifierCredentials(TEST_SIGNER_TYPE, publicKeyTwo.getRawKey()));
+        WhiteList whiteListOne = new WhiteList(verifierCredentialsList);
+        List<WhiteList> whiteLists = new ArrayList<>();
+        whiteLists.add(whiteListOne);
+
+        Card card = Card.parse(cardCrypto, rawSignedModel);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
+                                                                       whiteLists);
+        assertFalse(virgilCardVerifier.verifyCard(card));
+
+        verifierCredentialsList.add(new VerifierCredentials("extra", publicKey.getRawKey()));
+
+        assertTrue(virgilCardVerifier.verifyCard(card));
+    }
+
+    private static boolean reloaded;
+
+    @Test
+    public void STC_26() throws CryptoException, IOException {
+        CallbackJwtProvider accessTokenProvider = new CallbackJwtProvider();
+        String identity = Generator.identity();
+        final Jwt jwt = mocker.generateAccessToken(identity);
+        final Jwt jwtExpired = mocker.generateExpiredAccessToken(identity);
+        accessTokenProvider.setGetTokenCallback(new CallbackJwtProvider.GetTokenCallback() {
+            @Override
+            public String onGetToken() {
+                if (reloaded) {
+                    return jwt.stringRepresentation();
+                } else {
+                    reloaded = true;
+                    return jwtExpired.stringRepresentation();
+                }
+            }
+        });
+
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false);
+
+        final CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider,
+                                                        Mockito.mock(ModelSigner.class), cardClient, virgilCardVerifier,
+                                                        new CardManager.SignCallback() {
+                                                            @Override
+                                                            public RawSignedModel onSign(
+                                                                    RawSignedModel rawSignedModel) {
+                                                                return rawSignedModel;
+                                                            }
+                                                        });
+
+        RawSignedModel rawSignedModel = mocker.generateCardModel(identity);
+        Card card = null;
+        try {
+            card = cardManager.publishCard(rawSignedModel);
+        } catch (VirgilServiceException e) {
+            fail();
+        }
+        assertNotNull(card);
+
+        try {
+            cardManager.getCard(card.getIdentifier());
+        } catch (VirgilServiceException e) {
+            fail();
+        }
+
+        try {
+            cardManager.searchCards(card.getIdentity());
+        } catch (VirgilServiceException e) {
+            fail();
+        }
     }
 }

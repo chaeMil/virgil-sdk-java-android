@@ -46,6 +46,8 @@ import org.junit.Before;
 import org.junit.Test;
 //import sun.util.logging.PlatformLogger;
 
+import java.net.HttpURLConnection;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -98,7 +100,7 @@ public class CardClientTest extends PropertyManager {
 //                                   "Try our fried tokens");
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getHttpError().getCode());
+            assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
         }
     }
 
@@ -113,7 +115,7 @@ public class CardClientTest extends PropertyManager {
                                "Try our fried tokens");
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getHttpError().getCode());
+            assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
         }
     }
 
@@ -126,7 +128,7 @@ public class CardClientTest extends PropertyManager {
                                    mocker.generateFakeAccessToken(identity).stringRepresentation());
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getHttpError().getCode());
+            assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
         }
     }
 
@@ -140,7 +142,7 @@ public class CardClientTest extends PropertyManager {
                                    mocker.generateAccessToken(identitySecond).stringRepresentation());
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(401, e.getHttpError().getCode());
+            assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
             // FIXME: 2/7/18 after service will handle this - refactor error handling in this case
         }
     }

@@ -380,9 +380,14 @@ public class Card {
         for (CardSignature signature : signatures) {
             // TODO: 2/5/18 check whether the snapshot and signature will be
             // good without decoding from b64
-            cardModel.addSignature(new RawSignature(ConvertionUtils.toBase64String(signature.getSnapshot()),
-                                                    signature.getSigner(),
-                                                    ConvertionUtils.toBase64String(signature.getSignature())));
+            if (signature.getSnapshot() != null) {
+                cardModel.addSignature(new RawSignature(ConvertionUtils.toBase64String(signature.getSnapshot()),
+                                                        signature.getSigner(),
+                                                        ConvertionUtils.toBase64String(signature.getSignature())));
+            } else {
+                cardModel.addSignature(new RawSignature(signature.getSigner(),
+                                                        ConvertionUtils.toBase64String(signature.getSignature())));
+            }
         }
 
         return cardModel;

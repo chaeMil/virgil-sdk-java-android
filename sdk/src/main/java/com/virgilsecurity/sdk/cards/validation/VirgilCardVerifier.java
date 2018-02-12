@@ -188,16 +188,8 @@ public class VirgilCardVerifier implements CardVerifier {
             combinedSnapshot = card.getRawCard().getContentSnapshot();
         }
 
-        byte[] fingerprint;
         try {
-            fingerprint = cardCrypto.generateSHA512(combinedSnapshot);
-        } catch (CryptoException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        try {
-            if (!cardCrypto.verifySignature(cardSignature.getSignature(), fingerprint, signerPublicKey))
+            if (!cardCrypto.verifySignature(cardSignature.getSignature(), combinedSnapshot, signerPublicKey))
                 return false;
         } catch (CryptoException e) {
             e.printStackTrace();

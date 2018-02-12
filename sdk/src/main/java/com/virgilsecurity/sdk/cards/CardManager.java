@@ -493,7 +493,9 @@ public class CardManager {
 
         for (Card cardOuter : cards) {
             for (Card cardInner : cards) {
-                if (cardOuter.getPreviousCardId().equals(cardInner.getIdentifier())) {
+                if (cardOuter.getPreviousCardId() != null
+                        && cardInner.getPreviousCardId() != null
+                        && cardOuter.getIdentifier().equals(cardInner.getIdentifier())) {
                     cardOuter.setPreviousCard(cardInner);
                     cardInner.setOutdated(true);
                     break;

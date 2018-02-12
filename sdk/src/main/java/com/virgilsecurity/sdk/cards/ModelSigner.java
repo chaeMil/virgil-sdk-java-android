@@ -77,8 +77,7 @@ public class ModelSigner {
      */
     public void sign(RawSignedModel cardModel, String signer, PrivateKey privateKey) throws CryptoException {
 
-        byte[] fingerprint = crypto.generateSHA512(cardModel.getContentSnapshot());
-        byte[] signature = crypto.generateSignature(fingerprint, privateKey);
+        byte[] signature = crypto.generateSignature(cardModel.getContentSnapshot(), privateKey);
 
         RawSignature rawSignature = new RawSignature(signer, ConvertionUtils.toBase64String(signature));
 
@@ -103,9 +102,7 @@ public class ModelSigner {
             throws CryptoException {
 
         byte[] combinedSnapshot = ConvertionUtils.concatenate(cardModel.getContentSnapshot(), additionalData);
-
-        byte[] fingerprint = crypto.generateSHA512(combinedSnapshot);
-        byte[] signature = crypto.generateSignature(fingerprint, privateKey);
+        byte[] signature = crypto.generateSignature(combinedSnapshot, privateKey);
 
         RawSignature rawSignature = new RawSignature(
                 ConvertionUtils.toBase64String(additionalData), signer, ConvertionUtils.toBase64String(signature));

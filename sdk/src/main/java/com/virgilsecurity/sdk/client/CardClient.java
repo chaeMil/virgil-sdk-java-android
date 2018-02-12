@@ -103,7 +103,7 @@ public class CardClient {
     public Tuple<RawSignedModel, Boolean> getCard(String cardId,
                                                   String token) throws VirgilServiceException {
         try {
-            URL url = new URL(serviceUrl, "" + cardId);
+            URL url = new URL(serviceUrl, cardId);
 
             return new Tuple<>(httpClient.execute(url,
                                                   "GET",
@@ -133,7 +133,7 @@ public class CardClient {
      */
     public RawSignedModel publishCard(RawSignedModel rawCard, String token) throws VirgilServiceException {
         try {
-            URL url = new URL(serviceUrl, ""); // FIXME: 1/25/18 second parameter should be "card" on prod
+            URL url = serviceUrl;
             String body = rawCard.exportAsJson();
 
             return httpClient.execute(url,

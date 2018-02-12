@@ -39,7 +39,6 @@ import com.virgilsecurity.sdk.cards.SignerType;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Assert;
 
 import java.util.Objects;
@@ -97,8 +96,7 @@ public class TestUtils {
     }
 
     public static void assertCardsEquals(Card expectedCard, Card actualCard) {
-        if (!cardsEqualsSelfSignOnly(expectedCard, actualCard))
-            //TODO show card more clear
+        if (!cardsEqualsSelfSignOnly(expectedCard, actualCard)) //TODO show card more clear
             Assert.fail("\nExpected card:\n" + expectedCard.toString()
                                 + "\n\nActual card:\n" + actualCard.toString());
     }

@@ -91,6 +91,7 @@
 		<version.mockito>2.13.0</version.mockito>
 		<version.testng>6.9.10</version.testng>
 		<version.jsonsimple>1.1.1</version.jsonsimple>
+		<version.restassured>2.9.0</version.restassured>
 		<gpg.keyname>empty</gpg.keyname>
 	</properties>
 
@@ -146,6 +147,12 @@
 				<version>${version.mockito}</version>
 				<scope>test</scope>
 			</dependency>
+            <dependency>
+                <groupId>com.jayway.restassured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${version.restassured}</version>
+                <scope>test</scope>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 

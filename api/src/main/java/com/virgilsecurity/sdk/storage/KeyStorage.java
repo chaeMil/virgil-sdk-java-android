@@ -34,6 +34,8 @@ package com.virgilsecurity.sdk.storage;
 
 import java.util.List;
 
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+
 /**
  * This interface describes a storage facility for cryptographic keys.
  *
@@ -47,6 +49,8 @@ public interface KeyStorage {
      * 
      * @param keyEntry
      *            The key entry.
+     * @throws KeyEntryAlreadyExistsException
+     *             if key with the same name is already stored
      */
     void store(KeyEntry keyEntry);
 
@@ -54,34 +58,34 @@ public interface KeyStorage {
      * Loads the private key associated with the given alias.
      * 
      * 
-     * @param keyName
+     * @param name
      *            The key name.
      * @return The requested private key, or null if the given alias does not exist or does not identify a key-related
      *         entry.
      */
-    KeyEntry load(String keyName);
+    KeyEntry load(String name);
 
     /**
      * Checks if the private key exists in this storage by given alias.
      * 
-     * @param keyName
+     * @param name
      *            The key name.
      * @return {@code true} if the private key exists, {@code false} otherwise.
      */
-    boolean exists(String keyName);
+    boolean exists(String name);
 
     /**
      * Deletes the private key from key store by given Id.
      * 
-     * @param keyName
+     * @param name
      *            The key name.
      */
-    void delete(String keyName);
+    void delete(String name);
 
     /**
      * Get names of keys stored in key store.
      * 
-     * @return the list of keynames.
+     * @return the list of key names.
      */
     List<String> names();
 

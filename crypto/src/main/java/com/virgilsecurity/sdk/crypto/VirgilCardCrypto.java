@@ -88,7 +88,7 @@ public class VirgilCardCrypto implements CardCrypto {
 
     @Override
     public byte[] generateSHA512(byte[] data) throws CryptoException {
-        return virgilCrypto.generateHash(data, HashAlgorithm.SHA512);
+        return virgilCrypto.generateHash(data);
     }
 
     /**

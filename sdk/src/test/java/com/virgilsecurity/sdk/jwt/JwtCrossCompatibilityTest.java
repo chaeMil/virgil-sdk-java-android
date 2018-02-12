@@ -111,7 +111,7 @@ public class JwtCrossCompatibilityTest {
         verify(this.callback, times(1)).onGetToken();
 
         // Wait till token is expired
-//        Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
+        Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
 
         // Call getToken(false)
         AccessToken accessToken3 = provider.getToken(ctx);
@@ -153,11 +153,11 @@ public class JwtCrossCompatibilityTest {
         // Call stringRepresentation()
         assertEquals(token, jwt.stringRepresentation());
     }
-    
+
     @Test
     @Ignore
     public void STC_29() {
-        
+
     }
 
 }

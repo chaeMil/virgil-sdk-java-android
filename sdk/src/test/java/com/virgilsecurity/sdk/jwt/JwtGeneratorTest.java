@@ -47,6 +47,7 @@ import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
  * @author Andrii Iakovenko
@@ -75,7 +76,7 @@ public class JwtGeneratorTest {
 
         assertNotNull(jwt);
         assertEquals(this.identity, jwt.getIdentity());
-        assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), jwt.snapshotWithoutSignatures(),
+        assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), ConvertionUtils.toBytes(jwt.unsigned()),
                 fake.getApiPublicKey()));
     }
 
@@ -85,7 +86,7 @@ public class JwtGeneratorTest {
 
         assertNotNull(jwt);
         assertNull(jwt.getIdentity());
-        assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), jwt.snapshotWithoutSignatures(),
+        assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), ConvertionUtils.toBytes(jwt.unsigned()),
                 fake.getApiPublicKey()));
     }
 

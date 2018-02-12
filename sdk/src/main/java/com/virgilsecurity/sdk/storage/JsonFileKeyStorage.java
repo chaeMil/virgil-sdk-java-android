@@ -53,7 +53,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyStorageException;
  * @author Andrii Iakovenko
  *
  */
-public class VirgilKeyStorage implements KeyStorage {
+public class JsonFileKeyStorage implements KeyStorage {
 
     private String keysPath;
 
@@ -61,7 +61,7 @@ public class VirgilKeyStorage implements KeyStorage {
      * Create a new instance of {@code VirgilKeyStorage}
      *
      */
-    public VirgilKeyStorage() {
+    public JsonFileKeyStorage() {
         StringBuilder path = new StringBuilder(System.getProperty("user.home"));
         path.append(File.separator).append("VirgilSecurity");
         path.append(File.separator).append("Keys");
@@ -75,7 +75,7 @@ public class VirgilKeyStorage implements KeyStorage {
      * @param keysPath
      *            The path to key storage folder.
      */
-    public VirgilKeyStorage(String keysPath) {
+    public JsonFileKeyStorage(String keysPath) {
         this.keysPath = keysPath;
     }
 
@@ -101,7 +101,15 @@ public class VirgilKeyStorage implements KeyStorage {
             throw new KeyEntryAlreadyExistsException();
         }
 
-        String json = getGson().toJson(keyEntry);
+        KeyEntry entry;
+        if (keyEntry instanceof JsonKeyEntry) {
+            entry = keyEntry;
+        } else {
+            entry = new JsonKeyEntry(keyEntry.getName(), keyEntry.getValue());
+            entry.setMeta(keyEntry.getMeta());
+        }
+        
+        String json = getGson().toJson(entry);
         File file = new File(dir, name.toLowerCase());
         try (FileOutputStream os = new FileOutputStream(file)) {
             os.write(json.getBytes(Charset.forName("UTF-8")));
@@ -133,8 +141,7 @@ public class VirgilKeyStorage implements KeyStorage {
 
             byte[] bytes = os.toByteArray();
 
-            VirgilKeyEntry entry = getGson().fromJson(new String(bytes, Charset.forName("UTF-8")),
-                    VirgilKeyEntry.class);
+            JsonKeyEntry entry = getGson().fromJson(new String(bytes, Charset.forName("UTF-8")), JsonKeyEntry.class);
             entry.setName(keyName);
 
             return entry;

@@ -37,10 +37,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
  * @author Andrii Iakovenko
@@ -48,11 +52,13 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
  */
 public class JwtVerifierTest {
 
+    private CompatibilityDataProvider dataProvider;
     private FakeDataFactory fake;
     private JwtVerifier verifier;
 
     @Before
     public void setup() throws CryptoException {
+        this.dataProvider = new CompatibilityDataProvider();
         this.fake = new FakeDataFactory();
 
         AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
@@ -65,7 +71,20 @@ public class JwtVerifierTest {
 
         assertTrue(this.verifier.verifyToken(token));
     }
-    
-    //TODO cover negative cases
+
+    @Test
+    public void STC_22() throws CryptoException {
+        AccessTokenSigner signer = new VirgilAccessTokenSigner();
+        VirgilCrypto crypto = new VirgilCrypto();
+        String apiPublicKeyId = dataProvider.getString("STC-22.api_key_id");
+        String apiPublicKeyBase64 = dataProvider.getString("STC-22.api_public_key_base64");
+
+        PublicKey apiPublicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKeyBase64));
+        Jwt token = new Jwt(dataProvider.getString("STC-22.jwt"));
+
+        JwtVerifier jwtVerifier = new JwtVerifier(apiPublicKey, apiPublicKeyId, signer);
+
+        assertTrue(jwtVerifier.verifyToken(token));
+    }
 
 }

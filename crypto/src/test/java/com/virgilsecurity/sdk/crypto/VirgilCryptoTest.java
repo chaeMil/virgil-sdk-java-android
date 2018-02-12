@@ -65,6 +65,7 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
  *
  */
 @RunWith(Parameterized.class)
+@Ignore
 public class VirgilCryptoTest {
 
     private static final String TEXT = "This text is used for unit tests";

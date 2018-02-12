@@ -39,6 +39,9 @@ import com.google.gson.annotations.SerializedName;
  * The {@link JwtHeaderContent} represents contents of {@link Jwt} header.
  */
 public class JwtHeaderContent {
+    
+    public static final String VIRGIL_CONTENT_TYPE = "virgil-jwt;v=1";
+    public static final String JWT_TYPE = "JWT";
 
     @SerializedName("alg")
     private String algorithm;
@@ -57,8 +60,8 @@ public class JwtHeaderContent {
      */
     public JwtHeaderContent() {
         this.algorithm = "VEDS512";
-        this.type = "JWT";
-        this.contentType = "virgil-jwt;v=1";
+        this.type = JWT_TYPE;
+        this.contentType = VIRGIL_CONTENT_TYPE;
     }
 
     /**

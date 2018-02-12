@@ -36,12 +36,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.google.gson.annotations.SerializedName;
-import com.virgilsecurity.sdk.storage.KeyEntry;
 
 /**
  * A key pair storage entry.
  */
-public class VirgilKeyEntry implements KeyEntry {
+public class JsonKeyEntry implements KeyEntry {
 
     private transient String name;
 
@@ -49,14 +48,14 @@ public class VirgilKeyEntry implements KeyEntry {
     private byte[] value;
 
     @SerializedName("meta_data")
-    private Map<String, String> metadata;
+    private Map<String, String> meta;
 
     /**
      * Create a new instance of {@code VirgilKeyEntry}
      *
      */
-    public VirgilKeyEntry() {
-        metadata = new HashMap<>();
+    public JsonKeyEntry() {
+        meta = new HashMap<>();
     }
 
     /**
@@ -67,7 +66,7 @@ public class VirgilKeyEntry implements KeyEntry {
      * @param value
      *            The key value.
      */
-    public VirgilKeyEntry(String name, byte[] value) {
+    public JsonKeyEntry(String name, byte[] value) {
         this();
         this.name = name;
         this.value = value;
@@ -96,7 +95,7 @@ public class VirgilKeyEntry implements KeyEntry {
     /*
      * (non-Javadoc)
      * 
-     * @see com.virgilsecurity.sdk.crypto.KeyEntry#getRawKey()
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#getValue()
      */
     @Override
     public byte[] getValue() {
@@ -106,7 +105,7 @@ public class VirgilKeyEntry implements KeyEntry {
     /*
      * (non-Javadoc)
      * 
-     * @see com.virgilsecurity.sdk.crypto.KeyEntry#setRawKey(byte[])
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#setValue(byte[])
      */
     @Override
     public void setValue(byte[] value) {
@@ -116,15 +115,21 @@ public class VirgilKeyEntry implements KeyEntry {
     /*
      * (non-Javadoc)
      * 
-     * @see com.virgilsecurity.sdk.crypto.KeyEntry#getMetadata()
+     * @see com.virgilsecurity.sdk.crypto.KeyEntry#getMeta()
      */
     @Override
-    public Map<String, String> getMetadata() {
-        return metadata;
+    public Map<String, String> getMeta() {
+        return meta;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#setMeta(java.util.Map)
+     */
     @Override
-    public void setMetadata(Map<String, String> metadata) {
-        this.metadata = metadata;
+    public void setMeta(Map<String, String> meta) {
+        this.meta = meta;
     }
+
 }

@@ -49,6 +49,7 @@ public class Jwt implements AccessToken {
     private JwtBodyContent bodyContent;
     private byte[] signatureData;
     private String stringRepresentation;
+    private String unsignedStringRepresentation;
 
     /**
      * Instantiates a new Jwt.
@@ -59,14 +60,7 @@ public class Jwt implements AccessToken {
      *            the body content
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
-        Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
-        Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
-
-        this.headerContent = headerContent;
-        this.bodyContent = bodyContent;
-
-        this.stringRepresentation = new StringBuilder().append(headerBase64url()).append(".").append(bodyBase64url())
-                .append(".").toString();
+        this(headerContent, bodyContent, null);
     }
 
     /**
@@ -82,14 +76,20 @@ public class Jwt implements AccessToken {
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
         Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
-        Validator.checkNullEmptyAgrument(signatureData, "Jwt -> 'signatureData' should not be null or empty");
 
         this.headerContent = headerContent;
         this.bodyContent = bodyContent;
         this.signatureData = signatureData;
 
-        this.stringRepresentation = new StringBuilder().append(headerBase64url()).append(".").append(bodyBase64url())
-                .append(".").append(signatureBase64url()).toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.headerBase64()).append(".").append(this.bodyBase64());
+        this.unsignedStringRepresentation = sb.toString();
+
+        if (signatureData != null) {
+            sb.append(".").append(signatureBase64());
+        }
+
+        this.stringRepresentation = sb.toString();
     }
 
     /**
@@ -116,6 +116,7 @@ public class Jwt implements AccessToken {
             signatureData = Base64Url.decodeToBytes(jwtParts[2]);
         }
 
+        this.unsignedStringRepresentation = jwtParts[0] + "." + jwtParts[1];
         this.stringRepresentation = jwtToken;
     }
 
@@ -146,19 +147,6 @@ public class Jwt implements AccessToken {
         return signatureData;
     }
 
-    /**
-     * Sets signature data.
-     *
-     * @param signatureData
-     *            the signature data
-     */
-    public void setSignatureData(byte[] signatureData) {
-        this.signatureData = signatureData;
-
-        this.stringRepresentation = new StringBuilder().append(headerBase64url()).append(".").append(bodyBase64url())
-                .append(".").append(signatureBase64url()).toString();
-    }
-
     @Override
     public String getIdentity() {
         return bodyContent.getIdentity();
@@ -173,25 +161,20 @@ public class Jwt implements AccessToken {
         return bodyContent.getExpiresAt().isExpired();
     }
 
-    private String headerBase64url() {
-        return Base64Url.encode(ConvertionUtils.captureSnapshot(headerContent));
+    private String headerBase64() {
+        return Base64Url.encode(ConvertionUtils.captureSnapshot(this.headerContent));
     }
 
-    private String bodyBase64url() {
-        return Base64Url.encode(ConvertionUtils.captureSnapshot(bodyContent));
+    private String bodyBase64() {
+        return Base64Url.encode(ConvertionUtils.captureSnapshot(this.bodyContent));
     }
 
-    private String signatureBase64url() {
-        return Base64Url.encode(signatureData);
+    private String signatureBase64() {
+        return Base64Url.encode(this.signatureData);
     }
 
-    /**
-     * Snapshot without signatures.
-     *
-     * @return the byte [ ]
-     */
-    public byte[] snapshotWithoutSignatures() {
-        return (headerBase64url() + "." + bodyBase64url()).getBytes();
+    String unsigned() {
+        return unsignedStringRepresentation;
     }
 
     /*

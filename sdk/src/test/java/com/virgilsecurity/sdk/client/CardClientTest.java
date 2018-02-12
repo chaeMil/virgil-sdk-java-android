@@ -33,16 +33,6 @@
 
 package com.virgilsecurity.sdk.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
-
-import java.net.HttpURLConnection;
-
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-//import sun.util.logging.PlatformLogger;
-
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
@@ -52,6 +42,14 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.net.HttpURLConnection;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class CardClientTest extends PropertyManager {
 
@@ -147,8 +145,7 @@ public class CardClientTest extends PropertyManager {
                     mocker.generateAccessToken(identitySecond).stringRepresentation());
         } catch (VirgilServiceException e) {
             e.printStackTrace();
-            assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
-            // FIXME: 2/7/18 after service will handle this - refactor error handling in this case
+            assertEquals(40034, e.getErrorCode());
         }
     }
 }

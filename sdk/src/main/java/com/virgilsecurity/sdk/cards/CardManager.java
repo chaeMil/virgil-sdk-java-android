@@ -279,7 +279,7 @@ public class CardManager {
 
         Card card = Card.parse(crypto, cardModelPublished);
 
-        if (!Arrays.equals(cardModel.getContentSnapshot(), card.getContentSnapshot()))
+        if (!Arrays.equals(cardModel.getContentSnapshot(), cardModelPublished.getContentSnapshot()))
             throw new VirgilCardServiceException();
 
         verifyCard(card);

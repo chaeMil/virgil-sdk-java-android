@@ -33,15 +33,16 @@
 
 package com.virgilsecurity.sdk.utils;
 
+import java.util.Objects;
+
+import org.junit.Assert;
+
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardSignature;
 import com.virgilsecurity.sdk.cards.SignerType;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import org.junit.Assert;
-
-import java.util.Objects;
 
 public class TestUtils {
 

@@ -33,18 +33,22 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
+import com.virgilsecurity.sdk.utils.CardUtils;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
-
-import java.util.*;
 
 /**
  * The {@link Card} class is the main entity of Virgil Services. Every user/device is represented with a Virgil Card
@@ -326,8 +330,7 @@ public class Card {
         RawCardContent rawCardContent = ConvertionUtils.deserializeFromJson(new String(cardModel.getContentSnapshot()),
                 RawCardContent.class);
 
-        byte[] fingerprint = Arrays.copyOfRange(crypto.generateSHA512(cardModel.getContentSnapshot()), 0, 32);
-        String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
+        String cardId = CardUtils.generateCardId(crypto, cardModel.getContentSnapshot());
         PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 
         List<CardSignature> cardSignatures = new ArrayList<>();

@@ -30,32 +30,35 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+package com.virgilsecurity.sdk.utils;
 
-package com.virgilsecurity.sdk.common;
+import java.util.Arrays;
 
-import java.io.Serializable;
+import com.virgilsecurity.sdk.common.StringEncoding;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
-import com.google.gson.annotations.SerializedName;
+/**
+ * @author Andrii Iakovenko
+ *
+ */
+public class CardUtils {
 
-public class ClassForSerialization implements Serializable {
+    /**
+     * Generate Virgil Card identifier by card content snapshot.
+     * 
+     * @param cardCrypto
+     *            The {@link CardCrypto}
+     * @param contentSnapshot
+     *            The card content snapshot.
+     * @return The generated Virgil Card identifier.
+     * @throws CryptoException
+     */
+    public static String generateCardId(CardCrypto cardCrypto, byte[] contentSnapshot) throws CryptoException {
+        byte[] fingerprint = Arrays.copyOfRange(cardCrypto.generateSHA512(contentSnapshot), 0, 32);
+        String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
 
-    private static final long serialVersionUID = 3507743291950891092L;
-
-    @SerializedName("name")
-    private String name;
-    @SerializedName("data")
-    private byte[] data;
-
-    public ClassForSerialization(String name, byte[] data) {
-        this.name = name;
-        this.data = data;
+        return cardId;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public byte[] getData() {
-        return data;
-    }
 }

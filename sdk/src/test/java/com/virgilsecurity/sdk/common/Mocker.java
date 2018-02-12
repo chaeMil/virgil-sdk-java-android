@@ -33,12 +33,23 @@
 
 package com.virgilsecurity.sdk.common;
 
+import static org.junit.Assert.fail;
+
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
@@ -47,9 +58,6 @@ import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
 
 public class Mocker extends PropertyManager {
 
@@ -66,42 +74,31 @@ public class Mocker extends PropertyManager {
         this.crypto = new VirgilCrypto();
         AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
-        VirgilPrivateKey privateKey;
-        VirgilPrivateKey privateKeyFake;
-        try {
-            privateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64));
-        } catch (CryptoException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Mocker -> 'ACCESS_PRIVATE_KEY_BASE64' seems to has wrong format");
-        }
+        VirgilPrivateKey privateKey = getApiPrivateKey();
+        VirgilPrivateKey privateKeyFake = null;
+
         try {
             privateKeyFake = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64));
         } catch (CryptoException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");
+            fail("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");
         }
 
-        jwtGenerator = initJwtGenerator(APP_ID, privateKey, API_PUBLIC_KEY_IDENTIFIER,
-                                        TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+        jwtGenerator = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
+                TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
-        jwtGeneratorFake = initJwtGenerator(APP_ID, privateKeyFake, API_PUBLIC_KEY_IDENTIFIER,
-                                            TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+        jwtGeneratorFake = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
+                TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
         TimeSpan timeSpanExpired = TimeSpan.fromTime(1, TimeUnit.MINUTES);
         timeSpanExpired.decrease(5 * 60 * 1000);
-        jwtGeneratorExpired = initJwtGenerator(APP_ID, privateKeyFake, API_PUBLIC_KEY_IDENTIFIER,
-                                            timeSpanExpired, accessTokenSigner);
+        jwtGeneratorExpired = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(), timeSpanExpired,
+                accessTokenSigner);
 
-        try {
-            verifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)),
-                                       API_PUBLIC_KEY_IDENTIFIER, accessTokenSigner);
-        } catch (CryptoException e) {
-            e.printStackTrace();
-        }
+        verifier = new JwtVerifier(getApiPublicKey(), getApiPublicKeyId(), accessTokenSigner);
     }
 
     private JwtGenerator initJwtGenerator(String appId, VirgilPrivateKey privateKey, String apiPublicKeyIdentifier,
-                                          TimeSpan timeSpan, AccessTokenSigner accessTokenSigner) {
+            TimeSpan timeSpan, AccessTokenSigner accessTokenSigner) {
         return new JwtGenerator(appId, privateKey, apiPublicKeyIdentifier, timeSpan, accessTokenSigner);
     }
 
@@ -118,9 +115,7 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
         RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
-                                                           ConvertionUtils
-                                                                   .toBase64String(crypto.exportPublicKey(publicKey)),
-                                                           "5.0", calendar.getTime());
+                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
 
         RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
 
@@ -139,9 +134,7 @@ public class Mocker extends PropertyManager {
         calendar.clear(Calendar.MILLISECOND);
 
         RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
-                                                           ConvertionUtils
-                                                                   .toBase64String(crypto.exportPublicKey(publicKey)),
-                                                           "5.0", calendar.getTime());
+                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
 
         return new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
     }
@@ -158,17 +151,12 @@ public class Mocker extends PropertyManager {
         VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
         RawCardContent rawCardContent = new RawCardContent(identity,
-                                                           ConvertionUtils
-                                                                   .toBase64String(crypto.exportPublicKey(publicKey)),
-                                                           calendar.getTime());
+                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
 
-        RawSignedModel cardModel = new RawSignedModel(rawCardContent.snapshot());
+        RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
 
         ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
         signer.selfSign(cardModel, privateKey);
-        
-//        VirgilPrivateKey appPrivateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64), APP_PRIVATE_KEY_PASSWORD);
-//        signer.sign(cardModel, this., appPrivateKey);
 
         return cardModel;
     }

@@ -33,46 +33,37 @@
 
 package com.virgilsecurity.sdk.common;
 
+import static org.junit.Assert.fail;
+
 import org.apache.commons.lang.StringUtils;
+
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 public class PropertyManager {
 
-/*    // -------------- DEV --------------
-    protected final String APP_ID = getPropertyByName("APP_ID");
-    protected final String ACCOUNT_ID = getPropertyByName("ACCOUNT_ID");
+    private VirgilCrypto crypto;
+    private String accountId;
+    private String appId;
+    private VirgilPrivateKey apiPrivateKey;
+    private VirgilPublicKey apiPublicKey;
+    private String apiPublicKeyId;
+    private String cardsServiceId;
+    private VirgilPublicKey cardsServicePublicKey;
 
-    protected final String APP_PRIVATE_KEY_PASSWORD = getPropertyByName("APP_PRIVATE_KEY_PASSWORD");
-
-    protected final String API_PUBLIC_KEY = getPropertyByName("API_PUBLIC_KEY");
-    protected final String API_PUBLIC_KEY_IDENTIFIER = getPropertyByName("API_PUBLIC_KEY_IDENTIFIER");
-    protected final String API_PRIVATE_KEY_BASE64 = getPropertyByName("API_PRIVATE_KEY_BASE64"); // REPLACE \\n with \n
-
-    protected final String SERVICE_CARD_ID = getPropertyByName("SERVICE_CARD_ID");
-    protected final String SERVICE_PUBLIC_KEY_PEM_BASE64 = getPropertyByName("SERVICE_PUBLIC_KEY_PEM_BASE64");
-    protected final String SERVICE_PUBLIC_KEY_DER_BASE64 = getPropertyByName("SERVICE_PUBLIC_KEY_DER_BASE64");
-
-    protected final String CARDS_SERVICE_URL = getPropertyByName("CARDS_SERVICE_ADDRESS");*/
-
-    // -------------- STAGE --------------
-    protected final String APP_ID = getPropertyByName("STAGE_APP_ID");
-    protected final String ACCOUNT_ID = getPropertyByName("STAGE_ACCOUNT_ID");
-
-    protected final String APP_PRIVATE_KEY_PASSWORD = getPropertyByName("STAGE_APP_PRIVATE_KEY_PASSWORD");
-
-    protected final String API_PUBLIC_KEY = getPropertyByName("STAGE_API_PUBLIC_KEY");
-    protected final String API_PUBLIC_KEY_IDENTIFIER = getPropertyByName("STAGE_API_PUBLIC_KEY_IDENTIFIER");
-    protected final String API_PRIVATE_KEY_BASE64 = getPropertyByName("STAGE_API_PRIVATE_KEY_BASE64"); // REPLACE \\n with \n
-
-    protected final String SERVICE_CARD_ID = getPropertyByName("STAGE_SERVICE_CARD_ID");
-    protected final String SERVICE_PUBLIC_KEY_PEM_BASE64 = getPropertyByName("STAGE_SERVICE_PUBLIC_KEY_PEM_BASE64");
-    protected final String SERVICE_PUBLIC_KEY_DER_BASE64 = getPropertyByName("STAGE_SERVICE_PUBLIC_KEY_DER_BASE64");
-
-    protected final String CARDS_SERVICE_URL = getPropertyByName("STAGE_CARDS_SERVICE_ADDRESS");
+    /**
+     * Create new instance of {@link PropertyManager}.
+     */
+    public PropertyManager() {
+        super();
+        this.crypto = new VirgilCrypto();
+    }
 
     public String getPropertyByName(String propertyName) {
-        boolean isMacOs = System.getProperty("os.name")
-                                .toLowerCase()
-                                    .startsWith("mac os x");
+        boolean isMacOs = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
         if (isMacOs) {
             if (StringUtils.isBlank(System.getenv(propertyName))) {
                 return null;
@@ -87,4 +78,89 @@ public class PropertyManager {
             return System.getProperty(propertyName);
         }
     }
+
+    public String getAccountId() {
+        if (this.accountId == null) {
+            this.accountId = getPropertyByName("ACCOUNT_ID");
+            if (this.accountId == null) {
+                fail("Account ID is not defined");
+            }
+        }
+        return this.accountId;
+    }
+
+    public String getAppId() {
+        if (this.appId == null) {
+            this.appId = getPropertyByName("APP_ID");
+            if (this.appId == null) {
+                fail("App ID is not defined");
+            }
+        }
+        return this.appId;
+    }
+
+    public VirgilPrivateKey getApiPrivateKey() {
+        if (this.apiPrivateKey == null) {
+            try {
+                this.apiPrivateKey = this.crypto
+                        .importPrivateKey(ConvertionUtils.base64ToBytes(getPropertyByName("API_PRIVATE_KEY")));
+            } catch (CryptoException e) {
+                fail("API Private Key is not defined");
+            }
+        }
+        return this.apiPrivateKey;
+    }
+
+    public VirgilPublicKey getApiPublicKey() {
+        if (this.apiPublicKey == null) {
+            try {
+                this.apiPublicKey = this.crypto
+                        .importPublicKey(ConvertionUtils.base64ToBytes(getPropertyByName("API_PUBLIC_KEY")));
+            } catch (CryptoException e) {
+                fail("API Public Key is not defined");
+            }
+        }
+        return this.apiPublicKey;
+    }
+    
+    public String getApiPublicKeyAsString() {
+        return getPropertyByName("API_PUBLIC_KEY");
+    }
+
+    public String getApiPublicKeyId() {
+        if (this.apiPublicKeyId == null) {
+            this.apiPublicKeyId = getPropertyByName("API_PUBLIC_KEY");
+            if (this.apiPublicKeyId == null) {
+                fail("API Publick Key ID is not defined");
+            }
+        }
+        return this.apiPublicKeyId;
+    }
+
+    public String getCardsServiceUrl() {
+        return getPropertyByName("CARDS_SERVICE_ADDRESS");
+    }
+
+    public String getCardsServiceId() {
+        if (this.cardsServiceId == null) {
+            this.cardsServiceId = getPropertyByName("CARDS_SERVICE_ID");
+            if (this.cardsServiceId == null) {
+                fail("Cards Service ID is not defined");
+            }
+        }
+        return this.cardsServiceId;
+    }
+
+    public VirgilPublicKey getCardsServicePublicKey() {
+        if (this.cardsServicePublicKey == null) {
+            try {
+                this.cardsServicePublicKey = this.crypto
+                        .importPublicKey(ConvertionUtils.base64ToBytes(getPropertyByName("CARDS_SERVICE_PUBLIC_KEY")));
+            } catch (CryptoException e) {
+                fail("Cards Service Public Key is not defined");
+            }
+        }
+        return this.cardsServicePublicKey;
+    }
+
 }

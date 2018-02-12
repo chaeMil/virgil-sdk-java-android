@@ -33,9 +33,9 @@
 
 package com.virgilsecurity.sdk.cards.model;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.Objects;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * The {@link RawSignature} class represents raw model of digital signature.

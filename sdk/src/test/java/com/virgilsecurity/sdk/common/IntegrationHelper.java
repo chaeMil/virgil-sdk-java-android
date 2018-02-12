@@ -34,10 +34,8 @@
 package com.virgilsecurity.sdk.common;
 
 import com.virgilsecurity.sdk.cards.CardManager;
-import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import org.junit.Before;
 
 public class IntegrationHelper extends PropertyManager {
 

@@ -33,6 +33,26 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -51,19 +71,10 @@ import com.virgilsecurity.sdk.jwt.accessProviders.GeneratorJwtProvider;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import java.util.*;
-
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
-import static org.junit.Assert.*;
 
 public class CardsManagerTest extends PropertyManager {
 
@@ -85,37 +96,39 @@ public class CardsManagerTest extends PropertyManager {
         mocker = new Mocker();
         crypto = new VirgilCrypto();
         cardCrypto = new VirgilCardCrypto();
-        cardClient = new CardClient(CARDS_SERVICE_URL);
+        String url = getCardsServiceUrl();
+        if (StringUtils.isBlank(url)) {
+            cardClient = new CardClient();
+        } else {
+            cardClient = new CardClient(url);
+        }
         cardVerifier = new VirgilCardVerifier(cardCrypto);
         dataProvider = new CompatibilityDataProvider();
     }
 
     private void initCardManager(String identity) {
-        cardManager = new CardManager(cardCrypto,
-                                      new GeneratorJwtProvider(mocker.getJwtGenerator(), identity),
-                                      new ModelSigner(cardCrypto),
-                                      cardClient, cardVerifier, new CardManager.SignCallback() {
-            @Override
-            public RawSignedModel onSign(RawSignedModel rawSignedModel) {
-                return rawSignedModel;
-            }
-        });
+        cardManager = new CardManager(cardCrypto, new GeneratorJwtProvider(mocker.getJwtGenerator(), identity),
+                new ModelSigner(cardCrypto), cardClient, cardVerifier, new CardManager.SignCallback() {
+                    @Override
+                    public RawSignedModel onSign(RawSignedModel rawSignedModel) {
+                        return rawSignedModel;
+                    }
+                });
     }
 
     private CardManager init_STC_13() throws CryptoException, VirgilServiceException {
         VirgilCardVerifier virgilCardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(virgilCardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(false);
 
-        RawSignedModel modelFromString = RawSignedModel
-                .fromString(dataProvider.getTestDataAs(3, STRING));
+        RawSignedModel modelFromString = RawSignedModel.fromString(dataProvider.getTestDataAs(3, STRING));
 
         CardClient cardClientMock = Mockito.mock(CardClient.class);
         Mockito.when(cardClientMock.publishCard(Mockito.any(RawSignedModel.class), Mockito.anyString()))
-               .thenReturn(modelFromString);
+                .thenReturn(modelFromString);
         Mockito.when(cardClientMock.getCard(Mockito.anyString(), Mockito.anyString()))
-               .thenReturn(new Tuple<>(modelFromString, false));
+                .thenReturn(new Tuple<>(modelFromString, false));
         Mockito.when(cardClientMock.searchCards(Mockito.anyString(), Mockito.anyString()))
-               .thenReturn(Collections.singletonList(modelFromString));
+                .thenReturn(Collections.singletonList(modelFromString));
 
         AccessToken jwt = Mockito.mock(AccessToken.class);
         Mockito.when(jwt.stringRepresentation()).thenReturn("");
@@ -123,15 +136,13 @@ public class CardsManagerTest extends PropertyManager {
         AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
         Mockito.when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(jwt);
 
-        return new CardManager(cardCrypto,
-                               accessTokenProvider,
-                               new ModelSigner(cardCrypto),
-                               cardClientMock, virgilCardVerifier, new CardManager.SignCallback() {
-            @Override
-            public RawSignedModel onSign(RawSignedModel rawSignedModel) {
-                return rawSignedModel;
-            }
-        });
+        return new CardManager(cardCrypto, accessTokenProvider, new ModelSigner(cardCrypto), cardClientMock,
+                virgilCardVerifier, new CardManager.SignCallback() {
+                    @Override
+                    public RawSignedModel onSign(RawSignedModel rawSignedModel) {
+                        return rawSignedModel;
+                    }
+                });
     }
 
     @Test
@@ -167,7 +178,6 @@ public class CardsManagerTest extends PropertyManager {
     public void STC_13_6() throws CryptoException, VirgilServiceException {
         CardManager virgilCardManager = init_STC_13();
 
-
     }
 
     @Test
@@ -185,7 +195,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
         RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
-                                                               keyPairVirgiled.getPublicKey(), identity);
+                keyPairVirgiled.getPublicKey(), identity);
         Card generatedCard = Card.parse(cardCrypto, cardModel);
         Card publishedCard = null;
         try {
@@ -220,8 +230,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
         RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
-                                                               keyPairVirgiled.getPublicKey(), identity,
-                                                               additionalData);
+                keyPairVirgiled.getPublicKey(), identity, additionalData);
         Card generatedCard = Card.parse(cardCrypto, cardModel);
         Card publishedCard = null;
         try {
@@ -252,7 +261,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
         RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
-                                                                  keyPairVirgiledOne.getPublicKey(), identity);
+                keyPairVirgiledOne.getPublicKey(), identity);
         Card generatedCardOne = Card.parse(cardCrypto, cardModelOne);
         Card publishedCardOne = null;
         try {
@@ -277,8 +286,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
         RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
-                                                                  keyPairVirgiledTwo.getPublicKey(), identity,
-                                                                  generatedCardOne.getIdentifier());
+                keyPairVirgiledTwo.getPublicKey(), identity, generatedCardOne.getIdentifier());
         Card generatedCardTwo = Card.parse(cardCrypto, cardModelTwo);
         Card publishedCardTwo = null;
         try {
@@ -319,7 +327,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
         RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
-                                                                  keyPairVirgiledOne.getPublicKey(), identity);
+                keyPairVirgiledOne.getPublicKey(), identity);
         Card publishedCardOne = null;
         try {
             publishedCardOne = cardManager.publishCard(cardModelOne);
@@ -330,8 +338,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
         RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
-                                                                  keyPairVirgiledTwo.getPublicKey(), identity,
-                                                                  publishedCardOne.getIdentifier());
+                keyPairVirgiledTwo.getPublicKey(), identity, publishedCardOne.getIdentifier());
         Card publishedCardTwo = null;
         try {
             publishedCardTwo = cardManager.publishCard(cardModelTwo);
@@ -342,7 +349,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiledThree = crypto.generateKeys();
         RawSignedModel cardModelThree = cardManager.generateRawCard(keyPairVirgiledThree.getPrivateKey(),
-                                                                    keyPairVirgiledThree.getPublicKey(), identity);
+                keyPairVirgiledThree.getPublicKey(), identity);
         Card publishedCardThree = null;
         try {
             publishedCardThree = cardManager.publishCard(cardModelThree);
@@ -379,23 +386,22 @@ public class CardsManagerTest extends PropertyManager {
         String identity = Generator.identity();
 
         CardManager cardManagerExtraSign = new CardManager(cardCrypto,
-                                                           new GeneratorJwtProvider(mocker.getJwtGenerator(), identity),
-                                                           new ModelSigner(cardCrypto),
-                                                           cardClient, cardVerifier, new CardManager.SignCallback() {
-            @Override
-            public RawSignedModel onSign(RawSignedModel cardModel) {
-                ModelSigner modelSigner = new ModelSigner(cardCrypto);
-                try {
-                    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
-                    modelSigner.sign(cardModel, SIGNER_TYPE_EXTRA, keyPairVirgiled.getPrivateKey());
-                } catch (CryptoException e) {
-                    e.printStackTrace();
-                    fail();
-                }
+                new GeneratorJwtProvider(mocker.getJwtGenerator(), identity), new ModelSigner(cardCrypto), cardClient,
+                cardVerifier, new CardManager.SignCallback() {
+                    @Override
+                    public RawSignedModel onSign(RawSignedModel cardModel) {
+                        ModelSigner modelSigner = new ModelSigner(cardCrypto);
+                        try {
+                            VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+                            modelSigner.sign(cardModel, SIGNER_TYPE_EXTRA, keyPairVirgiled.getPrivateKey());
+                        } catch (CryptoException e) {
+                            e.printStackTrace();
+                            fail();
+                        }
 
-                return cardModel;
-            }
-        });
+                        return cardModel;
+                    }
+                });
 
         // Map<String, String> additionalData = new HashMap<>();
         // additionalData.put("Sense of life", "42");
@@ -403,7 +409,7 @@ public class CardsManagerTest extends PropertyManager {
 
         VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
         RawSignedModel cardModel = cardManagerExtraSign.generateRawCard(keyPairVirgiled.getPrivateKey(),
-                                                                        keyPairVirgiled.getPublicKey(), identity);
+                keyPairVirgiled.getPublicKey(), identity);
         Card generatedCard = Card.parse(cardCrypto, cardModel);
 
         Card publishedCard = null;

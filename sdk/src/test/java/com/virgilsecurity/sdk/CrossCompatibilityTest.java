@@ -33,6 +33,23 @@
 
 package com.virgilsecurity.sdk;
 
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.mockito.Mockito;
+
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.CardSignature;
@@ -47,24 +64,18 @@ import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.common.TimeSpan;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static org.junit.Assert.*;
 
 public class CrossCompatibilityTest extends PropertyManager {
 
@@ -392,8 +403,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         final Jwt jwt = mocker.generateAccessToken(identity);
         VirgilCrypto crypto = new VirgilCrypto();
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
-        final JwtVerifier jwtVerifier = new JwtVerifier(
-                crypto.importPublicKey(ConvertionUtils.base64ToBytes(API_PUBLIC_KEY)), API_PUBLIC_KEY_IDENTIFIER,
+        final JwtVerifier jwtVerifier = new JwtVerifier(getApiPublicKey(), getApiPublicKeyId(),
                 accessTokenSigner);
 
         assertTrue(jwtVerifier.verifyToken(jwt));

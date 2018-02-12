@@ -32,10 +32,10 @@
  */
 package com.virgilsecurity.sdk.client.exceptions;
 
-import com.virgilsecurity.sdk.common.HttpError;
-
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
+
+import com.virgilsecurity.sdk.common.HttpError;
 
 /**
  * Base exception class for all Virgil Services operations

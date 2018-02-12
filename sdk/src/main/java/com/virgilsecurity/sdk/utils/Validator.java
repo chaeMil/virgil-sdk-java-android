@@ -33,10 +33,10 @@
 
 package com.virgilsecurity.sdk.utils;
 
+import java.util.List;
+
 import com.virgilsecurity.sdk.exception.EmptyArgumentException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
-
-import java.util.List;
 
 /**
  * The {@linkplain Validator} is used for validation purposes to

@@ -33,6 +33,14 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
@@ -50,9 +58,6 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
-
-import java.net.HttpURLConnection;
-import java.util.*;
 
 /**
  * The {@link CardManager} class provides list of methods to work with {@link Card}.
@@ -143,7 +148,7 @@ public class CardManager {
 
         byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
         RawSignedModel cardModel = new RawSignedModel(snapshot);
-        modelSigner.selfSign(cardModel, ConvertionUtils.captureSnapshot(additionalData), privateKey);
+        modelSigner.selfSign(cardModel, privateKey, ConvertionUtils.captureSnapshot(additionalData));
 
         return cardModel;
     }
@@ -206,7 +211,7 @@ public class CardManager {
 
         byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
         RawSignedModel cardModel = new RawSignedModel(snapshot);
-        modelSigner.selfSign(cardModel, ConvertionUtils.captureSnapshot(additionalData), privateKey);
+        modelSigner.selfSign(cardModel, privateKey, ConvertionUtils.captureSnapshot(additionalData));
 
         return cardModel;
     }

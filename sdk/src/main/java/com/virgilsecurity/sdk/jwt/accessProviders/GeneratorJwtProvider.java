@@ -33,14 +33,14 @@
 
 package com.virgilsecurity.sdk.jwt.accessProviders;
 
+import java.util.Map;
+
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.utils.Validator;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
-
-import java.util.Map;
+import com.virgilsecurity.sdk.utils.Validator;
 
 /**
  * The {@link GeneratorJwtProvider} class is implemented for generating

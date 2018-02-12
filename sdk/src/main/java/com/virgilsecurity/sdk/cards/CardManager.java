@@ -37,6 +37,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
@@ -52,10 +53,7 @@ import com.virgilsecurity.sdk.utils.Validator;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The {@link CardManager} class provides list of methods to work with {@link Card}.
@@ -284,6 +282,10 @@ public class CardManager {
         }
 
         Card card = Card.parse(crypto, cardModelPublished);
+
+        if (!Arrays.equals(cardModel.getContentSnapshot(), card.getContentSnapshot()))
+            throw new VirgilCardServiceException();
+
         verifyCard(card);
 
         return card;
@@ -444,6 +446,8 @@ public class CardManager {
         }
 
         Card card = Card.parse(crypto, response.getLeft());
+        if (!Objects.equals(cardId, card.getIdentifier()))
+            throw new VirgilCardServiceException();
 
         if (response.getRight()) {
             card.setOutdated(true);

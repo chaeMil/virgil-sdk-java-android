@@ -33,6 +33,7 @@
 package com.virgilsecurity.sdk.jwt;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.times;
@@ -44,7 +45,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -111,7 +111,7 @@ public class JwtCrossCompatibilityTest {
         verify(this.callback, times(1)).onGetToken();
 
         // Wait till token is expired
-//        Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
+        Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
 
         // Call getToken(false)
         AccessToken accessToken3 = provider.getToken(ctx);
@@ -153,11 +153,35 @@ public class JwtCrossCompatibilityTest {
         // Call stringRepresentation()
         assertEquals(token, jwt.stringRepresentation());
     }
-    
+
     @Test
-    @Ignore
     public void STC_29() {
-        
+        // Import JWT from string STC-29.jwt
+        String token = sampleJson.get("STC-29.jwt").getAsString();
+        Jwt jwt = new Jwt(token);
+
+        assertEquals(sampleJson.get("STC-29.jwt_identity").getAsString(), jwt.getBodyContent().getIdentity());
+        assertEquals(sampleJson.get("STC-29.jwt_app_id").getAsString(), jwt.getBodyContent().getAppId());
+        assertEquals(sampleJson.get("STC-29.jw_issuer").getAsString(), jwt.getBodyContent().getIssuer());
+        assertEquals(sampleJson.get("STC-29.jwt_subject").getAsString(), jwt.getBodyContent().getSubject());
+        assertEquals(sampleJson.get("STC-29.jwt_additional_data").getAsString(),
+                ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
+        assertEquals(sampleJson.get("STC-29.jwt_expires_at").getAsLong(),
+                jwt.getBodyContent().getExpiresAt().getTimestamp());
+        assertEquals(sampleJson.get("STC-29.jwt_issued_at").getAsLong(),
+                jwt.getBodyContent().getIssuedAt().getTime() / 1000);
+        assertEquals(sampleJson.get("STC-29.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());
+        assertEquals(sampleJson.get("STC-29.jwt_api_key_id").getAsString(), jwt.getHeaderContent().getKeyIdentifier());
+        assertEquals(sampleJson.get("STC-29.jwt_content_type").getAsString(), jwt.getHeaderContent().getContentType());
+        assertEquals(sampleJson.get("STC-29.jwt_type").getAsString(), jwt.getHeaderContent().getType());
+        assertEquals(sampleJson.get("STC-29.jwt_signature_base64").getAsString(),
+                ConvertionUtils.toBase64String(jwt.getSignatureData()));
+
+        // Call isExpired()
+        assertFalse(jwt.isExpired());
+
+        // Call stringRepresentation()
+        assertEquals(token, jwt.stringRepresentation());
     }
 
 }

@@ -32,21 +32,15 @@
  */
 package com.virgilsecurity.sdk.storage;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.charset.Charset;
-import java.nio.file.InvalidPathException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyStorageException;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
+import com.virgilsecurity.sdk.utils.Tuple;
 
 /**
  * Virgil implementation of a storage facility for cryptographic keys.
@@ -54,182 +48,164 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyStorageException;
  * @author Andrii Iakovenko
  *
  */
-public class PrivateKeyStorage implements KeyStorage {
+public class PrivateKeyStorage {
 
-    private String directoryName;
-    private String fileName;
-
-    /**
-     * Create a new instance of {@code VirgilKeyStorage}
-     *
-     */
-    public PrivateKeyStorage() {
-        StringBuilder path = new StringBuilder(System.getProperty("user.home"));
-        path.append(File.separator).append("VirgilSecurity");
-        path.append(File.separator).append("KeyStore");
-
-        this.directoryName = path.toString();
-        this.fileName = "virgil.keystore";
-
-        init();
-    }
+    private PrivateKeyExporter keyExporter;
+    private KeyStorage keyStorage;
 
     /**
-     * Create a new instance of {@code VirgilKeyStorage}
-     *
-     */
-    public PrivateKeyStorage(String directoryName, String fileName) {
-        this.directoryName = directoryName;
-        this.fileName = fileName;
-
-        init();
-    }
-
-    private void init() {
-        File dir = new File(this.directoryName);
-
-        if (dir.exists()) {
-            if (!dir.isDirectory()) {
-                throw new InvalidPathException(this.directoryName, "Is not a directory");
-            }
-        } else {
-            dir.mkdirs();
-        }
-        File file = new File(dir, this.fileName);
-        if (!file.exists()) {
-            save(new Entries());
-        }
-    }
-
-    /*
-     * (non-Javadoc)
+     * Create new instance of {@link PrivateKeyStorage}.
      * 
-     * @see com.virgilsecurity.sdk.crypto.KeyStore#store(com.virgilsecurity.sdk. crypto.KeyEntry)
+     * @param keyExporter
+     * @param keyStorage
      */
-    @Override
-    public void store(KeyEntry keyEntry) {
-        String name = keyEntry.getName();
-
-        synchronized (this) {
-            Entries entries = load();
-            if (entries.containsKey(name)) {
-                throw new KeyEntryAlreadyExistsException();
-            }
-            entries.put(name, (VirgilKeyEntry) keyEntry);
-            save(entries);
+    public PrivateKeyStorage(PrivateKeyExporter keyExporter, KeyStorage keyStorage) {
+        super();
+        if (keyExporter == null) {
+            throw new NullArgumentException("keyExporter");
         }
+        if (keyStorage == null) {
+            throw new NullArgumentException("keyStorage");
+        }
+        this.keyExporter = keyExporter;
+        this.keyStorage = keyStorage;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Store private key in key storage.
      * 
-     * @see com.virgilsecurity.sdk.crypto.KeyStore#load(java.lang.String)
+     * @param privateKey
+     *            The private key to store.
+     * @param name
+     *            The alias which identifies stored key.
+     * @param meta
+     *            The key meta data.
+     * @throws CryptoException
      */
-    @Override
-    public KeyEntry load(String keyName) {
-        synchronized (this) {
-            Entries entries = load();
-            if (!entries.containsKey(keyName)) {
-                throw new KeyEntryNotFoundException();
-            }
-            VirgilKeyEntry entry = entries.get(keyName);
-            entry.setName(keyName);
-            return entry;
+    public void store(PrivateKey privateKey, String name, Map<String, String> meta) throws CryptoException {
+        byte[] exportedKeyData = this.keyExporter.exportPrivateKey(privateKey);
+
+        KeyEntry keyEntry = new PrivateKeyEntry(name, exportedKeyData);
+        if (meta != null && !meta.isEmpty()) {
+            keyEntry.getMeta().putAll(meta);
         }
+        this.keyStorage.store(keyEntry);
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Load private key from key storage.
      * 
-     * @see com.virgilsecurity.sdk.crypto.KeyStore#exists(java.lang.String)
+     * @param keyName
+     *            The alias which identifies stored key.
+     * @return The pair of private key and key meta data.
+     * @throws CryptoException
      */
-    @Override
+    public Tuple<PrivateKey, Map<String, String>> load(String keyName) throws CryptoException {
+        KeyEntry keyEntry = this.keyStorage.load(keyName);
+        if (keyEntry != null) {
+            PrivateKey privateKey = this.keyExporter.importPrivateKey(keyEntry.getValue());
+            Tuple<PrivateKey, Map<String, String>> pair = new Tuple<PrivateKey, Map<String, String>>(privateKey,
+                    keyEntry.getMeta());
+            return pair;
+        }
+        return null;
+    }
+
+    /**
+     * Check if key stored in key store.
+     * 
+     * @param keyName
+     *            The alias which identifies stored key.
+     * @return {@code true} if key exists, {@code false} otherwise.
+     */
     public boolean exists(String keyName) {
-        if (keyName == null) {
-            return false;
-        }
-        synchronized (this) {
-            Entries entries = load();
-            return entries.containsKey(keyName);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.crypto.KeyStore#delete(java.lang.String)
-     */
-    @Override
-    public void delete(String keyName) {
-        synchronized (this) {
-            Entries entries = load();
-            if (!entries.containsKey(keyName)) {
-                throw new KeyEntryNotFoundException();
-            }
-            entries.remove(keyName);
-            save(entries);
-        }
-    }
-
-    private Entries load() {
-        File file = new File(this.directoryName, this.fileName);
-        try (FileInputStream is = new FileInputStream(file)) {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-            byte[] buffer = new byte[4096];
-            int n = 0;
-            while (-1 != (n = is.read(buffer))) {
-                os.write(buffer, 0, n);
-            }
-
-            byte[] bytes = os.toByteArray();
-
-            Entries entries = getGson().fromJson(new String(bytes, Charset.forName("UTF-8")), Entries.class);
-
-            return entries;
-        } catch (Exception e) {
-            throw new KeyStorageException(e);
-        }
+        return this.keyStorage.exists(keyName);
     }
 
     /**
-     * @param entries
-     */
-    private void save(Entries entries) {
-        File file = new File(this.directoryName, this.fileName);
-        try (FileOutputStream os = new FileOutputStream(file)) {
-            String json = getGson().toJson(entries);
-            os.write(json.getBytes(Charset.forName("UTF-8")));
-        } catch (Exception e) {
-            throw new KeyStorageException(e);
-        }
-    }
-
-    private Gson getGson() {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-
-        return gson;
-    }
-
-    private static class Entries extends HashMap<String, VirgilKeyEntry> {
-        private static final long serialVersionUID = 261773342073013945L;
-
-    }
-
-    /*
-     * (non-Javadoc)
+     * Remove key from key storage.
      * 
-     * @see com.virgilsecurity.sdk.storage.KeyStorage#names()
+     * @param keyName
+     *            The alias which identifies stored key.
      */
-    @Override
+    public void delete(String keyName) {
+        this.keyStorage.delete(keyName);
+    }
+
+    /**
+     * List name of all keys stored in key storage.
+     * 
+     * @return The keys names as a list.
+     */
     public List<String> names() {
-        Entries entries = load();
-        if (entries.isEmpty()) {
-            return new ArrayList<>();
+        return this.keyStorage.names();
+    }
+
+    private class PrivateKeyEntry implements KeyEntry {
+
+        private String name;
+        private byte[] value;
+        private Map<String, String> meta;
+
+        /**
+         * Create new instance of {@link PrivateKeyEntry}.
+         * 
+         * @param name
+         * @param value
+         */
+        public PrivateKeyEntry(String name, byte[] value) {
+            super();
+            this.name = name;
+            this.value = value;
+
+            this.meta = new HashMap<>();
         }
-        List<String> names = new ArrayList<>(entries.keySet());
-        return names;
+
+        /**
+         * @return the name
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * @param name
+         *            the name to set
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        /**
+         * @return the value
+         */
+        public byte[] getValue() {
+            return value;
+        }
+
+        /**
+         * @param value
+         *            the value to set
+         */
+        public void setValue(byte[] value) {
+            this.value = value;
+        }
+
+        /**
+         * @return the meta
+         */
+        public Map<String, String> getMeta() {
+            return meta;
+        }
+
+        /**
+         * @param meta
+         *            the meta to set
+         */
+        public void setMeta(Map<String, String> meta) {
+            this.meta = meta;
+        }
+
     }
 
 }

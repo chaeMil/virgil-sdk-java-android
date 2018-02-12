@@ -62,7 +62,6 @@ public class CardClientTest extends PropertyManager {
     public void setUp() {
         cardClient = new CardClient(CARDS_SERVICE_URL);
         mocker = new Mocker();
-//        PlatformLogger.getLogger("sun.net.www.protocol.http.HttpURLConnection").setLevel(PlatformLogger.Level.ALL);
     }
 
     @Test

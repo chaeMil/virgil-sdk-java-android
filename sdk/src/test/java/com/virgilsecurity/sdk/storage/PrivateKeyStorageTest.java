@@ -39,25 +39,34 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
-import com.virgilsecurity.crypto.VirgilKeyPair;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
 
-import com.virgilsecurity.sdk.crypto.Crypto;
-import com.virgilsecurity.sdk.crypto.KeyPair;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.Tuple;
 
 /**
  * Unit tests for {@code VirgilKeyStorage}
@@ -67,155 +76,184 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
  * @see VirgilKeyStorage
  *
  */
+@RunWith(MockitoJUnitRunner.class)
 public class PrivateKeyStorageTest {
     private VirgilCrypto crypto;
+    private String keyName;
+    private PrivateKey privateKey;
+
+    @Mock
+    private PrivateKeyExporter keyExporter;
+
+    @Mock
+    private KeyStorage keyStorage;
     private PrivateKeyStorage storage;
 
-    private String alias;
-    private KeyEntry entry;
-
-    private VirgilKeyPair keyPair;
-
-    private boolean failedConcurrency = false;
-
     @Before
-    public void setUp() {
-//        crypto = new VirgilCrypto();
-//        storage = new PrivateKeyStorage(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
-//
-//        keyPair = crypto.generateKeys();
-//
-//        alias = UUID.randomUUID().toString();
-//
-//        entry = new VirgilKeyEntry();
-//        entry.setName(alias);
-//        entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
-//        entry.getMetadata().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+    public void setUp() throws CryptoException {
+        this.crypto = new VirgilCrypto();
+        this.privateKey = this.crypto.generateKeys().getPrivateKey();
+        this.keyName = UUID.randomUUID().toString();
+
+        storage = new PrivateKeyStorage(keyExporter, keyStorage);
+
+        // Configure mocks
+        byte[] privateKeyData = ((VirgilPrivateKey) privateKey).getRawKey();
+        when(this.keyExporter.exportPrivateKey(privateKey)).thenReturn(privateKeyData);
+        when(this.keyExporter.importPrivateKey(privateKeyData))
+                .thenReturn(this.crypto.importPrivateKey(privateKeyData));
     }
 
     @Test
     public void exists_nullAlias() {
+        when(this.keyStorage.exists(null)).thenReturn(false);
+
         assertFalse(storage.exists(null));
     }
 
     @Test
     public void exists_randomName() {
+        when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+
         assertFalse(storage.exists(UUID.randomUUID().toString()));
     }
 
     @Test
-    public void exists() throws IOException {
-        storage.store(entry);
+    public void exists() throws IOException, CryptoException {
+        when(this.keyStorage.exists(this.keyName)).thenReturn(true);
 
-        assertTrue(storage.exists(alias));
+        assertTrue(storage.exists(this.keyName));
     }
 
     @Test
-    public void store() {
-        storage.store(entry);
+    public void store() throws CryptoException {
+//        when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
 
-        assertTrue(storage.exists(alias));
-    }
+        Map<String, String> meta = new HashMap<>();
+        meta.put("key1", "value1");
+        meta.put("key2", "value2");
+        storage.store(this.privateKey, this.keyName, meta);
 
-    @Test(expected = KeyEntryAlreadyExistsException.class)
-    public void store_duplicated() {
-        storage.store(entry);
-        storage.store(entry);
+        verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);
+
+        ArgumentCaptor<KeyEntry> keyEntryCaptor = ArgumentCaptor.forClass(KeyEntry.class);
+        verify(this.keyStorage, times(1)).store(keyEntryCaptor.capture());
+
+        KeyEntry keyEntry = keyEntryCaptor.getValue();
+        assertNotNull(keyEntry);
+        assertEquals(this.keyName, keyEntry.getName());
+        assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
+        assertNotNull(keyEntry.getMeta());
+        assertEquals(meta, keyEntry.getMeta());
     }
 
     @Test
-    public void load() {
-        storage.store(entry);
+    public void store_noMeta() throws CryptoException {
+        //        when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+        storage.store(this.privateKey, this.keyName, Collections.EMPTY_MAP);
 
-        KeyEntry loadedEntry = storage.load(alias);
+        verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);
 
-        assertThat(loadedEntry, instanceOf(VirgilKeyEntry.class));
-        assertEquals(entry.getName(), loadedEntry.getName());
-        assertArrayEquals(entry.getValue(), loadedEntry.getValue());
-        assertEquals(entry.getMetadata(), loadedEntry.getMetadata());
+        ArgumentCaptor<KeyEntry> keyEntryCaptor = ArgumentCaptor.forClass(KeyEntry.class);
+        verify(this.keyStorage, times(1)).store(keyEntryCaptor.capture());
+
+        KeyEntry keyEntry = keyEntryCaptor.getValue();
+        assertNotNull(keyEntry);
+        assertEquals(this.keyName, keyEntry.getName());
+        assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
+        assertNotNull(keyEntry.getMeta());
+        assertTrue(keyEntry.getMeta().isEmpty());
+    }
+
+    @Test
+    public void load() throws CryptoException {
+        Map<String, String> meta = new HashMap<>();
+        meta.put("key1", "value1");
+        meta.put("key2", "value2");
+        KeyEntry entry = new JsonKeyEntry(this.keyName, this.keyExporter.exportPrivateKey(this.privateKey));
+        entry.setMeta(meta);
+        when(this.keyStorage.load(this.keyName)).thenReturn(entry);
+
+        Tuple<PrivateKey, Map<String, String>> keyData = storage.load(this.keyName);
+        assertNotNull(keyData);
+
+        PrivateKey key = keyData.getLeft();
+        assertNotNull(key);
+        assertThat(key, instanceOf(VirgilPrivateKey.class));
+        assertEquals(this.privateKey, key);
+
+        assertEquals(meta, keyData.getRight());
+    }
+
+    @Test
+    public void load_noMeta() throws CryptoException {
+        KeyEntry entry = new JsonKeyEntry(this.keyName, this.keyExporter.exportPrivateKey(this.privateKey));
+        when(this.keyStorage.load(this.keyName)).thenReturn(entry);
+
+        Tuple<PrivateKey, Map<String, String>> keyData = storage.load(this.keyName);
+        assertNotNull(keyData);
+
+        PrivateKey key = keyData.getLeft();
+        assertNotNull(key);
+        assertThat(key, instanceOf(VirgilPrivateKey.class));
+        assertEquals(this.privateKey, key);
+
+        assertTrue(keyData.getRight().isEmpty());
     }
 
     @Test(expected = KeyEntryNotFoundException.class)
-    public void load_nullName() {
-        storage.load(alias);
+    public void load_nullName() throws CryptoException {
+        when(this.keyStorage.load(null)).thenThrow(KeyEntryNotFoundException.class);
+        storage.load(null);
     }
 
     @Test(expected = KeyEntryNotFoundException.class)
-    public void load_nonExisting() {
-        storage.load(alias);
+    public void load_nonExisting() throws CryptoException {
+        when(this.keyStorage.load(this.keyName)).thenThrow(KeyEntryNotFoundException.class);
+        storage.load(this.keyName);
     }
 
     @Test
     public void delete() {
-        storage.store(entry);
-        storage.delete(alias);
+        storage.delete(this.keyName);
 
-        assertFalse(storage.exists(alias));
+        ArgumentCaptor<String> keyNameCaptor = ArgumentCaptor.forClass(String.class);
+        verify(this.keyStorage, times(1)).delete(keyNameCaptor.capture());
+
+        assertEquals(this.keyName, keyNameCaptor.getValue());
     }
 
     @Test(expected = KeyEntryNotFoundException.class)
     public void delete_nullName() {
+        doThrow(KeyEntryNotFoundException.class).when(this.keyStorage).delete(null);
+
         storage.delete(null);
     }
 
     @Test(expected = KeyEntryNotFoundException.class)
     public void delete_nonExisting() {
-        storage.delete(alias);
+        doThrow(KeyEntryNotFoundException.class).when(this.keyStorage).delete(this.keyName);
+
+        storage.delete(this.keyName);
     }
-    
+
     @Test
     public void names_empty() {
+        when(this.keyStorage.names()).thenReturn(Collections.EMPTY_LIST);
+
         List<String> names = storage.names();
         assertNotNull(names);
         assertTrue(names.isEmpty());
     }
-    
+
     @Test
     public void names() {
-        storage.store(entry);
+        when(this.keyStorage.names()).thenReturn(Arrays.asList("key1"));
+
         List<String> names = storage.names();
         assertNotNull(names);
         assertEquals(1, names.size());
-        assertEquals(entry.getName(), names.get(0));
-    }
-
-    @Test
-    public void concurrentFlow() throws InterruptedException {
-        failedConcurrency = false;
-        ExecutorService exec = Executors.newFixedThreadPool(16);
-        for (int i = 0; i < 10000; i++) {
-            exec.execute(new Runnable() {
-                @Override
-                public void run() {
-                    String keyName = UUID.randomUUID().toString();
-
-                    try {
-                        assertFalse(storage.exists(keyName));
-
-                        KeyEntry keyEntry = new VirgilKeyEntry(keyName, ConvertionUtils.toBytes(keyName));
-                        storage.store(keyEntry);
-                        assertTrue(storage.exists(keyName));
-
-                        KeyEntry loadedEntry = storage.load(keyName);
-                        assertNotNull(loadedEntry);
-                        assertEquals(keyName, loadedEntry.getName());
-                        assertArrayEquals(keyEntry.getValue(), loadedEntry.getValue());
-
-                        storage.delete(keyName);
-                        assertFalse(storage.exists(keyName));
-                    } catch (Exception e) {
-                        failedConcurrency = true;
-                        throw e;
-                    }
-                }
-            });
-        }
-        exec.shutdown();
-        exec.awaitTermination(5, TimeUnit.SECONDS);
-
-        if (failedConcurrency) {
-            fail();
-        }
+        assertEquals("key1", names.get(0));
     }
 
 }

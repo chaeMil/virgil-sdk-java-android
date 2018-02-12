@@ -72,13 +72,13 @@ public interface KeyEntry {
     /**
      * @return the key entry metadata.
      */
-    Map<String, String> getMetadata();
+    Map<String, String> getMeta();
 
     /**
-     * Sets the key entry value.
+     * Sets the key entry metadata.
      *
-     * @param metadata
-     *            the key entry value.
+     * @param meta
+     *            the key entry metadata.
      */
-    void setMetadata(Map<String, String> metadata);
+    void setMeta(Map<String, String> meta);
 }

@@ -40,10 +40,11 @@ import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.utils.Base64Url;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
- * The {@link JwtGenerator} class is used for generation of {@link Jwt}
- * with provided tools and data.
+ * The {@link JwtGenerator} class is used for generation of {@link Jwt} with provided tools and data.
  */
 public class JwtGenerator {
 
@@ -56,11 +57,16 @@ public class JwtGenerator {
     /**
      * Instantiates a new Jwt generator.
      *
-     * @param appId                  the application identifier
-     * @param apiKey                 the api private key
-     * @param apiPublicKeyIdentifier the api public key identifier
-     * @param ttl                    the lifetime of token - when it expires at
-     * @param accessTokenSigner      the access token signer
+     * @param appId
+     *            the application identifier
+     * @param apiKey
+     *            the api private key
+     * @param apiPublicKeyIdentifier
+     *            the api public key identifier
+     * @param ttl
+     *            the lifetime of token - when it expires at
+     * @param accessTokenSigner
+     *            the access token signer
      */
     public JwtGenerator(String appId, PrivateKey apiKey, String apiPublicKeyIdentifier, TimeSpan ttl,
             AccessTokenSigner accessTokenSigner) {
@@ -74,37 +80,40 @@ public class JwtGenerator {
     /**
      * Generate token jwt.
      *
-     * @param identity       the identity
-     * @param additionalData the additional data associated with token
+     * @param identity
+     *            the identity
+     * @param additionalData
+     *            the additional data associated with token
      * @return the generated Jwt
-     * @throws CryptoException if issue occurred while generating token signature
+     * @throws CryptoException
+     *             if issue occurred while generating token signature
      */
     public Jwt generateToken(String identity, Map<String, String> additionalData) throws CryptoException {
         JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
         JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, additionalData, ttl, new Date());
 
         Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
-        jwtToken.setSignatureData(
-                accessTokenSigner.generateTokenSignature(jwtToken.snapshotWithoutSignatures(), apiKey));
-
-        return jwtToken;
+        byte[] signature = this.accessTokenSigner.generateTokenSignature(ConvertionUtils.toBytes(jwtToken.unsigned()),
+                apiKey);
+        return new Jwt(jwtToken.stringRepresentation() + "." + Base64Url.encode(signature));
     }
 
     /**
      * Generate token jwt.
      *
-     * @param identity the identity
+     * @param identity
+     *            the identity
      * @return the generated Jwt
-     * @throws CryptoException if issue occurred while generating token signature
+     * @throws CryptoException
+     *             if issue occurred while generating token signature
      */
     public Jwt generateToken(String identity) throws CryptoException {
         JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
         JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, ttl, new Date());
 
         Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
-        jwtToken.setSignatureData(
-                accessTokenSigner.generateTokenSignature(jwtToken.snapshotWithoutSignatures(), apiKey));
-
-        return jwtToken;
+        byte[] signature = this.accessTokenSigner.generateTokenSignature(ConvertionUtils.toBytes(jwtToken.unsigned()),
+                apiKey);
+        return new Jwt(jwtToken.stringRepresentation() + "." + Base64Url.encode(signature));
     }
 }

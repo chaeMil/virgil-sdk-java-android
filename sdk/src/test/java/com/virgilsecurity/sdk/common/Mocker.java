@@ -160,12 +160,15 @@ public class Mocker extends PropertyManager {
         RawCardContent rawCardContent = new RawCardContent(identity,
                                                            ConvertionUtils
                                                                    .toBase64String(crypto.exportPublicKey(publicKey)),
-                                                           "5.0", calendar.getTime());
+                                                           calendar.getTime());
 
-        RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
+        RawSignedModel cardModel = new RawSignedModel(rawCardContent.snapshot());
 
         ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
         signer.selfSign(cardModel, privateKey);
+        
+//        VirgilPrivateKey appPrivateKey = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(API_PRIVATE_KEY_BASE64), APP_PRIVATE_KEY_PASSWORD);
+//        signer.sign(cardModel, this., appPrivateKey);
 
         return cardModel;
     }

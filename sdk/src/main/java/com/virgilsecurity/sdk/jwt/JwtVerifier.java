@@ -36,10 +36,11 @@ package com.virgilsecurity.sdk.jwt;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
- * The {@link JwtVerifier} class is implemented for verification of
- * {@link Jwt}.
+ * The {@link JwtVerifier} class is implemented for verification of {@link Jwt}.
  */
 public class JwtVerifier {
 
@@ -50,13 +51,14 @@ public class JwtVerifier {
     /**
      * Instantiates a new Jwt verifier.
      *
-     * @param apiPublicKey           the api public key
-     * @param apiPublicKeyIdentifier the api public key identifier
-     * @param accessTokenSigner      the access token signer
+     * @param apiPublicKey
+     *            the api public key
+     * @param apiPublicKeyIdentifier
+     *            the api public key identifier
+     * @param accessTokenSigner
+     *            the access token signer
      */
-    public JwtVerifier(PublicKey apiPublicKey,
-                       String apiPublicKeyIdentifier,
-                       AccessTokenSigner accessTokenSigner) {
+    public JwtVerifier(PublicKey apiPublicKey, String apiPublicKeyIdentifier, AccessTokenSigner accessTokenSigner) {
         this.apiPublicKey = apiPublicKey;
         this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
         this.accessTokenSigner = accessTokenSigner;
@@ -65,13 +67,26 @@ public class JwtVerifier {
     /**
      * Checks whether the token's signature is valid.
      *
-     * @param jwtToken the jwt token
+     * @param jwtToken
+     *            the jwt token
      * @return {@code true} if the token's signature is valid, otherwise {@code false}
-     * @throws CryptoException if issue occurred during token's signature verification
+     * @throws CryptoException
+     *             if issue occurred during token's signature verification
      */
     public boolean verifyToken(Jwt jwtToken) throws CryptoException {
-        return accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(),
-                                                      jwtToken.snapshotWithoutSignatures(),
-                                                      apiPublicKey);
+        if (jwtToken == null) {
+            throw new NullArgumentException("jwtToken");
+        }
+
+        JwtHeaderContent header = jwtToken.getHeaderContent();
+        if (!this.apiPublicKeyIdentifier.equals(header.getKeyIdentifier())
+                || !this.accessTokenSigner.getAlgorithm().equals(header.getAlgorithm())
+                || !JwtHeaderContent.VIRGIL_CONTENT_TYPE.equals(header.getContentType())
+                || !JwtHeaderContent.JWT_TYPE.equals(header.getType())) {
+            return false;
+        }
+
+        byte[] jwtBytes = ConvertionUtils.toBytes(jwtToken.unsigned());
+        return this.accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(), jwtBytes, apiPublicKey);
     }
 }

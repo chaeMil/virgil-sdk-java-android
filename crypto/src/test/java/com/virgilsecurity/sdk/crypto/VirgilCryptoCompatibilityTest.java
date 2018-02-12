@@ -33,14 +33,19 @@
 package com.virgilsecurity.sdk.crypto;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -53,14 +58,36 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
  * @author Andrii Iakovenko
  *
  */
+@RunWith(Parameterized.class)
 public class VirgilCryptoCompatibilityTest {
 
     private VirgilCrypto crypto;
     private JsonObject sampleJson;
 
+    @Parameters
+    public static Collection<VirgilCrypto> cryptos() {
+        List<VirgilCrypto> cryptos = new ArrayList<>();
+
+        cryptos.add(new VirgilCrypto(true));
+
+        VirgilCrypto crypto = new VirgilCrypto();
+        crypto.setUseSHA256Fingerprints(true);
+        cryptos.add(crypto);
+
+        return cryptos;
+    }
+
+    /**
+     * Create new instance of {@link VirgilCryptoCompatibilityTest}.
+     */
+    public VirgilCryptoCompatibilityTest(VirgilCrypto crypto) {
+        this.crypto = crypto;
+    }
+
     @Before
     public void setup() {
         this.crypto = new VirgilCrypto();
+        this.crypto.setUseSHA256Fingerprints(true);
 
         sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(this.getClass().getClassLoader()
                 .getResourceAsStream("com/virgilsecurity/sdk/crypto/crypto_compatibility_data.json")));
@@ -147,6 +174,10 @@ public class VirgilCryptoCompatibilityTest {
         byte[] generatedSignature = this.crypto.generateSignature(originalData, privateKey);
 
         assertArrayEquals(signature, generatedSignature);
+
+        byte[] publicKeyData = VirgilKeyPair.extractPublicKey(privateKeyData, new byte[0]);
+        VirgilPublicKey publicKey = this.crypto.importPublicKey(publicKeyData);
+        assertTrue(this.crypto.verifySignature(signature, originalData, publicKey));
     }
 
     @Test

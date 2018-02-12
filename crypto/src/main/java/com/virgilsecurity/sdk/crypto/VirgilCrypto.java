@@ -32,11 +32,6 @@
  */
 package com.virgilsecurity.sdk.crypto;
 
-import com.virgilsecurity.crypto.*;
-import com.virgilsecurity.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.exceptions.*;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,6 +39,25 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+
+import com.virgilsecurity.crypto.VirgilCipher;
+import com.virgilsecurity.crypto.VirgilCustomParams;
+import com.virgilsecurity.crypto.VirgilDataSink;
+import com.virgilsecurity.crypto.VirgilDataSource;
+import com.virgilsecurity.crypto.VirgilHash;
+import com.virgilsecurity.crypto.VirgilKeyPair;
+import com.virgilsecurity.crypto.VirgilSigner;
+import com.virgilsecurity.crypto.VirgilStreamCipher;
+import com.virgilsecurity.crypto.VirgilStreamDataSink;
+import com.virgilsecurity.crypto.VirgilStreamDataSource;
+import com.virgilsecurity.crypto.VirgilStreamSigner;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.DecryptionException;
+import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
+import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
+import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
+import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 /**
  * The Virgil's implementation of Crypto.
@@ -132,8 +146,17 @@ public class VirgilCrypto {
      * Create new instance of {@link VirgilCrypto}.
      */
     public VirgilCrypto() {
+        this(false);
+    }
+
+    /**
+     * Create new instance of {@link VirgilCrypto}.
+     * 
+     * @param useSHA256Fingerprints
+     */
+    public VirgilCrypto(boolean useSHA256Fingerprints) {
         this.defaultKeyPairType = KeysType.Default;
-        this.useSHA256Fingerprints = false;
+        this.useSHA256Fingerprints = useSHA256Fingerprints;
     }
 
     /**
@@ -354,6 +377,57 @@ public class VirgilCrypto {
     }
 
     /**
+     * Extract public key from private key.
+     *
+     * @param keyData
+     *            the private key.
+     * @return the extracted public key.
+     */
+    public VirgilPublicKey extractPublicKey(VirgilPrivateKey keyData) {
+        return extractPublicKey(keyData, null);
+    }
+
+    /**
+     * Extract public key from private key.
+     *
+     * @param keyData
+     *            the private key.
+     * @param password
+     *            the password
+     * @return the extracted public key.
+     */
+    public VirgilPublicKey extractPublicKey(VirgilPrivateKey keyData, String password) {
+        if (keyData == null)
+            throw new NullArgumentException("keyData");
+
+        if (password != null && password.isEmpty())
+            throw new IllegalArgumentException("VirgilCrypto -> 'password' should not be empty");
+
+        byte[] publicKeyData;
+        if (password == null)
+            publicKeyData = VirgilKeyPair.extractPublicKey(keyData.getRawKey(), new byte[0]);
+        else
+            publicKeyData = VirgilKeyPair.extractPublicKey(keyData.getRawKey(), password.getBytes(UTF8_CHARSET));
+
+        byte[] receiverId = keyData.getIdentifier();
+        byte[] value = VirgilKeyPair.publicKeyToDER(publicKeyData);
+
+        return new VirgilPublicKey(receiverId, value);
+    }
+
+    /**
+     * @param data
+     * @return
+     * @throws CryptoException
+     */
+    public byte[] generateHash(byte[] data) throws CryptoException {
+        if (useSHA256Fingerprints) {
+            return generateHash(data, HashAlgorithm.SHA256);
+        }
+        return generateHash(data, HashAlgorithm.SHA512);
+    }
+
+    /**
      * Computes the hash of specified data.
      * 
      * @param data
@@ -461,6 +535,18 @@ public class VirgilCrypto {
 
     /**
      * Imports the Private key from material representation.
+     *
+     * @param keyData
+     *            Private key material representation bytes.
+     * @return Imported private key.
+     * @throws CryptoException
+     */
+    public VirgilPrivateKey importPrivateKey(byte[] keyData) throws CryptoException {
+        return importPrivateKey(keyData, null);
+    }
+
+    /**
+     * Imports the Private key from material representation.
      * 
      * @param keyData
      *            Private key material representation bytes.
@@ -494,57 +580,6 @@ public class VirgilCrypto {
     }
 
     /**
-     * Extract public key from private key.
-     *
-     * @param keyData
-     *         the private key.
-     * @param password
-     *         the password
-     * @return the extracted public key.
-     */
-    public VirgilPublicKey extractPublicKey(VirgilPrivateKey keyData, String password) {
-        if (keyData == null)
-            throw new NullArgumentException("keyData");
-
-        if (password != null && password.isEmpty())
-            throw new IllegalArgumentException("VirgilCrypto -> 'password' should not be empty");
-
-        byte[] publicKeyData;
-        if (password == null)
-            publicKeyData = VirgilKeyPair.extractPublicKey(keyData.getRawKey(), new byte[0]);
-        else
-            publicKeyData = VirgilKeyPair.extractPublicKey(keyData.getRawKey(), password.getBytes(UTF8_CHARSET));
-
-        byte[] receiverId = keyData.getIdentifier();
-        byte[] value = VirgilKeyPair.publicKeyToDER(publicKeyData);
-
-        return new VirgilPublicKey(receiverId, value);
-    }
-
-    /**
-     * Extract public key from private key.
-     *
-     * @param keyData
-     *            the private key.
-     * @return the extracted public key.
-     */
-    public VirgilPublicKey extractPublicKey(VirgilPrivateKey keyData) {
-        return extractPublicKey(keyData, null);
-    }
-
-    /**
-     * Imports the Private key from material representation.
-     *
-     * @param keyData
-     *            Private key material representation bytes.
-     * @return Imported private key.
-     * @throws CryptoException
-     */
-    public VirgilPrivateKey importPrivateKey(byte[] keyData) throws CryptoException {
-        return importPrivateKey(keyData, null);
-    }
-
-    /**
      * Imports the Public key from material representation.
      * 
      * @param keyData
@@ -564,6 +599,21 @@ public class VirgilCrypto {
         } catch (Exception e) {
             throw new CryptoException(e);
         }
+    }
+
+    /**
+     * @return the useSHA256Fingerprints
+     */
+    public boolean isUseSHA256Fingerprints() {
+        return useSHA256Fingerprints;
+    }
+
+    /**
+     * @param useSHA256Fingerprints
+     *            the useSHA256Fingerprints to set
+     */
+    public void setUseSHA256Fingerprints(boolean useSHA256Fingerprints) {
+        this.useSHA256Fingerprints = useSHA256Fingerprints;
     }
 
     /**
@@ -696,21 +746,6 @@ public class VirgilCrypto {
             // This should never happen
             throw new CryptoException(e);
         }
-    }
-
-    /**
-     * @return the useSHA256Fingerprints
-     */
-    public boolean isUseSHA256Fingerprints() {
-        return useSHA256Fingerprints;
-    }
-
-    /**
-     * @param useSHA256Fingerprints
-     *            the useSHA256Fingerprints to set
-     */
-    public void setUseSHA256Fingerprints(boolean useSHA256Fingerprints) {
-        this.useSHA256Fingerprints = useSHA256Fingerprints;
     }
 
 }

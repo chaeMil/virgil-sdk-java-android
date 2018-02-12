@@ -33,7 +33,30 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
+import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
@@ -44,8 +67,13 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.GeneratorJwtProvider;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
@@ -53,18 +81,6 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-
-import java.util.*;
-
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
-import static org.junit.Assert.*;
 
 public class CardsManagerTest extends PropertyManager {
 
@@ -415,20 +431,41 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_34() {
+    public void STC_34() throws CryptoException, VirgilServiceException {
+        ModelSigner modelSigner = new ModelSigner(this.cardCrypto);
+        AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
+        VirgilCardVerifier virgilCardVerifier = Mockito.mock(VirgilCardVerifier.class);
+        CardClient cardClient = Mockito.mock(CardClient.class);
+        SignCallback signCallback = Mockito.mock(SignCallback.class);
+        CardManager cardManager = new CardManager(this.cardCrypto, accessTokenProvider, modelSigner, cardClient,
+                virgilCardVerifier, signCallback);
+        Jwt jwt = Mockito.mock(Jwt.class);
 
+        when(jwt.stringRepresentation()).thenReturn("");
+        when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(jwt);
+
+        String cardId = "375f795bf6799b18c4836d33dce5208daf0895a3f7aacbcd0366529aed2345d4";
+        RawSignedModel cardModel = RawSignedModel.fromString(dataProvider.getString("STC-34.as_string"));
+        Tuple<RawSignedModel, Boolean> tuple = new Tuple<RawSignedModel, Boolean>(cardModel, false);
+        when(cardClient.getCard(Mockito.anyString(), Mockito.anyString())).thenReturn(tuple);
+
+        try {
+            cardManager.getCard(cardId);
+            fail("Service returned wrong card, but we didn't recognized that");
+        } catch (VirgilCardServiceException e) {
+            // It's OK if Error is thrown
+        }
     }
 
     private CardManager init_STC_35() throws CryptoException, VirgilServiceException {
         VirgilCardVerifier virgilCardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(virgilCardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
 
-        RawSignedModel modelFromString = RawSignedModel
-                .fromString(dataProvider.getTestDataAs(34, STRING));
+        RawSignedModel modelFromString = RawSignedModel.fromString(dataProvider.getTestDataAs(34, STRING));
 
         CardClient cardClientMock = Mockito.mock(CardClient.class);
         Mockito.when(cardClientMock.publishCard(Mockito.any(RawSignedModel.class), Mockito.anyString()))
-               .thenReturn(modelFromString);
+                .thenReturn(modelFromString);
 
         AccessToken jwt = Mockito.mock(AccessToken.class);
         Mockito.when(jwt.stringRepresentation()).thenReturn("");
@@ -436,17 +473,13 @@ public class CardsManagerTest extends PropertyManager {
         AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
         Mockito.when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(jwt);
 
-        return new CardManager(cardCrypto,
-                               accessTokenProvider,
-                               new ModelSigner(cardCrypto),
-                               cardClientMock, virgilCardVerifier,
-                               new CardManager.SignCallback() {
-                                   @Override
-                                   public RawSignedModel onSign(
-                                           RawSignedModel rawSignedModel) {
-                                       return rawSignedModel;
-                                   }
-                               });
+        return new CardManager(cardCrypto, accessTokenProvider, new ModelSigner(cardCrypto), cardClientMock,
+                virgilCardVerifier, new CardManager.SignCallback() {
+                    @Override
+                    public RawSignedModel onSign(RawSignedModel rawSignedModel) {
+                        return rawSignedModel;
+                    }
+                });
     }
 
     @Test
@@ -454,15 +487,15 @@ public class CardsManagerTest extends PropertyManager {
         CardManager virgilCardManager = init_STC_35();
 
         RawCardContent cardContent = new RawCardContent(Generator.identity(),
-                                                        dataProvider.getJsonByKey(34, "public_key_base64"), new Date());
+                dataProvider.getJsonByKey(34, "public_key_base64"), new Date());
         RawSignedModel rawSignedModelTwo = new RawSignedModel(
                 ConvertionUtils.base64ToBytes(cardContent.exportAsString()));
 
         ModelSigner signer = new ModelSigner(cardCrypto);
         VirgilPrivateKey privateKey = crypto
                 .importPrivateKey(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "private_key_base64")));
-        signer.selfSign(rawSignedModelTwo, privateKey, ConvertionUtils
-                                .base64ToBytes(dataProvider.getJsonByKey(34, "self_signature_snapshot_base64")));
+        signer.selfSign(rawSignedModelTwo, privateKey,
+                ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "self_signature_snapshot_base64")));
 
         expectedException.expect(VirgilCardServiceException.class);
         virgilCardManager.publishCard(rawSignedModelTwo);

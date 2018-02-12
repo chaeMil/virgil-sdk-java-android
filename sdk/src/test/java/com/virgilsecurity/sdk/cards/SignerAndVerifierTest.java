@@ -39,7 +39,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,8 +56,10 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
+import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.cards.validation.WhiteList;
@@ -73,8 +75,8 @@ import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jwt.Jwt;
-import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
@@ -550,55 +552,32 @@ public class SignerAndVerifierTest extends PropertyManager {
         assertTrue(virgilCardVerifier.verifyCard(card));
     }
 
-    private static boolean reloaded;
-
     @Test
-    public void STC_26() throws CryptoException {
-        CallbackJwtProvider accessTokenProvider = new CallbackJwtProvider();
+    public void STC_26() throws CryptoException, VirgilServiceException {
+        ModelSigner modelSigner = Mockito.mock(ModelSigner.class);
+        AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
+        CardVerifier cardVerifier = new VirgilCardVerifier(this.cardCrypto, false, false);
+        CardClient cardClient = new CardClient(getCardsServiceUrl());
+        SignCallback signCallback = Mockito.mock(SignCallback.class);
+
         String identity = Generator.identity();
-        final Jwt jwt = mocker.generateAccessToken(identity);
-        final Jwt jwtExpired = mocker.generateExpiredAccessToken(identity);
-        accessTokenProvider.setGetTokenCallback(new CallbackJwtProvider.GetTokenCallback() {
-            @Override
-            public String onGetToken() {
-                if (reloaded) {
-                    return jwt.stringRepresentation();
-                } else {
-                    reloaded = true;
-                    return jwtExpired.stringRepresentation();
-                }
-            }
-        });
-
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false);
-
-        final CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider,
-                Mockito.mock(ModelSigner.class), cardClient, virgilCardVerifier, new CardManager.SignCallback() {
-                    @Override
-                    public RawSignedModel onSign(RawSignedModel rawSignedModel) {
-                        return rawSignedModel;
-                    }
-                });
-
         RawSignedModel rawSignedModel = mocker.generateCardModel(identity);
-        Card card = null;
-        try {
-            card = cardManager.publishCard(rawSignedModel);
-        } catch (VirgilServiceException e) {
-            fail();
-        }
+        AccessToken expiredToken = mocker.generateExpiredAccessToken(identity);
+        AccessToken token = mocker.generateAccessToken(identity);
+        when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(expiredToken, token);
+        when(signCallback.onSign(Mockito.any(RawSignedModel.class))).thenReturn(rawSignedModel);
+
+        CardManager cardManager = new CardManager(this.cardCrypto, accessTokenProvider, modelSigner, cardClient,
+                cardVerifier, signCallback);
+        
+        Card card = cardManager.publishCard(rawSignedModel);
         assertNotNull(card);
 
-        try {
-            cardManager.getCard(card.getIdentifier());
-        } catch (VirgilServiceException e) {
-            fail();
-        }
+        Card loadedCard = cardManager.getCard(card.getIdentifier());
+        assertNotNull(loadedCard);
 
-        try {
-            cardManager.searchCards(card.getIdentity());
-        } catch (VirgilServiceException e) {
-            fail();
-        }
+        List<Card> foundCards = cardManager.searchCards(card.getIdentity());
+        assertNotNull(foundCards);
+        assertEquals(1, foundCards.size());
     }
 }

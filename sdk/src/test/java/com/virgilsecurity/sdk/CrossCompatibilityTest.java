@@ -42,6 +42,7 @@ import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
@@ -58,7 +59,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -149,7 +149,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     }
 
     @Test
-    public void STC_2_string() throws IOException {
+    public void STC_2_string() {
         String importedFromString = dataProvider.getTestDataAs(2, STRING);
         RawSignedModel cardModel = RawSignedModel.fromJson(ConvertionUtils.base64ToString(importedFromString));
         RawCardContent cardContent = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()));
@@ -190,7 +190,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     }
 
     @Test
-    public void STC_3_json() throws IOException, CryptoException {
+    public void STC_3_json() throws CryptoException, VirgilCardVerificationException {
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
@@ -222,7 +222,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     }
 
     @Test
-    public void STC_3_string() throws CryptoException {
+    public void STC_3_string() throws CryptoException, VirgilCardVerificationException {
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
@@ -254,7 +254,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     // TODO: 1/30/18 test Card.parse
 
     @Test
-    public void STC_4_json() throws CryptoException {
+    public void STC_4_json() throws CryptoException, VirgilCardVerificationException {
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
@@ -312,7 +312,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     }
 
     @Test
-    public void STC_4_string() throws CryptoException {
+    public void STC_4_string() throws CryptoException, VirgilCardVerificationException {
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
         Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);

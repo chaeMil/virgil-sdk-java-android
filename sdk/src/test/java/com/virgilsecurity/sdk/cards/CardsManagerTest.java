@@ -37,6 +37,7 @@ import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
@@ -46,23 +47,31 @@ import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.GeneratorJwtProvider;
+import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Tuple;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
 import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
 import static org.junit.Assert.*;
 
 public class CardsManagerTest extends PropertyManager {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private static final String SIGNER_TYPE_EXTRA = "bestsignerever";
 
@@ -101,20 +110,26 @@ public class CardsManagerTest extends PropertyManager {
         Mockito.when(virgilCardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(false);
 
         RawSignedModel modelFromString = RawSignedModel
-                .fromString(dataProvider.getTestDataAs(3, CompatibilityDataProvider.STRING));
+                .fromString(dataProvider.getTestDataAs(3, STRING));
 
         CardClient cardClientMock = Mockito.mock(CardClient.class);
-        Mockito.when(cardClientMock.publishCard(Mockito.mock(RawSignedModel.class), Mockito.mock(String.class)))
+        Mockito.when(cardClientMock.publishCard(Mockito.any(RawSignedModel.class), Mockito.anyString()))
                .thenReturn(modelFromString);
-        Mockito.when(cardClientMock.getCard(Mockito.mock(String.class), Mockito.mock(String.class)))
+        Mockito.when(cardClientMock.getCard(Mockito.anyString(), Mockito.anyString()))
                .thenReturn(new Tuple<>(modelFromString, false));
-        Mockito.when(cardClientMock.searchCards(Mockito.mock(String.class), Mockito.mock(String.class)))
+        Mockito.when(cardClientMock.searchCards(Mockito.anyString(), Mockito.anyString()))
                .thenReturn(Collections.singletonList(modelFromString));
 
+        AccessToken jwt = Mockito.mock(AccessToken.class);
+        Mockito.when(jwt.stringRepresentation()).thenReturn("");
+
+        AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
+        Mockito.when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(jwt);
+
         return new CardManager(cardCrypto,
-                               Mockito.mock(AccessTokenProvider.class),
+                               accessTokenProvider,
                                new ModelSigner(cardCrypto),
-                               cardClient, cardVerifier, new CardManager.SignCallback() {
+                               cardClientMock, virgilCardVerifier, new CardManager.SignCallback() {
             @Override
             public RawSignedModel onSign(RawSignedModel rawSignedModel) {
                 return rawSignedModel;
@@ -123,31 +138,32 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_13_2() throws CryptoException, VirgilServiceException {
+    public void STC_13_2() throws CryptoException, VirgilServiceException, VirgilCardVerificationException {
         CardManager virgilCardManager = init_STC_13();
-
-
+        expectedException.expect(VirgilCardVerificationException.class);
+        virgilCardManager.importCardAsString(dataProvider.getTestDataAs(3, STRING));
     }
 
     @Test
-    public void STC_13_3() throws CryptoException, VirgilServiceException {
+    public void STC_13_3() throws CryptoException, VirgilServiceException, VirgilCardVerificationException {
         CardManager virgilCardManager = init_STC_13();
-
-
+        expectedException.expect(VirgilCardVerificationException.class);
+        virgilCardManager.importCardAsJson(dataProvider.getTestDataAs(3, JSON));
     }
 
     @Test
     public void STC_13_4() throws CryptoException, VirgilServiceException {
         CardManager virgilCardManager = init_STC_13();
-
-
+        expectedException.expect(VirgilCardVerificationException.class);
+        virgilCardManager.publishCard(RawSignedModel.fromString(dataProvider.getTestDataAs(3, STRING)));
     }
 
     @Test
     public void STC_13_5() throws CryptoException, VirgilServiceException {
         CardManager virgilCardManager = init_STC_13();
-
-
+        expectedException.expect(VirgilCardVerificationException.class);
+        Card card = Card.parse(cardCrypto, RawSignedModel.fromString(dataProvider.getTestDataAs(3, STRING)));
+        virgilCardManager.getCard(card.getIdentifier());
     }
 
     @Test
@@ -160,12 +176,13 @@ public class CardsManagerTest extends PropertyManager {
     @Test
     public void STC_13_7() throws CryptoException, VirgilServiceException {
         CardManager virgilCardManager = init_STC_13();
-
-
+        expectedException.expect(VirgilCardVerificationException.class);
+        Card card = Card.parse(cardCrypto, RawSignedModel.fromString(dataProvider.getTestDataAs(3, STRING)));
+        virgilCardManager.searchCards(card.getIdentity());
     }
 
     @Test
-    public void STC_17() throws IOException, CryptoException {
+    public void STC_17() throws CryptoException {
         String identity = Generator.identity();
         initCardManager(identity);
 
@@ -196,7 +213,7 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_18() throws IOException, CryptoException {
+    public void STC_18() throws CryptoException {
         String identity = Generator.identity();
         initCardManager(identity);
 
@@ -232,7 +249,7 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_19() throws IOException, CryptoException {
+    public void STC_19() throws CryptoException {
         String identity = Generator.identity();
         initCardManager(identity);
 
@@ -299,7 +316,7 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_20() throws CryptoException, IOException {
+    public void STC_20() throws CryptoException {
         String identity = Generator.identity();
         initCardManager(identity);
 
@@ -361,7 +378,7 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_21() throws CryptoException, IOException {
+    public void STC_21() throws CryptoException {
         String identity = Generator.identity();
 
         CardManager cardManagerExtraSign = new CardManager(cardCrypto,

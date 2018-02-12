@@ -38,12 +38,12 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
@@ -51,7 +51,6 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
 
-import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.*;
 
@@ -108,11 +107,10 @@ public class CardManager {
      *         to verify
      * @throws CryptoException
      *         if verification of card issue occurred
-     * @throws IOException
      */
-    private void verifyCard(Card card) throws CryptoException, IOException {
+    private void verifyCard(Card card) throws CryptoException {
         if (!cardVerifier.verifyCard(card))
-            throw new VerificationException();
+            throw new VirgilCardVerificationException();
     }
 
     /**
@@ -252,11 +250,9 @@ public class CardManager {
      * @throws CryptoException
      *         if issue occurred during get generating token or verifying card that was received from the Virgil
      *         Cards service
-     * @throws IOException
-     *         if issue occurred verifying card that was received from the Virgil Cards service
      * @see #generateRawCard(PrivateKey, PublicKey, String)
      */
-    public Card publishCard(RawSignedModel cardModel) throws CryptoException, IOException, VirgilServiceException {
+    public Card publishCard(RawSignedModel cardModel) throws CryptoException, VirgilServiceException {
         Validator.checkNullAgrument(cardModel, "CardManager -> 'cardModel' should not be null");
 
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
@@ -313,11 +309,9 @@ public class CardManager {
      * @throws CryptoException
      *         if issue occurred during get generating token or verifying card that was received from the Virgil
      *         Cards service
-     * @throws IOException
-     *         if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity, String previousCardId,
-                            Map<String, String> additionalData) throws CryptoException, IOException, VirgilServiceException {
+                            Map<String, String> additionalData) throws CryptoException, VirgilServiceException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId, additionalData);
 
@@ -344,11 +338,9 @@ public class CardManager {
      * @throws CryptoException
      *         if issue occurred during get generating token or verifying card that was received from the Virgil
      *         Cards service
-     * @throws IOException
-     *         if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-                            Map<String, String> additionalData) throws CryptoException, IOException, VirgilServiceException {
+                            Map<String, String> additionalData) throws CryptoException, VirgilServiceException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, additionalData);
 
@@ -375,11 +367,9 @@ public class CardManager {
      * @throws CryptoException
      *         if issue occurred during get generating token or verifying card that was received from the Virgil
      *         Cards service
-     * @throws IOException
-     *         if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity, String previousCardId)
-            throws CryptoException, IOException, VirgilServiceException {
+            throws CryptoException, VirgilServiceException {
 
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId);
 
@@ -404,11 +394,9 @@ public class CardManager {
      * @throws CryptoException
      *         if issue occurred during get generating token or verifying card that was received from the Virgil
      *         Cards service
-     * @throws IOException
-     *         if issue occurred verifying card that was received from the Virgil Cards service
      */
     public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity)
-            throws CryptoException, IOException, VirgilServiceException {
+            throws CryptoException, VirgilServiceException {
         RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity);
 
         return publishCard(cardModel);
@@ -422,10 +410,8 @@ public class CardManager {
      * @return card from the Virgil Cards service
      * @throws CryptoException
      *         the crypto exception
-     * @throws IOException
-     *         the io exception
      */
-    public Card getCard(String cardId) throws CryptoException, IOException, VirgilServiceException {
+    public Card getCard(String cardId) throws CryptoException, VirgilServiceException {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
         Tuple<RawSignedModel, Boolean> response;
 
@@ -509,34 +495,47 @@ public class CardManager {
                 result.add(card);
         }
 
+        for (Card card : result) {
+            if (!Objects.equals(identity, card.getIdentity()))
+                throw new VirgilCardServiceException();
+
+            verifyCard(card);
+        }
+
         return result;
     }
 
     /**
      * Import card from base64 string .
      *
-     * @param card
+     * @param cardAsString
      *         the card
      * @return imported card from Base64 String
      * @throws CryptoException
      */
-    public Card importCardAsString(String card) throws CryptoException {
-        String json = ConvertionUtils.base64ToString(card);
-        RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(json, RawSignedModel.class);
+    public Card importCardAsString(String cardAsString) throws CryptoException {
+        RawSignedModel cardModel = RawSignedModel.fromString(cardAsString);
+        Card card = Card.parse(crypto, cardModel);
 
-        return importCardAsRawModel(cardModel);
+        verifyCard(card);
+
+        return card;
     }
 
     /**
      * Import card from json in string format.
      *
-     * @param card
+     * @param cardAsJson
      *         the card
      * @return the card
      */
-    public Card importCardAsJson(String card) throws CryptoException {
-        RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(card, RawSignedModel.class);
-        return importCardAsRawModel(cardModel);
+    public Card importCardAsJson(String cardAsJson) throws CryptoException {
+        RawSignedModel cardModel = RawSignedModel.fromJson(cardAsJson);
+        Card card = Card.parse(crypto, cardModel);
+
+        verifyCard(card);
+
+        return card;
     }
 
     /**
@@ -548,6 +547,10 @@ public class CardManager {
      * @throws CryptoException
      */
     public Card importCardAsRawModel(RawSignedModel cardModel) throws CryptoException {
+        Card card = Card.parse(crypto, cardModel);
+
+        verifyCard(card);
+
         return Card.parse(crypto, cardModel);
     }
 

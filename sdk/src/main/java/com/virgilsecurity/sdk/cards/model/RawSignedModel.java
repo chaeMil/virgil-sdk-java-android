@@ -38,7 +38,6 @@ import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -173,10 +172,8 @@ public class RawSignedModel {
      * Export as base64 string.
      *
      * @return the string
-     * @throws IOException
-     *         the io exception
      */
-    public String exportAsString() throws IOException {
+    public String exportAsString() {
         return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
     }
 
@@ -184,10 +181,8 @@ public class RawSignedModel {
      * Export as json in string format.
      *
      * @return the string
-     * @throws IOException
-     *         the io exception
      */
-    public String exportAsJson() throws IOException {
+    public String exportAsJson() {
         return ConvertionUtils.serializeToJson(this);
     }
 

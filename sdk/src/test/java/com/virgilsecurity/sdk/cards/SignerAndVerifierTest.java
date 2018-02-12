@@ -57,7 +57,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
@@ -401,7 +400,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     private static boolean reloaded;
 
     @Test
-    public void STC_26() throws CryptoException, IOException {
+    public void STC_26() throws CryptoException {
         CallbackJwtProvider accessTokenProvider = new CallbackJwtProvider();
         String identity = Generator.identity();
         final Jwt jwt = mocker.generateAccessToken(identity);

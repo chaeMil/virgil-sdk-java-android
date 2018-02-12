@@ -31,22 +31,41 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.cards.validation;
+package com.virgilsecurity.sdk.client.exceptions;
 
-import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 /**
- * The interface Card verifier provides verify methods.
+ * The Virgil card verification exception represents
+ * case when Card verification was failed.
  */
-public interface CardVerifier {
+public class VirgilCardVerificationException extends CryptoException {
+
+    private static final long serialVersionUID = 326772901510143833L;
 
     /**
-     * Verify card method that checks whether the provided Card is valid.
-     *
-     * @param card the Card to verify
-     * @return {@code true} if valid, otherwise {@code false}
-     * @throws CryptoException if issue occurred during Card verification
+     * Instantiates a new Virgil card verification exception.
      */
-    boolean verifyCard(Card card) throws CryptoException;
+    public VirgilCardVerificationException() {
+    }
+
+    /**
+     * Instantiates a new Virgil card verification exception.
+     *
+     * @param message
+     *         the message
+     */
+    public VirgilCardVerificationException(String message) {
+        super(message);
+    }
+
+    /**
+     * Instantiates a new Virgil card verification exception.
+     *
+     * @param cause
+     *         the cause
+     */
+    public VirgilCardVerificationException(Throwable cause) {
+        super(cause);
+    }
 }

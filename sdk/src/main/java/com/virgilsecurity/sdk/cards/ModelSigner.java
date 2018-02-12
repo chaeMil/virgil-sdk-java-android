@@ -107,8 +107,7 @@ public class ModelSigner {
         byte[] fingerprint = crypto.generateSHA512(combinedSnapshot);
         byte[] signature = crypto.generateSignature(fingerprint, privateKey);
 
-        // FIXME
-        RawSignature rawSignature = new RawSignature(// id,
+        RawSignature rawSignature = new RawSignature(
                 ConvertionUtils.toBase64String(additionalData), signer, ConvertionUtils.toBase64String(signature));
 
         cardModel.addSignature(rawSignature);

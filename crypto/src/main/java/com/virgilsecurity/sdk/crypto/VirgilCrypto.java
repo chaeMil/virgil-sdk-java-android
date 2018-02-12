@@ -425,8 +425,7 @@ public class VirgilCrypto {
         }
 
         try (VirgilSigner signer = new VirgilSigner(VirgilHash.Algorithm.SHA512)) {
-            byte[] signature = signer.sign(data, privateKey.getRawKey());
-            return signature;
+            return signer.sign(data, privateKey.getRawKey());
         } catch (Exception e) {
             throw new SigningException(e.getMessage());
         }

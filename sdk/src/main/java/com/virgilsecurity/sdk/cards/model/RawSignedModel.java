@@ -139,7 +139,7 @@ public class RawSignedModel {
      * @param rawSignature
      *         the raw signature
      */
-    public void addSignature(RawSignature rawSignature) {// TODO: 2/7/18 should user have possibility of removing signatures?
+    public void addSignature(RawSignature rawSignature) {
         if (signatures.size() > 7)
             throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
 

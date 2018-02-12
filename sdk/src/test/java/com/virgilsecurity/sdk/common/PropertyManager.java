@@ -33,15 +33,14 @@
 
 package com.virgilsecurity.sdk.common;
 
-import static org.junit.Assert.fail;
-
-import org.apache.commons.lang.StringUtils;
-
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.apache.commons.lang.StringUtils;
+
+import static org.junit.Assert.fail;
 
 public class PropertyManager {
 
@@ -129,9 +128,9 @@ public class PropertyManager {
 
     public String getApiPublicKeyId() {
         if (this.apiPublicKeyId == null) {
-            this.apiPublicKeyId = getPropertyByName("API_PUBLIC_KEY");
+            this.apiPublicKeyId = getPropertyByName("API_PUBLIC_KEY_ID");
             if (this.apiPublicKeyId == null) {
-                fail("API Publick Key ID is not defined");
+                fail("API Public Key ID is not defined");
             }
         }
         return this.apiPublicKeyId;

@@ -39,10 +39,13 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
+import java.util.logging.Logger;
+
 /**
  * The {@link JwtVerifier} class is implemented for verification of {@link Jwt}.
  */
 public class JwtVerifier {
+    private static final Logger LOGGER = Logger.getLogger(JwtVerifier.class.getName());
 
     private PublicKey apiPublicKey;
     private String apiPublicKeyIdentifier;
@@ -83,6 +86,8 @@ public class JwtVerifier {
                 || !this.accessTokenSigner.getAlgorithm().equals(header.getAlgorithm())
                 || !JwtHeaderContent.VIRGIL_CONTENT_TYPE.equals(header.getContentType())
                 || !JwtHeaderContent.JWT_TYPE.equals(header.getType())) {
+            LOGGER.info("Some of next args mismatches in Jwt header and provided data while instantiating JwtVerifier:\n" +
+                                "api public key identifier, algorithm, content type, jwt type");
             return false;
         }
 

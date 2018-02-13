@@ -36,6 +36,7 @@ package com.virgilsecurity.sdk.cards;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -45,12 +46,14 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * The {@link Card} class is the main entity of Virgil Services. Every user/device is represented with a Virgil Card
  * which contains a public key and information about identity.
  */
 public class Card {
+    private static final Logger LOGGER = Logger.getLogger(Card.class.getName());
 
     private String identifier;
     private String identity;
@@ -59,7 +62,7 @@ public class Card {
     private Date createdAt;
     private String previousCardId;
     private Card previousCard;
-    private List<CardSignature> signatures; // TODO: 1/22/18 add signatures limit up to 8
+    private List<CardSignature> signatures;
     private boolean isOutdated;
     private byte[] contentSnapshot;
 
@@ -329,6 +332,7 @@ public class Card {
         String cardId = CardUtils.generateCardId(crypto, cardModel.getContentSnapshot());
         PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 
+        // Converting RawSignatures to CardSignatures
         List<CardSignature> cardSignatures = new ArrayList<>();
         if (cardModel.getSignatures() != null) {
             for (RawSignature rawSignature : cardModel.getSignatures()) {
@@ -341,10 +345,14 @@ public class Card {
 
                     cardSignature.snapshot(ConvertionUtils.base64ToBytes(snapshot));
                     cardSignature.extraFields(additionalDataSignature);
+                } else {
+                    LOGGER.info(String.format("Signature '%s' has no additional data", rawSignature.getSigner()));
                 }
 
                 cardSignatures.add(cardSignature.build());
             }
+        } else {
+            throw new VirgilCardVerificationException("Card should have at least self signature");
         }
 
         return new Card(cardId, rawCardContent.getIdentity(), publicKey, rawCardContent.getVersion(),
@@ -377,13 +385,14 @@ public class Card {
         return cardModel;
     }
 
-    public CardSignature getSelfSignature() {
+    public CardSignature getSelfSignature() throws VirgilCardVerificationException {
         for (CardSignature cardSignature : signatures) {
             if (cardSignature.getSigner().equals(SignerType.SELF.getRawValue()))
                 return cardSignature;
         }
 
-        throw new NullPointerException("Card -> card must have 'self' signature");
+        LOGGER.warning("Card must have self signature");
+        throw new VirgilCardVerificationException("Card -> card must have 'self' signature");
     }
 
     @Override

@@ -32,12 +32,6 @@
  */
 package com.virgilsecurity.sdk.client;
 
-import java.io.ByteArrayInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -47,12 +41,21 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.io.ByteArrayInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 
 /**
  * The {@link CardClient} class represents a Virgil Security service
  * client and contains all methods for interaction with server.
  */
 public class CardClient {
+    private static final Logger LOGGER = Logger.getLogger(CardClient.class.getName());
 
     private URL serviceUrl;
     private HttpClient httpClient;
@@ -111,11 +114,14 @@ public class CardClient {
                                                   null,
                                                   RawSignedModel.class), false);
         } catch (VirgilCardIsOutdatedException e) {
+            LOGGER.fine("Outdated Card is received");
             return new Tuple<>(e.getCardModel(),
-                               true); // FIXME: 1/30/18 temporary workaround with 403 for outdated card
+                               true);
         } catch (VirgilServiceException e) {
+            LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
             throw e;
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Some issue occurred during request executing", e);
             throw new VirgilCardServiceException(e);
         }
     }
@@ -142,8 +148,10 @@ public class CardClient {
                                       new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
                                       RawSignedModel.class);
         } catch (VirgilServiceException e) {
+            LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
             throw e;
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Some issue occurred during request executing", e);
             throw new VirgilCardServiceException(e);
         }
     }
@@ -177,8 +185,10 @@ public class CardClient {
 
             return Arrays.asList(cardModels);
         } catch (VirgilServiceException e) {
+            LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
             throw e;
         } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Some issue occurred during request executing", e);
             throw new VirgilCardServiceException(e);
         }
     }

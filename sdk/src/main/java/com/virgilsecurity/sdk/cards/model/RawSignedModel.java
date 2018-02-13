@@ -40,11 +40,13 @@ import com.virgilsecurity.sdk.utils.Validator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * The Raw signed model.
  */
 public class RawSignedModel {
+    private static final Logger LOGGER = Logger.getLogger(RawSignedModel.class.getName());
 
     @SerializedName("content_snapshot")
     private byte[] contentSnapshot;
@@ -122,8 +124,12 @@ public class RawSignedModel {
      *         the list of signatures
      */
     public void setSignatures(List<RawSignature> signatures) {
-        if (signatures.size() > 8)
-            throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
+        if (signatures.size() > 8) {
+            LOGGER.warning(
+                    "RawSignedModel can hold up to 8 signatures only. While 'signatures' size is " + signatures.size());
+            throw new IllegalArgumentException(
+                    "RawSignedModel -> 'signatures' can hold up to 8 signatures only"); // TODO: 2/13/18 add size test
+        }
 
         if (!isAllSignaturesUnique(signatures))
             throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
@@ -139,8 +145,11 @@ public class RawSignedModel {
      *         the raw signature
      */
     public void addSignature(RawSignature rawSignature) {
-        if (signatures.size() > 7)
+        if (signatures.size() > 7) {
+            LOGGER.warning(
+                    "RawSignedModel can hold up to 8 signatures only and is full already");
             throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
+        }
 
         if (!isSignaturesUnique(rawSignature))
             throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
@@ -151,8 +160,13 @@ public class RawSignedModel {
     private boolean isAllSignaturesUnique(List<RawSignature> signatures) {
         for (RawSignature rawSignatureOuter : signatures) {
             for (RawSignature rawSignatureInner : signatures) {
-                if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner()))
+                if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner())) {
+                    LOGGER.warning(
+                            String.format(
+                                    "RawSignedModel should have unique signatures only. The '%s' signature is already present",
+                                    rawSignatureOuter.getSigner()));
                     return false;
+                }
             }
         }
 
@@ -161,8 +175,13 @@ public class RawSignedModel {
 
     private boolean isSignaturesUnique(RawSignature signature) {
         for (RawSignature rawSignatureOuter : signatures) {
-            if (rawSignatureOuter.getSigner().equals(signature.getSigner()))
+            if (rawSignatureOuter.getSigner().equals(signature.getSigner())) {
+                LOGGER.warning(
+                        String.format(
+                                "RawSignedModel should have unique signatures only. The '%s' signature is already present",
+                                signature.getSigner()));
                 return false;
+            }
         }
 
         return true;

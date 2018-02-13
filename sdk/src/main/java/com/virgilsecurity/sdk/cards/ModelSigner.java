@@ -33,14 +33,14 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import java.util.Map;
-
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.util.Map;
 
 /**
  * The {@link ModelSigner} provides cryptographic operation as signing.
@@ -144,7 +144,7 @@ public class ModelSigner {
      *            the additional data to be stored in the signature
      * @throws CryptoException
      *             if signing issue occurred
-     * @see #sign(RawSignedModel, String, byte[], PrivateKey)
+     * @see #sign(RawSignedModel, String, PrivateKey, byte[])
      */
     public void selfSign(RawSignedModel cardModel, PrivateKey privateKey, byte[] additionalData)
             throws CryptoException {
@@ -163,7 +163,7 @@ public class ModelSigner {
      * 
      * @throws CryptoException
      *             if signing issue occurred
-     * @see #sign(RawSignedModel, String, byte[], PrivateKey)
+     * @see #sign(RawSignedModel, String, PrivateKey, byte[])
      */
     public void selfSign(RawSignedModel cardModel, PrivateKey privateKey, Map<String, String> extraFields)
             throws CryptoException {

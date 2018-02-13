@@ -33,17 +33,19 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import java.util.Arrays;
-
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.utils.Base64Url;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
+import java.util.Arrays;
+import java.util.logging.Logger;
+
 /**
  * The {@link Jwt} class implements {@link AccessToken} interface and is used to get access for network requests.
  */
 public class Jwt implements AccessToken {
+    private static final Logger LOGGER = Logger.getLogger(Jwt.class.getName());
 
     private JwtHeaderContent headerContent;
     private JwtBodyContent bodyContent;
@@ -55,9 +57,9 @@ public class Jwt implements AccessToken {
      * Instantiates a new Jwt.
      *
      * @param headerContent
-     *            the header content
+     *         the header content
      * @param bodyContent
-     *            the body content
+     *         the body content
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
         this(headerContent, bodyContent, null);
@@ -67,11 +69,11 @@ public class Jwt implements AccessToken {
      * Instantiates a new Jwt.
      *
      * @param headerContent
-     *            the header content
+     *         the header content
      * @param bodyContent
-     *            the body content
+     *         the body content
      * @param signatureData
-     *            the signature data
+     *         the signature data
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
@@ -87,6 +89,8 @@ public class Jwt implements AccessToken {
 
         if (signatureData != null) {
             sb.append(".").append(signatureBase64());
+        } else {
+            LOGGER.info("Instantiated Jwt has not signature data");
         }
 
         this.stringRepresentation = sb.toString();
@@ -96,13 +100,15 @@ public class Jwt implements AccessToken {
      * Instantiates a new Jwt.
      *
      * @param jwtToken
-     *            the jwt token in string representation. Should have at least two parts - header and body. (ex.
-     *            "***.***", where "***" is base64 encoded string)
+     *         the jwt token in string representation. Should have at least two parts - header and body. (ex.
+     *         "***.***", where "***" is base64 encoded string)
      */
     public Jwt(String jwtToken) {
         String[] jwtParts = jwtToken.split("[.]");
 
-        if (jwtParts.length < 2) {
+        if (jwtParts.length < 2 || jwtParts.length > 3) {
+            LOGGER.warning(String.format("Jwt has wrong format. It has '%s' parts, while min is 2, max is 3",
+                                         jwtParts.length));
             throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
         }
 
@@ -114,6 +120,8 @@ public class Jwt implements AccessToken {
 
         if (jwtParts.length == 3) {
             signatureData = Base64Url.decodeToBytes(jwtParts[2]);
+        } else {
+            LOGGER.info("Instantiated Jwt has not signature data");
         }
 
         this.unsignedStringRepresentation = jwtParts[0] + "." + jwtParts[1];
@@ -179,7 +187,7 @@ public class Jwt implements AccessToken {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override
@@ -189,7 +197,7 @@ public class Jwt implements AccessToken {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -204,7 +212,7 @@ public class Jwt implements AccessToken {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -226,8 +234,6 @@ public class Jwt implements AccessToken {
                 return false;
         } else if (!headerContent.equals(other.headerContent))
             return false;
-        if (!Arrays.equals(signatureData, other.signatureData))
-            return false;
-        return true;
+        return Arrays.equals(signatureData, other.signatureData);
     }
 }

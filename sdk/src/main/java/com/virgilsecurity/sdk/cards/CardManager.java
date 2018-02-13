@@ -53,11 +53,15 @@ import com.virgilsecurity.sdk.utils.Validator;
 
 import java.net.HttpURLConnection;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The {@link CardManager} class provides list of methods to work with {@link Card}.
  */
 public class CardManager {
+    private static final Logger LOGGER = Logger.getLogger(CardManager.class.getName());
+
     private static final String CURRENT_CARD_VERSION = "5.0";
     private static final String TOKEN_CONTEXT_OPERATION = "SomeOperation";
 
@@ -88,9 +92,7 @@ public class CardManager {
                        CardClient cardClient, CardVerifier cardVerifier, SignCallback signCallback) {
         Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
         Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
-        // Validator.checkNullAgrument(modelSigner, "CardManager -> 'modelSigner' should not be null");
-        // Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
-        // Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
 
         this.modelSigner = modelSigner;
         this.crypto = crypto;
@@ -98,6 +100,32 @@ public class CardManager {
         this.cardVerifier = cardVerifier;
         this.cardClient = cardClient;
         this.signCallback = signCallback;
+    }
+
+    /**
+     * Instantiates a new Card manager.
+     *
+     * @param crypto
+     *         the crypto
+     * @param accessTokenProvider
+     *         the access token provider
+     * @param modelSigner
+     *         the model signer
+     * @param cardClient
+     *         the card client
+     * @param cardVerifier
+     *         the card verifier
+     */
+    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider, ModelSigner modelSigner,
+                       CardClient cardClient, CardVerifier cardVerifier) {
+        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
+
+        this.modelSigner = modelSigner;
+        this.crypto = crypto;
+        this.accessTokenProvider = accessTokenProvider;
+        this.cardVerifier = cardVerifier;
+        this.cardClient = cardClient;
     }
 
     /**
@@ -109,8 +137,10 @@ public class CardManager {
      *         if verification of card issue occurred
      */
     private void verifyCard(Card card) throws CryptoException {
-        if (!cardVerifier.verifyCard(card))
+        if (!cardVerifier.verifyCard(card)) {
+            LOGGER.warning(String.format("Card '%s' verification was failed", card.getIdentifier()));
             throw new VirgilCardVerificationException();
+        }
     }
 
     /**
@@ -258,13 +288,18 @@ public class CardManager {
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
         RawSignedModel cardModelPublished;
 
-        if (signCallback != null)
+        if (signCallback != null) {
             cardModel = signCallback.onSign(cardModel);
+            LOGGER.fine("Card model was signed with signCallback");
+        } else {
+            LOGGER.fine("Card model was NOT signed with signCallback");
+        }
 
         try {
             cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
             if (exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                LOGGER.fine("Token is expired, trying to reload...");
                 token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
                 try {
                     cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
@@ -273,14 +308,18 @@ public class CardManager {
                     throw exceptionInner;
                 }
             } else {
+                LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(), exceptionOuter);
                 throw exceptionOuter;
             }
         }
 
         Card card = Card.parse(crypto, cardModelPublished);
 
-        if (!Arrays.equals(cardModel.getContentSnapshot(), cardModelPublished.getContentSnapshot()))
+        if (!Arrays.equals(cardModel.getContentSnapshot(), cardModelPublished.getContentSnapshot())) {
+            LOGGER.warning(
+                    "Card that is received from the Cards Service (during publishing) is not equal to the published one");
             throw new VirgilCardServiceException();
+        }
 
         verifyCard(card);
 
@@ -419,6 +458,7 @@ public class CardManager {
             response = cardClient.getCard(cardId, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
             if (exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                LOGGER.fine("Token is expired, trying to reload...");
                 token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
                 try {
                     response = cardClient.getCard(cardId, token.stringRepresentation());
@@ -427,15 +467,21 @@ public class CardManager {
                     throw exceptionInner;
                 }
             } else {
+                LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(), exceptionOuter);
                 throw exceptionOuter;
             }
         }
 
         Card card = Card.parse(crypto, response.getLeft());
-        if (!Objects.equals(cardId, card.getIdentifier()))
+        if (!Objects.equals(cardId, card.getIdentifier())) {
+            LOGGER.warning(String.format(
+                    "Card\'s id ('%s') that received from the Cards Service is not equal to the requested one ('%s')",
+                    card.getIdentifier(), cardId));
             throw new VirgilCardServiceException();
+        }
 
         if (response.getRight()) {
+            LOGGER.fine("Card is marked as outdated");
             card.setOutdated(true);
         }
 
@@ -461,6 +507,7 @@ public class CardManager {
             cardModels = cardClient.searchCards(identity, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
             if (exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                LOGGER.fine("Token is expired, trying to reload...");
                 token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
                 try {
                     cardModels = cardClient.searchCards(identity, token.stringRepresentation());
@@ -469,14 +516,18 @@ public class CardManager {
                     throw exceptionInner;
                 }
             } else {
+                LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(), exceptionOuter);
                 throw exceptionOuter;
             }
         }
 
+        // Parsing Card models into Cards
         List<Card> cards = new ArrayList<>();
         for (RawSignedModel cardModel : cardModels)
             cards.add(Card.parse(crypto, cardModel));
 
+        // Finding Cards that are outdated (if Card with equal previousCardId is found)
+        // and setting them as previousCard for the newer one and marking them as outdated
         for (Card cardOuter : cards) {
             for (Card cardInner : cards) {
                 if (cardOuter.getPreviousCardId() != null
@@ -489,15 +540,21 @@ public class CardManager {
             }
         }
 
+        // Creating Card-chains - it's List of the newest Cards
+        // which could have previousCard and is NOT outdated
         List<Card> result = new ArrayList<>();
         for (Card card : cards) {
             if (!card.isOutdated())
                 result.add(card);
         }
 
+        // Check if provided for search identity is equal to Cards identities that was found
+        // as well as verifying Cards
         for (Card card : result) {
-            if (!Objects.equals(identity, card.getIdentity()))
+            if (!Objects.equals(identity, card.getIdentity())) {
+                LOGGER.warning(String.format("Card '%s' verification was failed", card.getIdentifier()));
                 throw new VirgilCardServiceException();
+            }
 
             verifyCard(card);
         }

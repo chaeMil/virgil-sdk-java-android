@@ -39,12 +39,15 @@ import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
+import java.util.logging.Logger;
+
 /**
  * The {@link CallbackJwtProvider} class is implemented for usage
- * of get token callback mechanism which should predefine implementation of generating/receiving
+ * of get token callback mechanism which should predefine implementation of generating/receiving/caching
  * of token.
  */
 public class CallbackJwtProvider implements AccessTokenProvider {
+    private static final Logger LOGGER = Logger.getLogger(CallbackJwtProvider.class.getName());
 
     private Jwt jwtToken;
     private GetTokenCallback getTokenCallback;
@@ -69,10 +72,12 @@ public class CallbackJwtProvider implements AccessTokenProvider {
         Validator.checkNullAgrument(getTokenCallback,
                                     "CallbackJwtProvider -> set getTokenCallback first");
 
-        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired())
+        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired()) {
+            LOGGER.info("Token is force reloaded");
             return jwtToken = new Jwt(getTokenCallback.onGetToken());
-        else
+        } else {
             return jwtToken;
+        }
     }
 
     /**

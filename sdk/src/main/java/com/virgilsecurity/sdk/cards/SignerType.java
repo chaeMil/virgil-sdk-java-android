@@ -34,7 +34,8 @@
 package com.virgilsecurity.sdk.cards;
 
 /**
- * The {@link SignerType} enum defines supported signer types by Virgil Cards service.
+ * The {@link SignerType} enum defines technical signer types for Virgil Cards service.
+ * Not suitable for use.
  */
 public enum SignerType {
     /**

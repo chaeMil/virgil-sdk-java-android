@@ -32,12 +32,6 @@
  */
 package com.virgilsecurity.sdk.client;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -48,10 +42,19 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StreamUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * @author Andrii Iakovenko
  */
 public class HttpClient {
+    private static final Logger LOGGER = Logger.getLogger(HttpClient.class.getName());
 
     /**
      * Create new instance of {@link HttpClient}.
@@ -85,6 +88,8 @@ public class HttpClient {
 
         if (!StringUtils.isBlank(token)) {
             urlConnection.setRequestProperty("Authorization", "Virgil " + token);
+        } else {
+            LOGGER.warning("Provided token is blank");
         }
         urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
 
@@ -100,21 +105,28 @@ public class HttpClient {
             }
             try {
                 if (urlConnection.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
+                    LOGGER.warning("Http error occurred...");
                     // Get error code from request
                     try (InputStream in = new BufferedInputStream(urlConnection.getErrorStream())) {
+                        LOGGER.info("Trying to get error info...");
                         String body = ConvertionUtils.toString(in);
                         if (!StringUtils.isBlank(body)) {
                             ErrorResponse error = ConvertionUtils.getGson().fromJson(body, ErrorResponse.class);
                             HttpError httpError = new HttpError(urlConnection.getResponseCode(),
                                                                 urlConnection.getResponseMessage());
                             throw new VirgilCardServiceException(error.getCode(), error.getMessage(), httpError);
+                        } else {
+                            LOGGER.warning("Response error body is empty. Nothing to show");
                         }
                     }
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+                        LOGGER.warning("Http error code: " + HttpURLConnection.HTTP_NOT_FOUND);
                         return null;
                     }
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN
                             && clazz.isAssignableFrom(RawSignedModel.class)) {
+                        LOGGER.info("Http error code: " + HttpURLConnection.HTTP_FORBIDDEN + "\n" + "This code is " +
+                                            "returned if Card is outdated. Trying to extract Card...");
                         try (InputStream instream = new BufferedInputStream(urlConnection.getInputStream())) {
                             String body = ConvertionUtils.toString(instream);
                             RawSignedModel cardModel = ConvertionUtils.getGson().fromJson(body,
@@ -125,17 +137,21 @@ public class HttpClient {
                     throw new VirgilCardServiceException(urlConnection.getResponseCode(),
                                                          urlConnection.getResponseMessage());
                 } else if (clazz.isAssignableFrom(Void.class)) {
+                    LOGGER.warning("Void is unacceptable type");
                     return null;
                 } else {
+                    LOGGER.info("Trying to extract response body...");
                     try (InputStream instream = new BufferedInputStream(urlConnection.getInputStream())) {
                         String body = ConvertionUtils.toString(instream);
                         return ConvertionUtils.getGson().fromJson(body, clazz);
                     }
                 }
             } finally {
+                LOGGER.info("Disconnecting...");
                 urlConnection.disconnect();
             }
         } catch (IOException e) {
+            LOGGER.log(Level.SEVERE, "Connection error", e);
             throw new VirgilCardServiceException(e);
         }
     }

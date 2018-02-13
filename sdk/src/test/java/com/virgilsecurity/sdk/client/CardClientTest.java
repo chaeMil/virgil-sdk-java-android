@@ -100,8 +100,6 @@ public class CardClientTest extends PropertyManager {
         try {
             cardClient.publishCard(mocker.generateCardModel(identity),
                     mocker.generateFakeAccessToken(identity).stringRepresentation());
-            // cardClient.publishCard(mocker.generateCardModel(identity),
-            // "Try our fried tokens");
         } catch (VirgilServiceException e) {
             e.printStackTrace();
             assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
@@ -110,11 +108,7 @@ public class CardClientTest extends PropertyManager {
 
     @Test
     public void STC_25_get() throws CryptoException {
-        String identity = Generator.identity();
-
         try {
-            // cardClient.getCard(Generator.cardId(),
-            // mocker.generateFakeAccessToken(identity).stringRepresentation());
             cardClient.getCard(Generator.cardId(), "Try our fried tokens");
         } catch (VirgilServiceException e) {
             e.printStackTrace();

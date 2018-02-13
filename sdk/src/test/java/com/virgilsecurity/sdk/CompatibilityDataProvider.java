@@ -33,13 +33,14 @@
 
 package com.virgilsecurity.sdk;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 public class CompatibilityDataProvider {
 
@@ -75,4 +76,11 @@ public class CompatibilityDataProvider {
         }
     }
 
+    public JsonObject getJsonObject(int number) {
+        return new Gson().fromJson(sampleJson.get("STC-" + number + ".as_" + JSON).getAsString(), JsonObject.class);
+    }
+
+    public JsonObject getJsonObjectByKey(int number, String key) {
+        return sampleJson.get("STC-" + number + "." + key).getAsJsonObject();
+    }
 }

@@ -33,23 +33,9 @@
 
 package com.virgilsecurity.sdk;
 
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mockito;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.CardSignature;
@@ -59,33 +45,48 @@ import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
-import com.virgilsecurity.sdk.common.Generator;
-import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.common.TimeSpan;
-import com.virgilsecurity.sdk.crypto.CardCrypto;
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static org.junit.Assert.*;
 
 public class CrossCompatibilityTest extends PropertyManager {
 
+
+    private static final String CREATED_AT = "created_at";
+    private static final String IDENTITY = "identity";
+    private static final String PREVIOUS_CARD_ID = "previous_card_id";
+    private static final String PUBLIC_KEY = "public_key";
+    private static final String VERSION = "version";
+
+    private static final String CONTENT_SNAPSHOT = "content_snapshot";
+    private static final String SIGNATURES = "signatures";
+    private static final String SELF = "self";
+    private static final String VIRGIL = "virgil";
+    private static final String EXTRA = "extra";
+
     private CompatibilityDataProvider dataProvider;
-    private Mocker mocker;
 
     @Before
     public void setUp() {
         dataProvider = new CompatibilityDataProvider();
-        // mocker = new Mocker();
     }
 
     @Test
@@ -96,7 +97,7 @@ public class CrossCompatibilityTest extends PropertyManager {
 
         assertEquals(cardContent.getIdentity(), "test");
         assertEquals("TUNvd0JRWURLMlZ3QXlFQTZkOWJRUUZ1RW5VOHZTbXg5ZkRvMFd4ZWM0MkpkTmc0VlI0Rk9yNC9CVWs9",
-                ConvertionUtils.toBase64String(cardContent.getPublicKey()));
+                     ConvertionUtils.toBase64String(cardContent.getPublicKey()));
         assertEquals(cardContent.getVersion(), "5.0");
         assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
         assertNull(cardContent.getPreviousCardId());
@@ -120,95 +121,87 @@ public class CrossCompatibilityTest extends PropertyManager {
 
     @Test
     public void STC_2_json() {
+        JsonObject baseData = dataProvider.getJsonObject(2);
         String importedFromJson = dataProvider.getTestDataAs(2, JSON);
         RawSignedModel cardModel = RawSignedModel.fromJson(importedFromJson);
         RawCardContent cardContent = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()));
 
-        assertEquals(cardContent.getIdentity(), "test");
-        assertEquals("MCowBQYDK2VwAyEA6d9bQQFuEnU8vSmx9fDo0Wxec42JdNg4VR4FOr4/BUk=", cardContent.getPublicKey());
-        assertEquals(cardContent.getVersion(), "5.0");
-        assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
-        assertEquals(cardContent.getPreviousCardId(),
-                "a666318071274adb738af3f67b8c7ec29d954de2cabfd71a942e6ea38e59fff9");
-        assertEquals(cardModel.getSignatures().size(), 3);
+        assertEquals(getFromSnapshot(baseData, IDENTITY), cardContent.getIdentity());
+        assertEquals(getFromSnapshot(baseData, PUBLIC_KEY), cardContent.getPublicKey());
+        assertEquals(getFromSnapshot(baseData, VERSION), cardContent.getVersion());
+        assertEquals(Long.parseLong(getFromSnapshot(baseData, CREATED_AT)), cardContent.getCreatedAtTimestamp());
+        assertEquals(getFromSnapshot(baseData, PREVIOUS_CARD_ID), cardContent.getPreviousCardId());
+        assertEquals(3, cardModel.getSignatures().size());
+
+        Map<String, String> signatures = extractSignatures(baseData);
 
         for (RawSignature rawSignature : cardModel.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case "self":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQNXguibY1cDCfnuJhTK+jX/Qv6v5i5TzqQs3e1fWlbisdUWYh+s10gsLkhf83wOqrm8ZXUCpjgkJn83TDaKYZQ8=",
-                        rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "virgil":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQNXguibY1cDCfnuJhTK+jX/Qv6v5i5TzqQs3e1fWlbisdUWYh+s10gsLkhf83wOqrm8ZXUCpjgkJn83TDaKYZQ8=",
-                        rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "extra":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQAAJD/9HE6iJwPHXuws+WBBUeG6HXB0eJcxojz9DtElJMPkkDxktgv/pBiBTkES3CAXfAtGS0rkvQL/OkjdCZwE=",
-                        rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
 
     @Test
     public void STC_2_string() {
+        JsonObject baseData = dataProvider.getJsonObject(2);
         String importedFromString = dataProvider.getTestDataAs(2, STRING);
         RawSignedModel cardModel = RawSignedModel.fromJson(ConvertionUtils.base64ToString(importedFromString));
         RawCardContent cardContent = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()));
 
-        assertEquals(cardContent.getIdentity(), "test");
-        assertEquals("MCowBQYDK2VwAyEA6d9bQQFuEnU8vSmx9fDo0Wxec42JdNg4VR4FOr4/BUk=", cardContent.getPublicKey());
-        assertEquals(cardContent.getVersion(), "5.0");
-        assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
-        assertEquals(cardContent.getPreviousCardId(),
-                "a666318071274adb738af3f67b8c7ec29d954de2cabfd71a942e6ea38e59fff9");
-        assertEquals(cardModel.getSignatures().size(), 3);
+        assertEquals(getFromSnapshot(baseData, IDENTITY), cardContent.getIdentity());
+        assertEquals(getFromSnapshot(baseData, PUBLIC_KEY), cardContent.getPublicKey());
+        assertEquals(getFromSnapshot(baseData, VERSION), cardContent.getVersion());
+        assertEquals(Long.parseLong(getFromSnapshot(baseData, CREATED_AT)), cardContent.getCreatedAtTimestamp());
+        assertEquals(getFromSnapshot(baseData, PREVIOUS_CARD_ID), cardContent.getPreviousCardId());
+        assertEquals(3, cardModel.getSignatures().size());
+
+        Map<String, String> signatures = extractSignatures(baseData);
 
         for (RawSignature rawSignature : cardModel.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case "self":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQNXguibY1cDCfnuJhTK+jX/Qv6v5i5TzqQs3e1fWlbisdUWYh+s10gsLkhf83wOqrm8ZXUCpjgkJn83TDaKYZQ8=",
-                        rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "virgil":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQNXguibY1cDCfnuJhTK+jX/Qv6v5i5TzqQs3e1fWlbisdUWYh+s10gsLkhf83wOqrm8ZXUCpjgkJn83TDaKYZQ8=",
-                        rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "extra":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQAAJD/9HE6iJwPHXuws+WBBUeG6HXB0eJcxojz9DtElJMPkkDxktgv/pBiBTkES3CAXfAtGS0rkvQL/OkjdCZwE=",
-                        rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
 
     @Test
-    public void STC_3_json() throws CryptoException, VirgilCardVerificationException {
+    public void STC_3_json() throws CryptoException {
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
-        Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
+        Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
         CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-                new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
-                Mockito.mock(CardManager.SignCallback.class));
+                                                  new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
+                                                  Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromJson = dataProvider.getTestDataAs(3, JSON);
         Card card = cardManager.importCardAsJson(importedFromJson);
@@ -233,14 +226,14 @@ public class CrossCompatibilityTest extends PropertyManager {
     }
 
     @Test
-    public void STC_3_string() throws CryptoException, VirgilCardVerificationException {
+    public void STC_3_string() throws CryptoException {
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
-        Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
+        Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
         CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-                new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
-                Mockito.mock(CardManager.SignCallback.class));
+                                                  new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
+                                                  Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromString = dataProvider.getTestDataAs(3, STRING);
         Card card = cardManager.importCardAsJson(ConvertionUtils.base64ToString(importedFromString));
@@ -265,14 +258,15 @@ public class CrossCompatibilityTest extends PropertyManager {
     // TODO: 1/30/18 test Card.parse
 
     @Test
-    public void STC_4_json() throws CryptoException, VirgilCardVerificationException {
+    public void STC_4_json() throws CryptoException {
+        JsonObject baseData = dataProvider.getJsonObject(4);
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
-        Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
+        Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
         CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-                new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
-                Mockito.mock(CardManager.SignCallback.class));
+                                                  new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
+                                                  Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromJson = dataProvider.getTestDataAs(4, JSON);
         Card card = cardManager.importCardAsJson(importedFromJson);
@@ -280,7 +274,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertEquals(dataProvider.getJsonByKey(4, "card_id"), card.getIdentifier());
         assertEquals(card.getIdentity(), "test");
         assertArrayEquals(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
-                ((VirgilPublicKey) card.getPublicKey()).getRawKey());
+                          ((VirgilPublicKey) card.getPublicKey()).getRawKey());
         assertEquals(card.getVersion(), "5.0");
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2018);
@@ -293,44 +287,41 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertEquals(calendar.getTime().compareTo(card.getCreatedAt()), 0); // 0 is returned if dates are equal
         assertNull(card.getPreviousCardId());
         assertNull(card.getPreviousCard());
-        assertEquals(card.getSignatures().size(), 3);
+        assertEquals(3, card.getSignatures().size());
+
+        Map<String, String> signatures = extractSignatures(baseData);
 
         for (CardSignature rawSignature : card.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case "self":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQJuTxlQ7r+RG2P8D12OFOdgPsIDmZMd4UBMIG1c1Amqm/oc1wRUzk7ccz1RbTWEt2XP+1GbkF0Z6s6FYf1QEUQI=",
-                        ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "virgil":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQJuTxlQ7r+RG2P8D12OFOdgPsIDmZMd4UBMIG1c1Amqm/oc1wRUzk7ccz1RbTWEt2XP+1GbkF0Z6s6FYf1QEUQI=",
-                        ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "extra":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQMZrDdHSSDbE2Hadr7XWRgi4SlSN1etOpk+2DdvYCI/LRfwXwuaof/piA3nTKKPAZcRtvCuG7+DrDGzeDTepZgg=",
-                        ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
 
     @Test
-    public void STC_4_string() throws CryptoException, VirgilCardVerificationException {
+    public void STC_4_string() throws CryptoException {
+        JsonObject baseData = dataProvider.getJsonObject(4);
         CardCrypto cardCrypto = new VirgilCardCrypto();
         VirgilCardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
-        Mockito.when(cardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
+        Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
         CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-                new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
-                Mockito.mock(CardManager.SignCallback.class));
+                                                  new ModelSigner(cardCrypto), new CardClient(), cardVerifier,
+                                                  Mockito.mock(CardManager.SignCallback.class));
 
         String importedFromString = dataProvider.getTestDataAs(4, STRING);
         Card card = cardManager.importCardAsJson(ConvertionUtils.base64ToString(importedFromString));
@@ -338,7 +329,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertEquals(dataProvider.getJsonByKey(4, "card_id"), card.getIdentifier());
         assertEquals(card.getIdentity(), "test");
         assertArrayEquals(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
-                ((VirgilPublicKey) card.getPublicKey()).getRawKey());
+                          ((VirgilPublicKey) card.getPublicKey()).getRawKey());
         assertEquals(card.getVersion(), "5.0");
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.YEAR, 2018);
@@ -353,29 +344,25 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertNull(card.getPreviousCard());
         assertEquals(card.getSignatures().size(), 3);
 
+        Map<String, String> signatures = extractSignatures(baseData);
+
         for (CardSignature rawSignature : card.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case "self":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQJuTxlQ7r+RG2P8D12OFOdgPsIDmZMd4UBMIG1c1Amqm/oc1wRUzk7ccz1RbTWEt2XP+1GbkF0Z6s6FYf1QEUQI=",
-                        ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "virgil":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQJuTxlQ7r+RG2P8D12OFOdgPsIDmZMd4UBMIG1c1Amqm/oc1wRUzk7ccz1RbTWEt2XP+1GbkF0Z6s6FYf1QEUQI=",
-                        ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case "extra":
-                assertEquals(
-                        "MFEwDQYJYIZIAWUDBAIDBQAEQMZrDdHSSDbE2Hadr7XWRgi4SlSN1etOpk+2DdvYCI/LRfwXwuaof/piA3nTKKPAZcRtvCuG7+DrDGzeDTepZgg=",
-                        ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
@@ -383,28 +370,15 @@ public class CrossCompatibilityTest extends PropertyManager {
     @Test
     public void STC_22() throws CryptoException {
         final String apiPublicKey = dataProvider.getJsonByKey(22, "api_public_key_base64"); // TODO: 2/6/18 from
-                                                                                            // test_data
+        // test_data
         final String apiPublicKeyIdentifier = dataProvider.getJsonByKey(22, "api_key_id");
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
         VirgilCrypto crypto = new VirgilCrypto();
         JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                apiPublicKeyIdentifier, accessTokenSigner);
+                                                  apiPublicKeyIdentifier, accessTokenSigner);
 
         final String jwtImported = dataProvider.getJsonByKey(22, "jwt");
         final Jwt jwt = new Jwt(jwtImported);
-
-        assertTrue(jwtVerifier.verifyToken(jwt));
-    }
-
-    @Test // TODO: 2/9/18 remove this one
-    @Ignore
-    public void jsonTempDelete() throws CryptoException {
-        final String identity = Generator.identity();
-        final Jwt jwt = mocker.generateAccessToken(identity);
-        VirgilCrypto crypto = new VirgilCrypto();
-        VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
-        final JwtVerifier jwtVerifier = new JwtVerifier(getApiPublicKey(), getApiPublicKeyId(),
-                accessTokenSigner);
 
         assertTrue(jwtVerifier.verifyToken(jwt));
     }
@@ -422,29 +396,31 @@ public class CrossCompatibilityTest extends PropertyManager {
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
         JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                apiPublicKeyIdentifier, accessTokenSigner);
+                                                  apiPublicKeyIdentifier, accessTokenSigner);
 
         JwtGenerator jwtGenerator = new JwtGenerator(apiAppId, privateKey, apiPublicKeyIdentifier,
-                TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+                                                     TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
         Jwt jwt = jwtGenerator.generateToken("test");
 
         assertTrue(jwtVerifier.verifyToken(jwt));
     }
 
-    @Test
-    @Ignore
-    public void STC_23_iOS_Compatibility() throws CryptoException {
-        final String apiPublicKey = dataProvider.getJsonByKey(23, "api_public_key_base64");
-        final String apiPublicKeyIdentifier = dataProvider.getJsonByKey(23, "api_key_id");
-        VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
-        VirgilCrypto crypto = new VirgilCrypto();
-        JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                apiPublicKeyIdentifier, accessTokenSigner);
+    private Map<String, String> extractSignatures(JsonObject baseData) {
+        Map<String, String> signatures = new HashMap<>();
+        for (JsonElement jsonElement : baseData.getAsJsonArray(SIGNATURES)) {
+            signatures.put(jsonElement.getAsJsonObject().get("signer").getAsString(),
+                           jsonElement.getAsJsonObject().get("signature").getAsString());
+        }
 
-        Jwt jwt = new Jwt(
-                "eyJraWQiOiI3ZGM5NGUyNTRmNTg5NTIxZTA0NWQyZjk1NTIwMTgwZmFiZThiZjM2MTQxZmJmM2ZkMGZmODlkNmU0Zjk5NTBkZTVhN2M0NTU5ZDNiOTZkMGU0NTI3MmYwMWY5NGMzZWI1ZmM4ODk5MTNlMzNjMWYxMzZkMTJiODgyMDE5ZTMxMyIsInR5cCI6IkpXVCIsImFsZyI6IlZFRFM1MTIiLCJjdHkiOiJ2aXJnaWwtand0O3Y9MSJ9.eyJleHAiOjE1MTgxODMyMzEsImlzcyI6InZpcmdpbC0wZjNiMjZlMjExNGRjZTNmYWExY2M0OTE3ZmMwYTU0OTU1ZGFiMWVhMDk1MDIzOWZkZTYwZDY4ZGNhNDAwYjNlIiwiYWRhIjp7InVzZXJuYW1lIjoic29tZV91c2VybmFtZSJ9LCJzdWIiOiJpZGVudGl0eS1zb21lX2lkZW50aXR5IiwiaWF0IjoxNTE4MTgyMjMxfQ.MFEwDQYJYIZIAWUDBAIDBQAEQAiBH61Eo_94dJ7VX5f079WtmXh8_oz9JkAL64L1hQsaE4bEVCZ9uS-_TmIiYUwpqkZANcaX3MF2RN261ZFuzwE");
+        return signatures;
+    }
 
-        assertTrue(jwtVerifier.verifyToken(jwt));
+    private String getFromSnapshot(JsonObject baseData, String key) {
+        JsonElement jsonElement = new Gson()
+                .fromJson(ConvertionUtils.base64ToString(baseData.get(CONTENT_SNAPSHOT).getAsString()),
+                          JsonElement.class);
+
+        return jsonElement.getAsJsonObject().get(key).getAsString();
     }
 }

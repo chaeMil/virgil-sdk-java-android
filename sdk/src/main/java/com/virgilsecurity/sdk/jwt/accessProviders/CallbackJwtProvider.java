@@ -42,9 +42,8 @@ import com.virgilsecurity.sdk.utils.Validator;
 import java.util.logging.Logger;
 
 /**
- * The {@link CallbackJwtProvider} class is implemented for usage
- * of get token callback mechanism which should predefine implementation of generating/receiving/caching
- * of token.
+ * The {@link CallbackJwtProvider} class is implemented for usage of get token callback mechanism which should predefine
+ * implementation of generating/receiving/caching of token.
  */
 public class CallbackJwtProvider implements AccessTokenProvider {
     private static final Logger LOGGER = Logger.getLogger(CallbackJwtProvider.class.getName());
@@ -61,16 +60,17 @@ public class CallbackJwtProvider implements AccessTokenProvider {
     /**
      * Instantiates a new Callback jwt provider.
      *
-     * @param getTokenCallback the get token callback
+     * @param getTokenCallback
+     *            the get token callback
      */
     public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
         this.getTokenCallback = getTokenCallback;
     }
 
-    @Override public AccessToken getToken(TokenContext context) {
+    @Override
+    public AccessToken getToken(TokenContext context) {
         Validator.checkNullAgrument(context, "CallbackJwtProvider -> 'context' should not be null");
-        Validator.checkNullAgrument(getTokenCallback,
-                                    "CallbackJwtProvider -> set getTokenCallback first");
+        Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> set getTokenCallback first");
 
         if (context.isForceReload() || jwtToken == null || jwtToken.isExpired()) {
             LOGGER.info("Token is force reloaded");
@@ -83,11 +83,11 @@ public class CallbackJwtProvider implements AccessTokenProvider {
     /**
      * Sets get token callback.
      *
-     * @param getTokenCallback the get token callback
+     * @param getTokenCallback
+     *            the get token callback
      */
     public void setGetTokenCallback(GetTokenCallback getTokenCallback) {
-        Validator.checkNullAgrument(getTokenCallback,
-                                    "CallbackJwtProvider -> 'getTokenCallback' should not be null");
+        Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> 'getTokenCallback' should not be null");
 
         this.getTokenCallback = getTokenCallback;
     }

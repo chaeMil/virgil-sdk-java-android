@@ -121,7 +121,8 @@ public class VirgilPublicKey implements PublicKey, Serializable {
     /**
      * Set the Public key hash.
      *
-     * @param identifier the Id to set
+     * @param identifier
+     *            the Id to set
      */
     public void setIdentifier(byte[] identifier) {
         this.identifier = identifier;
@@ -130,7 +131,8 @@ public class VirgilPublicKey implements PublicKey, Serializable {
     /**
      * Set the Public key rawKey.
      *
-     * @param rawKey the rawKey to set
+     * @param rawKey
+     *            the rawKey to set
      */
     public void setRawKey(byte[] rawKey) {
         this.rawKey = rawKey;

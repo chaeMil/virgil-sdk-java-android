@@ -34,8 +34,7 @@
 package com.virgilsecurity.sdk.cards;
 
 /**
- * The {@link SignerType} enum defines technical signer types for Virgil Cards service.
- * Not suitable for use.
+ * The {@link SignerType} enum defines technical signer types for Virgil Cards service. Not suitable for use.
  */
 public enum SignerType {
     /**
@@ -49,11 +48,8 @@ public enum SignerType {
 
     /**
      *
-     * !!!!!
-     * If you're reading this and don't know what signer type you should use:
-     * You should Never use 'self' or 'virgil' signature!
-     * Use your Own signature with any signer type - for example 'mycustomservice'.
-     * !!!!!
+     * !!!!! If you're reading this and don't know what signer type you should use: You should Never use 'self' or
+     * 'virgil' signature! Use your Own signature with any signer type - for example 'mycustomservice'. !!!!!
      *
      */
     private final String signerType;
@@ -63,12 +59,10 @@ public enum SignerType {
     }
 
     /**
-     * If you're reading this and don't know what signer type you should use:
-     * You should Never use 'self' or 'virgil' signature!
-     * Use your Own signature with any signer type - for example 'mycustomservice'.
+     * If you're reading this and don't know what signer type you should use: You should Never use 'self' or 'virgil'
+     * signature! Use your Own signature with any signer type - for example 'mycustomservice'.
      *
-     * Gets the raw value based on chosen enum type.
-     * (ex. SignerType.SELF.getRawValue() will output "self").
+     * Gets the raw value based on chosen enum type. (ex. SignerType.SELF.getRawValue() will output "self").
      *
      * @return the raw value
      */

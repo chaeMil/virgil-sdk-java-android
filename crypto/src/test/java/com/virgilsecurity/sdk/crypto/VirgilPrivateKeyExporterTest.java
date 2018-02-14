@@ -88,12 +88,12 @@ public class VirgilPrivateKeyExporterTest {
         assertNotNull(importedKey);
         assertEquals(privateKey, importedKey);
     }
-    
+
     @Test(expected = NullArgumentException.class)
     public void importPrivateKey_null() throws CryptoException {
         exporter.importPrivateKey(null);
     }
-    
+
     @Test(expected = CryptoException.class)
     public void importPrivateKey_invalidData() throws CryptoException {
         exporter.importPrivateKey("wrong_data".getBytes());

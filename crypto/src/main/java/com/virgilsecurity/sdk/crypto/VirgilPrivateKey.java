@@ -95,7 +95,6 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
         return true;
     }
 
-
     /**
      * Get identifier byte [ ].
      *
@@ -104,7 +103,6 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
     public byte[] getIdentifier() {
         return identifier;
     }
-
 
     /**
      * Get raw key byte [ ].
@@ -129,11 +127,11 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
         return result;
     }
 
-
     /**
      * Sets identifier.
      *
-     * @param identifier the identifier
+     * @param identifier
+     *            the identifier
      */
     public void setIdentifier(byte[] identifier) {
         this.identifier = identifier;
@@ -142,7 +140,8 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
     /**
      * Sets raw key.
      *
-     * @param rawKey the rawKey to set
+     * @param rawKey
+     *            the rawKey to set
      */
     public void setRawKey(byte[] rawKey) {
         this.rawKey = rawKey;

@@ -36,8 +36,7 @@ package com.virgilsecurity.sdk.client.exceptions;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 /**
- * The Virgil card verification exception represents
- * case when Card verification was failed.
+ * The Virgil card verification exception represents case when Card verification was failed.
  */
 public class VirgilCardVerificationException extends CryptoException {
 
@@ -53,7 +52,7 @@ public class VirgilCardVerificationException extends CryptoException {
      * Instantiates a new Virgil card verification exception.
      *
      * @param message
-     *         the message
+     *            the message
      */
     public VirgilCardVerificationException(String message) {
         super(message);
@@ -63,7 +62,7 @@ public class VirgilCardVerificationException extends CryptoException {
      * Instantiates a new Virgil card verification exception.
      *
      * @param cause
-     *         the cause
+     *            the cause
      */
     public VirgilCardVerificationException(Throwable cause) {
         super(cause);

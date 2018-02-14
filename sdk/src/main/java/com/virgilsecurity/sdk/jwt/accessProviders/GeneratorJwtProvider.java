@@ -43,8 +43,8 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
 /**
- * The {@link GeneratorJwtProvider} class is implemented for generating
- * {@link com.virgilsecurity.sdk.jwt.Jwt} with provided {@link JwtGenerator}.
+ * The {@link GeneratorJwtProvider} class is implemented for generating {@link com.virgilsecurity.sdk.jwt.Jwt} with
+ * provided {@link JwtGenerator}.
  */
 public class GeneratorJwtProvider implements AccessTokenProvider {
 
@@ -55,13 +55,14 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
     /**
      * Instantiates a new Generator jwt provider.
      *
-     * @param jwtGenerator the jwt generator
+     * @param jwtGenerator
+     *            the jwt generator
+     * @param defaultIdentity
+     *            the default identity
      */
     public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity) {
-        Validator.checkNullAgrument(jwtGenerator,
-                                    "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(defaultIdentity,
-                                    "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(defaultIdentity, "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
 
         this.jwtGenerator = jwtGenerator;
         this.defaultIdentity = defaultIdentity;
@@ -70,28 +71,32 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
     /**
      * Instantiates a new Generator jwt provider.
      *
-     * @param jwtGenerator   the jwt generator
-     * @param additionalData the additional data
+     * @param jwtGenerator
+     *            the jwt generator
+     * @param defaultIdentity
+     *            the default identity
+     * @param additionalData
+     *            the additional data
      */
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator,
-                                String defaultIdentity,
-                                Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator,
-                                    "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(defaultIdentity,
-                                    "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
-        Validator.checkNullAgrument(additionalData,
-                                    "GeneratorJwtProvider -> 'additionalData' should not be null");
+    public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity, Map<String, String> additionalData) {
+        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+        Validator.checkNullAgrument(defaultIdentity, "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
+        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
 
         this.jwtGenerator = jwtGenerator;
         this.defaultIdentity = defaultIdentity;
         this.additionalData = additionalData;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(com.virgilsecurity.sdk.jwt.TokenContext)
+     */
     @Override
     public AccessToken getToken(TokenContext context) throws CryptoException {
         return jwtGenerator.generateToken(context.getIdentity() != null ? context.getIdentity() : defaultIdentity,
-                                          additionalData);
+                additionalData);
     }
 
     /**
@@ -115,7 +120,8 @@ public class GeneratorJwtProvider implements AccessTokenProvider {
     /**
      * Sets additional data.
      *
-     * @param additionalData the additional data
+     * @param additionalData
+     *            the additional data
      */
     public void setAdditionalData(Map<String, String> additionalData) {
         this.additionalData = additionalData;

@@ -86,7 +86,7 @@ public class JwtCrossCompatibilityTest {
         TimeSpan ttl = new TimeSpan(new Date());
         ttl.add(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
         JwtGenerator generator = new JwtGenerator(this.fake.getApplicationId(), this.fake.getApiPrivateKey(),
-                                                  this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
+                this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
         when(this.callback.onGetToken())
                 .thenReturn(generator.generateToken(this.fake.getIdentity()).stringRepresentation());
 
@@ -124,7 +124,7 @@ public class JwtCrossCompatibilityTest {
         TimeSpan ttl = new TimeSpan(new Date());
         ttl.add(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
         JwtGenerator generator = new JwtGenerator(this.fake.getApplicationId(), this.fake.getApiPrivateKey(),
-                                                  this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
+                this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
         ConstAccessTokenProvider tokenProvider = new ConstAccessTokenProvider(
                 generator.generateToken(this.fake.getIdentity()));
 
@@ -142,7 +142,7 @@ public class JwtCrossCompatibilityTest {
         assertTrue("Token should be expired", jwtOne.isExpired());
         Jwt jwtTwo = (Jwt) tokenProvider.getToken(ctx);
         assertEquals("ConstAccessTokenProvider always returns the same token regardless of the tokenContext", jwtOne,
-                     jwtTwo);
+                jwtTwo);
         assertTrue("Token should be expired", jwtTwo.isExpired());
     }
 
@@ -157,17 +157,17 @@ public class JwtCrossCompatibilityTest {
         assertEquals(sampleJson.get("STC-28.jw_issuer").getAsString(), jwt.getBodyContent().getIssuer());
         assertEquals(sampleJson.get("STC-28.jwt_subject").getAsString(), jwt.getBodyContent().getSubject());
         assertEquals(sampleJson.get("STC-28.jwt_additional_data").getAsString(),
-                     ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
+                ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
         assertEquals(sampleJson.get("STC-28.jwt_expires_at").getAsLong(),
-                     jwt.getBodyContent().getExpiresAt().getTimestamp());
+                jwt.getBodyContent().getExpiresAt().getTimestamp());
         assertEquals(sampleJson.get("STC-28.jwt_issued_at").getAsLong(),
-                     jwt.getBodyContent().getIssuedAt().getTime() / 1000);
+                jwt.getBodyContent().getIssuedAt().getTime() / 1000);
         assertEquals(sampleJson.get("STC-28.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());
         assertEquals(sampleJson.get("STC-28.jwt_api_key_id").getAsString(), jwt.getHeaderContent().getKeyIdentifier());
         assertEquals(sampleJson.get("STC-28.jwt_content_type").getAsString(), jwt.getHeaderContent().getContentType());
         assertEquals(sampleJson.get("STC-28.jwt_type").getAsString(), jwt.getHeaderContent().getType());
         assertEquals(sampleJson.get("STC-28.jwt_signature_base64").getAsString(),
-                     ConvertionUtils.toBase64String(jwt.getSignatureData()));
+                ConvertionUtils.toBase64String(jwt.getSignatureData()));
 
         // Call isExpired()
         assertTrue(jwt.isExpired());
@@ -187,17 +187,17 @@ public class JwtCrossCompatibilityTest {
         assertEquals(sampleJson.get("STC-29.jw_issuer").getAsString(), jwt.getBodyContent().getIssuer());
         assertEquals(sampleJson.get("STC-29.jwt_subject").getAsString(), jwt.getBodyContent().getSubject());
         assertEquals(sampleJson.get("STC-29.jwt_additional_data").getAsString(),
-                     ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
+                ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
         assertEquals(sampleJson.get("STC-29.jwt_expires_at").getAsLong(),
-                     jwt.getBodyContent().getExpiresAt().getTimestamp());
+                jwt.getBodyContent().getExpiresAt().getTimestamp());
         assertEquals(sampleJson.get("STC-29.jwt_issued_at").getAsLong(),
-                     jwt.getBodyContent().getIssuedAt().getTime() / 1000);
+                jwt.getBodyContent().getIssuedAt().getTime() / 1000);
         assertEquals(sampleJson.get("STC-29.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());
         assertEquals(sampleJson.get("STC-29.jwt_api_key_id").getAsString(), jwt.getHeaderContent().getKeyIdentifier());
         assertEquals(sampleJson.get("STC-29.jwt_content_type").getAsString(), jwt.getHeaderContent().getContentType());
         assertEquals(sampleJson.get("STC-29.jwt_type").getAsString(), jwt.getHeaderContent().getType());
         assertEquals(sampleJson.get("STC-29.jwt_signature_base64").getAsString(),
-                     ConvertionUtils.toBase64String(jwt.getSignatureData()));
+                ConvertionUtils.toBase64String(jwt.getSignatureData()));
 
         // Call isExpired()
         assertFalse(jwt.isExpired());

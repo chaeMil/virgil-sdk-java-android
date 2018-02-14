@@ -32,6 +32,7 @@
  */
 package com.virgilsecurity.sdk.crypto;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.virgilsecurity.crypto.VirgilKeyPair;
@@ -42,8 +43,9 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
  *
  */
 public class ForSergeyTest {
-    
+
     @Test
+    @Ignore
     public void test() throws CryptoException {
         VirgilKeyPair keyPair = VirgilKeyPair.generate(VirgilKeyPair.Type.RSA_4096);
         VirgilKeyPair.publicKeyToDER(keyPair.publicKey());

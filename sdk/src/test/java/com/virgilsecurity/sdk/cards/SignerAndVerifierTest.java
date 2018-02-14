@@ -569,7 +569,7 @@ public class SignerAndVerifierTest extends PropertyManager {
 
         CardManager cardManager = new CardManager(this.cardCrypto, accessTokenProvider, modelSigner, cardClient,
                 cardVerifier, signCallback);
-        
+
         Card card = cardManager.publishCard(rawSignedModel);
         assertNotNull(card);
 

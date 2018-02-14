@@ -86,8 +86,9 @@ public class JwtVerifier {
                 || !this.accessTokenSigner.getAlgorithm().equals(header.getAlgorithm())
                 || !JwtHeaderContent.VIRGIL_CONTENT_TYPE.equals(header.getContentType())
                 || !JwtHeaderContent.JWT_TYPE.equals(header.getType())) {
-            LOGGER.info("Some of next args mismatches in Jwt header and provided data while instantiating JwtVerifier:\n" +
-                                "api public key identifier, algorithm, content type, jwt type");
+            LOGGER.info(
+                    "Some of next args mismatches in Jwt header and provided data while instantiating JwtVerifier:\n"
+                            + "api public key identifier, algorithm, content type, jwt type");
             return false;
         }
 

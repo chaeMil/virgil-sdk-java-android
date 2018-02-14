@@ -49,7 +49,8 @@ public class NotSupportedException extends RuntimeException {
     /**
      * Create new instance of {@link NotSupportedException}.
      * 
-     * @param message The message.
+     * @param message
+     *            The message.
      */
     public NotSupportedException(String message) {
         super(message);

@@ -58,11 +58,11 @@ public class RawSignedModel {
      * Instantiates a new Raw signed model.
      *
      * @param contentSnapshot
-     *         the content snapshot
+     *            the content snapshot
      */
     public RawSignedModel(byte[] contentSnapshot) {
         Validator.checkNullEmptyAgrument(contentSnapshot,
-                                         "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+                "RawSignedModel -> 'contentSnapshot' should not be null or empty");
 
         this.contentSnapshot = contentSnapshot;
 
@@ -73,13 +73,13 @@ public class RawSignedModel {
      * Instantiates a new Raw signed model.
      *
      * @param contentSnapshot
-     *         the content snapshot
+     *            the content snapshot
      * @param signatures
-     *         the list of signatures
+     *            the list of signatures
      */
     public RawSignedModel(byte[] contentSnapshot, List<RawSignature> signatures) {
         Validator.checkNullEmptyAgrument(contentSnapshot,
-                                         "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+                "RawSignedModel -> 'contentSnapshot' should not be null or empty");
         Validator.checkNullEmptyAgrument(signatures, "RawSignedModel -> 'signatures' should not be null or empty");
 
         if (!isAllSignaturesUnique(signatures))
@@ -102,7 +102,7 @@ public class RawSignedModel {
      * Sets content snapshot.
      *
      * @param contentSnapshot
-     *         the content snapshot
+     *            the content snapshot
      */
     public void setContentSnapshot(byte[] contentSnapshot) {
         this.contentSnapshot = contentSnapshot;
@@ -121,14 +121,17 @@ public class RawSignedModel {
      * Sets list of signatures.
      *
      * @param signatures
-     *         the list of signatures
+     *            the list of signatures
      */
     public void setSignatures(List<RawSignature> signatures) {
         if (signatures.size() > 8) {
             LOGGER.warning(
                     "RawSignedModel can hold up to 8 signatures only. While 'signatures' size is " + signatures.size());
-            throw new IllegalArgumentException(
-                    "RawSignedModel -> 'signatures' can hold up to 8 signatures only"); // TODO: 2/13/18 add size test
+            throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only"); // TODO:
+                                                                                                                   // 2/13/18
+                                                                                                                   // add
+                                                                                                                   // size
+                                                                                                                   // test
         }
 
         if (!isAllSignaturesUnique(signatures))
@@ -138,16 +141,15 @@ public class RawSignedModel {
     }
 
     /**
-     * Add signature. The signature that is about to add must be unique (by signer).
-     * Max number of signatures is up to 8.
+     * Add signature. The signature that is about to add must be unique (by signer). Max number of signatures is up to
+     * 8.
      *
      * @param rawSignature
-     *         the raw signature
+     *            the raw signature
      */
     public void addSignature(RawSignature rawSignature) {
         if (signatures.size() > 7) {
-            LOGGER.warning(
-                    "RawSignedModel can hold up to 8 signatures only and is full already");
+            LOGGER.warning("RawSignedModel can hold up to 8 signatures only and is full already");
             throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
         }
 
@@ -161,10 +163,9 @@ public class RawSignedModel {
         for (RawSignature rawSignatureOuter : signatures) {
             for (RawSignature rawSignatureInner : signatures) {
                 if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner())) {
-                    LOGGER.warning(
-                            String.format(
-                                    "RawSignedModel should have unique signatures only. The '%s' signature is already present",
-                                    rawSignatureOuter.getSigner()));
+                    LOGGER.warning(String.format(
+                            "RawSignedModel should have unique signatures only. The '%s' signature is already present",
+                            rawSignatureOuter.getSigner()));
                     return false;
                 }
             }
@@ -176,10 +177,9 @@ public class RawSignedModel {
     private boolean isSignaturesUnique(RawSignature signature) {
         for (RawSignature rawSignatureOuter : signatures) {
             if (rawSignatureOuter.getSigner().equals(signature.getSigner())) {
-                LOGGER.warning(
-                        String.format(
-                                "RawSignedModel should have unique signatures only. The '%s' signature is already present",
-                                signature.getSigner()));
+                LOGGER.warning(String.format(
+                        "RawSignedModel should have unique signatures only. The '%s' signature is already present",
+                        signature.getSigner()));
                 return false;
             }
         }
@@ -209,7 +209,7 @@ public class RawSignedModel {
      * Instantiate {@link RawSignedModel} from provided base64 string.
      *
      * @param cardModel
-     *         the card model
+     *            the card model
      * @return the raw signed model
      */
     public static RawSignedModel fromString(String cardModel) {
@@ -220,7 +220,7 @@ public class RawSignedModel {
      * Instantiate {@link RawSignedModel} from provided string.
      *
      * @param cardModel
-     *         the card model
+     *            the card model
      * @return the raw signed model
      */
     public static RawSignedModel fromJson(String cardModel) {

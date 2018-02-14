@@ -75,7 +75,9 @@ public class VirgilException extends Exception {
      * Create new instance of {@link VirgilException}.
      * 
      * @param message
+     *            the detail message
      * @param cause
+     *            the cause
      */
     public VirgilException(String message, Throwable cause) {
         super(message, cause);

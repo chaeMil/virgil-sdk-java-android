@@ -43,7 +43,8 @@ public class StringUtils {
      * <p>
      * Checks if a CharSequence is whitespace, empty ("") or null.
      *
-     * @param cs the CharSequence to check, may be null
+     * @param cs
+     *            the CharSequence to check, may be null
      * @return {@code true} if the CharSequence is null, empty or whitespace
      */
     public static boolean isBlank(final CharSequence cs) {

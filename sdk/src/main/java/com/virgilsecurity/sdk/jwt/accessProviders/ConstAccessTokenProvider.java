@@ -40,8 +40,7 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
 /**
- * The {@link ConstAccessTokenProvider} class is implemented for usage
- * of constant Jwt stored as property.
+ * The {@link ConstAccessTokenProvider} class is implemented for usage of constant Jwt stored as property.
  */
 public class ConstAccessTokenProvider implements AccessTokenProvider {
 
@@ -56,7 +55,8 @@ public class ConstAccessTokenProvider implements AccessTokenProvider {
     /**
      * Instantiates a new Const access token provider.
      *
-     * @param jwtToken the jwt token
+     * @param jwtToken
+     *            the jwt token
      */
     public ConstAccessTokenProvider(Jwt jwtToken) {
         Validator.checkNullAgrument(jwtToken, "ConstAccessTokenProvider -> 'jwt' should not be null");
@@ -71,7 +71,8 @@ public class ConstAccessTokenProvider implements AccessTokenProvider {
     /**
      * Sets jwt.
      *
-     * @param jwtToken the jwt token
+     * @param jwtToken
+     *            the jwt token
      */
     public void setJwt(Jwt jwtToken) {
         if (jwtToken != null)

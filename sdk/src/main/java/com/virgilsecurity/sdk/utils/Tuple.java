@@ -33,6 +33,8 @@
 package com.virgilsecurity.sdk.utils;
 
 /**
+ * Represents a pair of typed Objects.
+ * 
  * @author Andrii Iakovenko
  *
  */
@@ -52,7 +54,9 @@ public class Tuple<A, B> {
      * Create new instance of {@link Tuple}.
      * 
      * @param left
+     *            the left object
      * @param right
+     *            the right object
      */
     public Tuple(A left, B right) {
         super();
@@ -61,7 +65,7 @@ public class Tuple<A, B> {
     }
 
     /**
-     * @return the left
+     * @return the left object
      */
     public A getLeft() {
         return left;
@@ -69,14 +73,14 @@ public class Tuple<A, B> {
 
     /**
      * @param left
-     *            the left to set
+     *            the left object to set
      */
     public void setLeft(A left) {
         this.left = left;
     }
 
     /**
-     * @return the right
+     * @return the right object
      */
     public B getRight() {
         return right;
@@ -84,7 +88,7 @@ public class Tuple<A, B> {
 
     /**
      * @param right
-     *            the right to set
+     *            the right object to set
      */
     public void setRight(B right) {
         this.right = right;

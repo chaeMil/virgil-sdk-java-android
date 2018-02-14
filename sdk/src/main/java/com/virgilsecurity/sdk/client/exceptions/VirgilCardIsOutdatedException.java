@@ -54,7 +54,8 @@ public class VirgilCardIsOutdatedException extends VirgilServiceException {
     /**
      * Instantiates a new Virgil card is outdated exception.
      *
-     * @param message message to be stored to get it later
+     * @param message
+     *            message to be stored to get it later
      */
     public VirgilCardIsOutdatedException(String message) {
         this.message = message;
@@ -63,7 +64,8 @@ public class VirgilCardIsOutdatedException extends VirgilServiceException {
     /**
      * Instantiates a new Virgil card is outdated exception.
      *
-     * @param cardModel the card model of outdated Card
+     * @param cardModel
+     *            the card model of outdated Card
      */
     public VirgilCardIsOutdatedException(RawSignedModel cardModel) {
         this.cardModel = cardModel;
@@ -72,7 +74,8 @@ public class VirgilCardIsOutdatedException extends VirgilServiceException {
     /**
      * Instantiates a new Virgil card is outdated exception.
      *
-     * @param cause the cause
+     * @param cause
+     *            the cause
      */
     public VirgilCardIsOutdatedException(Exception cause) {
         super(cause);

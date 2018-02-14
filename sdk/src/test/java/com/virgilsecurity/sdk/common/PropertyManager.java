@@ -121,7 +121,7 @@ public class PropertyManager {
         }
         return this.apiPublicKey;
     }
-    
+
     public String getApiPublicKeyAsString() {
         return getPropertyByName("API_PUBLIC_KEY");
     }

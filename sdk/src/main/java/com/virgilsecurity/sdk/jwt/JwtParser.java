@@ -37,15 +37,16 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
 /**
- * The {@link JwtParser} class is used to parse Json Web Token from string representation
- * and build string representation from the corresponding objects.
+ * The {@link JwtParser} class is used to parse Json Web Token from string representation and build string
+ * representation from the corresponding objects.
  */
 public class JwtParser {
 
     /**
      * Parse jwt body content from its string representation.
      *
-     * @param jsonWebTokenBody the json web token body
+     * @param jsonWebTokenBody
+     *            the json web token body
      * @return the jwt body content object
      */
     public static JwtBodyContent parseJwtBodyContent(String jsonWebTokenBody) {
@@ -56,7 +57,8 @@ public class JwtParser {
     /**
      * Build jwt body string representation.
      *
-     * @param jwtBodyContent the jwt body content
+     * @param jwtBodyContent
+     *            the jwt body content
      * @return the string representation of jwt body
      */
     public static String buildJwtBody(JwtBodyContent jwtBodyContent) {
@@ -66,7 +68,8 @@ public class JwtParser {
     /**
      * Parse jwt header content from its string representation.
      *
-     * @param jsonWebTokenHeader the json web token header
+     * @param jsonWebTokenHeader
+     *            the json web token header
      * @return the jwt header content object
      */
     public static JwtHeaderContent parseJwtHeaderContent(String jsonWebTokenHeader) {
@@ -77,7 +80,8 @@ public class JwtParser {
     /**
      * Build jwt header string representation.
      *
-     * @param jwtHeaderContent the jwt header content
+     * @param jwtHeaderContent
+     *            the jwt header content
      * @return the string representation of jwt header
      */
     public static String buildJwtHeader(JwtHeaderContent jwtHeaderContent) {

@@ -57,9 +57,9 @@ public class Jwt implements AccessToken {
      * Instantiates a new Jwt.
      *
      * @param headerContent
-     *         the header content
+     *            the header content
      * @param bodyContent
-     *         the body content
+     *            the body content
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
         this(headerContent, bodyContent, null);
@@ -69,11 +69,11 @@ public class Jwt implements AccessToken {
      * Instantiates a new Jwt.
      *
      * @param headerContent
-     *         the header content
+     *            the header content
      * @param bodyContent
-     *         the body content
+     *            the body content
      * @param signatureData
-     *         the signature data
+     *            the signature data
      */
     public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
         Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
@@ -100,15 +100,15 @@ public class Jwt implements AccessToken {
      * Instantiates a new Jwt.
      *
      * @param jwtToken
-     *         the jwt token in string representation. Should have at least two parts - header and body. (ex.
-     *         "***.***", where "***" is base64 encoded string)
+     *            the jwt token in string representation. Should have at least two parts - header and body. (ex.
+     *            "***.***", where "***" is base64 encoded string)
      */
     public Jwt(String jwtToken) {
         String[] jwtParts = jwtToken.split("[.]");
 
         if (jwtParts.length < 2 || jwtParts.length > 3) {
             LOGGER.warning(String.format("Jwt has wrong format. It has '%s' parts, while min is 2, max is 3",
-                                         jwtParts.length));
+                    jwtParts.length));
             throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
         }
 

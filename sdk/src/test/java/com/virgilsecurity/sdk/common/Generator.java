@@ -68,12 +68,12 @@ public class Generator {
     }
 
     public static String firstName() {
-        String[] names = new String[]{"Alice", "Bob", "Greg", "Jenny", "John", "Molly"};
+        String[] names = new String[] { "Alice", "Bob", "Greg", "Jenny", "John", "Molly" };
         return names[randomInt(5)];
     }
 
     public static String lastName() {
-        String[] names = new String[]{"Archer", "Slater", "Cook", "Fisher", "Hunter", "Glover"};
+        String[] names = new String[] { "Archer", "Slater", "Cook", "Fisher", "Hunter", "Glover" };
         return names[randomInt(5)];
     }
 
@@ -90,8 +90,8 @@ public class Generator {
         CardCrypto crypto = new VirgilCardCrypto();
 
         try {
-            return ConvertionUtils
-                    .toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32), StringEncoding.HEX);
+            return ConvertionUtils.toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32),
+                    StringEncoding.HEX);
         } catch (CryptoException e) {
             e.printStackTrace();
         }
@@ -110,7 +110,6 @@ public class Generator {
         calendar.set(Calendar.DAY_OF_MONTH, randomInt(27));
         return calendar.getTime();
     }
-
 
     public static String randomAlphaNumeric(int count) {
         StringBuilder builder = new StringBuilder();

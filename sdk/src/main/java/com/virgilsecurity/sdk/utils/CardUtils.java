@@ -48,11 +48,12 @@ public class CardUtils {
      * Generate Virgil Card identifier by card content snapshot.
      * 
      * @param cardCrypto
-     *            The {@link CardCrypto}
+     *            the {@link CardCrypto}
      * @param contentSnapshot
-     *            The card content snapshot.
-     * @return The generated Virgil Card identifier.
+     *            the card content snapshot.
+     * @return the generated Virgil Card identifier.
      * @throws CryptoException
+     *             if card identifier couldn't be generated
      */
     public static String generateCardId(CardCrypto cardCrypto, byte[] contentSnapshot) throws CryptoException {
         byte[] fingerprint = Arrays.copyOfRange(cardCrypto.generateSHA512(contentSnapshot), 0, 32);

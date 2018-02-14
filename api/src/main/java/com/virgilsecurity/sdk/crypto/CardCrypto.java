@@ -48,7 +48,7 @@ public interface CardCrypto {
      *            The public key.
      * @return Public key in material representation of {@code byte[]}.
      * @throws CryptoException
-     *             if problems occurred while exporting key.
+     *             if problems occurred while exporting key
      */
     byte[] exportPublicKey(PublicKey publicKey) throws CryptoException;
 
@@ -59,6 +59,7 @@ public interface CardCrypto {
      *            The input data for which to compute the fingerprint.
      * @return The fingerprint for specified data.
      * @throws CryptoException
+     *             if problems occurred while generating hash
      */
     byte[] generateSHA512(byte[] data) throws CryptoException;
 
@@ -82,6 +83,7 @@ public interface CardCrypto {
      *            The public key material representation bytes.
      * @return The instance of {@link PublicKey} imported.
      * @throws CryptoException
+     *             if problems occurred while importing key
      */
     PublicKey importPublicKey(byte[] data) throws CryptoException;
 

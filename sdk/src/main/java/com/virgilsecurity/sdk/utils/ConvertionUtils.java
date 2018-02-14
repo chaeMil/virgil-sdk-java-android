@@ -32,13 +32,8 @@
  */
 package com.virgilsecurity.sdk.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -250,9 +245,10 @@ public class ConvertionUtils {
      * Deserialize object of <code>objectType</code> type from JSON String
      *
      * @param serializedObject
+     *            the string presentation of object serialized to JSON
      * @param objectType
-     * @param <T>
-     * @return
+     *            the type of object
+     * @return the {@code objectType} object deserialized from {@code serializedObject}
      */
     public static <T> T deserializeFromJson(String serializedObject, Class<T> objectType) {
         return getGson().fromJson(serializedObject, objectType);
@@ -271,17 +267,28 @@ public class ConvertionUtils {
         return getGson().fromJson(serializedObject, mapType);
     }
 
-    public static <T> T parseSnapshot(byte[] snapshot, Charset stringEncoding, Class<T> objectType) {
-        return getGson().fromJson(new String(snapshot, stringEncoding), objectType);
-    }
+    // TODO remove
+    // public static <T> T parseSnapshot(byte[] snapshot, Charset stringEncoding, Class<T> objectType) {
+    // return getGson().fromJson(new String(snapshot, stringEncoding), objectType);
+    // }
 
+    /**
+     * Deserialize object of <code>objectType</code> type from binary presentation of JSON String
+     * 
+     * @param snapshot
+     *            the object snapshot which is a binary presentation of JSON string
+     * @param objectType
+     *            the type of object
+     * @return the {@code objectType} object deserialized from {@code snapshot}
+     */
     public static <T> T parseSnapshot(byte[] snapshot, Class<T> objectType) {
-        return getGson().fromJson(new String(snapshot, Charset.forName("UTF-8")), objectType);
+        return deserializeFromJson(new String(snapshot, StandardCharsets.UTF_8), objectType);
     }
 
-    public static <T> T parseSnapshot(byte[] snapshot, TypeToken<T> objectType) {
-        return getGson().fromJson(new String(snapshot, Charset.forName("UTF-8")), objectType.getType());
-    }
+    // TODO remove
+    // public static <T> T parseSnapshot(byte[] snapshot, TypeToken<T> objectType) {
+    // return getGson().fromJson(new String(snapshot, StandardCharsets.UTF_8), objectType.getType());
+    // }
 
     private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
         public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
@@ -331,39 +338,6 @@ public class ConvertionUtils {
     }
 
     /**
-     * Read the object from Base64 String
-     *
-     * @param serialized
-     *            String to be deserialized
-     * @return deserialized Object that can be casted to what you need
-     * @throws IOException
-     * @throws ClassNotFoundException
-     */
-    public static Object deserializeObject(String serialized) throws IOException, ClassNotFoundException {
-        byte[] data = base64ToBytes(serialized);
-        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(data));
-        Object o = ois.readObject();
-        ois.close();
-        return o;
-    }
-
-    /**
-     * Write the object to a Base64 String.
-     *
-     * @param serializable
-     *            object to be serialized
-     * @return Base64 String representation of serialized object
-     * @throws IOException
-     */
-    public static String serializeObject(Serializable serializable) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(serializable);
-        oos.close();
-        return toBase64String(baos.toByteArray());
-    }
-
-    /**
      * Decodes the current bytes to a string according to the specified character encoding.
      *
      * @param inputBytes
@@ -395,8 +369,7 @@ public class ConvertionUtils {
     public static byte[] concatenate(byte[] first, byte[] second) {
         byte[] result = new byte[first.length + second.length];
         System.arraycopy(first, 0, result, 0, first.length);
-        System.arraycopy(second, 0, result, first.length,
-                         second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
 
         return result;
     }

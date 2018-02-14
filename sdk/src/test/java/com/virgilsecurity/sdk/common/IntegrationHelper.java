@@ -48,9 +48,9 @@ public class IntegrationHelper extends PropertyManager {
     }
 
     public CardManager getManager(String username) {
-        //FIXME
-//        VirgilCardVerifier cardVerifier = new VirgilCardVerifier(true, true);
-//        cardVerifier.changeServiceCredentials(SERVICE_CARD_ID, SERVICE_PUBLIC_KEY_DER_BASE64);
+        // FIXME
+        // VirgilCardVerifier cardVerifier = new VirgilCardVerifier(true, true);
+        // cardVerifier.changeServiceCredentials(SERVICE_CARD_ID, SERVICE_PUBLIC_KEY_DER_BASE64);
 
         return null;
     }

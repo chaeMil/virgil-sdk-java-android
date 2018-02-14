@@ -49,9 +49,8 @@ public abstract class VirgilServiceException extends Exception {
     private static final String ERROR_UNKNOWN = "Unknown error";
 
     /**
-     * Because we have HttpUrlConnection response
-     * as well as Virgil Service exception in Http error body.
-     * So we have to handle both.
+     * Because we have HttpUrlConnection response as well as Virgil Service exception in Http error body. So we have to
+     * handle both.
      */
     private int errorCode = 0;
     private String messageError;
@@ -67,7 +66,7 @@ public abstract class VirgilServiceException extends Exception {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param code
-     *         The error code.
+     *            the error code
      */
     public VirgilServiceException(int code) {
         this.errorCode = code;
@@ -77,9 +76,9 @@ public abstract class VirgilServiceException extends Exception {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param code
-     *         The error code.
+     *            the error code
      * @param messageError
-     *         The error message.
+     *            the error message
      */
     public VirgilServiceException(int code, String messageError) {
         this.errorCode = code;
@@ -90,11 +89,11 @@ public abstract class VirgilServiceException extends Exception {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param code
-     *         The error code from Virgil Service.
+     *            the error code from Virgil Service
      * @param messageError
-     *         The error message from Virgil Service.
+     *            the error message from Virgil Service
      * @param httpError
-     *         the http error by itself
+     *            the {@link HttpError} by itself
      */
     public VirgilServiceException(int code, String messageError, HttpError httpError) {
         this.errorCode = code;
@@ -106,9 +105,9 @@ public abstract class VirgilServiceException extends Exception {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param code
-     *         The error code.
+     *            the error code
      * @param cause
-     *         The cause.
+     *            the cause
      */
     public VirgilServiceException(int code, Exception cause) {
         super(cause);
@@ -120,7 +119,7 @@ public abstract class VirgilServiceException extends Exception {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param cause
-     *         The cause.
+     *            the cause
      */
     public VirgilServiceException(Exception cause) {
         super(cause);
@@ -128,7 +127,7 @@ public abstract class VirgilServiceException extends Exception {
     }
 
     /**
-     * @return the error code.
+     * @return the error code
      */
     public int getErrorCode() {
         return errorCode;
@@ -153,8 +152,7 @@ public abstract class VirgilServiceException extends Exception {
         String message = "\n";
         if (httpError != null) {
             message += "Http response:\n" + httpError.getCode();
-            if (httpError.getMessage() != null
-                    && !httpError.getMessage().isEmpty()) {
+            if (httpError.getMessage() != null && !httpError.getMessage().isEmpty()) {
                 message += " : " + httpError.getMessage();
             }
 

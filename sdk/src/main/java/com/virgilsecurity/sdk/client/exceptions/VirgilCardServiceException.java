@@ -70,11 +70,11 @@ public class VirgilCardServiceException extends VirgilServiceException {
      * Create a new instance of {@code VirgilCardServiceException}
      *
      * @param code
-     *         The error code from Virgil Services.
+     *            The error code from Virgil Services.
      * @param message
-     *         The error message from Virgil Services.
+     *            The error message from Virgil Services.
      * @param httpError
-     *         the http error by itself
+     *            the http error by itself
      */
     public VirgilCardServiceException(int code, String message, HttpError httpError) {
         super(code, message, httpError);

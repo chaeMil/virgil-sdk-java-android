@@ -57,7 +57,7 @@ public class VirgilClientException extends VirgilException {
      * Create new instance of {@link VirgilClientException}.
      * 
      * @param code
-     *            the error code.
+     *            the error code
      */
     public VirgilClientException(int code) {
         this.code = code;
@@ -67,7 +67,7 @@ public class VirgilClientException extends VirgilException {
      * Create a new instance of {@code VirgilException}
      *
      * @param message
-     *            the detail message.
+     *            the detail message
      */
     public VirgilClientException(String message) {
         super(message);
@@ -75,20 +75,21 @@ public class VirgilClientException extends VirgilException {
 
     /**
      * Create new instance of {@link VirgilClientException}.
+     * 
      * @param cause
+     *            the cause
      */
     public VirgilClientException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
     /**
      * Create a new instance of {@code VirgilException}
      *
      * @param message
-     *            the detail message.
+     *            the detail message
      * @param code
-     *            the error code.
+     *            the error code
      */
     public VirgilClientException(int code, String message) {
         super(message);
@@ -99,14 +100,16 @@ public class VirgilClientException extends VirgilException {
      * Create new instance of {@link VirgilClientException}.
      * 
      * @param message
+     *            the detail message
      * @param cause
+     *            the cause
      */
     public VirgilClientException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * @return the code
+     * @return the error code
      */
     public int getCode() {
         return code;

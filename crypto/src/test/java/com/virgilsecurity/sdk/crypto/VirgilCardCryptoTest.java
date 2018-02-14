@@ -159,24 +159,24 @@ public class VirgilCardCryptoTest {
         byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
         assertTrue(this.cardCrypto.verifySignature(signature, TEST_DATA, this.publicKey));
     }
-    
+
     @Test(expected = NullArgumentException.class)
     public void verifySignature_nullSignature() throws CryptoException {
         this.cardCrypto.verifySignature(null, TEST_DATA, this.publicKey);
     }
-    
+
     @Test(expected = NullArgumentException.class)
     public void verifySignature_nullData() throws CryptoException {
         byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
         this.cardCrypto.verifySignature(signature, null, this.publicKey);
     }
-    
+
     @Test(expected = NullArgumentException.class)
     public void verifySignature_nullKey() throws CryptoException {
         byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
         this.cardCrypto.verifySignature(signature, TEST_DATA, null);
     }
-    
+
     @Test
     public void verifySignature_invalidSignature() throws CryptoException {
         byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);

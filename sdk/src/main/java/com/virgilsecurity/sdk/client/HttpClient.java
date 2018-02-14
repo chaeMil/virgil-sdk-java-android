@@ -66,9 +66,9 @@ public class HttpClient {
      * Create and configure http connection.
      *
      * @param url
-     *         The URL.
+     *            The URL.
      * @param method
-     *         The HTTP method.
+     *            The HTTP method.
      * @return The connection.
      * @throws IOException
      */
@@ -78,12 +78,12 @@ public class HttpClient {
         urlConnection.setUseCaches(false);
 
         switch (method) {
-            case "DELETE":
-            case "POST":
-            case "PUT":
-            case "PATCH":
-                urlConnection.setDoOutput(true);
-                break;
+        case "DELETE":
+        case "POST":
+        case "PUT":
+        case "PATCH":
+            urlConnection.setDoOutput(true);
+            break;
         }
 
         if (!StringUtils.isBlank(token)) {
@@ -96,8 +96,8 @@ public class HttpClient {
         return urlConnection;
     }
 
-    public <T> T execute(URL url, String method, String token, InputStream inputStream,
-                         Class<T> clazz) throws VirgilServiceException {
+    public <T> T execute(URL url, String method, String token, InputStream inputStream, Class<T> clazz)
+            throws VirgilServiceException {
         try {
             HttpURLConnection urlConnection = createConnection(url, method, token);
             if (inputStream != null) {
@@ -113,7 +113,7 @@ public class HttpClient {
                         if (!StringUtils.isBlank(body)) {
                             ErrorResponse error = ConvertionUtils.getGson().fromJson(body, ErrorResponse.class);
                             HttpError httpError = new HttpError(urlConnection.getResponseCode(),
-                                                                urlConnection.getResponseMessage());
+                                    urlConnection.getResponseMessage());
                             throw new VirgilCardServiceException(error.getCode(), error.getMessage(), httpError);
                         } else {
                             LOGGER.warning("Response error body is empty. Nothing to show");
@@ -125,17 +125,16 @@ public class HttpClient {
                     }
                     if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN
                             && clazz.isAssignableFrom(RawSignedModel.class)) {
-                        LOGGER.info("Http error code: " + HttpURLConnection.HTTP_FORBIDDEN + "\n" + "This code is " +
-                                            "returned if Card is outdated. Trying to extract Card...");
+                        LOGGER.info("Http error code: " + HttpURLConnection.HTTP_FORBIDDEN + "\n" + "This code is "
+                                + "returned if Card is outdated. Trying to extract Card...");
                         try (InputStream instream = new BufferedInputStream(urlConnection.getInputStream())) {
                             String body = ConvertionUtils.toString(instream);
-                            RawSignedModel cardModel = ConvertionUtils.getGson().fromJson(body,
-                                                                                          RawSignedModel.class);
+                            RawSignedModel cardModel = ConvertionUtils.getGson().fromJson(body, RawSignedModel.class);
                             throw new VirgilCardIsOutdatedException(cardModel);
                         }
                     }
                     throw new VirgilCardServiceException(urlConnection.getResponseCode(),
-                                                         urlConnection.getResponseMessage());
+                            urlConnection.getResponseMessage());
                 } else if (clazz.isAssignableFrom(Void.class)) {
                     LOGGER.warning("Void is unacceptable type");
                     return null;

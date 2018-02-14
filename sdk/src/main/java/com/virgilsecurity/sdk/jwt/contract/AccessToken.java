@@ -46,8 +46,8 @@ public interface AccessToken {
     String getIdentity();
 
     /**
-     * Gets string representation of access token that is saved during it's lifetime, because secondary
-     * computation of access token's string representation can be not equal to the first one.
+     * Gets string representation of access token that is saved during it's lifetime, because secondary computation of
+     * access token's string representation can be not equal to the first one.
      *
      * @return string representation of access token that is saved during it's lifetime
      */

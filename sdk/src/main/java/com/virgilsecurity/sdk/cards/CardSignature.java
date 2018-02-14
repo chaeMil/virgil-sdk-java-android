@@ -93,10 +93,14 @@ public class CardSignature {
         private Map<String, String> extraFields;
 
         /**
-         * Instantiates a new Card signature builder.
+         * Create new instance of {@link CardSignatureBuilder}.
+         * 
+         * @param signer
+         *            the signer type
+         * @param signature
+         *            the signature
          */
-        public CardSignatureBuilder(String signer,
-                                    byte[] signature) {
+        public CardSignatureBuilder(String signer, byte[] signature) {
             this.signer = signer;
             this.signature = signature;
         }
@@ -104,7 +108,8 @@ public class CardSignature {
         /**
          * Sets snapshot. It's optional property.
          *
-         * @param snapshot the snapshot
+         * @param snapshot
+         *            the snapshot
          * @return the card signature builder
          */
         public CardSignatureBuilder snapshot(byte[] snapshot) {
@@ -115,7 +120,8 @@ public class CardSignature {
         /**
          * Sets extra fields. It's optional property.
          *
-         * @param extraFields the extra fields
+         * @param extraFields
+         *            the extra fields
          * @return the card signature builder
          */
         public CardSignatureBuilder extraFields(Map<String, String> extraFields) {
@@ -141,13 +147,13 @@ public class CardSignature {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         CardSignature that = (CardSignature) o;
-        return Objects.equals(signer, that.signer) &&
-                Arrays.equals(signature, that.signature) &&
-                Arrays.equals(snapshot, that.snapshot) &&
-                Objects.equals(extraFields, that.extraFields);
+        return Objects.equals(signer, that.signer) && Arrays.equals(signature, that.signature)
+                && Arrays.equals(snapshot, that.snapshot) && Objects.equals(extraFields, that.extraFields);
     }
 
     @Override

@@ -81,8 +81,10 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
     /**
      * Create new instance of {@link VirgilPrivateKeyExporter} with specified {@code password}.
      *
+     * @param virgilCrypto
+     *            the Virgil Crypto
      * @param password
-     *            The password for private key.
+     *            the password for private key
      */
     public VirgilPrivateKeyExporter(VirgilCrypto virgilCrypto, String password) {
         if (virgilCrypto == null)
@@ -97,10 +99,10 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
      * {@code password} then it will be used to export private key.
      *
      * @param privateKey
-     *            The private key.
+     *            the private key
      * @return Private key in material representation of {@code byte[]}.
      * @throws CryptoException
-     *             if problems occurred while exporting key.
+     *             if problems occurred while exporting key
      */
     public byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException {
         if (!(privateKey instanceof VirgilPrivateKey))

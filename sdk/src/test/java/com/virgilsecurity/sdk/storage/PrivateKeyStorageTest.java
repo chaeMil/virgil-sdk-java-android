@@ -127,7 +127,7 @@ public class PrivateKeyStorageTest {
 
     @Test
     public void store() throws CryptoException {
-//        when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+        // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
 
         Map<String, String> meta = new HashMap<>();
         meta.put("key1", "value1");
@@ -149,7 +149,7 @@ public class PrivateKeyStorageTest {
 
     @Test
     public void store_noMeta() throws CryptoException {
-        //        when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+        // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
         storage.store(this.privateKey, this.keyName, Collections.EMPTY_MAP);
 
         verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);

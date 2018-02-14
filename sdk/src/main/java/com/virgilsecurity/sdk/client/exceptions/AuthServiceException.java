@@ -49,6 +49,7 @@ public class AuthServiceException extends VirgilServiceException {
      * Create new instance of {@link AuthServiceException}.
      * 
      * @param cause
+     *            the cause
      */
     public AuthServiceException(Exception cause) {
         super(cause);
@@ -58,7 +59,9 @@ public class AuthServiceException extends VirgilServiceException {
      * Create new instance of {@link AuthServiceException}.
      * 
      * @param code
+     *            the error code
      * @param cause
+     *            the cause
      */
     public AuthServiceException(int code, Exception cause) {
         super(code, cause);
@@ -68,6 +71,7 @@ public class AuthServiceException extends VirgilServiceException {
      * Create new instance of {@link AuthServiceException}.
      * 
      * @param code
+     *            the error code
      */
     public AuthServiceException(int code) {
         super(code);

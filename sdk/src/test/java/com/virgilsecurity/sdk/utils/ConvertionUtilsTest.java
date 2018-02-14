@@ -34,7 +34,6 @@ package com.virgilsecurity.sdk.utils;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -86,25 +85,6 @@ public class ConvertionUtilsTest {
         bytes = ConvertionUtils.hexToBytes(str);
         str = ConvertionUtils.toString(bytes);
         assertEquals(TEXT, str);
-    }
-
-    @Test
-    public void serialization() throws IOException, ClassNotFoundException {
-
-        ClassForSerialization classForSerialization = new ClassForSerialization("Gregory", "Gilbert".getBytes());
-
-        assertEquals(classForSerialization.getName(), "Gregory");
-        assertEquals(new String(classForSerialization.getData()), "Gilbert");
-
-        String serializedObject = ConvertionUtils.serializeObject(classForSerialization);
-
-        System.out.println(serializedObject);
-
-        ClassForSerialization deserializedClassForSerialization = (ClassForSerialization) ConvertionUtils
-                .deserializeObject(serializedObject);
-
-        assertEquals(deserializedClassForSerialization.getName(), "Gregory");
-        assertEquals(new String(deserializedClassForSerialization.getData()), "Gilbert");
     }
 
     @Test

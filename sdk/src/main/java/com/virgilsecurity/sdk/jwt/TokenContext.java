@@ -34,8 +34,7 @@
 package com.virgilsecurity.sdk.jwt;
 
 /**
- * The {@link TokenContext} class represents set of data
- * that helps to get token.
+ * The {@link TokenContext} class represents set of data that helps to get token.
  */
 public class TokenContext {
 
@@ -46,10 +45,12 @@ public class TokenContext {
     /**
      * Instantiates a new Token context.
      *
-     * @param operation   the operation that is token used for
-     * @param forceReload {@code true} if token should be reloaded every time
-     * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
-     *                                method is called, otherwise {@code false}
+     * @param operation
+     *            the operation that is token used for
+     * @param forceReload
+     *            {@code true} if token should be reloaded every time
+     *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
+     *            called, otherwise {@code false}
      */
     public TokenContext(String operation, boolean forceReload) {
         this.operation = operation;
@@ -59,11 +60,14 @@ public class TokenContext {
     /**
      * Instantiates a new Token context.
      *
-     * @param identity    the identity
-     * @param operation   the operation that is token used for
-     * @param forceReload {@code true} if token should be reloaded every time
-     * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
-     *                                method is called, otherwise {@code false}
+     * @param identity
+     *            the identity
+     * @param operation
+     *            the operation that is token used for
+     * @param forceReload
+     *            {@code true} if token should be reloaded every time
+     *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
+     *            called, otherwise {@code false}
      */
     public TokenContext(String identity, String operation, boolean forceReload) {
         this.identity = identity;
@@ -83,7 +87,8 @@ public class TokenContext {
     /**
      * Sets identity.
      *
-     * @param identity the identity
+     * @param identity
+     *            the identity
      */
     public void setIdentity(String identity) {
         this.identity = identity;
@@ -101,7 +106,8 @@ public class TokenContext {
     /**
      * Sets operation that is token used for.
      *
-     * @param operation the operation that is token used for
+     * @param operation
+     *            the operation that is token used for
      */
     public void setOperation(String operation) {
         this.operation = operation;
@@ -109,12 +115,11 @@ public class TokenContext {
 
     /**
      * Whether token should be reloaded every time
-     * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
-     *                                method is called.
+     * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is called.
      *
      * @return {@code true} if token should be reloaded every time
-     * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
-     *                                method is called, otherwise {@code false}
+     *         {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is called,
+     *         otherwise {@code false}
      */
     public boolean isForceReload() {
         return forceReload;

@@ -57,7 +57,9 @@ public class PrivateKeyStorage {
      * Create new instance of {@link PrivateKeyStorage}.
      * 
      * @param keyExporter
+     *            the {@link PrivateKeyExporter}
      * @param keyStorage
+     *            the {@link KeyStorage}
      */
     public PrivateKeyStorage(PrivateKeyExporter keyExporter, KeyStorage keyStorage) {
         super();
@@ -81,6 +83,7 @@ public class PrivateKeyStorage {
      * @param meta
      *            The key meta data.
      * @throws CryptoException
+     *             if private couldn't be exported
      */
     public void store(PrivateKey privateKey, String name, Map<String, String> meta) throws CryptoException {
         byte[] exportedKeyData = this.keyExporter.exportPrivateKey(privateKey);
@@ -99,6 +102,7 @@ public class PrivateKeyStorage {
      *            The alias which identifies stored key.
      * @return The pair of private key and key meta data.
      * @throws CryptoException
+     *             if private key couldn't be imported
      */
     public Tuple<PrivateKey, Map<String, String>> load(String keyName) throws CryptoException {
         KeyEntry keyEntry = this.keyStorage.load(keyName);

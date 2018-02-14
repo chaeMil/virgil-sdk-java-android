@@ -32,6 +32,14 @@
  */
 package com.virgilsecurity.sdk.client;
 
+import java.io.ByteArrayInputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -41,18 +49,9 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 
-import java.io.ByteArrayInputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-
 /**
- * The {@link CardClient} class represents a Virgil Security service
- * client and contains all methods for interaction with server.
+ * The {@link CardClient} class represents a Virgil Security service client and contains all methods for interaction
+ * with server.
  */
 public class CardClient {
     private static final Logger LOGGER = Logger.getLogger(CardClient.class.getName());
@@ -71,7 +70,7 @@ public class CardClient {
      * Create a new instance of {@code CardClient}
      *
      * @param serviceUrl
-     *         the service url to fire requests to
+     *            the service url to fire requests to
      */
     public CardClient(String serviceUrl) {
         try {
@@ -87,7 +86,7 @@ public class CardClient {
      * Create a new instance of {@code CardClient}
      *
      * @param serviceUrl
-     *         the service url to fire requests to
+     *            the service url to fire requests to
      */
     public CardClient(URL serviceUrl) {
         this.serviceUrl = serviceUrl;
@@ -98,25 +97,21 @@ public class CardClient {
      * Get card from Virgil Services by specified identifier.
      *
      * @param cardId
-     *         the card identifier.
+     *            the card identifier.
      * @param token
-     *         token to authorize the request.
+     *            token to authorize the request.
      * @return the card loaded from Virgil Cards service.
+     * @throws VirgilServiceException
+     *             if service call failed
      */
-    public Tuple<RawSignedModel, Boolean> getCard(String cardId,
-                                                  String token) throws VirgilServiceException {
+    public Tuple<RawSignedModel, Boolean> getCard(String cardId, String token) throws VirgilServiceException {
         try {
             URL url = new URL(serviceUrl, cardId);
 
-            return new Tuple<>(httpClient.execute(url,
-                                                  "GET",
-                                                  token,
-                                                  null,
-                                                  RawSignedModel.class), false);
+            return new Tuple<>(httpClient.execute(url, "GET", token, null, RawSignedModel.class), false);
         } catch (VirgilCardIsOutdatedException e) {
             LOGGER.fine("Outdated Card is received");
-            return new Tuple<>(e.getCardModel(),
-                               true);
+            return new Tuple<>(e.getCardModel(), true);
         } catch (VirgilServiceException e) {
             LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
             throw e;
@@ -130,23 +125,20 @@ public class CardClient {
      * Publishes card in Virgil Cards service.
      *
      * @param rawCard
-     *         raw signed model of card to be published.
+     *            raw signed model of card to be published.
      * @param token
-     *         token to authorize the request.
+     *            token to authorize the request.
      * @return the {@link RawSignedModel} of the Card that is published to Virgil Cards service.
      * @throws VirgilServiceException
-     *         if an error occurred while publishing Card.
+     *             if an error occurred while publishing Card.
      */
     public RawSignedModel publishCard(RawSignedModel rawCard, String token) throws VirgilServiceException {
         try {
             URL url = serviceUrl;
             String body = rawCard.exportAsJson();
 
-            return httpClient.execute(url,
-                                      "POST",
-                                      token,
-                                      new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
-                                      RawSignedModel.class);
+            return httpClient.execute(url, "POST", token, new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
+                    RawSignedModel.class);
         } catch (VirgilServiceException e) {
             LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
             throw e;
@@ -160,10 +152,12 @@ public class CardClient {
      * Search cards Virgil Services by specified identity.
      *
      * @param identity
-     *         the identity for search.
+     *            the identity for search.
      * @param token
-     *         token to authorize the request.
+     *            token to authorize the request.
      * @return A list of found cards.
+     * @throws VirgilServiceException
+     *             if service call failed
      */
     public List<RawSignedModel> searchCards(String identity, String token) throws VirgilServiceException {
         if (identity == null)
@@ -176,12 +170,8 @@ public class CardClient {
             URL url = new URL(serviceUrl, "actions/search");
             String body = "{\"identity\":\"" + identity + "\"}";
 
-            RawSignedModel[] cardModels =
-                    httpClient.execute(url,
-                                       "POST",
-                                       token,
-                                       new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
-                                       RawSignedModel[].class);
+            RawSignedModel[] cardModels = httpClient.execute(url, "POST", token,
+                    new ByteArrayInputStream(ConvertionUtils.toBytes(body)), RawSignedModel[].class);
 
             return Arrays.asList(cardModels);
         } catch (VirgilServiceException e) {
@@ -206,7 +196,7 @@ public class CardClient {
      * Sets http client that is used to fire requests.
      *
      * @param httpClient
-     *         the http client
+     *            the http client
      */
     public void setHttpClient(HttpClient httpClient) {
         this.httpClient = httpClient;

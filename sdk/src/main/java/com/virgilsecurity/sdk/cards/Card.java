@@ -33,6 +33,13 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Logger;
+
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -44,9 +51,6 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.CardUtils;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
-
-import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * The {@link Card} class is the main entity of Virgil Services. Every user/device is represented with a Virgil Card
@@ -81,6 +85,8 @@ public class Card {
      *            when the Card was created at
      * @param signatures
      *            the list of signatures
+     * @param contentSnapshot
+     *            the card content snapshot
      */
     public Card(String identifier, String identity, PublicKey publicKey, String version, Date createdAt,
             List<CardSignature> signatures, byte[] contentSnapshot) {
@@ -110,6 +116,8 @@ public class Card {
      *            the previous Card identifier that current card is used to override
      * @param signatures
      *            the list of signatures
+     * @param contentSnapshot
+     *            the card content snapshot
      */
     public Card(String identifier, String identity, PublicKey publicKey, String version, Date createdAt,
             String previousCardId, List<CardSignature> signatures, byte[] contentSnapshot) {
@@ -142,6 +150,8 @@ public class Card {
      *            the previous Card that current card is used to override
      * @param signatures
      *            the list of signatures
+     * @param contentSnapshot
+     *            the card content snapshot
      */
     public Card(String identifier, String identity, PublicKey publicKey, String version, Date createdAt,
             String previousCardId, Card previousCard, List<CardSignature> signatures, byte[] contentSnapshot) {
@@ -159,6 +169,8 @@ public class Card {
     /**
      * Instantiates a new Card.
      *
+     * @param identifier
+     *            the card identitier
      * @param identity
      *            unique identity value
      * @param publicKey
@@ -175,6 +187,8 @@ public class Card {
      *            the list of signatures
      * @param isOutdated
      *            whether the card is overridden by another card
+     * @param contentSnapshot
+     *            the card content snapshot
      */
     public Card(String identifier, String identity, PublicKey publicKey, String version, Date createdAt,
             String previousCardId, Card previousCard, List<CardSignature> signatures, boolean isOutdated,
@@ -315,22 +329,27 @@ public class Card {
     /**
      * Parse card from provided raw signed model.
      *
-     * @param crypto
-     *            the crypto
+     * @param cardCrypto
+     *            The card crypto.
      * @param cardModel
-     *            the card model to be parsed
-     * @return the card that is parsed from provided {@link RawSignedModel}
+     *            The card model to be parsed
+     * @return The card that is parsed from provided {@link RawSignedModel}
      * @throws CryptoException
+     *             If any crypto operation fails.
      */
-    public static Card parse(CardCrypto crypto, RawSignedModel cardModel) throws CryptoException {
-        if (cardModel == null)
+    public static Card parse(CardCrypto cardCrypto, RawSignedModel cardModel) throws CryptoException {
+        if (cardCrypto == null) {
+            throw new NullArgumentException("Card -> 'crypto' should not be null");
+        }
+        if (cardModel == null) {
             throw new NullArgumentException("Card -> 'cardModel' should not be null");
+        }
 
         RawCardContent rawCardContent = ConvertionUtils.deserializeFromJson(new String(cardModel.getContentSnapshot()),
                 RawCardContent.class);
 
-        String cardId = CardUtils.generateCardId(crypto, cardModel.getContentSnapshot());
-        PublicKey publicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
+        String cardId = CardUtils.generateCardId(cardCrypto, cardModel.getContentSnapshot());
+        PublicKey publicKey = cardCrypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 
         // Converting RawSignatures to CardSignatures
         List<CardSignature> cardSignatures = new ArrayList<>();

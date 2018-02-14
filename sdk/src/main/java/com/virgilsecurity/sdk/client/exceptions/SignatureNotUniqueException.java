@@ -38,7 +38,6 @@ package com.virgilsecurity.sdk.client.exceptions;
  */
 public class SignatureNotUniqueException extends RuntimeException {
 
-
     private static final long serialVersionUID = -391243883815607617L;
 
     /**
@@ -50,7 +49,8 @@ public class SignatureNotUniqueException extends RuntimeException {
     /**
      * Create new instance of {@link SignatureNotUniqueException}.
      *
-     * @param message The message.
+     * @param message
+     *            The message.
      */
     public SignatureNotUniqueException(String message) {
         super(message);

@@ -108,7 +108,7 @@ public class JsonFileKeyStorage implements KeyStorage {
             entry = new JsonKeyEntry(keyEntry.getName(), keyEntry.getValue());
             entry.setMeta(keyEntry.getMeta());
         }
-        
+
         String json = getGson().toJson(entry);
         File file = new File(dir, name.toLowerCase());
         try (FileOutputStream os = new FileOutputStream(file)) {

@@ -60,20 +60,16 @@ public class VirgilCardCrypto implements CardCrypto {
      * Create new instance of {@link VirgilCardCrypto}.
      *
      * @param virgilCrypto
-     *         The Virgil Crypto.
+     *            The Virgil Crypto.
      */
     public VirgilCardCrypto(VirgilCrypto virgilCrypto) {
         this.virgilCrypto = virgilCrypto;
     }
 
-    /**
-     * Example of usage:
-     * <p>
-     * <pre>
-     *      {@code
-     *      VirgilCardCrypto crypto = new VirgilCardCrypto();
-     *      }
-     * </pre>
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.CardCrypto#exportPublicKey(com.virgilsecurity.sdk.crypto.PublicKey)
      */
     @Override
     public byte[] exportPublicKey(PublicKey publicKey) throws CryptoException {
@@ -86,19 +82,20 @@ public class VirgilCardCrypto implements CardCrypto {
         return virgilCrypto.exportPublicKey((VirgilPublicKey) publicKey);
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.CardCrypto#generateSHA512(byte[])
+     */
     @Override
     public byte[] generateSHA512(byte[] data) throws CryptoException {
         return virgilCrypto.generateHash(data);
     }
 
-    /**
-     * Example of usage:
-     * <p>
-     * <pre>
-     *      {@code
-     *      VirgilCardCrypto crypto = new VirgilCardCrypto();
-     *      }
-     * </pre>
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.CardCrypto#generateSignature(byte[], com.virgilsecurity.sdk.crypto.PrivateKey)
      */
     @Override
     public byte[] generateSignature(byte[] data, PrivateKey privateKey) throws CryptoException {
@@ -113,7 +110,7 @@ public class VirgilCardCrypto implements CardCrypto {
     }
 
     /**
-     * Gets virgil crypto.
+     * Gets Virgil Crypto.
      *
      * @return the virgil crypto
      */
@@ -121,33 +118,21 @@ public class VirgilCardCrypto implements CardCrypto {
         return virgilCrypto;
     }
 
-    /**
-     * Example of usage:
-     * <p>
-     * <pre>
-     *      {@code
-     *      VirgilCardCrypto crypto = new VirgilCardCrypto();
-     *      }
-     * </pre>
-     * <p>
-     * How to get exportedPublicKey see the {@link #exportPublicKey(PublicKey)}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.CardCrypto#importPublicKey(byte[])
      */
     @Override
     public PublicKey importPublicKey(byte[] data) throws CryptoException {
         return virgilCrypto.importPublicKey(data);
     }
 
-    /**
-     * Example of usage:
-     * <p>
-     * <pre>
-     *     {@code
-     *     VirgilCardCrypto crypto = new VirgilCardCrypto();
-     *     }
-     * </pre>
-     * <p>
-     * How to get signature see the {@link #generateSignature(byte[], PrivateKey)} How to get exportedPublicKey see the
-     * {@link #exportPublicKey(PublicKey)}
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.CardCrypto#verifySignature(byte[], byte[],
+     * com.virgilsecurity.sdk.crypto.PublicKey)
      */
     @Override
     public boolean verifySignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException {

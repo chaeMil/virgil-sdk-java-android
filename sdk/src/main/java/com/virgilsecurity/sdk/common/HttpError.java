@@ -45,7 +45,7 @@ public class HttpError {
      * Instantiates a new Http error.
      *
      * @param code
-     *         the code
+     *            the code
      */
     public HttpError(int code) {
         this.code = code;
@@ -55,9 +55,9 @@ public class HttpError {
      * Instantiates a new Http error.
      *
      * @param code
-     *         the code
+     *            the code
      * @param message
-     *         the message
+     *            the message
      */
     public HttpError(int code, String message) {
         this.code = code;
@@ -77,7 +77,7 @@ public class HttpError {
      * Sets code.
      *
      * @param code
-     *         the code
+     *            the code
      */
     public void setCode(int code) {
         this.code = code;
@@ -96,7 +96,7 @@ public class HttpError {
      * Sets message.
      *
      * @param message
-     *         the message
+     *            the message
      */
     public void setMessage(String message) {
         this.message = message;

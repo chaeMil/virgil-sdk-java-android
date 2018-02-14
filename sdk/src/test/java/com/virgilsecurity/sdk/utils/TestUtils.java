@@ -47,35 +47,33 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 public class TestUtils {
 
     public static boolean cardsEqualsSelfSignOnly(Card cardOne, Card cardTwo) {
-        return cardOne.isOutdated() == cardTwo.isOutdated() &&
-                Objects.equals(cardOne.getIdentifier(), cardTwo.getIdentifier()) &&
-                Objects.equals(cardOne.getIdentity(), cardTwo.getIdentity()) &&
-                Objects.equals(cardOne.getPublicKey(), cardTwo.getPublicKey()) &&
-                Objects.equals(cardOne.getVersion(), cardTwo.getVersion()) &&
-                Objects.equals(cardOne.getCreatedAt(), cardTwo.getCreatedAt()) &&
-                Objects.equals(cardOne.getPreviousCardId(), cardTwo.getPreviousCardId()) &&
-                Objects.equals(cardOne.getPreviousCard(), cardTwo.getPreviousCard()) &&
-                Objects.equals(getSelfSignature(cardOne), getSelfSignature(cardTwo));
+        return cardOne.isOutdated() == cardTwo.isOutdated()
+                && Objects.equals(cardOne.getIdentifier(), cardTwo.getIdentifier())
+                && Objects.equals(cardOne.getIdentity(), cardTwo.getIdentity())
+                && Objects.equals(cardOne.getPublicKey(), cardTwo.getPublicKey())
+                && Objects.equals(cardOne.getVersion(), cardTwo.getVersion())
+                && Objects.equals(cardOne.getCreatedAt(), cardTwo.getCreatedAt())
+                && Objects.equals(cardOne.getPreviousCardId(), cardTwo.getPreviousCardId())
+                && Objects.equals(cardOne.getPreviousCard(), cardTwo.getPreviousCard())
+                && Objects.equals(getSelfSignature(cardOne), getSelfSignature(cardTwo));
     }
 
     public static boolean cardModelsEqualsSelfSignOnly(RawSignedModel cardModelOne, RawSignedModel cardModelTwo) {
-        RawCardContent rawCardContentOne =
-                ConvertionUtils.deserializeFromJson(new String(cardModelOne.getContentSnapshot()),
-                                                    RawCardContent.class);
-        RawCardContent rawCardContentTwo =
-                ConvertionUtils.deserializeFromJson(new String(cardModelTwo.getContentSnapshot()),
-                                                    RawCardContent.class);
+        RawCardContent rawCardContentOne = ConvertionUtils
+                .deserializeFromJson(new String(cardModelOne.getContentSnapshot()), RawCardContent.class);
+        RawCardContent rawCardContentTwo = ConvertionUtils
+                .deserializeFromJson(new String(cardModelTwo.getContentSnapshot()), RawCardContent.class);
 
         return cardContentsEqualsSelfSignOnly(rawCardContentOne, rawCardContentTwo)
                 && Objects.equals(getSelfSignature(cardModelOne), getSelfSignature(cardModelTwo));
     }
 
     public static boolean cardContentsEqualsSelfSignOnly(RawCardContent cardContentOne, RawCardContent cardContentTwo) {
-        return Objects.equals(cardContentOne.getIdentity(), cardContentTwo.getIdentity()) &&
-                Objects.equals(cardContentOne.getPublicKey(), cardContentTwo.getPublicKey()) &&
-                Objects.equals(cardContentOne.getVersion(), cardContentTwo.getVersion()) &&
-                cardContentOne.getCreatedAtTimestamp() == cardContentTwo.getCreatedAtTimestamp() &&
-                Objects.equals(cardContentOne.getPreviousCardId(), cardContentTwo.getPreviousCardId());
+        return Objects.equals(cardContentOne.getIdentity(), cardContentTwo.getIdentity())
+                && Objects.equals(cardContentOne.getPublicKey(), cardContentTwo.getPublicKey())
+                && Objects.equals(cardContentOne.getVersion(), cardContentTwo.getVersion())
+                && cardContentOne.getCreatedAtTimestamp() == cardContentTwo.getCreatedAtTimestamp()
+                && Objects.equals(cardContentOne.getPreviousCardId(), cardContentTwo.getPreviousCardId());
     }
 
     private static CardSignature getSelfSignature(Card card) {
@@ -97,20 +95,19 @@ public class TestUtils {
     }
 
     public static void assertCardsEquals(Card expectedCard, Card actualCard) {
-        if (!cardsEqualsSelfSignOnly(expectedCard, actualCard)) //TODO show card more clear
-            Assert.fail("\nExpected card:\n" + expectedCard.toString()
-                                + "\n\nActual card:\n" + actualCard.toString());
+        if (!cardsEqualsSelfSignOnly(expectedCard, actualCard)) // TODO show card more clear
+            Assert.fail("\nExpected card:\n" + expectedCard.toString() + "\n\nActual card:\n" + actualCard.toString());
     }
 
     public static void assertCardModelsEquals(RawSignedModel expectedCardModel, RawSignedModel actualCardModel) {
         if (!cardModelsEqualsSelfSignOnly(expectedCardModel, actualCardModel))
-            Assert.fail("\nExpected card:\n" + expectedCardModel.toString()
-                                + "\n\nActual card:\n" + actualCardModel.toString());
+            Assert.fail("\nExpected card:\n" + expectedCardModel.toString() + "\n\nActual card:\n"
+                    + actualCardModel.toString());
     }
 
     public static void assertCardContentsEquals(RawCardContent expectedCardContent, RawCardContent actualCardContent) {
         if (!cardContentsEqualsSelfSignOnly(expectedCardContent, actualCardContent))
-            Assert.fail("\nExpected card:\n" + expectedCardContent.toString()
-                                + "\n\nActual card:\n" + actualCardContent.toString());
+            Assert.fail("\nExpected card:\n" + expectedCardContent.toString() + "\n\nActual card:\n"
+                    + actualCardContent.toString());
     }
 }

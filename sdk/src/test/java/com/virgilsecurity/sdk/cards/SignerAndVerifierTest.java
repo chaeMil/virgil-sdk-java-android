@@ -49,7 +49,6 @@ import java.util.Map;
 import java.util.Random;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -324,7 +323,6 @@ public class SignerAndVerifierTest extends PropertyManager {
     }
 
     @Test
-    @Ignore
     public void STC_10_verifyVirgilSignWithEmptyWhiteList() throws CryptoException {
         RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(10, STRING));
         Card card = Card.parse(cardCrypto, rawSignedModel);
@@ -336,7 +334,6 @@ public class SignerAndVerifierTest extends PropertyManager {
     }
 
     @Test
-    @Ignore
     public void STC_10_verifySelfAndVirgilSignWithEmptyWhiteList() throws CryptoException {
         RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(10, STRING));
         Card card = Card.parse(cardCrypto, rawSignedModel);

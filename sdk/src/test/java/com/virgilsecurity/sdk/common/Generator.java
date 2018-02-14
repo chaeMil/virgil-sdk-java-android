@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.common;
 
+import static org.junit.Assert.fail;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
@@ -93,7 +95,7 @@ public class Generator {
             return ConvertionUtils.toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32),
                     StringEncoding.HEX);
         } catch (CryptoException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
         }
 
         return null;

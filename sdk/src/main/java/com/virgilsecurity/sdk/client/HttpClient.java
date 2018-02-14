@@ -32,6 +32,14 @@
  */
 package com.virgilsecurity.sdk.client;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -41,14 +49,6 @@ import com.virgilsecurity.sdk.common.HttpError;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StreamUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * @author Andrii Iakovenko
@@ -123,16 +123,6 @@ public class HttpClient {
                         LOGGER.warning("Http error code: " + HttpURLConnection.HTTP_NOT_FOUND);
                         return null;
                     }
-                    if (urlConnection.getResponseCode() == HttpURLConnection.HTTP_FORBIDDEN
-                            && clazz.isAssignableFrom(RawSignedModel.class)) {
-                        LOGGER.info("Http error code: " + HttpURLConnection.HTTP_FORBIDDEN + "\n" + "This code is "
-                                + "returned if Card is outdated. Trying to extract Card...");
-                        try (InputStream instream = new BufferedInputStream(urlConnection.getInputStream())) {
-                            String body = ConvertionUtils.toString(instream);
-                            RawSignedModel cardModel = ConvertionUtils.getGson().fromJson(body, RawSignedModel.class);
-                            throw new VirgilCardIsOutdatedException(cardModel);
-                        }
-                    }
                     throw new VirgilCardServiceException(urlConnection.getResponseCode(),
                             urlConnection.getResponseMessage());
                 } else if (clazz.isAssignableFrom(Void.class)) {
@@ -142,7 +132,12 @@ public class HttpClient {
                     LOGGER.info("Trying to extract response body...");
                     try (InputStream instream = new BufferedInputStream(urlConnection.getInputStream())) {
                         String body = ConvertionUtils.toString(instream);
-                        return ConvertionUtils.getGson().fromJson(body, clazz);
+                        T obj = ConvertionUtils.getGson().fromJson(body, clazz);
+                        if (isSuperseeded(urlConnection)) {
+                            throw new VirgilCardIsOutdatedException((RawSignedModel) obj);
+                        }
+
+                        return obj;
                     }
                 }
             } finally {
@@ -153,6 +148,14 @@ public class HttpClient {
             LOGGER.log(Level.SEVERE, "Connection error", e);
             throw new VirgilCardServiceException(e);
         }
+    }
+
+    private boolean isSuperseeded(HttpURLConnection urlConnection) {
+        String header = urlConnection.getHeaderField("X-Virgil-Is-Superseeded");
+        if (header != null) {
+            return Boolean.parseBoolean(header);
+        }
+        return false;
     }
 
 }

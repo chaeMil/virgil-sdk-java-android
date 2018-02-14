@@ -33,6 +33,28 @@
 
 package com.virgilsecurity.sdk.cards;
 
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
+
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
@@ -45,7 +67,11 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.TokenContext;
@@ -55,20 +81,6 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-
-import java.util.*;
-
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.when;
 
 public class CardsManagerTest extends PropertyManager {
 
@@ -170,8 +182,7 @@ public class CardsManagerTest extends PropertyManager {
 
     @Test
     public void STC_13_6() throws CryptoException, VirgilServiceException {
-        CardManager virgilCardManager = init_STC_13();
-
+        init_STC_13();
     }
 
     @Test
@@ -183,7 +194,7 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_17() throws CryptoException {
+    public void STC_17() throws CryptoException, VirgilServiceException {
         String identity = Generator.identity();
         initCardManager(identity);
 
@@ -191,30 +202,20 @@ public class CardsManagerTest extends PropertyManager {
         RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
                 keyPairVirgiled.getPublicKey(), identity);
         Card generatedCard = Card.parse(cardCrypto, cardModel);
-        Card publishedCard = null;
-        try {
-            publishedCard = cardManager.publishCard(cardModel);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card publishedCard = cardManager.publishCard(cardModel);
         assertNotNull(publishedCard);
 
         assertFalse(publishedCard.isOutdated());
         assertCardsEquals(generatedCard, publishedCard);
 
-        Card cardFromService = null;
-        try {
-            cardFromService = cardManager.getCard(generatedCard.getIdentifier());
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card cardFromService = cardManager.getCard(generatedCard.getIdentifier());
         assertNotNull(cardFromService);
         assertFalse(cardFromService.isOutdated());
         assertCardsEquals(generatedCard, cardFromService);
     }
 
     @Test
-    public void STC_18() throws CryptoException {
+    public void STC_18() throws CryptoException, VirgilServiceException {
         String identity = Generator.identity();
         initCardManager(identity);
 
@@ -226,139 +227,94 @@ public class CardsManagerTest extends PropertyManager {
         RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
                 keyPairVirgiled.getPublicKey(), identity, additionalData);
         Card generatedCard = Card.parse(cardCrypto, cardModel);
-        Card publishedCard = null;
-        try {
-            publishedCard = cardManager.publishCard(cardModel);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card publishedCard = cardManager.publishCard(cardModel);
         assertNotNull(publishedCard);
 
         assertFalse(publishedCard.isOutdated());
         assertCardsEquals(generatedCard, publishedCard);
 
-        Card cardFromService = null;
-        try {
-            cardFromService = cardManager.getCard(generatedCard.getIdentifier());
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card cardFromService = cardManager.getCard(generatedCard.getIdentifier());
         assertNotNull(cardFromService);
         assertFalse(cardFromService.isOutdated());
         assertCardsEquals(generatedCard, cardFromService);
     }
 
     @Test
-    @Ignore
-    public void STC_19() throws CryptoException {
+    public void STC_19() throws CryptoException, VirgilServiceException, InterruptedException {
         String identity = Generator.identity();
         initCardManager(identity);
 
-        VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
-        RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
-                keyPairVirgiledOne.getPublicKey(), identity);
-        Card generatedCardOne = Card.parse(cardCrypto, cardModelOne);
-        Card publishedCardOne = null;
-        try {
-            publishedCardOne = cardManager.publishCard(cardModelOne);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
-        assertNotNull(publishedCardOne);
+        VirgilKeyPair keyPairVirgiled1 = crypto.generateKeys();
+        RawSignedModel cardModel1 = cardManager.generateRawCard(keyPairVirgiled1.getPrivateKey(),
+                keyPairVirgiled1.getPublicKey(), identity);
+        Card generatedCard1 = Card.parse(cardCrypto, cardModel1);
+        Card publishedCard1 = cardManager.publishCard(cardModel1);
+        assertNotNull(publishedCard1);
 
-        assertFalse(publishedCardOne.isOutdated());
-        assertCardsEquals(generatedCardOne, publishedCardOne);
+        assertFalse(publishedCard1.isOutdated());
+        assertCardsEquals(generatedCard1, publishedCard1);
 
-        Card cardFromServiceOne = null;
-        try {
-            cardFromServiceOne = cardManager.getCard(generatedCardOne.getIdentifier());
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
-        assertNotNull(cardFromServiceOne);
-        assertFalse(cardFromServiceOne.isOutdated());
-        assertCardsEquals(generatedCardOne, cardFromServiceOne);
+        Card cardFromService1 = cardManager.getCard(generatedCard1.getIdentifier());
+        assertNotNull(cardFromService1);
+        assertFalse(cardFromService1.isOutdated());
+        assertCardsEquals(generatedCard1, cardFromService1);
 
-        VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
-        RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
-                keyPairVirgiledTwo.getPublicKey(), identity, generatedCardOne.getIdentifier());
-        Card generatedCardTwo = Card.parse(cardCrypto, cardModelTwo);
-        Card publishedCardTwo = null;
-        try {
-            publishedCardTwo = cardManager.publishCard(cardModelTwo);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
-        assertNotNull(publishedCardTwo);
-        assertFalse(publishedCardTwo.isOutdated());
-        assertCardsEquals(generatedCardTwo, publishedCardTwo);
+        // Generate KeyPair2
+        VirgilKeyPair keyPairVirgiled2 = crypto.generateKeys();
+        RawSignedModel cardModel2 = cardManager.generateRawCard(keyPairVirgiled2.getPrivateKey(),
+                keyPairVirgiled2.getPublicKey(), identity, generatedCard1.getIdentifier());
+        Card generatedCard2 = Card.parse(cardCrypto, cardModel2);
 
-        Card cardFromServiceTwo = null;
-        try {
-            cardFromServiceTwo = cardManager.getCard(generatedCardTwo.getIdentifier());
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
-        assertNotNull(cardFromServiceTwo);
-        assertFalse(cardFromServiceTwo.isOutdated());
-        assertCardsEquals(generatedCardTwo, cardFromServiceTwo);
+        // Call publishCard(privateKey2, publicKey2, Card1.identifier)
+        Card publishedCard2 = cardManager.publishCard(cardModel2);
+        // Card2 is successfully created and matches card that was generated on the client side
+        assertNotNull(publishedCard2);
+        assertFalse(publishedCard2.isOutdated());
+        assertCardsEquals(generatedCard2, publishedCard2);
+        assertEquals(cardFromService1.getIdentifier(), publishedCard2.getPreviousCardId());
 
-        Card outdatedCard = null;
-        try {
-            outdatedCard = cardManager.getCard(generatedCardOne.getIdentifier());
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        // Get Card2 using getCard
+        Card cardFromService2 = cardManager.getCard(generatedCard2.getIdentifier());
+        // Card2 is successfully retrieved and matches card that was generated on the client side (including
+        // previousCardId and isOutdated=false).
+        assertNotNull(cardFromService2);
+        assertFalse(cardFromService2.isOutdated());
+        assertCardsEquals(generatedCard2, cardFromService2);
+        assertEquals(cardFromService1.getIdentifier(), cardFromService2.getPreviousCardId());
+
+        // Get Card1 using getCard
+        Card outdatedCard = cardManager.getCard(generatedCard1.getIdentifier());
+        // Card1 is successfully retrieved and matches card that was generated on the client side. (isOutdated=true)
         assertNotNull(outdatedCard);
         assertTrue(outdatedCard.isOutdated());
-        outdatedCard.setOutdated(false);
-        assertCardsEquals(generatedCardOne, outdatedCard);
+        generatedCard1.setOutdated(true);
+        assertCardsEquals(generatedCard1, outdatedCard);
     }
 
     @Test
-    public void STC_20() throws CryptoException {
+    public void STC_20() throws CryptoException, VirgilServiceException {
         String identity = Generator.identity();
         initCardManager(identity);
 
         VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
         RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
                 keyPairVirgiledOne.getPublicKey(), identity);
-        Card publishedCardOne = null;
-        try {
-            publishedCardOne = cardManager.publishCard(cardModelOne);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card publishedCardOne = cardManager.publishCard(cardModelOne);
         assertNotNull(publishedCardOne);
 
         VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
         RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
                 keyPairVirgiledTwo.getPublicKey(), identity, publishedCardOne.getIdentifier());
-        Card publishedCardTwo = null;
-        try {
-            publishedCardTwo = cardManager.publishCard(cardModelTwo);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
         assertNotNull(publishedCardTwo);
 
         VirgilKeyPair keyPairVirgiledThree = crypto.generateKeys();
         RawSignedModel cardModelThree = cardManager.generateRawCard(keyPairVirgiledThree.getPrivateKey(),
                 keyPairVirgiledThree.getPublicKey(), identity);
-        Card publishedCardThree = null;
-        try {
-            publishedCardThree = cardManager.publishCard(cardModelThree);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card publishedCardThree = cardManager.publishCard(cardModelThree);
         assertNotNull(publishedCardThree);
 
-        List<Card> searchedCards = null;
-        try {
-            searchedCards = cardManager.searchCards(identity);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        List<Card> searchedCards = cardManager.searchCards(identity);
         assertNotNull(searchedCards);
         assertTrue(searchedCards.size() == 2);
 
@@ -377,7 +333,7 @@ public class CardsManagerTest extends PropertyManager {
     }
 
     @Test
-    public void STC_21() throws CryptoException {
+    public void STC_21() throws CryptoException, VirgilServiceException {
         String identity = Generator.identity();
 
         CardManager cardManagerExtraSign = new CardManager(cardCrypto,
@@ -390,8 +346,7 @@ public class CardsManagerTest extends PropertyManager {
                             VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
                             modelSigner.sign(cardModel, SIGNER_TYPE_EXTRA, keyPairVirgiled.getPrivateKey());
                         } catch (CryptoException e) {
-                            e.printStackTrace();
-                            fail();
+                            fail(e.getMessage());
                         }
 
                         return cardModel;
@@ -407,12 +362,7 @@ public class CardsManagerTest extends PropertyManager {
                 keyPairVirgiled.getPublicKey(), identity);
         Card generatedCard = Card.parse(cardCrypto, cardModel);
 
-        Card publishedCard = null;
-        try {
-            publishedCard = cardManagerExtraSign.publishCard(cardModel);
-        } catch (VirgilServiceException e) {
-            e.printStackTrace();
-        }
+        Card publishedCard = cardManagerExtraSign.publishCard(cardModel);
         assertNotNull(publishedCard);
         assertEquals(publishedCard.getSignatures().size(), 3);
 

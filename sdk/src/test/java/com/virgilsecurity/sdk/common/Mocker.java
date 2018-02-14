@@ -33,12 +33,23 @@
 
 package com.virgilsecurity.sdk.common;
 
+import static org.junit.Assert.fail;
+
+import java.util.Calendar;
+import java.util.concurrent.TimeUnit;
+
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.CardClient;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
@@ -47,11 +58,6 @@ import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import java.util.Calendar;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.fail;
 
 public class Mocker extends PropertyManager {
 
@@ -201,7 +207,7 @@ public class Mocker extends PropertyManager {
         try {
             return crypto.generateKeys().getPublicKey();
         } catch (CryptoException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
             return null;
         }
     }
@@ -210,7 +216,7 @@ public class Mocker extends PropertyManager {
         try {
             return crypto.generateKeys().getPrivateKey();
         } catch (CryptoException e) {
-            e.printStackTrace();
+            fail(e.getMessage());
             return null;
         }
     }

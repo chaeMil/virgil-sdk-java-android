@@ -76,7 +76,6 @@ public class CardClient {
         try {
             this.serviceUrl = new URL(serviceUrl);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
             throw new IllegalArgumentException("CardClient -> 'serviceUrl' has wrong format");
         }
         httpClient = new HttpClient();

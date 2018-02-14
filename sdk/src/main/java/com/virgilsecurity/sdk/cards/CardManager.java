@@ -302,7 +302,7 @@ public class CardManager {
                 try {
                     cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {
-                    exceptionInner.printStackTrace();
+                    LOGGER.log(Level.SEVERE, "An error ocurred while publishing a card", exceptionOuter);
                     throw exceptionInner;
                 }
             } else {
@@ -472,7 +472,7 @@ public class CardManager {
                 try {
                     response = cardClient.getCard(cardId, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {
-                    exceptionInner.printStackTrace();
+                    LOGGER.log(Level.SEVERE, "An error ocurred while retrieving a card", exceptionOuter);
                     throw exceptionInner;
                 }
             } else {
@@ -524,7 +524,7 @@ public class CardManager {
                 try {
                     cardModels = cardClient.searchCards(identity, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {
-                    exceptionInner.printStackTrace();
+                    LOGGER.log(Level.SEVERE, "An error ocurred while searching for cards", exceptionOuter);
                     throw exceptionInner;
                 }
             } else {

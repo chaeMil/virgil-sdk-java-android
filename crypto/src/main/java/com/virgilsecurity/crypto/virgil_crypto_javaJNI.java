@@ -64,6 +64,8 @@ public class virgil_crypto_javaJNI {
     static {
         swig_module_init();
     }
+    
+    public final static native int VIRGIL_CRYPTO_FEATURE_LOW_LEVEL_WRAP_get();
 
     public final static native void delete_VirgilAsn1Compatible(long jarg1);
 

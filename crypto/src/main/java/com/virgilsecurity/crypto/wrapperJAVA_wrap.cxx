@@ -132,9 +132,11 @@ template <typename T> T SwigValueInit() {
 #endif
 
 /* exporting methods */
-#if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
-#  ifndef GCC_HASCLASSVISIBILITY
-#    define GCC_HASCLASSVISIBILITY
+#if defined(__GNUC__)
+#  if (__GNUC__ >= 4) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4)
+#    ifndef GCC_HASCLASSVISIBILITY
+#      define GCC_HASCLASSVISIBILITY
+#    endif
 #  endif
 #endif
 
@@ -706,7 +708,7 @@ namespace Swig {
   }
 }
 
-#define LIB_LOW_LEVEL_API
+#define VIRGIL_CRYPTO_FEATURE_LOW_LEVEL_WRAP 1
 
 
 SWIGINTERN void SWIG_JavaException(JNIEnv *jenv, int code, const char *msg) {
@@ -743,9 +745,11 @@ SWIGINTERN void SWIG_JavaException(JNIEnv *jenv, int code, const char *msg) {
 }
 
 
+#include <typeinfo>
 #include <stdexcept>
 
 
+#include <typeinfo>
 #include <stdexcept>
 
 
@@ -1143,6 +1147,18 @@ void SwigDirector_VirgilDataSink::swig_connect_director(JNIEnv *jenv, jobject js
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+SWIGEXPORT jint JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_VIRGIL_1CRYPTO_1FEATURE_1LOW_1LEVEL_1WRAP_1get(JNIEnv *jenv, jclass jcls) {
+  jint jresult = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (int)(1);
+  jresult = (jint)result; 
+  return jresult;
+}
+
 
 SWIGEXPORT jlong JNICALL Java_com_virgilsecurity_crypto_virgil_1crypto_1javaJNI_VirgilVersion_1asNumber(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;

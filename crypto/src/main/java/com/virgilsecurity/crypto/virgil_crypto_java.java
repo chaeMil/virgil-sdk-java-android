@@ -33,5 +33,5 @@
 
 package com.virgilsecurity.crypto;
 
-public class virgil_crypto_java {
+public class virgil_crypto_java implements virgil_crypto_javaConstants {
 }

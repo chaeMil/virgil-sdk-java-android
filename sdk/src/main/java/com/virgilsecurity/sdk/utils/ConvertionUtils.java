@@ -60,8 +60,6 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 import com.virgilsecurity.sdk.common.StringEncoding;
 
-//import com.virgilsecurity.crypto.VirgilBase64;
-
 /**
  * Utilities class for data conversion.
  *
@@ -134,7 +132,7 @@ public class ConvertionUtils {
      */
     public static String toBase64String(String value) {
         byte[] bytes = value.getBytes(UTF8_CHARSET);
-        return DatatypeConverter.printBase64Binary(bytes);
+        return Base64.encode(bytes);
     }
 
     /**
@@ -175,19 +173,19 @@ public class ConvertionUtils {
      * Decode Base64 string to byte array.
      *
      * @param value
-     *            The string to be converted.
-     * @return the byte array.
+     *            The string to be converted
+     * @return the byte array
      */
     public static byte[] base64ToBytes(String value) {
-        return DatatypeConverter.parseBase64Binary(value);
+        return Base64.decode(value);
     }
 
     /**
      * Decode Base64 byte array to string.
      *
      * @param bytes
-     *            the base64-encoded byte array.
-     * @return the decoded string.
+     *            the base64-encoded byte array
+     * @return the decoded string
      */
     public static String base64ToString(byte[] bytes) {
         return toString(base64ToBytes(toString(bytes)));

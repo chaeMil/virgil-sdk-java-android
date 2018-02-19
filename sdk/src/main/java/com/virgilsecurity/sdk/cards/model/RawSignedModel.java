@@ -33,14 +33,14 @@
 
 package com.virgilsecurity.sdk.cards.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
 
 /**
  * The Raw signed model.
@@ -67,6 +67,16 @@ public class RawSignedModel {
         this.contentSnapshot = contentSnapshot;
 
         signatures = new ArrayList<>();
+    }
+
+    /**
+     * Create new instance of {@link RawSignedModel}.
+     * 
+     * @param base64EncodedString
+     *            the Base64-encoded card content snapshot.
+     */
+    public RawSignedModel(String base64EncodedString) {
+        this(ConvertionUtils.base64ToBytes(base64EncodedString));
     }
 
     /**
@@ -192,7 +202,7 @@ public class RawSignedModel {
      *
      * @return the string
      */
-    public String exportAsString() {
+    public String exportAsBase64String() {
         return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
     }
 

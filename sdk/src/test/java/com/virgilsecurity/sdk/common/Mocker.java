@@ -180,7 +180,12 @@ public class Mocker extends PropertyManager {
             }
         };
 
-        return new CardManager(new VirgilCardCrypto(), accessTokenProvider, null, new CardClient(), null, signCallback);
+        return new CardManager.Builder()
+                .setCrypto(new VirgilCardCrypto())
+                .setAccessTokenProvider(accessTokenProvider)
+                .setCardClient(new CardClient())
+                .setSignCallback(signCallback)
+                .build();
     }
 
     public Jwt generateAccessToken(String identity) throws CryptoException {

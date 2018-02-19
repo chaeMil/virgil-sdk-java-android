@@ -53,12 +53,6 @@ public class CallbackJwtProvider implements AccessTokenProvider {
 
     /**
      * Instantiates a new Callback jwt provider.
-     */
-    public CallbackJwtProvider() {
-    }
-
-    /**
-     * Instantiates a new Callback jwt provider.
      *
      * @param getTokenCallback
      *            the get token callback

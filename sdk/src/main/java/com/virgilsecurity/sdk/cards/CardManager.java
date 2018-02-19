@@ -54,6 +54,7 @@ import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
@@ -78,59 +79,9 @@ public class CardManager {
     private SignCallback signCallback;
 
     /**
-     * Instantiates a new Card manager.
-     *
-     * @param crypto
-     *            the crypto
-     * @param accessTokenProvider
-     *            the access token provider
-     * @param modelSigner
-     *            the model signer
-     * @param cardClient
-     *            the card client
-     * @param cardVerifier
-     *            the card verifier
-     * @param signCallback
-     *            the sign callback
+     * Create new instance of {@link CardManager}.
      */
-    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider, ModelSigner modelSigner,
-            CardClient cardClient, CardVerifier cardVerifier, SignCallback signCallback) {
-        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
-        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
-        Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
-
-        this.modelSigner = modelSigner;
-        this.crypto = crypto;
-        this.accessTokenProvider = accessTokenProvider;
-        this.cardVerifier = cardVerifier;
-        this.cardClient = cardClient;
-        this.signCallback = signCallback;
-    }
-
-    /**
-     * Instantiates a new Card manager.
-     *
-     * @param crypto
-     *            the crypto
-     * @param accessTokenProvider
-     *            the access token provider
-     * @param modelSigner
-     *            the model signer
-     * @param cardClient
-     *            the card client
-     * @param cardVerifier
-     *            the card verifier
-     */
-    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider, ModelSigner modelSigner,
-            CardClient cardClient, CardVerifier cardVerifier) {
-        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
-        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
-
-        this.modelSigner = modelSigner;
-        this.crypto = crypto;
-        this.accessTokenProvider = accessTokenProvider;
-        this.cardVerifier = cardVerifier;
-        this.cardClient = cardClient;
+    private CardManager() {
     }
 
     /**
@@ -729,5 +680,121 @@ public class CardManager {
          * @see #generateRawCard(PrivateKey, PublicKey, String, String, Map)
          */
         RawSignedModel onSign(RawSignedModel rawSignedModel);
+    }
+
+    /**
+     * A builder of {@link CardManager} objects.
+     * 
+     * @author Andrii Iakovenko
+     *
+     */
+    public static class Builder {
+        private CardCrypto cardCrypto;
+        private AccessTokenProvider accessTokenProvider;
+        private ModelSigner modelSigner;
+        private CardVerifier cardVerifier;
+        private CardClient cardClient;
+        private SignCallback signCallback;
+
+        /**
+         * Build Card manager.
+         * 
+         * @return the instance of {@link CardManager}
+         * @throws NullPointerException
+         *             if any mandatory parameter is not set.
+         */
+        public CardManager build() {
+            if (this.cardCrypto == null) {
+                throw new NullArgumentException("crypto");
+            }
+            if (this.accessTokenProvider == null) {
+                throw new NullArgumentException("accessTokenProvider");
+            }
+            if (this.cardVerifier == null) {
+                throw new NullArgumentException("cardVerifier");
+            }
+
+            CardManager manager = new CardManager();
+            manager.crypto = this.cardCrypto;
+            manager.accessTokenProvider = this.accessTokenProvider;
+            manager.modelSigner = this.modelSigner;
+            manager.cardVerifier = this.cardVerifier;
+            manager.cardClient = this.cardClient;
+            manager.signCallback = this.signCallback;
+
+            return manager;
+        };
+
+        /**
+         * Sets the model signer.
+         * 
+         * @param modelSigner
+         *            the model signer
+         */
+        public Builder setModelSigner(ModelSigner modelSigner) {
+            this.modelSigner = modelSigner;
+
+            return this;
+        }
+
+        /**
+         * Sets the card crypto.
+         * 
+         * @param cardCrypto
+         *            the card crypto
+         */
+        public Builder setCrypto(CardCrypto cardCrypto) {
+            this.cardCrypto = cardCrypto;
+
+            return this;
+        }
+
+        /**
+         * Sets the access token provider.
+         * 
+         * @param accessTokenProvider
+         *            the access token provider
+         */
+        public Builder setAccessTokenProvider(AccessTokenProvider accessTokenProvider) {
+            this.accessTokenProvider = accessTokenProvider;
+
+            return this;
+        }
+
+        /**
+         * Sets the card verifier.
+         * 
+         * @param cardVerifier
+         *            the card verifier
+         */
+        public Builder setCardVerifier(CardVerifier cardVerifier) {
+            this.cardVerifier = cardVerifier;
+
+            return this;
+        }
+
+        /**
+         * Sets the card client.
+         * 
+         * @param cardClient
+         *            the card client
+         */
+        public Builder setCardClient(CardClient cardClient) {
+            this.cardClient = cardClient;
+
+            return this;
+        }
+
+        /**
+         * Sets the sign callback.
+         * 
+         * @param signCallback
+         *            the sign callback
+         */
+        public Builder setSignCallback(SignCallback signCallback) {
+            this.signCallback = signCallback;
+
+            return this;
+        }
     }
 }

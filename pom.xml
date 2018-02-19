@@ -101,6 +101,7 @@
 		<module>crypto-android</module>
 		<module>sdk</module>
         <module>sdk-android</module>
+        <module>examples</module>
 	</modules>
 
 	<dependencyManagement>

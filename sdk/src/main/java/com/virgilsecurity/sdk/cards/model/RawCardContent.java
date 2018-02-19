@@ -260,7 +260,7 @@ public class RawCardContent {
      *
      * @return the base64 string
      */
-    public String exportAsString() {
+    public String exportAsBase64String() {
         return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
     }
 

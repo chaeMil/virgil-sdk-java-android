@@ -43,8 +43,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -65,7 +68,6 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
  *
  */
 @RunWith(Parameterized.class)
-@Ignore
 public class VirgilCryptoTest {
 
     private static final String TEXT = "This text is used for unit tests";
@@ -81,7 +83,12 @@ public class VirgilCryptoTest {
 
     @Parameters(name = "keyType={0}")
     public static KeysType[] params() {
-        return KeysType.values();
+        Set<KeysType> values = new HashSet<>(Arrays.asList(KeysType.values()));
+        // Skip RSA test because they are too slow
+        values.remove(KeysType.RSA_3072);
+        values.remove(KeysType.RSA_4096);
+        values.remove(KeysType.RSA_8192);
+        return values.toArray(new KeysType[0]);
     }
 
     /**
@@ -168,6 +175,7 @@ public class VirgilCryptoTest {
 
     @Test
     public void encrypt_noRecipients_success() throws VirgilException {
+        @SuppressWarnings("unchecked")
         byte[] encrypted = crypto.encrypt(TEXT.getBytes(), Collections.EMPTY_LIST);
 
         assertNotNull(encrypted);

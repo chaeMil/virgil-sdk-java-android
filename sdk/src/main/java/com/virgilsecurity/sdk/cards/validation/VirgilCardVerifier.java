@@ -33,6 +33,12 @@
 
 package com.virgilsecurity.sdk.cards.validation;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardSignature;
 import com.virgilsecurity.sdk.cards.SignerType;
@@ -41,12 +47,6 @@ import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * The {@link VirgilCardVerifier} is used to verify cards.
@@ -57,8 +57,8 @@ public class VirgilCardVerifier implements CardVerifier {
     private String virgilPublicKeyBase64 = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
 
     private CardCrypto cardCrypto;
-    private boolean verifySelfSignature = true;
-    private boolean verifyVirgilSignature = true;
+    private boolean verifySelfSignature;
+    private boolean verifyVirgilSignature;
     private List<WhiteList> whiteLists;
 
     /**
@@ -68,10 +68,19 @@ public class VirgilCardVerifier implements CardVerifier {
      *            the crypto
      */
     public VirgilCardVerifier(CardCrypto cardCrypto) {
-        Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
-        this.cardCrypto = cardCrypto;
+        this(cardCrypto, new ArrayList<WhiteList>());
+    }
 
-        this.whiteLists = new ArrayList<>();
+    /**
+     * Instantiates a new Virgil card verifier.
+     *
+     * @param cardCrypto
+     *            the card crypto
+     * @param whiteLists
+     *            the white lists that should contain Card signatures, otherwise Card validation will be failed
+     */
+    public VirgilCardVerifier(CardCrypto cardCrypto, List<WhiteList> whiteLists) {
+        this(cardCrypto, true, true, whiteLists);
     }
 
     /**
@@ -85,13 +94,7 @@ public class VirgilCardVerifier implements CardVerifier {
      *            whether the virgil signature should be verified
      */
     public VirgilCardVerifier(CardCrypto cardCrypto, boolean verifySelfSignature, boolean verifyVirgilSignature) {
-        Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
-
-        this.cardCrypto = cardCrypto;
-        this.verifySelfSignature = verifySelfSignature;
-        this.verifyVirgilSignature = verifyVirgilSignature;
-
-        this.whiteLists = new ArrayList<>();
+        this(cardCrypto, verifySelfSignature, verifyVirgilSignature, new ArrayList<WhiteList>());
     }
 
     /**

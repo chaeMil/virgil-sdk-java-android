@@ -55,6 +55,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
+import com.virgilsecurity.sdk.cards.CardManager.Builder;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -113,13 +114,15 @@ public class SignerAndVerifierTest extends PropertyManager {
         } else {
             cardClient = new CardClient(url);
         }
-        cardManager = new CardManager(cardCrypto, Mockito.mock(AccessTokenProvider.class),
-                Mockito.mock(ModelSigner.class), cardClient, verifier, new CardManager.SignCallback() {
+        cardManager = new Builder().setCrypto(cardCrypto)
+                .setAccessTokenProvider(Mockito.mock(AccessTokenProvider.class))
+                .setModelSigner(Mockito.mock(ModelSigner.class)).setCardClient(cardClient).setCardVerifier(verifier)
+                .setSignCallback(new CardManager.SignCallback() {
                     @Override
                     public RawSignedModel onSign(RawSignedModel rawSignedModel) {
                         return rawSignedModel;
                     }
-                });
+                }).build();
         dataProvider = new CompatibilityDataProvider();
     }
 
@@ -564,8 +567,9 @@ public class SignerAndVerifierTest extends PropertyManager {
         when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(expiredToken, token);
         when(signCallback.onSign(Mockito.any(RawSignedModel.class))).thenReturn(rawSignedModel);
 
-        CardManager cardManager = new CardManager(this.cardCrypto, accessTokenProvider, modelSigner, cardClient,
-                cardVerifier, signCallback);
+        CardManager cardManager = new Builder().setCrypto(this.cardCrypto).setAccessTokenProvider(accessTokenProvider)
+                .setModelSigner(modelSigner).setCardClient(cardClient).setCardVerifier(cardVerifier)
+                .setSignCallback(signCallback).build();
 
         Card card = cardManager.publishCard(rawSignedModel);
         assertNotNull(card);

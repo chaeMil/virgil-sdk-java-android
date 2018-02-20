@@ -32,20 +32,20 @@
  */
 package com.virgilsecurity.sdk.examples;
 
-import java.util.Arrays;
-
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.CardManager.Builder;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.cards.validation.WhiteList;
+import com.virgilsecurity.sdk.cards.validation.Whitelist;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.util.Arrays;
 
 /**
  * @author Andrii Iakovenko
@@ -87,9 +87,9 @@ public class SetupCardManagerExample {
         VerifierCredentials yourBackendVerifierCredenetials = new VerifierCredentials("YOUR_BACKEND",
                 ConvertionUtils.base64ToBytes(PUBLIC_KEY_STR));
 
-        WhiteList yourBackendWhiteList = new WhiteList(Arrays.asList(yourBackendVerifierCredenetials));
+        Whitelist yourBackendWhitelist = new Whitelist(Arrays.asList(yourBackendVerifierCredenetials));
 
-        CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto, Arrays.asList(yourBackendWhiteList));
+        CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto, Arrays.asList(yourBackendWhitelist));
 
         return cardVerifier;
     }

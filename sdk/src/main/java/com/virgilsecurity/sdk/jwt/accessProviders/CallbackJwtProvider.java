@@ -39,23 +39,19 @@ import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
-import java.util.logging.Logger;
-
 /**
  * The {@link CallbackJwtProvider} class is implemented for usage of get token callback mechanism which should predefine
- * implementation of generating/receiving/caching of token.
+ * implementation of generating/receiving/caching of token. Caching should be implemented by user if needed.
  */
 public class CallbackJwtProvider implements AccessTokenProvider {
-    private static final Logger LOGGER = Logger.getLogger(CallbackJwtProvider.class.getName());
 
-    private Jwt jwtToken;
     private GetTokenCallback getTokenCallback;
 
     /**
      * Instantiates a new Callback jwt provider.
      *
      * @param getTokenCallback
-     *            the get token callback
+     *         the get token callback
      */
     public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
         this.getTokenCallback = getTokenCallback;
@@ -66,19 +62,14 @@ public class CallbackJwtProvider implements AccessTokenProvider {
         Validator.checkNullAgrument(context, "CallbackJwtProvider -> 'context' should not be null");
         Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> set getTokenCallback first");
 
-        if (context.isForceReload() || jwtToken == null || jwtToken.isExpired()) {
-            LOGGER.info("Token is force reloaded");
-            return jwtToken = new Jwt(getTokenCallback.onGetToken());
-        } else {
-            return jwtToken;
-        }
+        return new Jwt(getTokenCallback.onGetToken());
     }
 
     /**
      * Sets get token callback.
      *
      * @param getTokenCallback
-     *            the get token callback
+     *         the get token callback
      */
     public void setGetTokenCallback(GetTokenCallback getTokenCallback) {
         Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> 'getTokenCallback' should not be null");
@@ -91,7 +82,8 @@ public class CallbackJwtProvider implements AccessTokenProvider {
      */
     public interface GetTokenCallback {
         /**
-         * On get token string.
+         * In this callback you should return valid JsonWebToken as base64 string
+         * in 2 or 3 parts separated with dot ('.').
          *
          * @return the string
          */

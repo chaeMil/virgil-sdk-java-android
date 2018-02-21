@@ -1,20 +1,23 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -54,7 +57,7 @@ public class VirgilClientException extends VirgilException {
      * Create new instance of {@link VirgilClientException}.
      * 
      * @param code
-     *            the error code.
+     *            the error code
      */
     public VirgilClientException(int code) {
         this.code = code;
@@ -64,7 +67,7 @@ public class VirgilClientException extends VirgilException {
      * Create a new instance of {@code VirgilException}
      *
      * @param message
-     *            the detail message.
+     *            the detail message
      */
     public VirgilClientException(String message) {
         super(message);
@@ -72,20 +75,21 @@ public class VirgilClientException extends VirgilException {
 
     /**
      * Create new instance of {@link VirgilClientException}.
+     * 
      * @param cause
+     *            the cause
      */
     public VirgilClientException(Throwable cause) {
         super(cause);
-        // TODO Auto-generated constructor stub
     }
 
     /**
      * Create a new instance of {@code VirgilException}
      *
      * @param message
-     *            the detail message.
+     *            the detail message
      * @param code
-     *            the error code.
+     *            the error code
      */
     public VirgilClientException(int code, String message) {
         super(message);
@@ -96,14 +100,16 @@ public class VirgilClientException extends VirgilException {
      * Create new instance of {@link VirgilClientException}.
      * 
      * @param message
+     *            the detail message
      * @param cause
+     *            the cause
      */
     public VirgilClientException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
-     * @return the code
+     * @return the error code
      */
     public int getCode() {
         return code;

@@ -1,20 +1,23 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -36,6 +39,7 @@ import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.InvalidPathException;
 import java.util.HashMap;
+import java.util.Set;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -44,8 +48,6 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyStorageException;
 
 /**
- * Virgil implementation of a storage facility for cryptographic keys.
- *
  * @author Andrii Iakovenko
  *
  */
@@ -104,13 +106,21 @@ public class DefaultKeyStorage implements KeyStorage {
     @Override
     public void store(KeyEntry keyEntry) {
         String name = keyEntry.getName();
+        
+        KeyEntry entry;
+        if (keyEntry instanceof JsonKeyEntry) {
+            entry = keyEntry;
+        } else {
+            entry = new JsonKeyEntry(keyEntry.getName(), keyEntry.getValue());
+            entry.setMeta(keyEntry.getMeta());
+        }
 
         synchronized (this) {
             Entries entries = load();
             if (entries.containsKey(name)) {
                 throw new KeyEntryAlreadyExistsException();
             }
-            entries.put(name, (VirgilKeyEntry) keyEntry);
+            entries.put(name, (JsonKeyEntry) entry);
             save(entries);
         }
     }
@@ -127,7 +137,7 @@ public class DefaultKeyStorage implements KeyStorage {
             if (!entries.containsKey(keyName)) {
                 throw new KeyEntryNotFoundException();
             }
-            VirgilKeyEntry entry = entries.get(keyName);
+            JsonKeyEntry entry = entries.get(keyName);
             entry.setName(keyName);
             return entry;
         }
@@ -164,6 +174,17 @@ public class DefaultKeyStorage implements KeyStorage {
             entries.remove(keyName);
             save(entries);
         }
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyStorage#names()
+     */
+    @Override
+    public Set<String> names() {
+        Entries entries = load();
+        return entries.keySet();
     }
 
     private Entries load() {
@@ -207,7 +228,7 @@ public class DefaultKeyStorage implements KeyStorage {
         return gson;
     }
 
-    private static class Entries extends HashMap<String, VirgilKeyEntry> {
+    private static class Entries extends HashMap<String, JsonKeyEntry> {
         private static final long serialVersionUID = 261773342073013945L;
 
     }

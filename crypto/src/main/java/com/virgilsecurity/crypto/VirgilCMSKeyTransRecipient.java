@@ -1,102 +1,100 @@
-/**
- * Copyright (C) 2017 Virgil Security Inc.
+/*
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
  *
  * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * modification, are permitted provided that the following conditions are met:
  *
- *     (1) Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- *     (2) Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in
- *     the documentation and/or other materials provided with the
- *     distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- *     (3) Neither the name of the copyright holder nor the names of its
+ *     (3) Neither the name of virgil nor the names of its
  *     contributors may be used to endorse or promote products derived from
  *     this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package com.virgilsecurity.crypto;
 
 public class VirgilCMSKeyTransRecipient extends VirgilAsn1Compatible implements java.lang.AutoCloseable {
-  protected static long getCPtr(VirgilCMSKeyTransRecipient obj) {
-    return (obj == null) ? 0 : obj.swigCPtr;
-  }
-
-  private transient long swigCPtr;
-
-  public VirgilCMSKeyTransRecipient() {
-    this(virgil_crypto_javaJNI.new_VirgilCMSKeyTransRecipient__SWIG_0(), true);
-  }
-
-  protected VirgilCMSKeyTransRecipient(long cPtr, boolean cMemoryOwn) {
-    super(virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_SWIGUpcast(cPtr), cMemoryOwn);
-    swigCPtr = cPtr;
-  }
-
-  public VirgilCMSKeyTransRecipient(VirgilCMSKeyTransRecipient other) {
-    this(virgil_crypto_javaJNI.new_VirgilCMSKeyTransRecipient__SWIG_1(VirgilCMSKeyTransRecipient.getCPtr(other), other), true);
-  }
-
-  @Override
-  public void close() {
-    delete();
-  }
-
-  public synchronized void delete() {
-    if (swigCPtr != 0) {
-      if (swigCMemOwn) {
-        swigCMemOwn = false;
-        virgil_crypto_javaJNI.delete_VirgilCMSKeyTransRecipient(swigCPtr);
-      }
-      swigCPtr = 0;
+    protected static long getCPtr(VirgilCMSKeyTransRecipient obj) {
+        return (obj == null) ? 0 : obj.swigCPtr;
     }
-    super.delete();
-  }
 
-  protected void finalize() {
-    delete();
-  }
+    private transient long swigCPtr;
 
-  public byte[] getEncryptedKey() {
-    return virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_encryptedKey_get(swigCPtr, this);
-  }
+    public VirgilCMSKeyTransRecipient() {
+        this(virgil_crypto_javaJNI.new_VirgilCMSKeyTransRecipient__SWIG_0(), true);
+    }
 
-  public byte[] getKeyEncryptionAlgorithm() {
-    return virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_keyEncryptionAlgorithm_get(swigCPtr, this);
-  }
+    public VirgilCMSKeyTransRecipient(VirgilCMSKeyTransRecipient other) {
+        this(virgil_crypto_javaJNI.new_VirgilCMSKeyTransRecipient__SWIG_1(VirgilCMSKeyTransRecipient.getCPtr(other),
+                other), true);
+    }
 
-  public byte[] getRecipientIdentifier() {
-    return virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_recipientIdentifier_get(swigCPtr, this);
-  }
+    protected VirgilCMSKeyTransRecipient(long cPtr, boolean cMemoryOwn) {
+        super(virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_SWIGUpcast(cPtr), cMemoryOwn);
+        swigCPtr = cPtr;
+    }
 
-  public void setEncryptedKey(byte[] value) {
-    virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_encryptedKey_set(swigCPtr, this, value);
-  }
+    @Override
+    public void close() {
+        delete();
+    }
 
-  public void setKeyEncryptionAlgorithm(byte[] value) {
-    virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_keyEncryptionAlgorithm_set(swigCPtr, this, value);
-  }
+    public synchronized void delete() {
+        if (swigCPtr != 0) {
+            if (swigCMemOwn) {
+                swigCMemOwn = false;
+                virgil_crypto_javaJNI.delete_VirgilCMSKeyTransRecipient(swigCPtr);
+            }
+            swigCPtr = 0;
+        }
+        super.delete();
+    }
 
-  public void setRecipientIdentifier(byte[] value) {
-    virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_recipientIdentifier_set(swigCPtr, this, value);
-  }
+    public byte[] getEncryptedKey() {
+        return virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_encryptedKey_get(swigCPtr, this);
+    }
+
+    public byte[] getKeyEncryptionAlgorithm() {
+        return virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_keyEncryptionAlgorithm_get(swigCPtr, this);
+    }
+
+    public byte[] getRecipientIdentifier() {
+        return virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_recipientIdentifier_get(swigCPtr, this);
+    }
+
+    public void setEncryptedKey(byte[] value) {
+        virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_encryptedKey_set(swigCPtr, this, value);
+    }
+
+    public void setKeyEncryptionAlgorithm(byte[] value) {
+        virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_keyEncryptionAlgorithm_set(swigCPtr, this, value);
+    }
+
+    public void setRecipientIdentifier(byte[] value) {
+        virgil_crypto_javaJNI.VirgilCMSKeyTransRecipient_recipientIdentifier_set(swigCPtr, this, value);
+    }
+
+    protected void finalize() {
+        delete();
+    }
 
 }

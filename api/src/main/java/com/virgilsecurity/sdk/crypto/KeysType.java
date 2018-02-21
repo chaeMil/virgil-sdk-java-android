@@ -1,20 +1,23 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -38,7 +41,7 @@ package com.virgilsecurity.sdk.crypto;
 public enum KeysType {
     /** Recommended most safe type */
     Default,
-    /** RSA 2048 bit (not recommended) */
+    // RSA with key size less than 2k are unsecured and shouldn't be supported
     RSA_2048,
     /** RSA 3072 bit */
     RSA_3072,
@@ -46,6 +49,10 @@ public enum KeysType {
     RSA_4096,
     /** RSA 8192 bit */
     RSA_8192,
+    /** 192-bits NIST curve */
+    EC_SECP192R1,
+    /** 224-bits NIST curve */
+    EC_SECP224R1,
     /** 256-bits NIST curve */
     EC_SECP256R1,
     /** 384-bits NIST curve */
@@ -58,6 +65,10 @@ public enum KeysType {
     EC_BP384R1,
     /** 512-bits Brainpool curve */
     EC_BP512R1,
+    /** 192-bits "Koblitz" curve */
+    EC_SECP192K1,
+    /** 224-bits "Koblitz" curve */
+    EC_SECP224K1,
     /** 256-bits "Koblitz" curve */
     EC_SECP256K1,
     /** Diffie–Hellman X25519 */
@@ -66,5 +77,4 @@ public enum KeysType {
     FAST_EC_X25519,
     /** EdDSA Ed25519 */
     FAST_EC_ED25519
-
 }

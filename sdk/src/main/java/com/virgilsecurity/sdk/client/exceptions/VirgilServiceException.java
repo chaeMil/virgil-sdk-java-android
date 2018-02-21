@@ -1,20 +1,23 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -32,19 +35,26 @@ package com.virgilsecurity.sdk.client.exceptions;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import com.virgilsecurity.sdk.common.HttpError;
+
 /**
  * Base exception class for all Virgil Services operations
  *
  * @author Andrii Iakovenko
- *
  */
-public abstract class VirgilServiceException extends RuntimeException {
+public abstract class VirgilServiceException extends Exception {
 
     private static final long serialVersionUID = -1143173438484224903L;
 
-    protected static final String ERROR_UNKNOWN = "Unknown error";
+    private static final String ERROR_UNKNOWN = "Unknown error";
 
+    /**
+     * Because we have HttpUrlConnection response as well as Virgil Service exception in Http error body. So we have to
+     * handle both.
+     */
     private int errorCode = 0;
+    private String messageError;
+    private HttpError httpError;
 
     /**
      * Create a new instance of {@code VirgilServiceException}
@@ -56,7 +66,7 @@ public abstract class VirgilServiceException extends RuntimeException {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param code
-     *            The error code.
+     *            the error code
      */
     public VirgilServiceException(int code) {
         this.errorCode = code;
@@ -66,9 +76,38 @@ public abstract class VirgilServiceException extends RuntimeException {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param code
-     *            The error code.
+     *            the error code
+     * @param messageError
+     *            the error message
+     */
+    public VirgilServiceException(int code, String messageError) {
+        this.errorCode = code;
+        this.messageError = messageError;
+    }
+
+    /**
+     * Create a new instance of {@code VirgilServiceException}
+     *
+     * @param code
+     *            the error code from Virgil Service
+     * @param messageError
+     *            the error message from Virgil Service
+     * @param httpError
+     *            the {@link HttpError} by itself
+     */
+    public VirgilServiceException(int code, String messageError, HttpError httpError) {
+        this.errorCode = code;
+        this.messageError = messageError;
+        this.httpError = httpError;
+    }
+
+    /**
+     * Create a new instance of {@code VirgilServiceException}
+     *
+     * @param code
+     *            the error code
      * @param cause
-     *            The cause.
+     *            the cause
      */
     public VirgilServiceException(int code, Exception cause) {
         super(cause);
@@ -80,7 +119,7 @@ public abstract class VirgilServiceException extends RuntimeException {
      * Create a new instance of {@code VirgilServiceException}
      *
      * @param cause
-     *            The cause.
+     *            the cause
      */
     public VirgilServiceException(Exception cause) {
         super(cause);
@@ -88,31 +127,53 @@ public abstract class VirgilServiceException extends RuntimeException {
     }
 
     /**
-     * @return the error code.
+     * @return the error code
      */
     public int getErrorCode() {
         return errorCode;
     }
 
+    /**
+     * Gets http error.
+     *
+     * @return the http error
+     */
+    public HttpError getHttpError() {
+        return httpError;
+    }
+
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Throwable#getMessage()
      */
     @Override
     public String getMessage() {
-        if (errorCode == -1) {
-            return super.getMessage();
-        }
-        ResourceBundle bundle = null;
-        try {
-            bundle = ResourceBundle.getBundle(getMessageBundleName());
-            String key = String.valueOf(this.errorCode);
-            if (bundle.containsKey(key)) {
-                return bundle.getString(key);
+        String message = "\n";
+        if (httpError != null) {
+            message += "Http response:\n" + httpError.getCode();
+            if (httpError.getMessage() != null && !httpError.getMessage().isEmpty()) {
+                message += " : " + httpError.getMessage();
             }
-        } catch (MissingResourceException e) {
+
+            message += "\nService response:\n";
         }
+
+        if (errorCode == -1)
+            return super.getMessage();
+
+        try {
+            ResourceBundle bundle = ResourceBundle.getBundle(getMessageBundleName());
+            String key = String.valueOf(this.errorCode);
+            if (bundle.containsKey(key))
+                return message + bundle.getString(key);
+
+        } catch (MissingResourceException ignored) {
+        }
+
+        if (messageError != null)
+            return message + errorCode + " : " + messageError;
+
         return ERROR_UNKNOWN + ": " + errorCode;
     }
 

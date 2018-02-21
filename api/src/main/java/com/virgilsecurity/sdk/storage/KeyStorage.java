@@ -1,20 +1,23 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -29,6 +32,10 @@
  */
 package com.virgilsecurity.sdk.storage;
 
+import java.util.Set;
+
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+
 /**
  * This interface describes a storage facility for cryptographic keys.
  *
@@ -42,6 +49,8 @@ public interface KeyStorage {
      * 
      * @param keyEntry
      *            The key entry.
+     * @throws KeyEntryAlreadyExistsException
+     *             if key with the same name is already stored
      */
     void store(KeyEntry keyEntry);
 
@@ -49,28 +58,35 @@ public interface KeyStorage {
      * Loads the private key associated with the given alias.
      * 
      * 
-     * @param keyName
+     * @param name
      *            The key name.
      * @return The requested private key, or null if the given alias does not exist or does not identify a key-related
      *         entry.
      */
-    KeyEntry load(String keyName);
+    KeyEntry load(String name);
 
     /**
      * Checks if the private key exists in this storage by given alias.
      * 
-     * @param keyName
+     * @param name
      *            The key name.
      * @return {@code true} if the private key exists, {@code false} otherwise.
      */
-    boolean exists(String keyName);
+    boolean exists(String name);
 
     /**
      * Deletes the private key from key store by given Id.
      * 
-     * @param keyName
+     * @param name
      *            The key name.
      */
-    void delete(String keyName);
+    void delete(String name);
+
+    /**
+     * Get names of keys stored in key store.
+     * 
+     * @return the set of key names.
+     */
+    Set<String> names();
 
 }

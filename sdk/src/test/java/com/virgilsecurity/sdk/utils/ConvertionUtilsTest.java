@@ -1,22 +1,25 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS \"AS IS\"
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
@@ -31,50 +34,101 @@ package com.virgilsecurity.sdk.utils;
 
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.junit.Assert;
 import org.junit.Test;
 
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.common.ClassForSerialization;
 
 /**
  * Unit tests for {@linkplain ConvertionUtils}.
  *
  * @author Andrii Iakovenko
+ * @author Danylo Oliinyk
  *
  */
 public class ConvertionUtilsTest {
 
-	private static final String TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+    private static final String TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-	@Test
-	public void base64String() {
-		String base64string = ConvertionUtils.toBase64String(TEXT);
-		String str = ConvertionUtils.base64ToString(base64string);
+    @Test
+    public void base64String() {
+        String base64string = ConvertionUtils.toBase64String(TEXT);
+        String str = ConvertionUtils.base64ToString(base64string);
 
-		assertEquals(TEXT, str);
-	}
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void base64ByteArray() {
-		byte[] base64bytes = ConvertionUtils.toBase64Bytes(TEXT);
-		String str = ConvertionUtils.base64ToString(base64bytes);
+    @Test
+    public void base64ByteArray() {
+        byte[] base64bytes = ConvertionUtils.toBase64Bytes(TEXT);
+        String str = ConvertionUtils.base64ToString(base64bytes);
 
-		assertEquals(TEXT, str);
-	}
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void toBytes() {
-		byte[] bytes = ConvertionUtils.toBytes(TEXT);
-		String str = ConvertionUtils.toString(bytes);
-		assertEquals(TEXT, str);
-	}
+    @Test
+    public void toBytes() {
+        byte[] bytes = ConvertionUtils.toBytes(TEXT);
+        String str = ConvertionUtils.toString(bytes);
+        assertEquals(TEXT, str);
+    }
 
-	@Test
-	public void toHEX() {
-		byte[] bytes = ConvertionUtils.toBytes(TEXT);
-		String str = ConvertionUtils.toHex(bytes);
-		bytes = ConvertionUtils.hexToBytes(str);
-		str = ConvertionUtils.toString(bytes);
-		assertEquals(TEXT, str);
-	}
+    @Test
+    public void toHEX() {
+        byte[] bytes = ConvertionUtils.toBytes(TEXT);
+        String str = ConvertionUtils.toHex(bytes);
+        bytes = ConvertionUtils.hexToBytes(str);
+        str = ConvertionUtils.toString(bytes);
+        assertEquals(TEXT, str);
+    }
 
+    @Test
+    public void deSerializationJson() {
+        String rawJson = "{ \"id\": \"12345\", \"content_snapshot\":\"AQIDBAU=\" }";
+        RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
+
+        Assert.assertTrue(Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
+    }
+
+    @Test
+    public void deSerializationHashMap() {
+        Map<String, String> additionalData = new HashMap<>();
+        additionalData.put("Info", "best");
+        additionalData.put("Hello", "Buddy");
+
+        String hashMapSerialized = ConvertionUtils.serializeToJson(additionalData);
+        Map<String, String> deserializeFromJson = ConvertionUtils.deserializeMapFromJson(hashMapSerialized);
+
+        assertEquals(additionalData, deserializeFromJson);
+    }
+
+    @Test
+    public void backslashJsonSerialization() {
+        String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
+        String serializedToJson = ConvertionUtils.serializeToJson(hello);
+
+        assertEquals(hello, serializedToJson.replace("\"", ""));
+    }
+
+    @Test
+    public void autoByteToBase64StringSerialization() {
+        // FIXME: 1/29/18 Check where we can change String with byte[]
+        // in models - gson automatically will transform it
+        ClassForSerialization classForSerialization = new ClassForSerialization("Petro", "Grigorovych".getBytes());
+
+        String serialized = ConvertionUtils.serializeToJson(classForSerialization);
+
+        Map<String, String> mapJson = ConvertionUtils.deserializeMapFromJson(serialized);
+        String data = "";
+        for (Map.Entry<String, String> entry : mapJson.entrySet())
+            if (entry.getKey().equals("data"))
+                data = mapJson.get(entry.getKey());
+
+        assertEquals(ConvertionUtils.base64ToString(data), "Grigorovych");
+    }
 }

@@ -1,37 +1,34 @@
-/**
- * Copyright (C) 2016 Virgil Security Inc.
+/*
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
  *
  * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * modification, are permitted provided that the following conditions are met:
  *
- *     (1) Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- *     (2) Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in
- *     the documentation and/or other materials provided with the
- *     distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- *     (3) Neither the name of the copyright holder nor the names of its
+ *     (3) Neither the name of virgil nor the names of its
  *     contributors may be used to endorse or promote products derived from
  *     this software without specific prior written permission.
  *
- * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ''AS IS'' AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
- * DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
- * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
- * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING
- * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+ * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
 package com.virgilsecurity.crypto;
@@ -63,6 +60,12 @@ public class virgil_crypto_javaJNI {
         }
         swig_module_init();
     }
+
+    static {
+        swig_module_init();
+    }
+    
+    public final static native int VIRGIL_CRYPTO_FEATURE_LOW_LEVEL_WRAP_get();
 
     public final static native void delete_VirgilAsn1Compatible(long jarg1);
 
@@ -145,45 +148,6 @@ public class virgil_crypto_javaJNI {
     public final static native void delete_VirgilTinyCipher(long jarg1);
 
     public final static native void delete_VirgilVersion(long jarg1);
-
-    private static final String getLibraryFileSuffix(String os) {
-        switch (os) {
-        case LINUX_OS_NAME:
-        case MACOS_OS_NAME:
-            return ".so";
-        case WINDOWS_OS_NAME:
-            return ".dll";
-        }
-        return "";
-    }
-
-    /**
-     * Get operation system by operation system name
-     * 
-     * @param osName
-     *            The OS name.
-     * @return
-     */
-    private static final String getOS(String osName) {
-        for (String os : new String[] { LINUX_OS_NAME, WINDOWS_OS_NAME, MACOS_OS_NAME }) {
-            if (osName.startsWith(os)) {
-                return os;
-            }
-        }
-        return UNKNOWN_OS;
-    }
-
-    private static final String getResourceDirectory(String os, String osArch) {
-        switch (os) {
-        case LINUX_OS_NAME:
-            return LINUX_LIBS_DIRECTORY;
-        case MACOS_OS_NAME:
-            return MACOS_LIBS_DIRECTORY;
-        case WINDOWS_OS_NAME:
-            return WINDOWS_LIBS_DIRECTORY + SEPARATOR + osArch;
-        }
-        return "";
-    }
 
     public static void loadNativeLibrary(String libraryName) throws IOException {
 
@@ -283,7 +247,7 @@ public class virgil_crypto_javaJNI {
 
     public final static native long new_VirgilHash__SWIG_3(long jarg1, VirgilHash jarg1_);
 
-    public final static native long new_VirgilHKDF(long jarg1);
+    public final static native long new_VirgilHKDF(int jarg1);
 
     public final static native long new_VirgilKDF__SWIG_0();
 
@@ -350,7 +314,9 @@ public class virgil_crypto_javaJNI {
 
     public final static native long new_VirgilRandom__SWIG_1(long jarg1, VirgilRandom jarg1_);
 
-    public final static native long new_VirgilSigner();
+    public final static native long new_VirgilSigner__SWIG_0(int jarg1);
+
+    public final static native long new_VirgilSigner__SWIG_1();
 
     public final static native long new_VirgilSignerBase__SWIG_0(int jarg1);
 
@@ -358,7 +324,9 @@ public class virgil_crypto_javaJNI {
 
     public final static native long new_VirgilStreamCipher();
 
-    public final static native long new_VirgilStreamSigner();
+    public final static native long new_VirgilStreamSigner__SWIG_0(int jarg1);
+
+    public final static native long new_VirgilStreamSigner__SWIG_1();
 
     public final static native long new_VirgilSymmetricCipher__SWIG_0();
 
@@ -371,8 +339,6 @@ public class virgil_crypto_javaJNI {
     public final static native long new_VirgilTinyCipher__SWIG_1();
 
     public final static native long new_VirgilVersion();
-
-    private final static native void swig_module_init();
 
     public static boolean SwigDirector_VirgilDataSink_isGood(VirgilDataSink jself) throws java.io.IOException {
         return jself.isGood();
@@ -477,7 +443,7 @@ public class virgil_crypto_javaJNI {
             VirgilAsymmetricCipher jarg1_);
 
     public final static native void VirgilAsymmetricCipher_genKeyPair(long jarg1, VirgilAsymmetricCipher jarg1_,
-            long jarg2);
+            int jarg2);
 
     public final static native void VirgilAsymmetricCipher_genKeyPairFrom(long jarg1, VirgilAsymmetricCipher jarg1_,
             long jarg2, VirgilAsymmetricCipher jarg2_);
@@ -1118,4 +1084,45 @@ public class virgil_crypto_javaJNI {
     public final static native long VirgilVersion_minorVersion();
 
     public final static native long VirgilVersion_patchVersion();
+
+    private static final String getLibraryFileSuffix(String os) {
+        switch (os) {
+        case LINUX_OS_NAME:
+        case MACOS_OS_NAME:
+            return ".so";
+        case WINDOWS_OS_NAME:
+            return ".dll";
+        }
+        return "";
+    }
+
+    /**
+     * Get operation system by operation system name
+     * 
+     * @param osName
+     *            The OS name.
+     * @return
+     */
+    private static final String getOS(String osName) {
+        for (String os : new String[] { LINUX_OS_NAME, WINDOWS_OS_NAME, MACOS_OS_NAME }) {
+            if (osName.startsWith(os)) {
+                return os;
+            }
+        }
+        return UNKNOWN_OS;
+    }
+
+    private static final String getResourceDirectory(String os, String osArch) {
+        switch (os) {
+        case LINUX_OS_NAME:
+            return LINUX_LIBS_DIRECTORY;
+        case MACOS_OS_NAME:
+            return MACOS_LIBS_DIRECTORY;
+        case WINDOWS_OS_NAME:
+            return WINDOWS_LIBS_DIRECTORY + SEPARATOR + osArch;
+        }
+        return "";
+    }
+
+    private final static native void swig_module_init();
 }

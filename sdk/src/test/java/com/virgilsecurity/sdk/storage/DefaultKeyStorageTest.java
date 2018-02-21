@@ -1,20 +1,23 @@
 /*
- * Copyright (c) 2016, Virgil Security, Inc.
+ * Copyright (c) 2015-2018, Virgil Security, Inc.
+ *
+ * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
  * All rights reserved.
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * * Redistributions of source code must retain the above copyright notice, this
- *   list of conditions and the following disclaimer.
+ *     (1) Redistributions of source code must retain the above copyright notice, this
+ *     list of conditions and the following disclaimer.
  *
- * * Redistributions in binary form must reproduce the above copyright notice,
- *   this list of conditions and the following disclaimer in the documentation
- *   and/or other materials provided with the distribution.
+ *     (2) Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
  *
- * * Neither the name of virgil nor the names of its
- *   contributors may be used to endorse or promote products derived from
- *   this software without specific prior written permission.
+ *     (3) Neither the name of virgil nor the names of its
+ *     contributors may be used to endorse or promote products derived from
+ *     this software without specific prior written permission.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
@@ -36,56 +39,56 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virgilsecurity.sdk.crypto.Crypto;
-import com.virgilsecurity.sdk.crypto.KeyPair;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 /**
  * Unit tests for {@code VirgilKeyStorage}
  *
  * @author Andrii Iakovenko
  * 
- * @see VirgilKeyStorage
+ * @see JsonFileKeyStorage
  *
  */
 public class DefaultKeyStorageTest {
-    private Crypto crypto;
-    private DefaultKeyStorage storage;
+    private VirgilCrypto crypto;
+    private KeyStorage storage;
 
+    private File tmpDir;
     private String alias;
     private KeyEntry entry;
 
-    private KeyPair keyPair;
-
-    private boolean failedConcurrency = false;
+    private VirgilKeyPair keyPair;
 
     @Before
-    public void setUp() {
+    public void setUp() throws CryptoException {
         crypto = new VirgilCrypto();
-        storage = new DefaultKeyStorage(System.getProperty("java.io.tmpdir"), UUID.randomUUID().toString());
+
+        tmpDir = new File(System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
+        storage = new DefaultKeyStorage(tmpDir.getAbsolutePath(), UUID.randomUUID().toString());
 
         keyPair = crypto.generateKeys();
 
         alias = UUID.randomUUID().toString();
 
-        entry = new VirgilKeyEntry();
+        entry = new TestKeyEntry();
         entry.setName(alias);
-        entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
-        entry.getMetadata().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey(), null));
+        entry.getMeta().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
 
     @Test
@@ -100,9 +103,12 @@ public class DefaultKeyStorageTest {
 
     @Test
     public void exists() throws IOException {
+        if (!tmpDir.exists()) {
+            tmpDir.mkdirs();
+        }
         storage.store(entry);
 
-        assertTrue(storage.exists(alias));
+        assertTrue(storage.exists(entry.getName()));
     }
 
     @Test
@@ -124,10 +130,10 @@ public class DefaultKeyStorageTest {
 
         KeyEntry loadedEntry = storage.load(alias);
 
-        assertThat(loadedEntry, instanceOf(VirgilKeyEntry.class));
+        assertThat(loadedEntry, instanceOf(JsonKeyEntry.class));
         assertEquals(entry.getName(), loadedEntry.getName());
         assertArrayEquals(entry.getValue(), loadedEntry.getValue());
-        assertEquals(entry.getMetadata(), loadedEntry.getMetadata());
+        assertEquals(entry.getMeta(), loadedEntry.getMeta());
     }
 
     @Test(expected = KeyEntryNotFoundException.class)
@@ -159,41 +165,94 @@ public class DefaultKeyStorageTest {
     }
 
     @Test
-    public void concurrentFlow() throws InterruptedException {
-        failedConcurrency = false;
-        ExecutorService exec = Executors.newFixedThreadPool(16);
-        for (int i = 0; i < 10000; i++) {
-            exec.execute(new Runnable() {
-                @Override
-                public void run() {
-                    String keyName = UUID.randomUUID().toString();
+    public void names_empty() {
+        Set<String> names = storage.names();
+        assertNotNull(names);
+        assertTrue(names.isEmpty());
+    }
 
-                    try {
-                        assertFalse(storage.exists(keyName));
+    @Test
+    public void names() {
+        storage.store(entry);
+        Set<String> names = storage.names();
+        assertNotNull(names);
+        assertEquals(1, names.size());
+        assertEquals(entry.getName(), names.iterator().next());
+    }
 
-                        KeyEntry keyEntry = new VirgilKeyEntry(keyName, ConvertionUtils.toBytes(keyName));
-                        storage.store(keyEntry);
-                        assertTrue(storage.exists(keyName));
+    private class TestKeyEntry implements KeyEntry {
+        private String keyName;
+        private byte[] keyValue;
+        private Map<String, String> keyMeta;
 
-                        KeyEntry loadedEntry = storage.load(keyName);
-                        assertNotNull(loadedEntry);
-                        assertEquals(keyName, loadedEntry.getName());
-                        assertArrayEquals(keyEntry.getValue(), loadedEntry.getValue());
-
-                        storage.delete(keyName);
-                        assertFalse(storage.exists(keyName));
-                    } catch (Exception e) {
-                        failedConcurrency = true;
-                        throw e;
-                    }
-                }
-            });
+        public TestKeyEntry() {
+            keyMeta = new HashMap<>();
         }
-        exec.shutdown();
-        exec.awaitTermination(5, TimeUnit.SECONDS);
 
-        if (failedConcurrency) {
-            fail();
+        public TestKeyEntry(String name, byte[] value) {
+            this();
+            this.keyName = name;
+            this.keyValue = value;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.virgilsecurity.sdk.crypto.KeyEntry#getName()
+         */
+        @Override
+        public String getName() {
+            return keyName;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.virgilsecurity.sdk.crypto.KeyEntry#setName(java.lang.String)
+         */
+        @Override
+        public void setName(String name) {
+            this.keyName = name;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.virgilsecurity.sdk.storage.KeyEntry#getValue()
+         */
+        @Override
+        public byte[] getValue() {
+            return keyValue;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.virgilsecurity.sdk.storage.KeyEntry#setValue(byte[])
+         */
+        @Override
+        public void setValue(byte[] value) {
+            this.keyValue = value;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.virgilsecurity.sdk.crypto.KeyEntry#getMeta()
+         */
+        @Override
+        public Map<String, String> getMeta() {
+            return this.keyMeta;
+        }
+
+        /*
+         * (non-Javadoc)
+         * 
+         * @see com.virgilsecurity.sdk.storage.KeyEntry#setMeta(java.util.Map)
+         */
+        @Override
+        public void setMeta(Map<String, String> meta) {
+            this.keyMeta = meta;
         }
     }
 

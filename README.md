@@ -1,14 +1,34 @@
-# Virgil Security Java/Android SDK
+# Virgil Security SDK and Crypto stack Java/Android
 
-[Installation](#installation) | [Encryption Example](#encryption-example) | [Initialization](#initialization) | [Documentation](#documentation) | [Support](#support)
+[![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-java-android)
+[![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk-android.svg)](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk-android.svg)
+[![GitHub license](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/VirgilSecurity/virgil/blob/master/LICENSE)
+
+[Introduction](#installation) | [SDK Features](#sdk-features) | [Library purposes](#library-purposes) | [Installation](#installation) | [Usage Examples](#usage-examples) | [Docs](#docs) | [Support](#support)
+
+
+## Introduction
 
 [Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application. In a few simple steps you can encrypt communication, securely store data, provide passwordless login, and ensure data integrity.
 
-For a full overview head over to our Java/Android [Get Started][_getstarted] guides.
+The Virgil SDK allows developers to get up and running with Virgil API quickly and add full end-to-end security to their existing digital solutions to become HIPAA and GDPR compliant and more.
+
+## SDK Features
+- communicate with [Virgil Cards Service][_cards_service]
+- manage users' Public Keys
+- store private keys in secure local storage
+- use Virgil [Crypto library][_virgil_crypto]
+- use your own Crypto
+
+## Crypto Library purposes
+* Asymmetric Key Generation
+* Encryption/Decryption of data and streams
+* Generation/Verification of digital signatures
+* PFS (Perfect Forward Secrecy)
 
 ## Installation
 
-The Virgil SDK is provided as set of packages named *com.virgilsecurity.sdk*. Packages are distributed via Maven repository.
+The Virgil SDK is provided as set of packages named *com.virgilsecurity.sdk*. Packages are distributed via Maven repository.  Also in this guide, you find one more package - Virgil Crypto Library that is used by the SDK to perform cryptographic operations.
 
 ### Target
 
@@ -29,16 +49,18 @@ You can easily add SDK dependency to your project, just follow the examples belo
 Use this packages for Java projects.
 
 ```
-<dependency>
-    <groupId>com.virgilsecurity.sdk</groupId>
-    <artifactId>crypto</artifactId>
-    <version>4.3.3</version>
-</dependency>
-<dependency>
-    <groupId>com.virgilsecurity.sdk</groupId>
-    <artifactId>sdk</artifactId>
-    <version>4.3.3</version>
-</dependency>
+<dependencies>
+    <dependency>
+        <groupId>com.virgilsecurity.sdk</groupId>
+        <artifactId>crypto</artifactId>
+        <version>5.0.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.virgilsecurity.sdk</groupId>
+        <artifactId>sdk</artifactId>
+        <version>5.0.0</version>
+    </dependency>
+</dependencies>
 ```
 
 #### Gradle
@@ -46,108 +68,147 @@ Use this packages for Java projects.
 Use this packages for Android projects.
 
 ```
-compile 'com.virgilsecurity.sdk:crypto-android:4.3.3@aar'
-compile 'com.virgilsecurity.sdk:sdk-android:4.3.3@aar'
-compile 'com.google.code.gson:gson:2.7'
+dependencies {
+    compile 'com.virgilsecurity.sdk:crypto-android:5.0.0@aar'
+    compile 'com.virgilsecurity.sdk:sdk:5.0.0'
+}
 ```
 
-__Next:__ [Get Started with the Java/Android SDK][_getstarted].
 
-## Encryption Example
+## Usage Examples
 
-Virgil Security makes it super easy to add encryption to any application. With our SDK you create a public [__Virgil Card__][_guide_virgil_cards] for every one of your users and devices. With these in place you can easily encrypt any data in the client.
+#### Generate and publish user's Cards with Public Keys inside on Cards Service
+Use the following lines of code to create and publish a user's Card with Public Key inside on Virgil Cards Service:
 
 ```java
-// find Alice's card(s)
-VirgilCards aliceCards = virgil.getCards().find("alice");
+VirgilCrypto crypto = new VirgilCrypto();
 
-// encrypt the message using Alice's cards
-String message = "Hello Alice!";
-VirgilBuffer cipherData = aliceCards.encrypt(message);
+// generate a key pair
+VirgilKeyPair keyPair = crypto.generateKeys();
 
-var message = 
-var encryptedMessage = aliceCards.Encrypt(message);
+// save a private key into key storage
+privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);
 
-// transmit the message with your preferred technology
-String transferData = encryptedMessage.toString(StringEncoding.Base64);
+// publish user's on the Cards Service
+try {
+    Card card = cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), "Alice");
+    // Card is created
+} catch (Exception e) {
+    // Error occured
+}
 ```
 
-The receiving user then uses their stored __private key__ to decrypt the message.
+#### Sign then encrypt data
 
+Virgil SDK lets you use a user's Private key and his or her Cards to sign, then encrypt any kind of data.
+
+In the following example, we load a Private Key from a customized Key Storage and get recipient's Card from the Virgil Cards Services. Recipient's Card contains a Public Key on which we will encrypt the data and verify a signature.
 
 ```java
-// load Alice's Key from storage.
-VirgilKey aliceKey = virgil.getKeys().load("alice_key_1", "mypassword");
+VirgilCrypto crypto = new VirgilCrypto();
 
-// decrypt the message using the key
-VirgilBuffer originalData = aliceKey.decrypt(encryptedData);
-String originalMessage = originalData.toString();
+// prepare a message
+String messageToEncrypt = "Hello, Bob!";
+byte[] dataToEncrypt = ConvertionUtils.toBytes(messageToEncrypt);
+
+// prepare a user's private key
+Tuple<PrivateKey, Map<String, String>> alicePrivateKeyEntry =
+        privateKeyStorage.load("Alice");
+VirgilPrivateKey alicePrivateKey =
+        (VirgilPrivateKey) alicePrivateKeyEntry.getLeft();
+
+// using cardManager search for user's cards on Cards Service
+try {
+    List<Card> cards = cardManager.searchCards("Bob");
+    // Cards are obtained
+    List<VirgilPublicKey> bobRelevantCardsPublicKeys = new ArrayList<>();
+    for (Card card : cards) {
+        if (!card.isOutdated()) {
+            bobRelevantCardsPublicKeys.add(
+                    (VirgilPublicKey) card.getPublicKey());
+        }
+    }
+    // sign a message with a private key then encrypt on a public key
+    byte[] encryptedData = crypto.signThenEncrypt(dataToEncrypt,
+            alicePrivateKey, bobRelevantCardsPublicKeys);
+} catch (CryptoException | VirgilServiceException e) {
+    // Error occured
+}
 ```
 
-__Next:__ To [get you properly started][_guide_encryption] you'll need to know how to create and store Virgil Cards. Our [Get Started guide][_guide_encryption] will get you there all the way.
-
-__Also:__ [Encrypted communication][_getstarted_encryption] is just one of the few things our SDK can do. Have a look at our guides on  [Encrypted Storage][_getstarted_storage], [Data Integrity][_getstarted_data_integrity] and [Passwordless Login][_getstarted_passwordless_login] for more information.
-
-## Initialization
-
-To use this SDK you need to [sign up for an account](https://developer.virgilsecurity.com/account/signup) and create your first __application__. Make sure to save the __app id__, __private key__ and it's __password__. After this, create an __application token__ for your application to make authenticated requests from your clients.
-
-To initialize the SDK on the client side you will only need the __access token__ you created.
+#### Decrypt then verify data
+Once the Users receive the signed and encrypted message, they can decrypt it with their own Private Key and verify signature with a Sender's Card:
 
 ```java
-VirgilApi virgil = new VirgilApiImpl("[ACCESS_TOKEN]");
+VirgilCrypto crypto = new VirgilCrypto();
+
+// prepare a user's private key
+Tuple<PrivateKey, Map<String, String>> bobPrivateKeyEntry =
+        privateKeyStorage.load("Bob");
+VirgilPrivateKey bobPrivateKey =
+        (VirgilPrivateKey) bobPrivateKeyEntry.getLeft();
+
+try {
+    // using cardManager search for user's cards on Cards Service
+    List<Card> cards = cardManager.searchCards("Alice");
+    // Cards are obtained
+    List<VirgilPublicKey> aliceRelevantCardsPublicKeys = new ArrayList<>();
+    for (Card card : cards) {
+        if (!card.isOutdated()) {
+            aliceRelevantCardsPublicKeys.add(
+                    (VirgilPublicKey) card.getPublicKey());
+        }
+    }
+
+    // decrypt with a private key and verify using a public key
+    byte[] decryptedData = crypto.decryptThenVerify(encryptedData,
+            bobPrivateKey, aliceRelevantCardsPublicKeys);
+} catch (CryptoException | VirgilServiceException e) {
+    // Error occured
+}
 ```
 
-> __Note:__ this client will have limited capabilities. For example, it will be able to generate new __Cards__ but it will need a server-side client to transmit these to Virgil.
+## Docs
+Virgil Security has a powerful set of APIs, and the documentation below can get you started today.
 
-To initialize the SDK on the server side we will need the __access token__, __app id__ and the __App Key__ you created on the [Developer Dashboard](https://developer.virgilsecurity.com/account/dashboard).
+In order to use the Virgil SDK with your application, you will need to first configure your application. By default, the SDK will attempt to look for Virgil-specific settings in your application but you can change it during SDK configuration.
 
-```java
-AppCredentials credentials = new AppCredentials();
-credentials.setAppId("[YOUR_APP_ID_HERE]");
-credentials.setAppKey(VirgilBuffer.from("[YOUR_APP_KEY_PATH_HERE]")));
-credentials.setAppKeyPassword("[YOUR_APP_KEY_PASSWORD_HERE]");
+* [Configure the SDK][_configure_sdk] documentation
+  * [Setup authentication][_setup_authentication] to make API calls to Virgil Services
+  * [Setup Card Manager][_card_manager] to manage user's Public Keys
+  * [Setup Card Verifier][_card_verifier] to verify signatures inside of user's Card
+  * [Setup Key storage][_key_storage] to store Private Keys
+  * [Setup your own Crypto library][_own_crypto] inside of the SDK
+* [More usage examples][_more_examples]
+  * [Create & publish a Card][_create_card] that has a Public Key on Virgil Cards Service
+  * [Search user's Card by user's identity][_search_card]
+  * [Get user's Card by its ID][_get_card]
+  * [Use Card for crypto operations][_use_card]
+* [Reference API][_reference_api]
 
-VirgilApiContext context = new VirgilApiContext("[YOUR_ACCESS_TOKEN_HERE]");
-context.setCredentials(credentials);
-
-VirgilApi virgil = new VirgilApiImpl(context);
-```
-
-Next: [Learn more about our the different ways of initializing the Java/Android SDK][_guide_initialization] in our documentation.
-
-## Documentation
-
-Virgil Security has a powerful set of APIs, and the documentation is there to get you started today.
-
-* [Get Started][_getstarted_root] documentation
-  * [Initialize the SDK][_initialize_root]
-  * [Encrypted storage][_getstarted_storage]
-  * [Encrypted communication][_getstarted_encryption]
-  * [Data integrity][_getstarted_data_integrity]
-  * [Passwordless login][_getstarted_passwordless_login]
-* [Guides][_guides]
-  * [Virgil Cards][_guide_virgil_cards]
-  * [Virgil Keys][_guide_virgil_keys]
 
 ## License
 
 This library is released under the [3-clause BSD License](LICENSE.md).
 
 ## Support
+Our developer support team is here to help you.
 
-Our developer support team is here to help you. You can find us on [Twitter](https://twitter.com/virgilsecurity) and [email](support).
+You can find us on [Twitter](https://twitter.com/VirgilSecurity) or send us email support@VirgilSecurity.com.
 
-[support]: mailto:support@virgilsecurity.com
-[_getstarted_root]: https://virgilsecurity.com/docs/sdk/java-android/
-[_getstarted]: https://virgilsecurity.com/docs/sdk/java-android/getting-started
-[_getstarted_encryption]: https://virgilsecurity.com/docs/use-cases/encrypted-communication
-[_getstarted_storage]: https://virgilsecurity.com/docs/use-cases/secure-data-at-rest
-[_getstarted_data_integrity]: https://virgilsecurity.com/docs/use-cases/data-verification
-[_getstarted_passwordless_login]: https://virgilsecurity.com/docs/use-cases/passwordless-authentication
-[_guides]: https://virgilsecurity.com/docs/sdk/java-android/features
-[_guide_initialization]: https://virgilsecurity.com/docs/sdk/java-android/getting-started#initializing
-[_guide_virgil_cards]: https://virgilsecurity.com/docs/sdk/java-android/features#virgil-cards
-[_guide_virgil_keys]: https://virgilsecurity.com/docs/sdk/java-android/features#virgil-keys
-[_guide_encryption]: https://virgilsecurity.com/docs/sdk/java-android/features#encryption
-[_initialize_root]: https://virgilsecurity.com/docs/sdk/java-android/programming-guide#initializing
+Also, get extra help from our support team on [Slack](https://join.slack.com/t/VirgilSecurity/shared_invite/enQtMjg4MDE4ODM3ODA4LTc2OWQwOTQ3YjNhNTQ0ZjJiZDc2NjkzYjYxNTI0YzhmNTY2ZDliMGJjYWQ5YmZiOGU5ZWEzNmJiMWZhYWVmYTM).
+
+[_virgil_crypto]: https://github.com/VirgilSecurity/virgil-crypto
+[_cards_service]: https://developer.virgilsecurity.com/docs/api-reference/card-service/v5
+[_use_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/use-card-for-crypto-operation
+[_get_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/get-card
+[_search_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/search-card
+[_create_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/create-card
+[_own_crypto]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-own-crypto-library
+[_key_storage]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-key-storage
+[_card_verifier]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-card-verifier
+[_card_manager]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-card-manager
+[_setup_authentication]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-authentication
+[_reference_api]: https://developer.virgilsecurity.com/docs/api-reference
+[_configure_sdk]: https://developer.virgilsecurity.com/docs/how-to#sdk-configuration
+[_more_examples]: https://developer.virgilsecurity.com/docs/how-to#public-key-management

@@ -97,6 +97,16 @@ public class VirgilCardServiceException extends VirgilServiceException {
         super(e);
     }
 
+    /**
+     * Create new instance of {@link VirgilCardServiceException}.
+     * 
+     * @param message
+     *            the detail message
+     */
+    public VirgilCardServiceException(String message) {
+        super(-1, message);
+    }
+
     /*
      * (non-Javadoc)
      * 

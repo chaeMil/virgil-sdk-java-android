@@ -48,8 +48,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -131,7 +133,7 @@ public class CardsManagerTest extends PropertyManager {
 
     private CardManager init_STC_13() throws CryptoException, VirgilServiceException {
         VirgilCardVerifier virgilCardVerifier = Mockito.mock(VirgilCardVerifier.class);
-        Mockito.when(virgilCardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(false);
+        Mockito.when(virgilCardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(false);
 
         RawSignedModel modelFromString = RawSignedModel.fromString(dataProvider.getTestDataAs(3, STRING));
 
@@ -431,7 +433,7 @@ public class CardsManagerTest extends PropertyManager {
                 .thenReturn(modelFromString);
 
         AccessToken jwt = Mockito.mock(AccessToken.class);
-        Mockito.when(jwt.stringRepresentation()).thenReturn("");
+        Mockito.when(jwt.stringRepresentation()).thenReturn(UUID.randomUUID().toString());
 
         AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
         Mockito.when(accessTokenProvider.getToken(Mockito.any(TokenContext.class))).thenReturn(jwt);
@@ -481,7 +483,7 @@ public class CardsManagerTest extends PropertyManager {
                 ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "content_snapshot_base64")));
         signer.selfSign(rawSignedModel, privateKey, Generator.randomBytes(64));
 
-        expectedException.expect(VirgilCardVerificationException.class);
+        expectedException.expect(VirgilCardServiceException.class);
         virgilCardManager.publishCard(rawSignedModel);
     }
 }

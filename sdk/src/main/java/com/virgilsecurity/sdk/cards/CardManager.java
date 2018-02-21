@@ -44,6 +44,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
+import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
@@ -270,10 +271,38 @@ public class CardManager {
 
         Card card = Card.parse(crypto, cardModelPublished);
 
+        // Be sure that a card received from service is the same card we publishing
         if (!Arrays.equals(cardModel.getContentSnapshot(), cardModelPublished.getContentSnapshot())) {
             LOGGER.warning(
                     "Card that is received from the Cards Service (during publishing) is not equal to the published one");
-            throw new VirgilCardServiceException();
+            throw new VirgilCardServiceException("Server returned a wrong card");
+        }
+
+        // Be sure that service didn't miss our signatures
+        for (RawSignature cardSignature : cardModel.getSignatures()) {
+            boolean signatureFound = false;
+            for (RawSignature publishedCardSignature : cardModelPublished.getSignatures()) {
+                {
+                    if (cardSignature.getSigner().equals(publishedCardSignature.getSigner())) {
+                        // Verify is our signature was changed by a service
+                        if (!cardSignature.getSignature().equals(publishedCardSignature.getSignature())) {
+                            String msg = String.format("%s signature was changed by a service for card %s",
+                                    cardSignature.getSigner(), card.getIdentifier());
+                            LOGGER.severe(msg);
+                            throw new VirgilCardServiceException(msg);
+                        }
+                        signatureFound = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!signatureFound) {
+                String msg = String.format("%s signature is missing for card %s from service response",
+                        cardSignature.getSigner(), card.getIdentifier());
+                LOGGER.severe(msg);
+                throw new VirgilCardServiceException(msg);
+            }
         }
 
         verifyCard(card);

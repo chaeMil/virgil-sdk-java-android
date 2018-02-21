@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import com.virgilsecurity.sdk.cards.validation.Whitelist;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,7 +63,6 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.cards.validation.WhiteList;
 import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
@@ -309,7 +309,7 @@ public class SignerAndVerifierTest extends PropertyManager {
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
         VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
-                new ArrayList<WhiteList>());
+                new ArrayList<Whitelist>());
 
         assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -320,7 +320,7 @@ public class SignerAndVerifierTest extends PropertyManager {
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
         VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false,
-                new ArrayList<WhiteList>());
+                new ArrayList<Whitelist>());
 
         assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -331,7 +331,7 @@ public class SignerAndVerifierTest extends PropertyManager {
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
         VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, true,
-                new ArrayList<WhiteList>());
+                new ArrayList<Whitelist>());
 
         assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -342,7 +342,7 @@ public class SignerAndVerifierTest extends PropertyManager {
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
         VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, true,
-                new ArrayList<WhiteList>());
+                new ArrayList<Whitelist>());
 
         assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -357,12 +357,12 @@ public class SignerAndVerifierTest extends PropertyManager {
         VirgilPublicKey publicKey1 = virgilCrypto.extractPublicKey(privateKey1);
 
         VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
-                new ArrayList<WhiteList>());
+                new ArrayList<Whitelist>());
 
         List<VerifierCredentials> verifierCredentialsList = new ArrayList<>();
         verifierCredentialsList.add(new VerifierCredentials("extra", publicKey1.getRawKey()));
-        WhiteList whiteList1 = new WhiteList(verifierCredentialsList);
-        virgilCardVerifier.addWhiteList(whiteList1);
+        Whitelist whitelist1 = new Whitelist(verifierCredentialsList);
+        virgilCardVerifier.addWhiteList(whitelist1);
 
         assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -372,9 +372,9 @@ public class SignerAndVerifierTest extends PropertyManager {
         RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(10, STRING));
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
-        List<WhiteList> whiteLists = new ArrayList<>();
-        whiteLists.add(new WhiteList(new ArrayList<VerifierCredentials>()));
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whiteLists);
+        List<Whitelist> whitelists = new ArrayList<>();
+        whitelists.add(new Whitelist(new ArrayList<VerifierCredentials>()));
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whitelists);
 
         assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -390,8 +390,8 @@ public class SignerAndVerifierTest extends PropertyManager {
         }
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
-        List<WhiteList> whiteLists = new ArrayList<>();
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false, whiteLists);
+        List<Whitelist> whitelists = new ArrayList<>();
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false, whitelists);
 
         assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -409,8 +409,8 @@ public class SignerAndVerifierTest extends PropertyManager {
         }
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
-        List<WhiteList> whiteLists = new ArrayList<>();
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, true, whiteLists);
+        List<Whitelist> whitelists = new ArrayList<>();
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, true, whitelists);
 
         assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -428,8 +428,8 @@ public class SignerAndVerifierTest extends PropertyManager {
         }
         Card card = Card.parse(cardCrypto, rawSignedModel);
 
-        List<WhiteList> whiteLists = new ArrayList<>();
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false, whiteLists);
+        List<Whitelist> whitelists = new ArrayList<>();
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false, whitelists);
 
         assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -448,10 +448,10 @@ public class SignerAndVerifierTest extends PropertyManager {
         List<VerifierCredentials> verifierCredentialsList1 = new ArrayList<>();
         verifierCredentialsList1.add(new VerifierCredentials("extra1", publicKey1.getRawKey()));
         verifierCredentialsList1.add(new VerifierCredentials("extra2", publicKey2.getRawKey()));
-        WhiteList whiteList1 = new WhiteList(verifierCredentialsList1);
-        List<WhiteList> whiteLists = new ArrayList<>();
-        whiteLists.add(whiteList1);
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whiteLists);
+        Whitelist whitelist1 = new Whitelist(verifierCredentialsList1);
+        List<Whitelist> whitelists = new ArrayList<>();
+        whitelists.add(whitelist1);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whitelists);
 
         assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -476,16 +476,16 @@ public class SignerAndVerifierTest extends PropertyManager {
         List<VerifierCredentials> verifierCredentialsList1 = new ArrayList<>();
         verifierCredentialsList1.add(new VerifierCredentials("extra", publicKey1.getRawKey()));
         verifierCredentialsList1.add(new VerifierCredentials("extra2", publicKey2.getRawKey()));
-        WhiteList whiteList1 = new WhiteList(verifierCredentialsList1);
+        Whitelist whitelist1 = new Whitelist(verifierCredentialsList1);
 
         List<VerifierCredentials> verifierCredentialsList2 = new ArrayList<>();
         verifierCredentialsList2.add(new VerifierCredentials("extra3", publicKey3.getRawKey()));
-        WhiteList whiteList2 = new WhiteList(verifierCredentialsList2);
+        Whitelist whitelist2 = new Whitelist(verifierCredentialsList2);
 
-        List<WhiteList> whiteLists = new ArrayList<>();
-        whiteLists.add(whiteList1);
-        whiteLists.add(whiteList2);
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whiteLists);
+        List<Whitelist> whitelists = new ArrayList<>();
+        whitelists.add(whitelist1);
+        whitelists.add(whitelist2);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whitelists);
 
         assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
     }
@@ -495,7 +495,7 @@ public class SignerAndVerifierTest extends PropertyManager {
         RawSignedModel rawSignedModel = RawSignedModel.fromString(dataProvider.getTestDataAs(11, STRING));
         Card card = Card.parse(cardCrypto, rawSignedModel);
         VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
-                Collections.<WhiteList> emptyList());
+                Collections.<Whitelist> emptyList());
         assertTrue(virgilCardVerifier.verifyCard(card));
 
         virgilCardVerifier.setVerifySelfSignature(true);
@@ -539,12 +539,12 @@ public class SignerAndVerifierTest extends PropertyManager {
         VirgilPublicKey publicKeyTwo = mocker.generatePublicKey();
         List<VerifierCredentials> verifierCredentialsList = new ArrayList<>();
         verifierCredentialsList.add(new VerifierCredentials(TEST_SIGNER_TYPE, publicKeyTwo.getRawKey()));
-        WhiteList whiteListOne = new WhiteList(verifierCredentialsList);
-        List<WhiteList> whiteLists = new ArrayList<>();
-        whiteLists.add(whiteListOne);
+        Whitelist whitelistOne = new Whitelist(verifierCredentialsList);
+        List<Whitelist> whitelists = new ArrayList<>();
+        whitelists.add(whitelistOne);
 
         Card card = Card.parse(cardCrypto, rawSignedModel);
-        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whiteLists);
+        VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false, whitelists);
         assertFalse(virgilCardVerifier.verifyCard(card));
 
         verifierCredentialsList.add(new VerifierCredentials("extra", publicKey.getRawKey()));

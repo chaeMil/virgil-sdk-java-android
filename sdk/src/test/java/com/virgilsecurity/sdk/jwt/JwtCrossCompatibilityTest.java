@@ -41,16 +41,20 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
-import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.io.InputStreamReader;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
@@ -62,7 +66,11 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class JwtCrossCompatibilityTest {
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
     private static final int TOKEN_EXPIRE_IN_SECONDS = 3;
+    private static final String INVALID_TOKEN = "INVALID_TOKEN";
 
     private JsonObject sampleJson;
     private FakeDataFactory fake;
@@ -85,37 +93,38 @@ public class JwtCrossCompatibilityTest {
         // Set getTokenCallback to use JwtGenerator + call counter
         TimeSpan ttl = new TimeSpan(new Date());
         ttl.add(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
-        JwtGenerator generator = new JwtGenerator(this.fake.getApplicationId(), this.fake.getApiPrivateKey(),
-                this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
-        when(this.callback.onGetToken())
-                .thenReturn(generator.generateToken(this.fake.getIdentity()).stringRepresentation());
+        final JwtGenerator generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(),
+                fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
+        when(this.callback.onGetToken()).thenAnswer(new Answer<String>() {
+            @Override
+            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+                return generator.generateToken(fake.getIdentity()).stringRepresentation();
+            }
+        });
 
         // Prepare contexts
         TokenContext ctx = new TokenContext(fake.getIdentity(), "stc_24", false);
-        TokenContext forceReloadCtx = new TokenContext(fake.getIdentity(), "stc_24", true);
 
         // Call getToken(false)
-        AccessToken accessToken1 = provider.getToken(ctx);
+        Jwt accessToken1 = (Jwt) provider.getToken(ctx);
         assertNotNull(accessToken1);
         verify(this.callback, times(1)).onGetToken();
 
+        //For tokens have
+        Thread.sleep(2000);
+
         // Call getToken(false)
-        AccessToken accessToken2 = provider.getToken(ctx);
+        Jwt accessToken2 = (Jwt) provider.getToken(ctx);
         assertNotNull(accessToken2);
-        verify(this.callback, times(1)).onGetToken();
-
-        // Wait till token is expired
-        Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
-
-        // Call getToken(false)
-        AccessToken accessToken3 = provider.getToken(ctx);
-        assertNotNull(accessToken3);
+        assertFalse("CallbackJwtProvider should always return new token", Objects.equals(accessToken1, accessToken2));
         verify(this.callback, times(2)).onGetToken();
 
-        // Call getToken(true)
-        AccessToken accessToken4 = provider.getToken(forceReloadCtx);
-        assertNotNull(accessToken4);
-        verify(this.callback, times(3)).onGetToken();
+        //Return invalid token
+        when(this.callback.onGetToken())
+                .thenReturn(INVALID_TOKEN);
+
+        expectedException.expect(IllegalArgumentException.class);
+        provider.getToken(ctx);
     }
 
     @Test

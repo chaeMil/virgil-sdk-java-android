@@ -33,12 +33,6 @@
 
 package com.virgilsecurity.sdk.cards.validation;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardSignature;
 import com.virgilsecurity.sdk.cards.SignerType;
@@ -48,18 +42,24 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * The {@link VirgilCardVerifier} is used to verify cards.
  */
 public class VirgilCardVerifier implements CardVerifier {
     private static final Logger LOGGER = Logger.getLogger(VirgilCardVerifier.class.getName());
 
-    private String virgilPublicKeyBase64 = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
+    private String virgilPublicKeyBase64 = "MCowBQYDK2VwAyEAljOYGANYiVq1WbvVvoYIKtvZi2ji9bAhxyu6iV/LF8M=";
 
     private CardCrypto cardCrypto;
     private boolean verifySelfSignature;
     private boolean verifyVirgilSignature;
-    private List<WhiteList> whiteLists;
+    private List<Whitelist> whitelists;
 
     /**
      * Instantiates a new Virgil card verifier.
@@ -68,7 +68,7 @@ public class VirgilCardVerifier implements CardVerifier {
      *            the crypto
      */
     public VirgilCardVerifier(CardCrypto cardCrypto) {
-        this(cardCrypto, new ArrayList<WhiteList>());
+        this(cardCrypto, new ArrayList<Whitelist>());
     }
 
     /**
@@ -76,11 +76,11 @@ public class VirgilCardVerifier implements CardVerifier {
      *
      * @param cardCrypto
      *            the card crypto
-     * @param whiteLists
+     * @param whitelists
      *            the white lists that should contain Card signatures, otherwise Card validation will be failed
      */
-    public VirgilCardVerifier(CardCrypto cardCrypto, List<WhiteList> whiteLists) {
-        this(cardCrypto, true, true, whiteLists);
+    public VirgilCardVerifier(CardCrypto cardCrypto, List<Whitelist> whitelists) {
+        this(cardCrypto, true, true, whitelists);
     }
 
     /**
@@ -94,7 +94,7 @@ public class VirgilCardVerifier implements CardVerifier {
      *            whether the virgil signature should be verified
      */
     public VirgilCardVerifier(CardCrypto cardCrypto, boolean verifySelfSignature, boolean verifyVirgilSignature) {
-        this(cardCrypto, verifySelfSignature, verifyVirgilSignature, new ArrayList<WhiteList>());
+        this(cardCrypto, verifySelfSignature, verifyVirgilSignature, new ArrayList<Whitelist>());
     }
 
     /**
@@ -106,16 +106,16 @@ public class VirgilCardVerifier implements CardVerifier {
      *            whether the self signature should be verified
      * @param verifyVirgilSignature
      *            whether the virgil signature should be verified
-     * @param whiteLists
+     * @param whitelists
      *            the white lists that should contain Card signatures, otherwise Card validation will be failed
      */
     public VirgilCardVerifier(CardCrypto cardCrypto, boolean verifySelfSignature, boolean verifyVirgilSignature,
-            List<WhiteList> whiteLists) {
+            List<Whitelist> whitelists) {
         Validator.checkNullAgrument(cardCrypto, "VirgilCardVerifier -> 'cardCrypto' should not be null");
-        Validator.checkNullAgrument(whiteLists, "VirgilCardVerifier -> 'whiteLists' should not be null");
+        Validator.checkNullAgrument(whitelists, "VirgilCardVerifier -> 'whitelists' should not be null");
 
         this.cardCrypto = cardCrypto;
-        this.whiteLists = whiteLists;
+        this.whitelists = whitelists;
         this.verifySelfSignature = verifySelfSignature;
         this.verifyVirgilSignature = verifyVirgilSignature;
     }
@@ -138,14 +138,14 @@ public class VirgilCardVerifier implements CardVerifier {
         }
 
         boolean containsSignature = false;
-        for (WhiteList whiteList : whiteLists) {
+        for (Whitelist whitelist : whitelists) {
             // if whitelist doesn't have credentials then
             // this is to be regarded as a violation of the policy.
-            if (whiteList.getVerifiersCredentials().isEmpty()) {
+            if (whitelist.getVerifiersCredentials().isEmpty()) {
                 LOGGER.warning("Whitelist doesn't have credentials then");
                 return false;
             }
-            for (VerifierCredentials verifierCredentials : whiteList.getVerifiersCredentials()) {
+            for (VerifierCredentials verifierCredentials : whitelist.getVerifiersCredentials()) {
                 for (CardSignature cardSignature : card.getSignatures()) {
                     if (Objects.equals(cardSignature.getSigner(), verifierCredentials.getSigner())) {
                         PublicKey publicKey = cardCrypto.importPublicKey(verifierCredentials.getPublicKey());
@@ -161,9 +161,9 @@ public class VirgilCardVerifier implements CardVerifier {
             }
         }
 
-        // if card doesn't contain signature from AT LEAST one verifier from a WhiteList then
+        // if card doesn't contain signature from AT LEAST one verifier from a Whitelist then
         // this is to be regarded as a violation of the policy (at least one).
-        if (!whiteLists.isEmpty() && !containsSignature) {
+        if (!whitelists.isEmpty() && !containsSignature) {
             LOGGER.info(String.format("The card '%s' does not contain signature from specified Whitelist",
                     card.getIdentifier()));
             return false;
@@ -269,28 +269,28 @@ public class VirgilCardVerifier implements CardVerifier {
      *
      * @return the white list
      */
-    public List<WhiteList> getWhiteLists() {
-        return whiteLists;
+    public List<Whitelist> getWhitelists() {
+        return whitelists;
     }
 
     /**
      * Sets white lists.
      *
-     * @param whiteLists
+     * @param whitelists
      *            the white lists
      */
-    public void setWhiteLists(List<WhiteList> whiteLists) {
-        this.whiteLists = whiteLists;
+    public void setWhitelists(List<Whitelist> whitelists) {
+        this.whitelists = whitelists;
     }
 
     /**
      * Sets white lists.
      *
-     * @param whiteList
+     * @param whitelist
      *            the white lists
      */
-    public void addWhiteList(WhiteList whiteList) {
-        this.whiteLists.add(whiteList);
+    public void addWhiteList(Whitelist whitelist) {
+        this.whitelists.add(whitelist);
     }
 
     public void setServiceKey(String publicKeyBase64) {

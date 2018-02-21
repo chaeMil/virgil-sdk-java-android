@@ -37,15 +37,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The {@link WhiteList} represents list of trusted signatures for cards verification.
+ * The {@link Whitelist} represents list of trusted signatures for cards verification.
  */
-public class WhiteList {
+public class Whitelist {
     private List<VerifierCredentials> verifiersCredentials;
 
-    public WhiteList() {
+    public Whitelist() {
     }
 
-    public WhiteList(List<VerifierCredentials> verifiersCredentials) {
+    public Whitelist(List<VerifierCredentials> verifiersCredentials) {
         this.verifiersCredentials = verifiersCredentials;
     }
 

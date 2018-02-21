@@ -37,7 +37,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.virgilsecurity.sdk</groupId>
 	<artifactId>parent</artifactId>
-	<version>5.0.0-SNAPSHOT</version>
+	<version>5.0.0</version>
 	<packaging>pom</packaging>
 	<name>Virgil SDK - Parent</name>
 	<description>
@@ -100,7 +100,6 @@
         <module>crypto</module>
 		<module>crypto-android</module>
 		<module>sdk</module>
-        <module>examples</module>
 	</modules>
 
 	<dependencyManagement>
@@ -277,6 +276,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<modules>
+                <module>examples</module>
 			</modules>
 		</profile>
 	</profiles>

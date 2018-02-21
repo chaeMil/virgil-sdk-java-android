@@ -36,6 +36,7 @@ package com.virgilsecurity.sdk.cards;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
 
@@ -278,28 +280,19 @@ public class CardManager {
             throw new VirgilCardServiceException("Server returned a wrong card");
         }
 
-        // Be sure that service didn't miss our signatures
-        for (RawSignature cardSignature : cardModel.getSignatures()) {
-            boolean signatureFound = false;
-            for (RawSignature publishedCardSignature : cardModelPublished.getSignatures()) {
-                {
-                    if (cardSignature.getSigner().equals(publishedCardSignature.getSigner())) {
-                        // Verify is our signature was changed by a service
-                        if (!cardSignature.getSignature().equals(publishedCardSignature.getSignature())) {
-                            String msg = String.format("%s signature was changed by a service for card %s",
-                                    cardSignature.getSigner(), card.getIdentifier());
-                            LOGGER.severe(msg);
-                            throw new VirgilCardServiceException(msg);
-                        }
-                        signatureFound = true;
-                        break;
-                    }
-                }
+        // Be sure that self signatures are equals
+        RawSignature selfSignature = getSignature(SignerType.SELF.getRawValue(), cardModel.getSignatures());
+        RawSignature responseSelfSignature = getSignature(SignerType.SELF.getRawValue(),
+                cardModelPublished.getSignatures());
+        if (selfSignature != null || responseSelfSignature != null) {
+            if (selfSignature == null || responseSelfSignature == null) {
+                String msg = String.format("Self signature is missing for card %s", card.getIdentifier());
+                LOGGER.severe(msg);
+                throw new VirgilCardServiceException(msg);
             }
 
-            if (!signatureFound) {
-                String msg = String.format("%s signature is missing for card %s from service response",
-                        cardSignature.getSigner(), card.getIdentifier());
+            if (!StringUtils.equals(selfSignature.getSnapshot(), responseSelfSignature.getSnapshot())) {
+                String msg = String.format("Self signature was changed by a service for card %s", card.getIdentifier());
                 LOGGER.severe(msg);
                 throw new VirgilCardServiceException(msg);
             }
@@ -727,6 +720,18 @@ public class CardManager {
          * @see #generateRawCard(PrivateKey, PublicKey, String, String, Map)
          */
         RawSignedModel onSign(RawSignedModel rawSignedModel);
+    }
+
+    private RawSignature getSignature(String type, Collection<RawSignature> signatures) {
+        if (signatures == null || signatures.isEmpty()) {
+            return null;
+        }
+        for (RawSignature signature : signatures) {
+            if (type.equalsIgnoreCase(signature.getSigner())) {
+                return signature;
+            }
+        }
+        return null;
     }
 
     /**

@@ -59,4 +59,17 @@ public class StringUtils {
         }
         return true;
     }
+
+    /**
+     * Compares two Strings, returning {@code true} if they are equal.
+     * 
+     * @param str1
+     *            the first String, may be null
+     * @param str2
+     *            the second String, may be null
+     * @return {@code true} if the Strings are equal, case sensitive, or both {@code null}
+     */
+    public static boolean equals(String str1, String str2) {
+        return str1 == null ? str2 == null : str1.equals(str2);
+    }
 }

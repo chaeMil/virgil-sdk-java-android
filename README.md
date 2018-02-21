@@ -1,6 +1,6 @@
 # Virgil Security SDK and Crypto stack Java/Android
 
-[![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-x.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-x)
+[![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-java-android)
 [![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk-android.svg)](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk-android.svg)
 [![GitHub license](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/VirgilSecurity/virgil/blob/master/LICENSE)
 

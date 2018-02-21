@@ -247,7 +247,8 @@ public class CardManager {
         try {
             cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
-            if (exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (exceptionOuter.getHttpError() != null
+                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 LOGGER.fine("Token is expired, trying to reload...");
                 token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
                 try {
@@ -257,7 +258,12 @@ public class CardManager {
                     throw exceptionInner;
                 }
             } else {
-                LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(), exceptionOuter);
+                if (exceptionOuter.getHttpError() != null) {
+                    LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
+                            exceptionOuter);
+                } else {
+                    LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(), exceptionOuter);
+                }
                 throw exceptionOuter;
             }
         }
@@ -417,7 +423,8 @@ public class CardManager {
         try { // Hell is here (:
             response = cardClient.getCard(cardId, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
-            if (exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (exceptionOuter.getHttpError() != null
+                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 LOGGER.fine("Token is expired, trying to reload...");
                 token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
                 try {
@@ -427,7 +434,12 @@ public class CardManager {
                     throw exceptionInner;
                 }
             } else {
-                LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(), exceptionOuter);
+                if (exceptionOuter.getHttpError() != null) {
+                    LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
+                            exceptionOuter);
+                } else {
+                    LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(), exceptionOuter);
+                }
                 throw exceptionOuter;
             }
         }
@@ -469,7 +481,8 @@ public class CardManager {
         try {
             cardModels = cardClient.searchCards(identity, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
-            if (exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            if (exceptionOuter.getHttpError() != null
+                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
                 LOGGER.fine("Token is expired, trying to reload...");
                 token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
                 try {
@@ -479,7 +492,12 @@ public class CardManager {
                     throw exceptionInner;
                 }
             } else {
-                LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(), exceptionOuter);
+                if (exceptionOuter.getHttpError() != null) {
+                    LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
+                            exceptionOuter);
+                } else {
+                    LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(), exceptionOuter);
+                }
                 throw exceptionOuter;
             }
         }

@@ -422,7 +422,7 @@ public class CardsManagerTest extends PropertyManager {
 
     private CardManager init_STC_35() throws CryptoException, VirgilServiceException {
         VirgilCardVerifier virgilCardVerifier = Mockito.mock(VirgilCardVerifier.class);
-        Mockito.when(virgilCardVerifier.verifyCard(Mockito.mock(Card.class))).thenReturn(true);
+        Mockito.when(virgilCardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
         RawSignedModel modelFromString = RawSignedModel.fromString(dataProvider.getTestDataAs(34, STRING));
 

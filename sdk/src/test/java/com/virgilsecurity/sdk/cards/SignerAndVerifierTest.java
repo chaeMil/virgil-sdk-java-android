@@ -48,7 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import com.virgilsecurity.sdk.cards.validation.Whitelist;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -63,6 +62,7 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
+import com.virgilsecurity.sdk.cards.validation.Whitelist;
 import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
@@ -557,7 +557,14 @@ public class SignerAndVerifierTest extends PropertyManager {
         ModelSigner modelSigner = Mockito.mock(ModelSigner.class);
         AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
         CardVerifier cardVerifier = new VirgilCardVerifier(this.cardCrypto, false, false);
-        CardClient cardClient = new CardClient(getCardsServiceUrl());
+        String cardsServiceUrl = getCardsServiceUrl();
+
+        CardClient cardClient = null;
+        if (StringUtils.isBlank(cardsServiceUrl)) {
+            cardClient = new CardClient();
+        } else {
+            cardClient = new CardClient(cardsServiceUrl);
+        }
         SignCallback signCallback = Mockito.mock(SignCallback.class);
 
         String identity = Generator.identity();

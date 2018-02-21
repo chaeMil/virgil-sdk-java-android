@@ -64,7 +64,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
  * @see JsonFileKeyStorage
  *
  */
-public class JsonFileKeyStorageTest {
+public class DefaultKeyStorageTest {
     private VirgilCrypto crypto;
     private KeyStorage storage;
 
@@ -79,7 +79,7 @@ public class JsonFileKeyStorageTest {
         crypto = new VirgilCrypto();
 
         tmpDir = new File(System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
-        storage = new JsonFileKeyStorage(tmpDir.getAbsolutePath());
+        storage = new DefaultKeyStorage(tmpDir.getAbsolutePath(), UUID.randomUUID().toString());
 
         keyPair = crypto.generateKeys();
 
@@ -106,10 +106,9 @@ public class JsonFileKeyStorageTest {
         if (!tmpDir.exists()) {
             tmpDir.mkdirs();
         }
-        File tmpFile = File.createTempFile(alias, "", tmpDir);
-        String name = tmpFile.getName();
+        storage.store(entry);
 
-        assertTrue(storage.exists(name));
+        assertTrue(storage.exists(entry.getName()));
     }
 
     @Test

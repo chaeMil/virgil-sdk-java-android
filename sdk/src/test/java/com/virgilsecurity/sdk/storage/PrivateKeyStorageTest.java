@@ -45,11 +45,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.Before;
@@ -58,6 +57,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.internal.util.collections.Sets;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
@@ -239,21 +239,21 @@ public class PrivateKeyStorageTest {
 
     @Test
     public void names_empty() {
-        when(this.keyStorage.names()).thenReturn(Collections.EMPTY_LIST);
+        when(this.keyStorage.names()).thenReturn(Collections.EMPTY_SET);
 
-        List<String> names = storage.names();
+        Set<String> names = storage.names();
         assertNotNull(names);
         assertTrue(names.isEmpty());
     }
 
     @Test
     public void names() {
-        when(this.keyStorage.names()).thenReturn(Arrays.asList("key1"));
+        when(this.keyStorage.names()).thenReturn(Sets.newSet("key1"));
 
-        List<String> names = storage.names();
+        Set<String> names = storage.names();
         assertNotNull(names);
         assertEquals(1, names.size());
-        assertEquals("key1", names.get(0));
+        assertEquals("key1", names.iterator().next());
     }
 
 }

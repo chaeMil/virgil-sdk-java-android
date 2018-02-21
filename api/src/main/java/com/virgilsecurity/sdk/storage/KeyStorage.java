@@ -32,7 +32,7 @@
  */
 package com.virgilsecurity.sdk.storage;
 
-import java.util.List;
+import java.util.Set;
 
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
 
@@ -85,8 +85,8 @@ public interface KeyStorage {
     /**
      * Get names of keys stored in key store.
      * 
-     * @return the list of key names.
+     * @return the set of key names.
      */
-    List<String> names();
+    Set<String> names();
 
 }

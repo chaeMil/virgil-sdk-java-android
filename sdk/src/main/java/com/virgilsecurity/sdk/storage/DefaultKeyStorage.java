@@ -38,7 +38,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
 import java.nio.file.InvalidPathException;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Set;
 
 import com.google.gson.Gson;
@@ -48,35 +48,54 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyStorageException;
 
 /**
- * Virgil implementation of a storage facility for cryptographic keys.
- *
  * @author Andrii Iakovenko
  *
  */
-public class JsonFileKeyStorage implements KeyStorage {
+public class DefaultKeyStorage implements KeyStorage {
 
-    private String keysPath;
+    private String directoryName;
+    private String fileName;
 
     /**
      * Create a new instance of {@code VirgilKeyStorage}
      *
      */
-    public JsonFileKeyStorage() {
+    public DefaultKeyStorage() {
         StringBuilder path = new StringBuilder(System.getProperty("user.home"));
         path.append(File.separator).append("VirgilSecurity");
-        path.append(File.separator).append("Keys");
+        path.append(File.separator).append("KeyStore");
 
-        this.keysPath = path.toString();
+        this.directoryName = path.toString();
+        this.fileName = "virgil.keystore";
+
+        init();
     }
 
     /**
      * Create a new instance of {@code VirgilKeyStorage}
      *
-     * @param keysPath
-     *            The path to key storage folder.
      */
-    public JsonFileKeyStorage(String keysPath) {
-        this.keysPath = keysPath;
+    public DefaultKeyStorage(String directoryName, String fileName) {
+        this.directoryName = directoryName;
+        this.fileName = fileName;
+
+        init();
+    }
+
+    private void init() {
+        File dir = new File(this.directoryName);
+
+        if (dir.exists()) {
+            if (!dir.isDirectory()) {
+                throw new InvalidPathException(this.directoryName, "Is not a directory");
+            }
+        } else {
+            dir.mkdirs();
+        }
+        File file = new File(dir, this.fileName);
+        if (!file.exists()) {
+            save(new Entries());
+        }
     }
 
     /*
@@ -86,21 +105,8 @@ public class JsonFileKeyStorage implements KeyStorage {
      */
     @Override
     public void store(KeyEntry keyEntry) {
-        File dir = new File(keysPath);
-
-        if (dir.exists()) {
-            if (!dir.isDirectory()) {
-                throw new InvalidPathException(keysPath, "Is not a directory");
-            }
-        } else {
-            dir.mkdirs();
-        }
-
         String name = keyEntry.getName();
-        if (exists(name)) {
-            throw new KeyEntryAlreadyExistsException();
-        }
-
+        
         KeyEntry entry;
         if (keyEntry instanceof JsonKeyEntry) {
             entry = keyEntry;
@@ -109,12 +115,13 @@ public class JsonFileKeyStorage implements KeyStorage {
             entry.setMeta(keyEntry.getMeta());
         }
 
-        String json = getGson().toJson(entry);
-        File file = new File(dir, name.toLowerCase());
-        try (FileOutputStream os = new FileOutputStream(file)) {
-            os.write(json.getBytes(Charset.forName("UTF-8")));
-        } catch (Exception e) {
-            throw new KeyStorageException(e);
+        synchronized (this) {
+            Entries entries = load();
+            if (entries.containsKey(name)) {
+                throw new KeyEntryAlreadyExistsException();
+            }
+            entries.put(name, (JsonKeyEntry) entry);
+            save(entries);
         }
     }
 
@@ -125,28 +132,14 @@ public class JsonFileKeyStorage implements KeyStorage {
      */
     @Override
     public KeyEntry load(String keyName) {
-        if (!exists(keyName)) {
-            throw new KeyEntryNotFoundException();
-        }
-
-        File file = new File(keysPath, keyName.toLowerCase());
-        try (FileInputStream is = new FileInputStream(file)) {
-            ByteArrayOutputStream os = new ByteArrayOutputStream();
-
-            byte[] buffer = new byte[4096];
-            int n = 0;
-            while (-1 != (n = is.read(buffer))) {
-                os.write(buffer, 0, n);
+        synchronized (this) {
+            Entries entries = load();
+            if (!entries.containsKey(keyName)) {
+                throw new KeyEntryNotFoundException();
             }
-
-            byte[] bytes = os.toByteArray();
-
-            JsonKeyEntry entry = getGson().fromJson(new String(bytes, Charset.forName("UTF-8")), JsonKeyEntry.class);
+            JsonKeyEntry entry = entries.get(keyName);
             entry.setName(keyName);
-
             return entry;
-        } catch (Exception e) {
-            throw new KeyStorageException(e);
         }
     }
 
@@ -160,8 +153,10 @@ public class JsonFileKeyStorage implements KeyStorage {
         if (keyName == null) {
             return false;
         }
-        File file = new File(keysPath, keyName.toLowerCase());
-        return file.exists();
+        synchronized (this) {
+            Entries entries = load();
+            return entries.containsKey(keyName);
+        }
     }
 
     /*
@@ -171,19 +166,14 @@ public class JsonFileKeyStorage implements KeyStorage {
      */
     @Override
     public void delete(String keyName) {
-        if (!exists(keyName)) {
-            throw new KeyEntryNotFoundException();
+        synchronized (this) {
+            Entries entries = load();
+            if (!entries.containsKey(keyName)) {
+                throw new KeyEntryNotFoundException();
+            }
+            entries.remove(keyName);
+            save(entries);
         }
-
-        File file = new File(keysPath, keyName.toLowerCase());
-        file.delete();
-    }
-
-    private Gson getGson() {
-        GsonBuilder builder = new GsonBuilder();
-        Gson gson = builder.create();
-
-        return gson;
     }
 
     /*
@@ -193,14 +183,54 @@ public class JsonFileKeyStorage implements KeyStorage {
      */
     @Override
     public Set<String> names() {
-        File dir = new File(keysPath);
-        Set<String> names = new HashSet<>();
-        if (dir.exists() && dir.isDirectory()) {
-            for (File file : dir.listFiles()) {
-                names.add(file.getName());
+        Entries entries = load();
+        return entries.keySet();
+    }
+
+    private Entries load() {
+        File file = new File(this.directoryName, this.fileName);
+        try (FileInputStream is = new FileInputStream(file)) {
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+            byte[] buffer = new byte[4096];
+            int n = 0;
+            while (-1 != (n = is.read(buffer))) {
+                os.write(buffer, 0, n);
             }
+
+            byte[] bytes = os.toByteArray();
+
+            Entries entries = getGson().fromJson(new String(bytes, Charset.forName("UTF-8")), Entries.class);
+
+            return entries;
+        } catch (Exception e) {
+            throw new KeyStorageException(e);
         }
-        return names;
+    }
+
+    /**
+     * @param entries
+     */
+    private void save(Entries entries) {
+        File file = new File(this.directoryName, this.fileName);
+        try (FileOutputStream os = new FileOutputStream(file)) {
+            String json = getGson().toJson(entries);
+            os.write(json.getBytes(Charset.forName("UTF-8")));
+        } catch (Exception e) {
+            throw new KeyStorageException(e);
+        }
+    }
+
+    private Gson getGson() {
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+
+        return gson;
+    }
+
+    private static class Entries extends HashMap<String, JsonKeyEntry> {
+        private static final long serialVersionUID = 261773342073013945L;
+
     }
 
 }

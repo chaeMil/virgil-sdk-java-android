@@ -33,8 +33,8 @@
 package com.virgilsecurity.sdk.storage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
@@ -141,7 +141,7 @@ public class PrivateKeyStorage {
      * 
      * @return The keys names as a list.
      */
-    public List<String> names() {
+    public Set<String> names() {
         return this.keyStorage.names();
     }
 

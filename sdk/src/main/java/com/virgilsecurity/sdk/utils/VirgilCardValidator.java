@@ -52,7 +52,7 @@ import com.virgilsecurity.sdk.exception.EmptyArgumentException;
 public class VirgilCardValidator implements CardValidator {
 
     private Crypto crypto;
-
+    private boolean verifyV3Cards;
     private Map<String, PublicKey> verifiers;
 
     private final static String SERVICE_CARD_ID = "3e29d43373348cfb373b7eae189214dc01d7237765e572db685839b64adca853";
@@ -67,6 +67,7 @@ public class VirgilCardValidator implements CardValidator {
      */
     public VirgilCardValidator(Crypto crypto) {
         this.crypto = crypto;
+        this.verifyV3Cards = false;
 
         PublicKey servicePublicKey = crypto.importPublicKey(ConvertionUtils.base64ToBytes(SERVICE_PUBLIC_KEY));
 
@@ -103,7 +104,7 @@ public class VirgilCardValidator implements CardValidator {
     @Override
     public boolean validate(CardModel card) {
         // Support for legacy Cards.
-        if ("3.0".equals(card.getMeta().getVersion())) {
+        if (!this.verifyV3Cards && "3.0".equals(card.getMeta().getVersion())) {
             return true;
         }
 
@@ -137,5 +138,15 @@ public class VirgilCardValidator implements CardValidator {
         }
 
         return true;
+    }
+
+    /**
+     * Enable/disable v3 Virgil Cards verification. Disabled by default.
+     * 
+     * @param verifyV3Cards
+     *            set to {@code true} to verify v3 Virgil Cards.
+     */
+    public void setVerifyV3Cards(boolean verifyV3Cards) {
+        this.verifyV3Cards = verifyV3Cards;
     }
 }

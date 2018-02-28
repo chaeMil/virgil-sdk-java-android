@@ -70,7 +70,7 @@ public class ClientBase {
      * 
      * @param url
      *            The URL.
-     * @param methodName
+     * @param method
      *            The HTTP method.
      * @return The connection.
      * @throws IOException

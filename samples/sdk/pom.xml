@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>samples</artifactId>
-		<version>4.6.0</version>
+		<version>4.6.1</version>
 	</parent>
 	<artifactId>sdk-samples</artifactId>
 	<packaging>jar</packaging>

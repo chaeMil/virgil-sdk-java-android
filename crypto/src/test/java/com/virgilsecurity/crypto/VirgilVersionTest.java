@@ -41,7 +41,7 @@ public class VirgilVersionTest {
 
     @Test
     public void asString() {
-        assertEquals("2.2.3", VirgilVersion.asString());
+        assertEquals("2.3.0", VirgilVersion.asString());
     }
 
     @Test
@@ -51,12 +51,12 @@ public class VirgilVersionTest {
 
     @Test
     public void minorVersion() {
-        assertEquals(2, VirgilVersion.minorVersion());
+        assertEquals(3, VirgilVersion.minorVersion());
     }
 
     @Test
     public void patchVersion() {
-        assertEquals(3, VirgilVersion.patchVersion());
+        assertEquals(0, VirgilVersion.patchVersion());
     }
 
 }

@@ -56,6 +56,7 @@ import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.IncompleteInitializationException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
@@ -123,6 +124,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
             String previousCardId, Map<String, String> additionalData) throws CryptoException {
+        verifyModelSignerNotNull();
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date(),
                 previousCardId);
@@ -153,6 +155,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
             String previousCardId) throws CryptoException {
+        verifyModelSignerNotNull();
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date(),
                 previousCardId);
@@ -183,6 +186,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
             Map<String, String> additionalData) throws CryptoException {
+        verifyModelSignerNotNull();
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date());
 
@@ -210,6 +214,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity)
             throws CryptoException {
+        verifyModelSignerNotNull();
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date());
 
@@ -236,6 +241,7 @@ public class CardManager {
      */
     public Card publishCard(RawSignedModel cardModel) throws CryptoException, VirgilServiceException {
         Validator.checkNullAgrument(cardModel, "CardManager -> 'cardModel' should not be null");
+        verifyCardClientNotNull();
 
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
         RawSignedModel cardModelPublished;
@@ -439,6 +445,7 @@ public class CardManager {
      *             if service call failed
      */
     public Card getCard(String cardId) throws CryptoException, VirgilServiceException {
+        verifyCardClientNotNull();
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
         Tuple<RawSignedModel, Boolean> response;
 
@@ -497,6 +504,7 @@ public class CardManager {
      *             if service call failed
      */
     public List<Card> searchCards(String identity) throws CryptoException, VirgilServiceException {
+        verifyCardClientNotNull();
         AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
 
         List<RawSignedModel> cardModels;
@@ -732,6 +740,18 @@ public class CardManager {
             }
         }
         return null;
+    }
+
+    private void verifyModelSignerNotNull() {
+        if (this.modelSigner == null) {
+            throw new IncompleteInitializationException("Model signer should be set first");
+        }
+    }
+
+    private void verifyCardClientNotNull() {
+        if (this.cardClient == null) {
+            throw new IncompleteInitializationException("Card client should be set first");
+        }
     }
 
     /**

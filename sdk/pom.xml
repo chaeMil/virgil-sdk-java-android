@@ -88,10 +88,6 @@
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.jayway.restassured</groupId>
-			<artifactId>rest-assured</artifactId>
-		</dependency>
 	</dependencies>
 
 	<build>

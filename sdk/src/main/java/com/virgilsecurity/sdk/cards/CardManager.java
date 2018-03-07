@@ -33,17 +33,6 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -65,6 +54,11 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
+
+import java.net.HttpURLConnection;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * The {@link CardManager} class provides list of methods to work with {@link Card}.
@@ -609,7 +603,7 @@ public class CardManager {
     }
 
     /**
-     * Import card from raw signed model.
+     * Import Card's raw signed model from raw signed model.
      *
      * @param cardModel
      *            the card model
@@ -626,25 +620,25 @@ public class CardManager {
     }
 
     /**
-     * Export card as base64 string.
+     * Export Card's raw signed model as base64 string.
      *
      * @param card
      *            the card
      * @return Base64 String from exported card
      */
     public String exportCardAsString(Card card) {
-        return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(card));
+        return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(card.getRawCard()));
     }
 
     /**
-     * Export card as json in string format.
+     * Export Card's raw signed model as json in string format.
      *
      * @param card
      *            the card
      * @return the string
      */
     public String exportCardAsJson(Card card) {
-        return ConvertionUtils.serializeToJson(card);
+        return ConvertionUtils.serializeToJson(card.getRawCard());
     }
 
     /**
@@ -656,7 +650,7 @@ public class CardManager {
      * @throws CryptoException
      *             the crypto exception
      */
-    public RawSignedModel exportCardAsRawModel(Card card) throws CryptoException {
+    public RawSignedModel exportCardAsRawModel(Card card) {
         return card.getRawCard();
     }
 

@@ -37,7 +37,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.virgilsecurity.sdk</groupId>
 	<artifactId>parent</artifactId>
-	<version>5.0.1-SNAPSHOT</version>
+	<version>5.0.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Virgil SDK - Parent</name>
 	<description>
@@ -204,7 +204,7 @@
 				<plugin>
 					<groupId>com.simpligility.maven.plugins</groupId>
 					<artifactId>android-maven-plugin</artifactId>
-					<version>4.5.0</version>
+					<version>4.4.0</version>
 					<extensions>true</extensions>
 					<configuration>
 						<ndkArchitectures>arm64-v8a armeabi armeabi-v7a mips mips64 x86

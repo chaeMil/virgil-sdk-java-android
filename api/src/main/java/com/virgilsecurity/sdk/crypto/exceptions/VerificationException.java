@@ -43,14 +43,14 @@ public class VerificationException extends CryptoException {
     private static final long serialVersionUID = -4006283921503784462L;
 
     /**
-     * Create a new instance of {@code EncryptionException}
+     * Create a new instance of {@code VerificationException}
      *
      */
     public VerificationException() {
     }
 
     /**
-     * Create a new instance of {@code EncryptionException}
+     * Create a new instance of {@code VerificationException}
      *
      * @param cause
      *            the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
@@ -61,7 +61,7 @@ public class VerificationException extends CryptoException {
     }
 
     /**
-     * Create a new instance of {@code EncryptionException}
+     * Create a new instance of {@code VerificationException}
      *
      * @param message
      *            the message which indicates the cause of Exception.

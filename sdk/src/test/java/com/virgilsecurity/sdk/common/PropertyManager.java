@@ -39,6 +39,7 @@ import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.SystemUtils;
 
 import static org.junit.Assert.fail;
 
@@ -62,8 +63,7 @@ public class PropertyManager {
     }
 
     public String getPropertyByName(String propertyName) {
-        boolean isMacOs = System.getProperty("os.name").toLowerCase().startsWith("mac os x");
-        if (isMacOs) {
+        if (SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_LINUX) {
             if (StringUtils.isBlank(System.getenv(propertyName))) {
                 return null;
             }

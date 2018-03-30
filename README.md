@@ -90,6 +90,8 @@ Before start practicing with the usage examples be sure that the SDK is configur
 Use the following lines of code to create and publish a user's Card with Public Key inside on Virgil Cards Service:
 
 ```java
+import com.virgilsecurity.crypto.VirgilCrypto;
+
 VirgilCrypto crypto = new VirgilCrypto();
 
 // generate a key pair
@@ -114,6 +116,8 @@ Virgil SDK lets you use a user's Private key and his or her Cards to sign, then 
 In the following example, we load a Private Key from a customized Key Storage and get recipient's Card from the Virgil Cards Services. Recipient's Card contains a Public Key on which we will encrypt the data and verify a signature.
 
 ```java
+import com.virgilsecurity.crypto.VirgilCrypto;
+
 VirgilCrypto crypto = new VirgilCrypto();
 
 // prepare a message
@@ -149,6 +153,8 @@ try {
 Once the Users receive the signed and encrypted message, they can decrypt it with their own Private Key and verify signature with a Sender's Card:
 
 ```java
+import com.virgilsecurity.crypto.VirgilCrypto;
+
 VirgilCrypto crypto = new VirgilCrypto();
 
 // prepare a user's private key

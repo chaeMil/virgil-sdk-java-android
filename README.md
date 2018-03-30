@@ -1,15 +1,15 @@
 # Virgil Security SDK and Crypto stack Java/Android
 
 [![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-java-android)
-[![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk-android.svg)](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk-android.svg)
+[![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)
 [![GitHub license](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/VirgilSecurity/virgil/blob/master/LICENSE)
 
-[Introduction](#installation) | [SDK Features](#sdk-features) | [Library purposes](#library-purposes) | [Installation](#installation) | [Usage Examples](#usage-examples) | [Docs](#docs) | [Support](#support)
+[Introduction](#introduction) | [SDK Features](#sdk-features) | [Library purposes](#library-purposes) | [Installation](#installation) | [Usage Examples](#usage-examples) | [Docs](#docs) | [Support](#support)
 
 
 ## Introduction
 
-[Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application. In a few simple steps you can encrypt communication, securely store data, provide passwordless login, and ensure data integrity.
+<img width="230px" src="https://cdn.virgilsecurity.com/assets/images/github/logos/virgil-logo-red.png" align="left" hspace="10" vspace="6"> [Virgil Security](https://virgilsecurity.com) provides a set of APIs for adding security to any application. In a few simple steps you can encrypt communication, securely store data, provide passwordless login, and ensure data integrity.
 
 The Virgil SDK allows developers to get up and running with Virgil API quickly and add full end-to-end security to their existing digital solutions to become HIPAA and GDPR compliant and more.
 
@@ -65,6 +65,14 @@ Use this packages for Java projects.
 
 #### Gradle
 
+Add jcenter() repository if missing:
+
+```
+repositories {
+    jcenter()
+}
+```
+
 Use this packages for Android projects.
 
 ```
@@ -74,8 +82,9 @@ dependencies {
 }
 ```
 
-
 ## Usage Examples
+
+Before start practicing with the usage examples be sure that the SDK is configured. Check out our [SDK configuration guides][_configure_sdk] for more information.
 
 #### Generate and publish user's Cards with Public Keys inside on Cards Service
 Use the following lines of code to create and publish a user's Card with Public Key inside on Virgil Cards Service:
@@ -196,19 +205,19 @@ Our developer support team is here to help you.
 
 You can find us on [Twitter](https://twitter.com/VirgilSecurity) or send us email support@VirgilSecurity.com.
 
-Also, get extra help from our support team on [Slack](https://join.slack.com/t/VirgilSecurity/shared_invite/enQtMjg4MDE4ODM3ODA4LTc2OWQwOTQ3YjNhNTQ0ZjJiZDc2NjkzYjYxNTI0YzhmNTY2ZDliMGJjYWQ5YmZiOGU5ZWEzNmJiMWZhYWVmYTM).
+Also, get extra help from our support team on [Slack](https://virgilsecurity.slack.com/join/shared_invite/enQtMjg4MDE4ODM3ODA4LTc2OWQwOTQ3YjNhNTQ0ZjJiZDc2NjkzYjYxNTI0YzhmNTY2ZDliMGJjYWQ5YmZiOGU5ZWEzNmJiMWZhYWVmYTM).
 
 [_virgil_crypto]: https://github.com/VirgilSecurity/virgil-crypto
 [_cards_service]: https://developer.virgilsecurity.com/docs/api-reference/card-service/v5
-[_use_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/use-card-for-crypto-operation
-[_get_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/get-card
-[_search_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/search-card
-[_create_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/create-card
-[_own_crypto]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-own-crypto-library
-[_key_storage]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-key-storage
-[_card_verifier]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-card-verifier
-[_card_manager]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-card-manager
-[_setup_authentication]: https://developer.virgilsecurity.com/docs/java/how-to/setup/setup-authentication
+[_use_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/v5/use-card-for-crypto-operation
+[_get_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/v5/get-card
+[_search_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/v5/search-card
+[_create_card]: https://developer.virgilsecurity.com/docs/java/how-to/public-key-management/v5/create-card
+[_own_crypto]: https://developer.virgilsecurity.com/docs/java/how-to/setup/v5/setup-own-crypto-library
+[_key_storage]: https://developer.virgilsecurity.com/docs/java/how-to/setup/v5/setup-key-storage
+[_card_verifier]: https://developer.virgilsecurity.com/docs/java/how-to/setup/v5/setup-card-verifier
+[_card_manager]: https://developer.virgilsecurity.com/docs/java/how-to/setup/v5/setup-card-manager
+[_setup_authentication]: https://developer.virgilsecurity.com/docs/java/how-to/setup/v5/setup-authentication
 [_reference_api]: https://developer.virgilsecurity.com/docs/api-reference
 [_configure_sdk]: https://developer.virgilsecurity.com/docs/how-to#sdk-configuration
 [_more_examples]: https://developer.virgilsecurity.com/docs/how-to#public-key-management

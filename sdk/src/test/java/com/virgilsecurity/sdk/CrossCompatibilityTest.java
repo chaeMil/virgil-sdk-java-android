@@ -33,24 +33,6 @@
 
 package com.virgilsecurity.sdk;
 
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
-import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
-
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -65,18 +47,24 @@ import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.common.TimeSpan;
-import com.virgilsecurity.sdk.crypto.CardCrypto;
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
+import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static org.junit.Assert.*;
 
 public class CrossCompatibilityTest extends PropertyManager {
 
@@ -221,20 +209,15 @@ public class CrossCompatibilityTest extends PropertyManager {
         String importedFromJson = dataProvider.getTestDataAs(3, JSON);
         Card card = cardManager.importCardAsJson(importedFromJson);
 
-        // FIXME Card ID is first 8 bytes of fingerprint, but test data doesn't trim a fingerprint
         assertEquals(dataProvider.getJsonByKey(3, "card_id"), card.getIdentifier());
         assertEquals(card.getIdentity(), "test");
         assertNotNull(card.getPublicKey());
         assertEquals(card.getVersion(), "5.0");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 11);
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
-        calendar.set(Calendar.MINUTE, 57);
-        calendar.set(Calendar.SECOND, 25);
-        calendar.clear(Calendar.MILLISECOND);
-        assertEquals(calendar.getTime().compareTo(card.getCreatedAt()), 0); // 0 is returned if dates are equal
+
+        RawSignedModel rawSignedModel = RawSignedModel.fromJson(importedFromJson);
+        RawCardContent rawCardContent = RawCardContent.fromString(ConvertionUtils.toBase64String(rawSignedModel.getContentSnapshot()));
+
+        assertEquals(rawCardContent.getCreatedAtTimestamp(), card.getCreatedAt().getTime() / 1000);
         assertNull(card.getPreviousCardId());
         assertNull(card.getPreviousCard());
         assertTrue(card.getSignatures().isEmpty());
@@ -262,15 +245,11 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertEquals(card.getIdentity(), "test");
         assertNotNull(card.getPublicKey());
         assertEquals(card.getVersion(), "5.0");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 11);
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
-        calendar.set(Calendar.MINUTE, 57);
-        calendar.set(Calendar.SECOND, 25);
-        calendar.clear(Calendar.MILLISECOND);
-        assertEquals(calendar.getTime().compareTo(card.getCreatedAt()), 0); // 0 is returned if dates are equal
+
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(importedFromString);
+        RawCardContent rawCardContent = RawCardContent.fromString(ConvertionUtils.toBase64String(rawSignedModel.getContentSnapshot()));
+
+        assertEquals(rawCardContent.getCreatedAtTimestamp(), card.getCreatedAt().getTime() / 1000);
         assertNull(card.getPreviousCardId());
         assertNull(card.getPreviousCard());
         assertTrue(card.getSignatures().isEmpty());
@@ -301,15 +280,11 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertArrayEquals(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
                 ((VirgilPublicKey) card.getPublicKey()).getRawKey());
         assertEquals(card.getVersion(), "5.0");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 11);
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
-        calendar.set(Calendar.MINUTE, 57);
-        calendar.set(Calendar.SECOND, 25);
-        calendar.clear(Calendar.MILLISECOND);
-        assertEquals(calendar.getTime().compareTo(card.getCreatedAt()), 0); // 0 is returned if dates are equal
+
+        RawSignedModel rawSignedModel = RawSignedModel.fromJson(importedFromJson);
+        RawCardContent rawCardContent = RawCardContent.fromString(ConvertionUtils.toBase64String(rawSignedModel.getContentSnapshot()));
+
+        assertEquals(rawCardContent.getCreatedAtTimestamp(), card.getCreatedAt().getTime() / 1000);
         assertNull(card.getPreviousCardId());
         assertNull(card.getPreviousCard());
         assertEquals(3, card.getSignatures().size());
@@ -361,15 +336,11 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertArrayEquals(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
                 ((VirgilPublicKey) card.getPublicKey()).getRawKey());
         assertEquals(card.getVersion(), "5.0");
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 0);
-        calendar.set(Calendar.DAY_OF_MONTH, 11);
-        calendar.set(Calendar.HOUR_OF_DAY, 17);
-        calendar.set(Calendar.MINUTE, 57);
-        calendar.set(Calendar.SECOND, 25);
-        calendar.clear(Calendar.MILLISECOND);
-        assertEquals(calendar.getTime().compareTo(card.getCreatedAt()), 0); // 0 is returned if dates are equal
+
+        RawSignedModel rawSignedModel = RawSignedModel.fromString(importedFromString);
+        RawCardContent rawCardContent = RawCardContent.fromString(ConvertionUtils.toBase64String(rawSignedModel.getContentSnapshot()));
+
+        assertEquals(rawCardContent.getCreatedAtTimestamp(), card.getCreatedAt().getTime() / 1000);
         assertNull(card.getPreviousCardId());
         assertNull(card.getPreviousCard());
         assertEquals(card.getSignatures().size(), 3);

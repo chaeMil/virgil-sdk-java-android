@@ -100,7 +100,7 @@ VirgilKeyPair keyPair = crypto.generateKeys();
 // save a private key into key storage
 privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);
 
-// publish user's on the Cards Service
+// publish user's card on the Cards Service
 try {
     Card card = cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), "Alice");
     // Card is created

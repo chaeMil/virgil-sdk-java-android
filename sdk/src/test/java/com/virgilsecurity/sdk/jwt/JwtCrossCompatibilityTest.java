@@ -71,6 +71,7 @@ public class JwtCrossCompatibilityTest {
 
     private static final int TOKEN_EXPIRE_IN_SECONDS = 3;
     private static final String INVALID_TOKEN = "INVALID_TOKEN";
+    private static final String TEST_OPERATION = "TEST_OPERATION_STC_24";
 
     private JsonObject sampleJson;
     private FakeDataFactory fake;
@@ -90,25 +91,25 @@ public class JwtCrossCompatibilityTest {
         // Setup CallbackJwtProvider
         CallbackJwtProvider provider = new CallbackJwtProvider(callback);
 
+        // Prepare contexts
+        TokenContext ctx = new TokenContext(fake.getIdentity(), TEST_OPERATION, false);
+
         // Set getTokenCallback to use JwtGenerator + call counter
         TimeSpan ttl = new TimeSpan(new Date());
         ttl.add(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
         final JwtGenerator generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(),
                 fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
-        when(this.callback.onGetToken()).thenAnswer(new Answer<String>() {
+        when(this.callback.onGetToken(ctx)).thenAnswer(new Answer<String>() {
             @Override
             public String answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return generator.generateToken(fake.getIdentity()).stringRepresentation();
             }
         });
 
-        // Prepare contexts
-        TokenContext ctx = new TokenContext(fake.getIdentity(), "stc_24", false);
-
         // Call getToken(false)
         Jwt accessToken1 = (Jwt) provider.getToken(ctx);
         assertNotNull(accessToken1);
-        verify(this.callback, times(1)).onGetToken();
+        verify(this.callback, times(1)).onGetToken(ctx);
 
         //For tokens have
         Thread.sleep(2000);
@@ -117,10 +118,10 @@ public class JwtCrossCompatibilityTest {
         Jwt accessToken2 = (Jwt) provider.getToken(ctx);
         assertNotNull(accessToken2);
         assertFalse("CallbackJwtProvider should always return new token", Objects.equals(accessToken1, accessToken2));
-        verify(this.callback, times(2)).onGetToken();
+        verify(this.callback, times(2)).onGetToken(ctx);
 
         //Return invalid token
-        when(this.callback.onGetToken())
+        when(this.callback.onGetToken(ctx))
                 .thenReturn(INVALID_TOKEN);
 
         expectedException.expect(IllegalArgumentException.class);

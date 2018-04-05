@@ -33,19 +33,14 @@
 
 package com.virgilsecurity.sdk.common;
 
-import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.client.CardClient;
 import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
-import com.virgilsecurity.sdk.jwt.TokenContext;
-import com.virgilsecurity.sdk.jwt.contract.AccessToken;
-import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 import java.util.Calendar;
@@ -153,29 +148,6 @@ public class Mocker extends PropertyManager {
         signer.selfSign(cardModel, privateKey);
 
         return cardModel;
-    }
-
-    public CardManager cardManager() {
-        CardManager.SignCallback signCallback = new CardManager.SignCallback() {
-            @Override
-            public RawSignedModel onSign(RawSignedModel rawSignedModel) {
-                return null;
-            }
-        };
-
-        AccessTokenProvider accessTokenProvider = new AccessTokenProvider() {
-            @Override
-            public AccessToken getToken(TokenContext context) throws CryptoException {
-                return null;
-            }
-        };
-
-        return new CardManager.Builder()
-                .setCrypto(new VirgilCardCrypto())
-                .setAccessTokenProvider(accessTokenProvider)
-                .setCardClient(new CardClient())
-                .setSignCallback(signCallback)
-                .build();
     }
 
     public Jwt generateAccessToken(String identity) throws CryptoException {

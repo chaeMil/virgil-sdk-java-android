@@ -415,7 +415,7 @@ public class CardsManagerTest extends PropertyManager {
         return new CardManager(cardCrypto,
                                accessTokenProvider,
                                cardVerifier,
-                               cardClient,
+                               cardClientMock,
                                new CardManager.SignCallback() {
                                    @Override
                                    public RawSignedModel onSign(RawSignedModel rawSignedModel) {

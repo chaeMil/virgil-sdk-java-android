@@ -565,7 +565,7 @@ public class SignerAndVerifierTest extends PropertyManager {
                                                   cardVerifier,
                                                   cardClient,
                                                   signCallback,
-                                                  false);
+                                                  true);
 
         Card card = cardManager.publishCard(rawSignedModel);
         assertNotNull(card);

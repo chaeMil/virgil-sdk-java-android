@@ -32,22 +32,22 @@
  */
 package com.virgilsecurity.sdk.examples;
 
-import java.util.Date;
-
 import com.virgilsecurity.sdk.cards.CardManager;
-import com.virgilsecurity.sdk.cards.CardManager.Builder;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.crypto.CardCrypto;
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.cards.validation.CardVerifier;
+import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.jwt.TokenContext;
+import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
+import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
+
+import java.util.Date;
 
 /**
  * @author Andrii Iakovenko
@@ -101,7 +101,14 @@ public class AdditionalSignatureExample {
 
     @SuppressWarnings("unused")
     private void transmitCard() {
-        CardManager.Builder cardManagerBuilder = new Builder();
+        CardCrypto cardCrypto = new VirgilCardCrypto();
+        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(new CallbackJwtProvider.GetTokenCallback() {
+            @Override
+            public String onGetToken(TokenContext tokenContext) {
+                return "your token generation implementation";
+            }
+        });
+        CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto);
         SignCallback signCallback = new SignCallback() {
 
             @Override
@@ -113,7 +120,11 @@ public class AdditionalSignatureExample {
                 return signedRawCard;
             }
         };
-        cardManagerBuilder.setSignCallback(signCallback);
+
+        CardManager cardManager = new CardManager(cardCrypto,
+                                                  accessTokenProvider,
+                                                  cardVerifier,
+                                                  signCallback);
     }
 
     private String signCard(String rawCardStr) throws CryptoException {

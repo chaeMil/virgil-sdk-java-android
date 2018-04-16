@@ -33,206 +33,110 @@
 
 package com.virgilsecurity.sdk.common;
 
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The {@link TimeSpan} class is implemented to simplify work with time spans. You can easily specify time span for 5
- * min for example.
+ * The {@link TimeSpan} class is implemented to simplify work with time spans.
+ * You can easily specify the time span for 5 min for example.
  */
-public class TimeSpan {
+public final class TimeSpan {
 
-    private Date date;
+    private long lifetime;
+    private TimeUnit timeUnit;
 
-    /**
-     * Represents time interval in specified time unit
-     *
-     * @param date
-     *            the date of expire
-     */
-    public TimeSpan(Date date) {
-        this.date = date;
+    private TimeSpan(long lifetime, TimeUnit timeUnit) {
+        this.lifetime = lifetime;
+        this.timeUnit = timeUnit;
     }
 
     /**
-     * Represents time interval in specified time unit
+     * Represents time span (interval) in specified time unit.
      *
-     * @param milliseconds
-     *            the date to expire in milliseconds
-     */
-    public TimeSpan(long milliseconds) {
-        this.date = new Date(milliseconds);
-    }
-
-    /**
-     * @param time
+     * @param lifetime
      *            in specified by second argument unit. Must be &gt;= 0.
      * @param timeUnit
-     *            supported TimeUnit: SECONDS, MINUTES, HOURS, DAYS.
-     * @return TimeSpan instance with time span in specified unit. For unsupported units time span in minutes will be
-     *         returned.
+     *            any {@link TimeUnit}.
+     * @return TimeSpan instance with time span in specified unit.
      */
-    public static TimeSpan fromTime(int time, TimeUnit timeUnit) {
-        if (time <= 0)
-            throw new IllegalArgumentException("Time should be more that zero (0)");
+    public static TimeSpan fromTime(long lifetime, TimeUnit timeUnit) {
+        if (lifetime <= 0)
+            throw new IllegalArgumentException("Value of 'lifetime' should be more that zero (0)");
 
-        long span = new Date().getTime();
-        switch (timeUnit) {
-        case SECONDS:
-            span += time * 1000;
-            break;
-        case MINUTES:
-            span += time * (1000 * 60);
-            break;
-        case HOURS:
-            span += time * (1000 * 60 * 60);
-            break;
-        case DAYS:
-            span += time * (1000 * 60 * 60 * 24);
-            break;
-        default:
-            span += time * (1000 * 60);
-            break;
-        }
-
-        return new TimeSpan(span);
+        return new TimeSpan(lifetime, timeUnit);
     }
 
     /**
-     * If TimeSpan was cleared - time span will be added to the current time.
+     * If TimeSpan was cleared - time span will be added to zero (0) value.
      *
-     * @param milliseconds
-     *            the milliseconds to be added to current time
+     * @param increment
+     *            the milliseconds to be added to current time. Must be &gt;= 0.
      */
-    public void add(long milliseconds) {
-        if (date == null)
-            date = new Date();
+    public void add(long increment) {
+        if (increment <= 0)
+            throw new IllegalArgumentException("Value of 'increment' should be more that zero (0)");
 
-        this.date.setTime(date.getTime() + milliseconds);
+        this.lifetime += increment;
     }
 
     /**
-     * If TimeSpan was cleared - time span will be added to the current time.
+     * Decrease the expire interval. Cannot be less than zero (0).
+     * (Ex. timeSpan.add(2);
+     *      timeSpan.decrease(5);
+     *      timeSpan.getSpan();
+     *  -> output value is zero (0))
      *
-     * @param time
-     *            the amount of date or time to be added to the field.
-     * @param timeUnit
-     *            supported TimeUnit: SECONDS, MINUTES, HOURS, DAYS. Otherwise minutes unit will be used as default.
+     * @param decrement
+     *            to decrease the expire interval. Must be &gt;= 0.
      */
-    public void add(int time, TimeUnit timeUnit) {
-        if (date == null)
-            date = new Date();
+    public void decrease(long decrement) {
+        if (decrement <= 0)
+            throw new IllegalArgumentException("Value of 'decrement' should be more that zero (0)");
 
-        switch (timeUnit) {
-        case SECONDS:
-            this.date.setTime(date.getTime() + time * 1000);
-            break;
-        case MINUTES:
-            this.date.setTime(date.getTime() + time * (1000 * 60));
-            break;
-        case HOURS:
-            this.date.setTime(date.getTime() + time * (1000 * 60 * 60));
-            break;
-        case DAYS:
-            this.date.setTime(date.getTime() + time * (1000 * 60 * 60 * 24));
-            break;
-        default:
-            this.date.setTime(date.getTime() + time * (1000 * 60));
-            break;
-        }
+        this.lifetime -= decrement;
     }
 
     /**
-     * Decrease the expire interval
-     *
-     * @param milliseconds
-     *            to decrease the expire interval
-     */
-    public void decrease(long milliseconds) {
-        this.date.setTime(date.getTime() - milliseconds);
-    }
-
-    /**
-     * Clears the expire date. To use this object once more after clearing - you have to set new expire date or 0 (zero)
-     * will be returned when you will try to get the time span
+     * Clears time span to zero (0) value.
      */
     public void clear() {
-        date = null;
+        lifetime = 0;
     }
 
     /**
-     * Milliseconds since January 1, 1970, 00:00:00 GMT of expire date
+     * Get time span.
      *
-     * @return milliseconds since January 1, 1970, 00:00:00 GMT of expire date
+     * @return Time Span in seconds.
      */
-    public long getMilliseconds() {
-        if (date != null)
-            return date.getTime();
-        else
-            return 0;
-    }
-
-    /**
-     * Get span in specified TimeUnit
-     *
-     * @param timeUnit
-     *            supported TimeUnit: SECONDS, MINUTES, HOURS, DAYS. Otherwise milliseconds will be returned.
-     * @return Time Span in specified unit. For unsupported units milliseconds will be returned. If TimeSpan was cleared
-     *         - 0 will be returned.
-     */
-    public long getSpan(TimeUnit timeUnit) {
-        if (date == null)
+    public long getSpanSeconds() {
+        if (lifetime == 0)
             return 0;
 
         switch (timeUnit) {
-        case SECONDS:
-            return (new Date().getTime() - date.getTime()) / 1000;
-        case MINUTES:
-            return date.getTime() / (1000 * 60);
-        case HOURS:
-            return date.getTime() / (1000 * 60 * 60);
-        case DAYS:
-            return date.getTime() / (1000 * 60 * 60 * 24);
-        default:
-            return date.getTime();
+            case NANOSECONDS:
+                return lifetime / 1000000000; // 1000000000 nanoseconds is 1 second
+            case MICROSECONDS:
+                return lifetime / 1000000;  // 1000000 microseconds is 1 second
+            case MILLISECONDS:
+                return lifetime / 1000;  // 1000 milliseconds is 1 second
+            case SECONDS:
+                return lifetime;
+            case MINUTES:
+                return lifetime * 60;
+            case HOURS:
+                return lifetime * 60 * 60;
+            case DAYS:
+                return lifetime * 24 * 60 * 60;
+            default:
+                return lifetime;
         }
     }
 
     /**
-     * Retrieve expire date
+     * Get time span.
      *
-     * @return expire {@code date} object
+     * @return Time Span in milliseconds.
      */
-    public Date getExpireDate() {
-        return date;
-    }
-
-    /**
-     * @param date
-     *            the {@code date} to set
-     */
-    public void setExpireDate(Date date) {
-        this.date = date;
-    }
-
-    /**
-     * Check if time span is expired
-     *
-     * @return {@code true} if already expired, otherwise {@code false}
-     */
-    public boolean isExpired() {
-        return new Date().after(date);
-    }
-
-    /**
-     * Get Timestamp in UTC Time format
-     *
-     * @return number of seconds since 00:00:00 1 January 1970
-     */
-    public long getTimestamp() {
-        if (date == null)
-            return 0;
-
-        return date.getTime() / 1000;
+    public long getSpanMilliseconds() {
+        return getSpanSeconds() * 1000;
     }
 }

@@ -391,7 +391,7 @@ public class CrossCompatibilityTest extends PropertyManager {
                 apiPublicKeyIdentifier, accessTokenSigner);
 
         JwtGenerator jwtGenerator = new JwtGenerator(apiAppId, privateKey, apiPublicKeyIdentifier,
-                TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+                                                     TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
         Jwt jwt = jwtGenerator.generateToken("test");
 

@@ -33,15 +33,15 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import java.util.Date;
-import java.util.Map;
-
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.Base64Url;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * The {@link JwtGenerator} class is used for generation of {@link Jwt} with provided tools and data.

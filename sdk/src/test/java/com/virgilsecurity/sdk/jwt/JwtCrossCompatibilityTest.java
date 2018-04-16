@@ -53,7 +53,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.io.InputStreamReader;
-import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -95,8 +94,8 @@ public class JwtCrossCompatibilityTest {
         TokenContext ctx = new TokenContext(fake.getIdentity(), TEST_OPERATION, false);
 
         // Set getTokenCallback to use JwtGenerator + call counter
-        TimeSpan ttl = new TimeSpan(new Date());
-        ttl.add(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
+        TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
+
         final JwtGenerator generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(),
                 fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
         when(this.callback.onGetToken(ctx)).thenAnswer(new Answer<String>() {
@@ -131,8 +130,8 @@ public class JwtCrossCompatibilityTest {
     @Test
     public void STC_37() throws CryptoException, InterruptedException {
         // Setup ConstAccessTokenProvider with fake token
-        TimeSpan ttl = new TimeSpan(new Date());
-        ttl.add(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
+        TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
+
         JwtGenerator generator = new JwtGenerator(this.fake.getApplicationId(), this.fake.getApiPrivateKey(),
                 this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
         ConstAccessTokenProvider tokenProvider = new ConstAccessTokenProvider(
@@ -169,7 +168,7 @@ public class JwtCrossCompatibilityTest {
         assertEquals(sampleJson.get("STC-28.jwt_additional_data").getAsString(),
                 ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
         assertEquals(sampleJson.get("STC-28.jwt_expires_at").getAsLong(),
-                jwt.getBodyContent().getExpiresAt().getTimestamp());
+                jwt.getBodyContent().getExpiresAt());
         assertEquals(sampleJson.get("STC-28.jwt_issued_at").getAsLong(),
                 jwt.getBodyContent().getIssuedAt().getTime() / 1000);
         assertEquals(sampleJson.get("STC-28.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());
@@ -199,7 +198,7 @@ public class JwtCrossCompatibilityTest {
         assertEquals(sampleJson.get("STC-29.jwt_additional_data").getAsString(),
                 ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
         assertEquals(sampleJson.get("STC-29.jwt_expires_at").getAsLong(),
-                jwt.getBodyContent().getExpiresAt().getTimestamp());
+                jwt.getBodyContent().getExpiresAt());
         assertEquals(sampleJson.get("STC-29.jwt_issued_at").getAsLong(),
                 jwt.getBodyContent().getIssuedAt().getTime() / 1000);
         assertEquals(sampleJson.get("STC-29.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());

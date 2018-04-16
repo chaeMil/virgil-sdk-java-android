@@ -32,21 +32,17 @@
  */
 package com.virgilsecurity.sdk;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
 import com.virgilsecurity.sdk.common.TimeSpan;
-import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author Andrii Iakovenko
@@ -79,7 +75,7 @@ public class FakeDataFactory {
         this.apiPublicKeyId = ConvertionUtils.toHex(this.crypto.exportPublicKey(apiPublicKey));
 
         this.jwtGenerator = new JwtGenerator(this.applicationId, apiPrivateKey, apiPublicKeyId,
-                TimeSpan.fromTime(10, TimeUnit.MINUTES), new VirgilAccessTokenSigner());
+                                             TimeSpan.fromTime(10, TimeUnit.MINUTES), new VirgilAccessTokenSigner());
     }
 
     public Jwt generateToken() throws CryptoException {

@@ -32,22 +32,19 @@
  */
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.concurrent.TimeUnit;
-
-import org.junit.Before;
-import org.junit.Test;
-
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Andrii Iakovenko
@@ -65,7 +62,7 @@ public class JwtGeneratorTest {
         this.fake = new FakeDataFactory();
         this.signer = new VirgilAccessTokenSigner();
         this.generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(), fake.getApiPublicKeyId(),
-                TimeSpan.fromTime(10, TimeUnit.MINUTES), signer);
+                                          TimeSpan.fromTime(10, TimeUnit.MINUTES), signer);
 
         this.identity = fake.getIdentity();
     }
@@ -88,6 +85,32 @@ public class JwtGeneratorTest {
         assertNull(jwt.getIdentity());
         assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), ConvertionUtils.toBytes(jwt.unsigned()),
                 fake.getApiPublicKey()));
+    }
+
+    @Test
+    public void generateToken_autohandle_of_expireAt() throws CryptoException, InterruptedException {
+        FakeDataFactory fake = new FakeDataFactory();
+        VirgilAccessTokenSigner signer = new VirgilAccessTokenSigner();
+
+        String appId = fake.getApplicationId();
+        PrivateKey privateKey = fake.getApiPrivateKey();
+        final String apiPublicKeyId = fake.getApiPublicKeyId();
+
+        JwtGenerator generator = new JwtGenerator(appId,
+                                                  privateKey,
+                                                  apiPublicKeyId,
+                                                  TimeSpan.fromTime(2, TimeUnit.SECONDS),
+                                                  signer);
+
+        Jwt jwt = generator.generateToken(this.identity);
+        assertFalse(jwt.isExpired());
+        Thread.sleep(3 * 1000);
+        assertTrue(jwt.isExpired());
+
+        Jwt jwt2 = generator.generateToken(this.identity);
+        assertFalse(jwt2.isExpired());
+        Thread.sleep(3 * 1000);
+        assertTrue(jwt2.isExpired());
     }
 
 }

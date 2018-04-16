@@ -33,11 +33,11 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import java.util.Date;
-import java.util.Map;
-
 import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.common.TimeSpan;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * The {@link JwtBodyContent} represents contents of {@link Jwt} body.
@@ -102,8 +102,8 @@ public class JwtBodyContent {
         if (identity != null) {
             this.subject = SUBJECT_PREFIX + identity;
         }
-        this.expiresAt = expiresAt.getTimestamp();
         this.issuedAt = issuedAt.getTime() / 1000;
+        this.expiresAt = this.issuedAt + expiresAt.getSpanSeconds();
     }
 
     /*
@@ -166,10 +166,10 @@ public class JwtBodyContent {
     /**
      * Gets expires at - the lifetime of token.
      *
-     * @return the expires at - the lifetime of token
+     * @return the expires at - the lifetime of token (Unix Timestamp)
      */
-    public TimeSpan getExpiresAt() {
-        return new TimeSpan(expiresAt * 1000);
+    public long getExpiresAt() {
+        return expiresAt;
     }
 
     /**

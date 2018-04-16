@@ -60,10 +60,6 @@ public class virgil_crypto_javaJNI {
         }
         swig_module_init();
     }
-
-    static {
-        swig_module_init();
-    }
     
     public final static native int VIRGIL_CRYPTO_FEATURE_LOW_LEVEL_WRAP_get();
 

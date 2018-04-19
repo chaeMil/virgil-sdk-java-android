@@ -83,7 +83,7 @@ public final class TimeSpan {
      * (Ex. timeSpan.add(2);
      *      timeSpan.decrease(5);
      *      timeSpan.getSpan();
-     *  -> output value is zero (0))
+     *      output value is zero (0))
      *
      * @param decrement
      *            to decrease the expire interval. Must be &gt;= 0.

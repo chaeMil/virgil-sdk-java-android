@@ -43,14 +43,14 @@ public class SigningException extends CryptoException {
     private static final long serialVersionUID = -4006283921503784462L;
 
     /**
-     * Create a new instance of {@code EncryptionException}
+     * Create a new instance of {@linkplain SigningException}
      *
      */
     public SigningException() {
     }
 
     /**
-     * Create a new instance of {@code EncryptionException}
+     * Create a new instance of {@linkplain SigningException}
      *
      * @param cause
      *            The cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
@@ -61,7 +61,7 @@ public class SigningException extends CryptoException {
     }
 
     /**
-     * Create new instance of {@link SigningException}.
+     * Create new instance of {@linkplain SigningException}.
      * 
      * @param message
      *            The detail message. The detail message is saved for later retrieval by the {@link #getMessage()}

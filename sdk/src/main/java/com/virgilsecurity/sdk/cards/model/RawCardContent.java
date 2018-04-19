@@ -33,10 +33,10 @@
 
 package com.virgilsecurity.sdk.cards.model;
 
-import java.util.Date;
-
 import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.util.Date;
 
 /**
  * The {@linkplain RawCardContent} describes contents of Card.
@@ -57,13 +57,6 @@ public class RawCardContent {
 
     @SerializedName("previous_card_id")
     private String previousCardId;
-
-    /**
-     * Instantiates a new Raw card content.
-     */
-    public RawCardContent() {
-
-    }
 
     /**
      * Instantiates a new Raw card content.

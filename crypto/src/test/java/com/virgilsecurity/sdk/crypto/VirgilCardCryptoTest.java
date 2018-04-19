@@ -32,22 +32,17 @@
  */
 package com.virgilsecurity.sdk.crypto;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-
-import java.nio.charset.StandardCharsets;
-
+import com.virgilsecurity.crypto.VirgilBase64;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.virgilsecurity.crypto.VirgilBase64;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
+import java.nio.charset.StandardCharsets;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.*;
 
 /**
  * @author Andrii Iakovenko

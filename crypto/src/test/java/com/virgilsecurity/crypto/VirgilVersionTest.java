@@ -32,9 +32,9 @@
  */
 package com.virgilsecurity.crypto;
 
-import static org.junit.Assert.assertEquals;
-
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Andrii Iakovenko
@@ -44,7 +44,7 @@ public class VirgilVersionTest {
 
     @Test
     public void asString() {
-        assertEquals("2.3.0", VirgilVersion.asString());
+        assertEquals("2.4.0", VirgilVersion.asString());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class VirgilVersionTest {
 
     @Test
     public void minorVersion() {
-        assertEquals(3, VirgilVersion.minorVersion());
+        assertEquals(4, VirgilVersion.minorVersion());
     }
 
     @Test

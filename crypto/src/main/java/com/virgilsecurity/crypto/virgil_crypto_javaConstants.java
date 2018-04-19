@@ -10,4 +10,7 @@ package com.virgilsecurity.crypto;
 
 public interface virgil_crypto_javaConstants {
   public final static int VIRGIL_CRYPTO_FEATURE_LOW_LEVEL_WRAP = virgil_crypto_javaJNI.VIRGIL_CRYPTO_FEATURE_LOW_LEVEL_WRAP_get();
+  public final static int VIRGIL_CRYPTO_FEATURE_PYTHIA = virgil_crypto_javaJNI.VIRGIL_CRYPTO_FEATURE_PYTHIA_get();
+  public final static int VIRGIL_CRYPTO_FEATURE_STREAM_IMPL = virgil_crypto_javaJNI.VIRGIL_CRYPTO_FEATURE_STREAM_IMPL_get();
+  public final static int VIRGIL_CRYPTO_FEATURE_PYTHIA_MT = virgil_crypto_javaJNI.VIRGIL_CRYPTO_FEATURE_PYTHIA_MT_get();
 }

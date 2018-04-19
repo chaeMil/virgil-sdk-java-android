@@ -33,13 +33,13 @@
 package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.cards.CardManager;
-import com.virgilsecurity.sdk.cards.CardManager.Builder;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.cards.validation.Whitelist;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
@@ -73,7 +73,7 @@ public class SetupCardManagerExample {
         GetTokenCallback getTokenCallback = new GetTokenCallback() {
 
             @Override
-            public String onGetToken() {
+            public String onGetToken(TokenContext tokenContext) {
                 // Generate token here
                 return null;
             }
@@ -97,10 +97,7 @@ public class SetupCardManagerExample {
     private static CardManager initializeCardManager(CardCrypto cardCrypto, AccessTokenProvider accessTokenProvider,
             CardVerifier cardVerifier) {
 
-        CardManager.Builder cardManagerBuilder = new Builder();
-        cardManagerBuilder.setCrypto(cardCrypto).setAccessTokenProvider(accessTokenProvider)
-                .setCardVerifier(cardVerifier);
-        CardManager cardManager = cardManagerBuilder.build();
+        CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, cardVerifier);
 
         return cardManager;
     }

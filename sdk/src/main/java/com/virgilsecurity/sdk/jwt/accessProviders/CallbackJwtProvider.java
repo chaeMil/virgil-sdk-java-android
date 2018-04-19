@@ -58,11 +58,11 @@ public class CallbackJwtProvider implements AccessTokenProvider {
     }
 
     @Override
-    public AccessToken getToken(TokenContext context) {
-        Validator.checkNullAgrument(context, "CallbackJwtProvider -> 'context' should not be null");
+    public AccessToken getToken(TokenContext tokenContext) {
+        Validator.checkNullAgrument(tokenContext, "CallbackJwtProvider -> 'tokenContext' should not be null");
         Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> set getTokenCallback first");
 
-        return new Jwt(getTokenCallback.onGetToken());
+        return new Jwt(getTokenCallback.onGetToken(tokenContext));
     }
 
     /**
@@ -84,9 +84,10 @@ public class CallbackJwtProvider implements AccessTokenProvider {
         /**
          * In this callback you should return valid JsonWebToken as base64 string
          * in 2 or 3 parts separated with dot ('.').
-         *
+         * @param tokenContext
+         *            the tokenContext that is used to get token
          * @return the string
          */
-        String onGetToken();
+        String onGetToken(TokenContext tokenContext);
     }
 }

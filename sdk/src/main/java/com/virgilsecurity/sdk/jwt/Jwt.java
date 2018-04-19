@@ -39,6 +39,7 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.logging.Logger;
 
 /**
@@ -166,7 +167,8 @@ public class Jwt implements AccessToken {
      * @return if the token is already expired then - {@code true}, otherwise {@code false}
      */
     public boolean isExpired() {
-        return bodyContent.getExpiresAt().isExpired();
+        long currentTimeStamp = new Date().getTime() / 1000;
+        return currentTimeStamp >= bodyContent.getExpiresAt();
     }
 
     private String headerBase64() {

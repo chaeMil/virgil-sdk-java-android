@@ -32,26 +32,22 @@
  */
 package com.virgilsecurity.sdk.crypto;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-
-import javax.xml.bind.DatatypeConverter;
-
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.virgilsecurity.crypto.VirgilHash;
 import com.virgilsecurity.crypto.VirgilHash.Algorithm;
 import com.virgilsecurity.crypto.VirgilSigner;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
+import javax.xml.bind.DatatypeConverter;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Andrii Iakovenko

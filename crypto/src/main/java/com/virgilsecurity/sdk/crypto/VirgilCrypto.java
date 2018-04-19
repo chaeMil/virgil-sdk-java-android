@@ -32,6 +32,12 @@
  */
 package com.virgilsecurity.sdk.crypto;
 
+
+import com.virgilsecurity.crypto.*;
+import com.virgilsecurity.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.exceptions.*;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -39,25 +45,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-
-import com.virgilsecurity.crypto.VirgilCipher;
-import com.virgilsecurity.crypto.VirgilCustomParams;
-import com.virgilsecurity.crypto.VirgilDataSink;
-import com.virgilsecurity.crypto.VirgilDataSource;
-import com.virgilsecurity.crypto.VirgilHash;
-import com.virgilsecurity.crypto.VirgilKeyPair;
-import com.virgilsecurity.crypto.VirgilSigner;
-import com.virgilsecurity.crypto.VirgilStreamCipher;
-import com.virgilsecurity.crypto.VirgilStreamDataSink;
-import com.virgilsecurity.crypto.VirgilStreamDataSource;
-import com.virgilsecurity.crypto.VirgilStreamSigner;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.DecryptionException;
-import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
-import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
-import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
-import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 /**
  * The Virgil's implementation of Crypto.
@@ -207,8 +194,8 @@ public class VirgilCrypto {
     public void decrypt(InputStream inputStream, OutputStream outputStream, VirgilPrivateKey privateKey)
             throws DecryptionException {
         try (VirgilStreamCipher cipher = new VirgilStreamCipher();
-                VirgilDataSource dataSource = new VirgilStreamDataSource(inputStream);
-                VirgilDataSink dataSink = new VirgilStreamDataSink(outputStream)) {
+             VirgilDataSource dataSource = new VirgilStreamDataSource(inputStream);
+             VirgilDataSink dataSink = new VirgilStreamDataSink(outputStream)) {
 
             cipher.decryptWithKey(dataSource, dataSink, privateKey.getIdentifier(), privateKey.getRawKey());
         } catch (IOException e) {

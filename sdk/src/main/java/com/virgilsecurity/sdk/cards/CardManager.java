@@ -33,17 +33,6 @@
 
 package com.virgilsecurity.sdk.cards;
 
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -56,7 +45,6 @@ import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
@@ -65,6 +53,11 @@ import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
 
+import java.net.HttpURLConnection;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * The {@link CardManager} class provides list of methods to work with {@link Card}.
  */
@@ -72,7 +65,9 @@ public class CardManager {
     private static final Logger LOGGER = Logger.getLogger(CardManager.class.getName());
 
     private static final String CURRENT_CARD_VERSION = "5.0";
-    private static final String TOKEN_CONTEXT_OPERATION = "SomeOperation";
+    private static final String TOKEN_CONTEXT_OPERATION_PUBLISH = "publish";
+    private static final String TOKEN_CONTEXT_OPERATION_GET = "get";
+    private static final String TOKEN_CONTEXT_OPERATION_SEARCH = "search";
 
     private ModelSigner modelSigner;
     private CardCrypto crypto;
@@ -80,11 +75,117 @@ public class CardManager {
     private CardVerifier cardVerifier;
     private CardClient cardClient;
     private SignCallback signCallback;
+    private boolean retryOnUnauthorized;
 
     /**
-     * Create new instance of {@link CardManager}.
+     * Instantiates a new Card manager.
+     *
+     * @param crypto
+     *            the crypto
+     * @param accessTokenProvider
+     *            the access token provider
+     * @param cardVerifier
+     *            the card verifier
      */
-    private CardManager() {
+    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider, CardVerifier cardVerifier) {
+        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+
+        this.crypto = crypto;
+        this.accessTokenProvider = accessTokenProvider;
+        this.cardVerifier = cardVerifier;
+
+        cardClient = new CardClient();
+        modelSigner = new ModelSigner(crypto);
+    }
+
+    /**
+     * Instantiates a new Card manager.
+     *
+     * @param crypto
+     *            the crypto
+     * @param accessTokenProvider
+     *            the access token provider
+     * @param cardVerifier
+     *            the card verifier
+     * @param signCallback
+     *            the sign callback
+     */
+    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
+                       CardVerifier cardVerifier, SignCallback signCallback) {
+        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
+
+        this.crypto = crypto;
+        this.accessTokenProvider = accessTokenProvider;
+        this.cardVerifier = cardVerifier;
+
+        cardClient = new CardClient();
+        modelSigner = new ModelSigner(crypto);
+    }
+
+    /**
+     * Instantiates a new Card manager.
+     *
+     * @param crypto
+     *            the crypto
+     * @param accessTokenProvider
+     *            the access token provider
+     * @param cardVerifier
+     *            the card verifier
+     * @param cardClient
+     *            the card client
+     */
+    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
+                       CardVerifier cardVerifier, CardClient cardClient) {
+        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
+
+        this.crypto = crypto;
+        this.accessTokenProvider = accessTokenProvider;
+        this.cardVerifier = cardVerifier;
+        this.cardClient = cardClient;
+
+        modelSigner = new ModelSigner(crypto);
+    }
+
+    /**
+     * Instantiates a new Card manager.
+     *
+     * @param crypto
+     *            the crypto
+     * @param accessTokenProvider
+     *            the access token provider
+     * @param cardClient
+     *            the card client
+     * @param cardVerifier
+     *            the card verifier
+     * @param signCallback
+     *            the sign callback
+     * @param retryOnUnauthorized
+     *            whether card manager should retry request with new token on unauthorized http error
+     */
+    public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider, CardVerifier cardVerifier,
+                       CardClient cardClient, SignCallback signCallback, boolean retryOnUnauthorized) {
+        Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
+        Validator.checkNullAgrument(accessTokenProvider, "CardManager -> 'accessTokenProvider' should not be null");
+        Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+        Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
+        Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
+
+        this.crypto = crypto;
+        this.accessTokenProvider = accessTokenProvider;
+        this.cardVerifier = cardVerifier;
+        this.cardClient = cardClient;
+        this.signCallback = signCallback;
+        this.retryOnUnauthorized = retryOnUnauthorized;
+
+        modelSigner = new ModelSigner(crypto);
     }
 
     /**
@@ -123,6 +224,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
             String previousCardId, Map<String, String> additionalData) throws CryptoException {
+
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date(),
                 previousCardId);
@@ -153,6 +255,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
             String previousCardId) throws CryptoException {
+
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date(),
                 previousCardId);
@@ -183,6 +286,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
             Map<String, String> additionalData) throws CryptoException {
+
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date());
 
@@ -210,6 +314,7 @@ public class CardManager {
      */
     public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity)
             throws CryptoException {
+
         RawCardContent cardContent = new RawCardContent(identity,
                 ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION, new Date());
 
@@ -222,7 +327,9 @@ public class CardManager {
 
     /**
      * Publishes card to the Virgil Cards service. You should use
-     * {@link #generateRawCard(PrivateKey, PublicKey, String)} method, or it's overridden variations
+     * {@link #generateRawCard(PrivateKey, PublicKey, String)} method, or it's overridden variations.
+     * You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      *
      * @param cardModel
      *            the card model to publish
@@ -237,7 +344,7 @@ public class CardManager {
     public Card publishCard(RawSignedModel cardModel) throws CryptoException, VirgilServiceException {
         Validator.checkNullAgrument(cardModel, "CardManager -> 'cardModel' should not be null");
 
-        AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
+        AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false));
         RawSignedModel cardModelPublished;
 
         if (signCallback != null) {
@@ -251,9 +358,10 @@ public class CardManager {
             cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
             if (exceptionOuter.getHttpError() != null
-                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
+                    && retryOnUnauthorized) {
                 LOGGER.fine("Token is expired, trying to reload...");
-                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
+                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, true));
                 try {
                     cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {
@@ -304,7 +412,8 @@ public class CardManager {
     }
 
     /**
-     * Publish card to the Virgil Cards service.
+     * Publish card to the Virgil Cards service. You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      * <p>
      * Internally {@link #generateRawCard(PrivateKey, PublicKey, String, String, Map)} method will be called to generate
      * {@link RawSignedModel} with provided parameters after that card model will be published via
@@ -337,7 +446,8 @@ public class CardManager {
     }
 
     /**
-     * Publish card to the Virgil Cards service.
+     * Publish card to the Virgil Cards service. You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      * <p>
      * Internally {@link #generateRawCard(PrivateKey, PublicKey, String, Map)} method will be called to generate
      * {@link RawSignedModel} with provided parameters after that card model will be published via
@@ -368,7 +478,8 @@ public class CardManager {
     }
 
     /**
-     * Publish card to the Virgil Cards service.
+     * Publish card to the Virgil Cards service. You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      * <p>
      * Internally {@link #generateRawCard(PrivateKey, PublicKey, String, String)} method will be called to generate
      * {@link RawSignedModel} with provided parameters after that card model will be published via
@@ -399,7 +510,8 @@ public class CardManager {
     }
 
     /**
-     * Publish card to the Virgil Cards service.
+     * Publish card to the Virgil Cards service. You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      * <p>
      * Internally {@link #generateRawCard(PrivateKey, PublicKey, String)} method will be called to generate
      * {@link RawSignedModel} with provided parameters after that card model will be published via
@@ -427,7 +539,8 @@ public class CardManager {
     }
 
     /**
-     * Gets the card by specified identifier.
+     * Gets the card by specified identifier. You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      *
      * @param cardId
      *            the card identifier
@@ -439,16 +552,17 @@ public class CardManager {
      *             if service call failed
      */
     public Card getCard(String cardId) throws CryptoException, VirgilServiceException {
-        AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
+        AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_GET, false));
         Tuple<RawSignedModel, Boolean> response;
 
         try { // Hell is here (:
             response = cardClient.getCard(cardId, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
             if (exceptionOuter.getHttpError() != null
-                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
+                    && retryOnUnauthorized) {
                 LOGGER.fine("Token is expired, trying to reload...");
-                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
+                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_GET, true));
                 try {
                     response = cardClient.getCard(cardId, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {
@@ -485,7 +599,8 @@ public class CardManager {
     }
 
     /**
-     * Search for all cards with specified identity.
+     * Search for all cards with specified identity. You can use {@link #setRetryOnUnauthorized(boolean)} method
+     * passing {@code true} to retry request with new token on {@code unauthorized} http error.
      *
      * @param identity
      *            the identity to search cards for
@@ -497,16 +612,17 @@ public class CardManager {
      *             if service call failed
      */
     public List<Card> searchCards(String identity) throws CryptoException, VirgilServiceException {
-        AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, false));
+        AccessToken token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_SEARCH, false));
 
         List<RawSignedModel> cardModels;
         try {
             cardModels = cardClient.searchCards(identity, token.stringRepresentation());
         } catch (VirgilServiceException exceptionOuter) {
             if (exceptionOuter.getHttpError() != null
-                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+                    && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
+                    && retryOnUnauthorized) {
                 LOGGER.fine("Token is expired, trying to reload...");
-                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION, true));
+                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_SEARCH, true));
                 try {
                     cardModels = cardClient.searchCards(identity, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {
@@ -601,7 +717,7 @@ public class CardManager {
     }
 
     /**
-     * Import card from raw signed model.
+     * Import Card's raw signed model from raw signed model.
      *
      * @param cardModel
      *            the card model
@@ -618,25 +734,25 @@ public class CardManager {
     }
 
     /**
-     * Export card as base64 string.
+     * Export Card's raw signed model as base64 string.
      *
      * @param card
      *            the card
      * @return Base64 String from exported card
      */
     public String exportCardAsString(Card card) {
-        return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(card));
+        return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(card.getRawCard()));
     }
 
     /**
-     * Export card as json in string format.
+     * Export Card's raw signed model as json in string format.
      *
      * @param card
      *            the card
      * @return the string
      */
     public String exportCardAsJson(Card card) {
-        return ConvertionUtils.serializeToJson(card);
+        return ConvertionUtils.serializeToJson(card.getRawCard());
     }
 
     /**
@@ -648,7 +764,7 @@ public class CardManager {
      * @throws CryptoException
      *             the crypto exception
      */
-    public RawSignedModel exportCardAsRawModel(Card card) throws CryptoException {
+    public RawSignedModel exportCardAsRawModel(Card card) {
         return card.getRawCard();
     }
 
@@ -707,6 +823,24 @@ public class CardManager {
     }
 
     /**
+     * See if the card manager should retry request with new token on {@code unauthorized} http error.
+     *
+     * @return {@code true} if retry is enabled, {@code false} otherwise.
+     */
+    public boolean isRetryOnUnauthorized() {
+        return retryOnUnauthorized;
+    }
+
+    /**
+     * Sets if the card manager should retry request with new token on {@code unauthorized} http error.
+     *
+     * @param retryOnUnauthorized pass {@code true} to enable retry, {@code false} to disable retry.
+     */
+    public void setRetryOnUnauthorized(boolean retryOnUnauthorized) {
+        this.retryOnUnauthorized = retryOnUnauthorized;
+    }
+
+    /**
      * The interface that provides sign callback to let user perform some custom predefined signing actions when
      * generating raw card.
      */
@@ -732,121 +866,5 @@ public class CardManager {
             }
         }
         return null;
-    }
-
-    /**
-     * A builder of {@link CardManager} objects.
-     * 
-     * @author Andrii Iakovenko
-     *
-     */
-    public static class Builder {
-        private CardCrypto cardCrypto;
-        private AccessTokenProvider accessTokenProvider;
-        private ModelSigner modelSigner;
-        private CardVerifier cardVerifier;
-        private CardClient cardClient;
-        private SignCallback signCallback;
-
-        /**
-         * Build Card manager.
-         * 
-         * @return the instance of {@link CardManager}
-         * @throws NullPointerException
-         *             if any mandatory parameter is not set.
-         */
-        public CardManager build() {
-            if (this.cardCrypto == null) {
-                throw new NullArgumentException("crypto");
-            }
-            if (this.accessTokenProvider == null) {
-                throw new NullArgumentException("accessTokenProvider");
-            }
-            if (this.cardVerifier == null) {
-                throw new NullArgumentException("cardVerifier");
-            }
-
-            CardManager manager = new CardManager();
-            manager.crypto = this.cardCrypto;
-            manager.accessTokenProvider = this.accessTokenProvider;
-            manager.modelSigner = this.modelSigner;
-            manager.cardVerifier = this.cardVerifier;
-            manager.cardClient = this.cardClient;
-            manager.signCallback = this.signCallback;
-
-            return manager;
-        };
-
-        /**
-         * Sets the model signer.
-         * 
-         * @param modelSigner
-         *            the model signer
-         */
-        public Builder setModelSigner(ModelSigner modelSigner) {
-            this.modelSigner = modelSigner;
-
-            return this;
-        }
-
-        /**
-         * Sets the card crypto.
-         * 
-         * @param cardCrypto
-         *            the card crypto
-         */
-        public Builder setCrypto(CardCrypto cardCrypto) {
-            this.cardCrypto = cardCrypto;
-
-            return this;
-        }
-
-        /**
-         * Sets the access token provider.
-         * 
-         * @param accessTokenProvider
-         *            the access token provider
-         */
-        public Builder setAccessTokenProvider(AccessTokenProvider accessTokenProvider) {
-            this.accessTokenProvider = accessTokenProvider;
-
-            return this;
-        }
-
-        /**
-         * Sets the card verifier.
-         * 
-         * @param cardVerifier
-         *            the card verifier
-         */
-        public Builder setCardVerifier(CardVerifier cardVerifier) {
-            this.cardVerifier = cardVerifier;
-
-            return this;
-        }
-
-        /**
-         * Sets the card client.
-         * 
-         * @param cardClient
-         *            the card client
-         */
-        public Builder setCardClient(CardClient cardClient) {
-            this.cardClient = cardClient;
-
-            return this;
-        }
-
-        /**
-         * Sets the sign callback.
-         * 
-         * @param signCallback
-         *            the sign callback
-         */
-        public Builder setSignCallback(SignCallback signCallback) {
-            this.signCallback = signCallback;
-
-            return this;
-        }
     }
 }

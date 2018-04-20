@@ -28,4 +28,4 @@
 
 #### **Do you want to contribute to the documentation?**
 
-* Most of our documentation is provided on our [Developer Portal](https://virgilsecurity.com/docs), so please let us know if any of your changes to the code will need to be reflected in the documentation.
+* Most of our documentation is provided on our [Developer Portal](https:/developer.virgilsecurity.com/docs), so please let us know if any of your changes to the code will need to be reflected in the documentation.

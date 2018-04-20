@@ -53,12 +53,12 @@ Use this packages for Java projects.
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>crypto</artifactId>
-        <version>5.0.0</version>
+        <version>5.0.1</version>
     </dependency>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>sdk</artifactId>
-        <version>5.0.0</version>
+        <version>5.0.1</version>
     </dependency>
 </dependencies>
 ```
@@ -77,8 +77,8 @@ Use this packages for Android projects.
 
 ```
 dependencies {
-    compile 'com.virgilsecurity.sdk:crypto-android:5.0.0@aar'
-    compile 'com.virgilsecurity.sdk:sdk:5.0.0'
+    compile 'com.virgilsecurity.sdk:crypto-android:5.0.1@aar'
+    compile 'com.virgilsecurity.sdk:sdk:5.0.1'
 }
 ```
 

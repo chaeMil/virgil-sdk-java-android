@@ -91,7 +91,7 @@ public class Jwt implements AccessToken {
         if (signatureData != null) {
             sb.append(".").append(signatureBase64());
         } else {
-            LOGGER.info("Instantiated Jwt has not signature data");
+            LOGGER.fine("Instantiated Jwt has not signature data");
         }
 
         this.stringRepresentation = sb.toString();

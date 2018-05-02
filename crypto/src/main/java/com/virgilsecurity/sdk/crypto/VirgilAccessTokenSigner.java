@@ -55,6 +55,15 @@ public class VirgilAccessTokenSigner implements AccessTokenSigner {
     public VirgilAccessTokenSigner() {
         this.virgilCrypto = new VirgilCrypto();
     }
+    
+    /**
+     * Instantiates a new Virgil access token signer.
+     * 
+     * @param virgilCrypto the Virgil Crypto.
+     */
+    public VirgilAccessTokenSigner(VirgilCrypto virgilCrypto) {
+        this.virgilCrypto = virgilCrypto;
+    }
 
     @Override
     public byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException {

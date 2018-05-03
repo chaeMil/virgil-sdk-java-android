@@ -62,7 +62,6 @@ public class virgil_crypto_javaJNI {
     } catch (Exception error) {
       System.err.println("Native code library failed to load. \n" + error);
     }
-    swig_module_init();
   }
 
   public static void loadNativeLibrary(String libraryName) throws IOException {

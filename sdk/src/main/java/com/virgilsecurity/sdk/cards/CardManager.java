@@ -761,8 +761,6 @@ public class CardManager {
      * @param card
      *            the card
      * @return the raw signed model
-     * @throws CryptoException
-     *             the crypto exception
      */
     public RawSignedModel exportCardAsRawModel(Card card) {
         return card.getRawCard();

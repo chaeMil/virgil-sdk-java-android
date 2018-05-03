@@ -33,15 +33,15 @@
 
 package com.virgilsecurity.sdk.common;
 
+import static org.junit.Assert.fail;
+
+import org.apache.commons.lang.StringUtils;
+
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.SystemUtils;
-
-import static org.junit.Assert.fail;
 
 public class PropertyManager {
 
@@ -63,19 +63,14 @@ public class PropertyManager {
     }
 
     public String getPropertyByName(String propertyName) {
-        if (SystemUtils.IS_OS_MAC_OSX || SystemUtils.IS_OS_LINUX) {
-            if (StringUtils.isBlank(System.getenv(propertyName))) {
-                return null;
-            }
-
-            return System.getenv(propertyName);
-        } else {
-            if (StringUtils.isBlank(System.getProperty(propertyName))) {
-                return null;
-            }
-
-            return System.getProperty(propertyName);
+        String result = System.getProperty(propertyName);
+        if (StringUtils.isBlank(result)) {
+            result = System.getenv(propertyName);
         }
+        if (StringUtils.isBlank(result)) {
+            return null;
+        }
+        return result;
     }
 
     public String getAccountId() {

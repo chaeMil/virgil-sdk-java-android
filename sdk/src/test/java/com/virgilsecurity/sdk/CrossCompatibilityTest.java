@@ -94,7 +94,7 @@ public class CrossCompatibilityTest extends PropertyManager {
 
         assertEquals(cardContent.getIdentity(), "test");
         assertEquals("TUNvd0JRWURLMlZ3QXlFQTZkOWJRUUZ1RW5VOHZTbXg5ZkRvMFd4ZWM0MkpkTmc0VlI0Rk9yNC9CVWs9",
-                ConvertionUtils.toBase64String(cardContent.getPublicKey()));
+                     ConvertionUtils.toBase64String(cardContent.getPublicKey()));
         assertEquals(cardContent.getVersion(), "5.0");
         assertEquals(cardContent.getCreatedAtTimestamp(), 1515686245);
         assertNull(cardContent.getPreviousCardId());
@@ -134,21 +134,21 @@ public class CrossCompatibilityTest extends PropertyManager {
 
         for (RawSignature rawSignature : cardModel.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case SELF:
-                assertEquals(signatures.get(SELF), rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case VIRGIL:
-                assertEquals(signatures.get(VIRGIL), rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case EXTRA:
-                assertEquals(signatures.get(EXTRA), rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
@@ -171,21 +171,21 @@ public class CrossCompatibilityTest extends PropertyManager {
 
         for (RawSignature rawSignature : cardModel.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case SELF:
-                assertEquals(signatures.get(SELF), rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case VIRGIL:
-                assertEquals(signatures.get(VIRGIL), rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case EXTRA:
-                assertEquals(signatures.get(EXTRA), rawSignature.getSignature());
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), rawSignature.getSignature());
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
@@ -271,7 +271,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertEquals(dataProvider.getJsonByKey(4, "card_id"), card.getIdentifier());
         assertEquals(card.getIdentity(), "test");
         assertArrayEquals(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
-                ((VirgilPublicKey) card.getPublicKey()).getRawKey());
+                          ((VirgilPublicKey) card.getPublicKey()).getRawKey());
         assertEquals(card.getVersion(), "5.0");
 
         RawSignedModel rawSignedModel = RawSignedModel.fromJson(importedFromJson);
@@ -286,21 +286,21 @@ public class CrossCompatibilityTest extends PropertyManager {
 
         for (CardSignature rawSignature : card.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case SELF:
-                assertEquals(signatures.get(SELF), ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case VIRGIL:
-                assertEquals(signatures.get(VIRGIL), ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case EXTRA:
-                assertEquals(signatures.get(EXTRA), ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
@@ -325,7 +325,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         assertEquals(dataProvider.getJsonByKey(4, "card_id"), card.getIdentifier());
         assertEquals(card.getIdentity(), "test");
         assertArrayEquals(ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
-                ((VirgilPublicKey) card.getPublicKey()).getRawKey());
+                          ((VirgilPublicKey) card.getPublicKey()).getRawKey());
         assertEquals(card.getVersion(), "5.0");
 
         RawSignedModel rawSignedModel = RawSignedModel.fromString(importedFromString);
@@ -340,21 +340,21 @@ public class CrossCompatibilityTest extends PropertyManager {
 
         for (CardSignature rawSignature : card.getSignatures()) {
             switch (rawSignature.getSigner()) {
-            case SELF:
-                assertEquals(signatures.get(SELF), ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case VIRGIL:
-                assertEquals(signatures.get(VIRGIL), ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            case EXTRA:
-                assertEquals(signatures.get(EXTRA), ConvertionUtils.toBase64String(rawSignature.getSignature()));
-                assertNull(rawSignature.getSnapshot());
-                break;
-            default:
-                fail();
-                break;
+                case SELF:
+                    assertEquals(signatures.get(SELF), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case VIRGIL:
+                    assertEquals(signatures.get(VIRGIL), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                case EXTRA:
+                    assertEquals(signatures.get(EXTRA), ConvertionUtils.toBase64String(rawSignature.getSignature()));
+                    assertNull(rawSignature.getSnapshot());
+                    break;
+                default:
+                    fail();
+                    break;
             }
         }
     }
@@ -367,7 +367,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
         VirgilCrypto crypto = new VirgilCrypto();
         JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                apiPublicKeyIdentifier, accessTokenSigner);
+                                                  apiPublicKeyIdentifier, accessTokenSigner);
 
         final String jwtImported = dataProvider.getJsonByKey(22, "jwt");
         final Jwt jwt = new Jwt(jwtImported);
@@ -388,7 +388,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
         JwtVerifier jwtVerifier = new JwtVerifier(crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)),
-                apiPublicKeyIdentifier, accessTokenSigner);
+                                                  apiPublicKeyIdentifier, accessTokenSigner);
 
         JwtGenerator jwtGenerator = new JwtGenerator(apiAppId, privateKey, apiPublicKeyIdentifier,
                                                      TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
@@ -402,7 +402,7 @@ public class CrossCompatibilityTest extends PropertyManager {
         Map<String, String> signatures = new HashMap<>();
         for (JsonElement jsonElement : baseData.getAsJsonArray(SIGNATURES)) {
             signatures.put(jsonElement.getAsJsonObject().get("signer").getAsString(),
-                    jsonElement.getAsJsonObject().get("signature").getAsString());
+                           jsonElement.getAsJsonObject().get("signature").getAsString());
         }
 
         return signatures;

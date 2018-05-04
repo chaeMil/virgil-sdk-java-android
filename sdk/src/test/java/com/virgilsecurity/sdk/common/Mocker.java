@@ -77,7 +77,7 @@ public class Mocker extends PropertyManager {
                                         TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
         jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
-                                        TimeSpan.fromTime(5, TimeUnit.SECONDS), accessTokenSigner);
+                                        TimeSpan.fromTime(7, TimeUnit.SECONDS), accessTokenSigner);
 
         jwtGeneratorFake = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
                                             TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);

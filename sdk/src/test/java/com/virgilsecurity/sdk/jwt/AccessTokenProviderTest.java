@@ -38,12 +38,13 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.accessProviders.CachingJwtProvider;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.*;
 
 /**
  * Created by:
@@ -61,15 +62,15 @@ public class AccessTokenProviderTest {
     private static final String TOKEN_SERVICE = "test_service";
 
     private Mocker mocker;
+    private boolean failedConcurrency;
 
     @Before
     public void setUp() {
         mocker = new Mocker();
     }
 
-    @Test
-    public void caching_jwt_provider_renew_test() throws InterruptedException {
-        CachingJwtProvider jwtProvider = new CachingJwtProvider(new CachingJwtProvider.RenewJwtCallback() {
+    private CachingJwtProvider initCachingJwtProvider() {
+        return new CachingJwtProvider(new CachingJwtProvider.RenewJwtCallback() {
             @Override public Jwt renewJwt(TokenContext tokenContext) {
                 try {
                     return mocker.generateSevenSecondsAccessToken(FAKE_IDENTITY);
@@ -79,6 +80,11 @@ public class AccessTokenProviderTest {
                 }
             }
         });
+    }
+
+    @Test
+    public void caching_jwt_provider_renew_test() throws InterruptedException {
+        CachingJwtProvider jwtProvider = initCachingJwtProvider();
 
         TokenContext tokenContext = new TokenContext(TOKEN_OPERATION, TOKEN_FORCE_RELOAD, TOKEN_SERVICE);
 
@@ -98,9 +104,45 @@ public class AccessTokenProviderTest {
         assertNotEquals(token1, token3);
     }
 
-    @Ignore
     @Test
-    public void caching_jwt_provider_renew_test_concurrent() {
+    public void caching_jwt_provider_renew_test_concurrent() throws InterruptedException {
+        final CachingJwtProvider jwtProvider = initCachingJwtProvider();
+        final TokenContext tokenContext = new TokenContext(TOKEN_OPERATION, TOKEN_FORCE_RELOAD, TOKEN_SERVICE);
+        ExecutorService exec = Executors.newFixedThreadPool(16);
 
+        for (int i = 0; i < 10000; i++) {
+            exec.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        AccessToken token1 = jwtProvider.getToken(tokenContext);
+                        if (token1 == null)
+                            throw new NullPointerException();
+
+                        AccessToken token2 = jwtProvider.getToken(tokenContext);
+                        if (token2 == null)
+                            throw new NullPointerException();
+
+                        if (!token1.equals(token2))
+                            throw new Exception();
+
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException exception) {
+                            fail();
+                        }
+                    } catch (Exception e) {
+                        failedConcurrency = true;
+                    }
+                }
+            });
+        }
+
+        exec.shutdown();
+        exec.awaitTermination(10, TimeUnit.SECONDS);
+
+        if (failedConcurrency) {
+            fail();
+        }
     }
 }

@@ -32,20 +32,21 @@
  */
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-
+import com.virgilsecurity.sdk.FakeDataFactory;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virgilsecurity.sdk.FakeDataFactory;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import java.util.Date;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Andrii Iakovenko
  *
  */
 public class JwtTest {
+    private static final long FUTURE_TIME_EXPIRATION = 6 * 1000; // 6 sec
 
     private FakeDataFactory fake;
     private String identity;
@@ -74,4 +75,17 @@ public class JwtTest {
         assertEquals(jwt.stringRepresentation(), importedJwt.stringRepresentation());
     }
 
+    @Test
+    public void future_expire() throws CryptoException, InterruptedException {
+        JwtGenerator generator = fake.getJwtGeneratorFiveSeconds();
+        Jwt jwt = generator.generateToken(this.identity);
+        assertNotNull(jwt);
+
+        assertFalse(jwt.isExpired());
+        assertTrue(jwt.isExpired(new Date(System.currentTimeMillis() + FUTURE_TIME_EXPIRATION)));
+
+        Thread.sleep(FUTURE_TIME_EXPIRATION);
+
+        assertTrue(jwt.isExpired());
+    }
 }

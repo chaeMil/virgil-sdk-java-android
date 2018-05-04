@@ -71,6 +71,7 @@ public class JwtCrossCompatibilityTest {
     private static final int TOKEN_EXPIRE_IN_SECONDS = 3;
     private static final String INVALID_TOKEN = "INVALID_TOKEN";
     private static final String TEST_OPERATION = "TEST_OPERATION_STC_24";
+    private static final String TOKEN_CONTEXT_SERVICE = "cards";
 
     private JsonObject sampleJson;
     private FakeDataFactory fake;
@@ -86,12 +87,12 @@ public class JwtCrossCompatibilityTest {
     }
 
     @Test
-    public void STC_24() throws CryptoException, InterruptedException {
+    public void STC_24() throws InterruptedException {
         // Setup CallbackJwtProvider
         CallbackJwtProvider provider = new CallbackJwtProvider(callback);
 
         // Prepare contexts
-        TokenContext ctx = new TokenContext(fake.getIdentity(), TEST_OPERATION, false);
+        TokenContext ctx = new TokenContext(fake.getIdentity(), TEST_OPERATION, false, TOKEN_CONTEXT_SERVICE);
 
         // Set getTokenCallback to use JwtGenerator + call counter
         TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
@@ -138,8 +139,7 @@ public class JwtCrossCompatibilityTest {
                 generator.generateToken(this.fake.getIdentity()));
 
         // Prepare contexts
-        TokenContext ctx = new TokenContext(fake.getIdentity(), "stc_37", false);
-        TokenContext forceReloadCtx = new TokenContext(fake.getIdentity(), "stc_37", true);
+        TokenContext ctx = new TokenContext(fake.getIdentity(), "stc_37", false, TOKEN_CONTEXT_SERVICE);
 
         assertFalse("Token should not be expired", ((Jwt) tokenProvider.getToken(ctx)).isExpired());
 
@@ -214,5 +214,4 @@ public class JwtCrossCompatibilityTest {
         // Call stringRepresentation()
         assertEquals(token, jwt.stringRepresentation());
     }
-
 }

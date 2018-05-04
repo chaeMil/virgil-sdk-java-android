@@ -46,7 +46,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author Andrii Iakovenko
- *
  */
 public class FakeDataFactory {
 
@@ -56,11 +55,12 @@ public class FakeDataFactory {
     private VirgilPublicKey apiPublicKey;
     private String apiPublicKeyId;
     private JwtGenerator jwtGenerator;
+    private JwtGenerator jwtGeneratorFiveSeconds;
     private String identity;
 
     /**
      * Create new instance of {@link FakeDataFactory}.
-     * 
+     *
      * @throws CryptoException
      */
     public FakeDataFactory() throws CryptoException {
@@ -76,6 +76,12 @@ public class FakeDataFactory {
 
         this.jwtGenerator = new JwtGenerator(this.applicationId, apiPrivateKey, apiPublicKeyId,
                                              TimeSpan.fromTime(10, TimeUnit.MINUTES), new VirgilAccessTokenSigner());
+
+        this.jwtGeneratorFiveSeconds = new JwtGenerator(this.applicationId,
+                                                        apiPrivateKey,
+                                                        apiPublicKeyId,
+                                                        TimeSpan.fromTime(5, TimeUnit.SECONDS),
+                                                        new VirgilAccessTokenSigner());
     }
 
     public Jwt generateToken() throws CryptoException {
@@ -126,6 +132,13 @@ public class FakeDataFactory {
      */
     public JwtGenerator getJwtGenerator() {
         return jwtGenerator;
+    }
+
+    /**
+     * @return the getJwtGeneratorFiveSeconds
+     */
+    public JwtGenerator getJwtGeneratorFiveSeconds() {
+        return jwtGeneratorFiveSeconds;
     }
 
     /**

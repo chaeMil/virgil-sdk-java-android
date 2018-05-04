@@ -162,12 +162,26 @@ public class Jwt implements AccessToken {
     }
 
     /**
-     * Whether the token is expired.
+     * Whether the token is expired comparing to current date.
      *
      * @return if the token is already expired then - {@code true}, otherwise {@code false}
      */
     public boolean isExpired() {
         long currentTimeStamp = new Date().getTime() / 1000;
+        return currentTimeStamp >= bodyContent.getExpiresAt();
+    }
+
+    /**
+     * Whether the token is expired comparing to some predefined date.
+     *
+     * @param lifeTimePredefined
+     *            predefined date that will be used in comparison to check whether the token is expired.
+     *            For example to set expiration date in some near future (+5 seconds beyond current time).
+     *
+     * @return if the token is already expired then - {@code true}, otherwise {@code false}
+     */
+    public boolean isExpired(Date lifeTimePredefined) {
+        long currentTimeStamp = lifeTimePredefined.getTime() / 1000;
         return currentTimeStamp >= bodyContent.getExpiresAt();
     }
 

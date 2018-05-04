@@ -41,6 +41,7 @@ public class TokenContext {
     private String identity;
     private String operation;
     private boolean forceReload;
+    private String service;
 
     /**
      * Instantiates a new Token context.
@@ -51,10 +52,14 @@ public class TokenContext {
      *            {@code true} if token should be reloaded every time
      *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
      *            called, otherwise {@code false}
+     *
+     * @param service
+     *            requested service
      */
-    public TokenContext(String operation, boolean forceReload) {
+    public TokenContext(String operation, boolean forceReload, String service) {
         this.operation = operation;
         this.forceReload = forceReload;
+        this.service = service;
     }
 
     /**
@@ -68,8 +73,10 @@ public class TokenContext {
      *            {@code true} if token should be reloaded every time
      *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
      *            called, otherwise {@code false}
+     * @param service
+     *            requested service
      */
-    public TokenContext(String identity, String operation, boolean forceReload) {
+    public TokenContext(String identity, String operation, boolean forceReload, String service) {
         this.identity = identity;
         this.operation = operation;
         this.forceReload = forceReload;
@@ -123,5 +130,14 @@ public class TokenContext {
      */
     public boolean isForceReload() {
         return forceReload;
+    }
+
+    /**
+     * Gets the requested service.
+     *
+     * @return the requested service.
+     */
+    public String getService() {
+        return service;
     }
 }

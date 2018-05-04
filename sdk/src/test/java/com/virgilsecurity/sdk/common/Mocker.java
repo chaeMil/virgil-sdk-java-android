@@ -54,6 +54,7 @@ public class Mocker extends PropertyManager {
     private static final String FAKE_PRIVATE_KEY_BASE64 = "MC4CAQAwBQYDK2VwBCIEIFxOB4ppNAm8J/C95hPiIJ/A9gPRoERMxjRQN7HcGYnW";
 
     private JwtGenerator jwtGenerator;
+    private JwtGenerator jwtGeneratorSevenSeconds;
     private JwtGenerator jwtGeneratorFake;
     private final JwtGenerator jwtGeneratorExpired;
     private VirgilCrypto crypto;
@@ -74,6 +75,9 @@ public class Mocker extends PropertyManager {
 
         jwtGenerator = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
                                         TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+
+        jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
+                                        TimeSpan.fromTime(5, TimeUnit.SECONDS), accessTokenSigner);
 
         jwtGeneratorFake = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
                                             TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
@@ -158,12 +162,20 @@ public class Mocker extends PropertyManager {
         return jwtGeneratorFake.generateToken(identity);
     }
 
+    public Jwt generateSevenSecondsAccessToken(String identity) throws CryptoException {
+        return jwtGeneratorSevenSeconds.generateToken(identity);
+    }
+
     public Jwt generateExpiredAccessToken(String identity) throws CryptoException {
         return jwtGeneratorExpired.generateToken(identity);
     }
 
     public JwtVerifier getVerifier() {
         return verifier;
+    }
+
+    public JwtGenerator getJwtGeneratorSevenSeconds() {
+        return jwtGeneratorSevenSeconds;
     }
 
     public JwtGenerator getJwtGenerator() {

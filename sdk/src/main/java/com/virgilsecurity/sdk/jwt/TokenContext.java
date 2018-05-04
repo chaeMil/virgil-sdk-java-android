@@ -37,6 +37,7 @@ package com.virgilsecurity.sdk.jwt;
  * The {@link TokenContext} class represents set of data that helps to get token.
  */
 public class TokenContext {
+    private static final String DEFAULT_SERVICE = "default_service";
 
     private String identity;
     private String operation;
@@ -52,7 +53,23 @@ public class TokenContext {
      *            {@code true} if token should be reloaded every time
      *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
      *            called, otherwise {@code false}
+     */
+    public TokenContext(String operation, boolean forceReload) {
+        this.operation = operation;
+        this.forceReload = forceReload;
+
+        this.service = DEFAULT_SERVICE;
+    }
+
+    /**
+     * Instantiates a new Token context.
      *
+     * @param operation
+     *            the operation that is token used for
+     * @param forceReload
+     *            {@code true} if token should be reloaded every time
+     *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
+     *            called, otherwise {@code false}
      * @param service
      *            requested service
      */
@@ -80,6 +97,7 @@ public class TokenContext {
         this.identity = identity;
         this.operation = operation;
         this.forceReload = forceReload;
+        this.service = service;
     }
 
     /**

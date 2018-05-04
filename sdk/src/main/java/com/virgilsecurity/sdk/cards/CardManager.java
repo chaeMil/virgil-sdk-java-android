@@ -364,7 +364,9 @@ public class CardManager {
                     && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
                     && retryOnUnauthorized) {
                 LOGGER.fine("Token is expired, trying to reload...");
-//                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, true, ));
+                token = accessTokenProvider.getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH,
+                                                                      true,
+                                                                      TOKEN_CONTEXT_SERVICE));
                 try {
                     cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
                 } catch (VirgilServiceException exceptionInner) {

@@ -170,3 +170,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+# Project-specific
+!crypto/libs/virgil_crypto_java.jar

@@ -37,7 +37,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.virgilsecurity.sdk</groupId>
 	<artifactId>parent</artifactId>
-	<version>5.0.2</version>
+	<version>5.0.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Virgil SDK - Parent</name>
 
@@ -95,7 +95,7 @@
 		<version.testng>6.9.10</version.testng>
 		<version.jsonsimple>1.1.1</version.jsonsimple>
 		<version.restassured>2.9.0</version.restassured>
-		<version.crypto>5.0.2</version.crypto>
+		<version.crypto>2.4.4-beta1</version.crypto>
 		<gpg.keyname>empty</gpg.keyname>
 	</properties>
 
@@ -117,6 +117,7 @@
 				<groupId>com.virgilsecurity</groupId>
 				<artifactId>crypto</artifactId>
 				<version>${version.crypto}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.google.android</groupId>

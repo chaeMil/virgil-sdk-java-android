@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.0.2</version>
+		<version>5.0.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>crypto</artifactId>
 	<packaging>jar</packaging>
@@ -96,34 +96,34 @@
 						<configuration>
 							<groupId>com.virgilsecurity</groupId>
 							<artifactId>crypto</artifactId>
-							<version>5.0.2</version>
+							<version>${version.crypto}</version>
 							<packaging>jar</packaging>
-							<file>${basedir}/libs/virgil_crypto_java.jar</file>
+							<file>${project.basedir}/libs/virgil_crypto_java.jar</file>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-dependencies</id>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<phase>process-classes</phase>
+						<configuration>
+							<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
+							<includeGroupIds>com.virgilsecurity</includeGroupIds>
+							<includeArtifactIds>crypto</includeArtifactIds>
+							<excludeTransitive>false</excludeTransitive>
+							<includes>**/*.class</includes>
 						</configuration>
 					</execution>
 				</executions>
 			</plugin>
 		</plugins>
 	</build>
-<!--  
-	<profiles>
-		<profile>
-			<identifier>release</identifier>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-javadoc-plugin</artifactId>
-						<configuration>
-						</configuration>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-gpg-plugin</artifactId>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
--->
 </project>

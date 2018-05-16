@@ -14,3 +14,7 @@ branches:
   except:
     - docs-review
     - master-readme-review
+
+before_install:
+  - mvn initialize
+

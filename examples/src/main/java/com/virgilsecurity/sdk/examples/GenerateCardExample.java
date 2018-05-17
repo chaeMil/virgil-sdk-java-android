@@ -130,14 +130,14 @@ public class GenerateCardExample {
     public String jwtTokenGeneratorOnServer(TokenContext tokenContext) throws CryptoException {
         // This is SERVER side code, it's OK to implement it on client for non-production
         String appId = "Application ID";
-        String apiKeyStr = "Base64 encoded API Key";
-        String apiPublicKeyIdentifier = "API Key identifier";
+        String apiKeyBase64 = "Base64 encoded API Key";
+        String apiKeyId = "API Key identifier";
 
         VirgilCrypto virgilCrypto = new VirgilCrypto();
         // Import API Private key from string
-        PrivateKey apiKey = virgilCrypto.importPrivateKey(Base64.decode(apiKeyStr));
+        PrivateKey apiKey = virgilCrypto.importPrivateKey(Base64.decode(apiKeyBase64));
         AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner(virgilCrypto);
-        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiPublicKeyIdentifier,
+        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId,
                 TimeSpan.fromTime(1, TimeUnit.DAYS), accessTokenSigner);
 
         return jwtGenerator.generateToken(tokenContext.getIdentity()).stringRepresentation();

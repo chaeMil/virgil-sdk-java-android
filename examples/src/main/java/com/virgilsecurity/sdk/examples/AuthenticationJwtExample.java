@@ -86,11 +86,11 @@ public class AuthenticationJwtExample {
         AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
         String appId = "be00e10e4e1f4bf58f9b4dc85d79c77a"; // APP_ID
-        String appPubKeyId = "70b447e321f3a0fd"; // API_KEY_ID
+        String apiKeyId = "70b447e321f3a0fd"; // API_KEY_ID
         TimeSpan ttl = TimeSpan.fromTime(1, TimeUnit.HOURS); // 1 hour
 
         // setup JWT generator
-        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, appPubKeyId, ttl, accessTokenSigner);
+        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId, ttl, accessTokenSigner);
 
         // generate JWT for a user
         String identity = "Alice";

@@ -44,6 +44,7 @@ import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.utils.Base64;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -54,8 +55,14 @@ import java.util.concurrent.TimeUnit;
  */
 public class AuthenticationJwtExample {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws CryptoException {
+        new AuthenticationJwtExample().run();
+        System.out.println("Done!");
+    }
 
+    private void run() throws CryptoException {
+        setupJwt();
+        jwtGeneration();
     }
 
     private void setupJwt() {
@@ -75,22 +82,21 @@ public class AuthenticationJwtExample {
 
     private void jwtGeneration() throws CryptoException {
         // API_KEY
-        String apiKeyBase64 = "MIGhMF0GCSqGSIb3DQEFDTBQMC8GCSqGSIb3DQEFDDAiBBC7Sg/DbNzhJ/uakTvafUMoAgIUtzAKBggqhkiG9w0CCjAdBglghkgBZQMEASoEEDunQ1yhWZoKaLaDFgjpxRwEQAFdbC8e6103lJrUhY9ahyUA8+4rTJKZCmdTlCDPvoWH/5N5kxbOvTtbxtxevI421z3gRbjAtoWkfWraSLD6gj0=";
-        String apiKeyPassword = "test"; // API_KEY_PASSWORD
-        byte[] privateKeyData = ConvertionUtils.base64ToBytes(apiKeyBase64);
+        String apiKeyBase64 = "MC4CAQAwBQYDK2VwBCIEINlK4BhgsijAbNmUqU6us0ZU9MGi+HxdYCA6TdZeHjR4";
+        byte[] apiKeyData = ConvertionUtils.base64ToBytes(apiKeyBase64);
 
         // import a private key
         VirgilCrypto crypto = new VirgilCrypto();
-        PrivateKey apiKey = crypto.importPrivateKey(privateKeyData, apiKeyPassword);
+        PrivateKey apiKey = crypto.importPrivateKey(apiKeyData);
 
         AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
         String appId = "be00e10e4e1f4bf58f9b4dc85d79c77a"; // APP_ID
-        String appPubKeyId = "70b447e321f3a0fd"; // API_KEY_ID
+        String apiKeyId = "70b447e321f3a0fd"; // API_KEY_ID
         TimeSpan ttl = TimeSpan.fromTime(1, TimeUnit.HOURS); // 1 hour
 
         // setup JWT generator
-        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, appPubKeyId, ttl, accessTokenSigner);
+        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId, ttl, accessTokenSigner);
 
         // generate JWT for a user
         String identity = "Alice";

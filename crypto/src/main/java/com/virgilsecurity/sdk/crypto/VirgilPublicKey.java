@@ -59,7 +59,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
     /**
      * Create a new instance of {@code VirgilPublicKey}
      */
-    VirgilPublicKey() {
+    public VirgilPublicKey() {
     }
 
     /**
@@ -68,7 +68,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
      * @param identifier
      * @param rawKey
      */
-    VirgilPublicKey(byte[] identifier, byte[] rawKey) {
+    public VirgilPublicKey(byte[] identifier, byte[] rawKey) {
         this.identifier = identifier;
         this.rawKey = rawKey;
     }

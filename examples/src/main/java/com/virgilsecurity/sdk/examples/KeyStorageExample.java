@@ -70,6 +70,8 @@ public class KeyStorageExample {
 
         // Delete a private key
         privateKeyStorage.delete("Alice");
+
+        System.out.println("Done!");
     }
 
 }

@@ -56,6 +56,7 @@ public class CryptographyExample {
 
     public static void main(String[] args) {
         new CryptographyExample().run();
+        System.out.println("Done!");
     }
 
     @SuppressWarnings("unused")

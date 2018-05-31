@@ -499,13 +499,7 @@ public class VirgilCrypto {
     public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys(KeysType keysType) throws CryptoException {
         VirgilKeyPair keyPair = VirgilKeyPair.generate(toVirgilKeyPairType(keysType));
 
-        byte[] keyPairId = this.computePublicKeyHash(keyPair.publicKey());
-
-        VirgilPublicKey publicKey = new VirgilPublicKey(keyPairId, VirgilKeyPair.publicKeyToDER(keyPair.publicKey()));
-        VirgilPrivateKey privateKey = new VirgilPrivateKey(keyPairId,
-                VirgilKeyPair.privateKeyToDER(keyPair.privateKey()));
-
-        return new com.virgilsecurity.sdk.crypto.VirgilKeyPair(publicKey, privateKey);
+        return wrapKeyPair(keyPair.privateKey(), keyPair.publicKey());
     }
 
     /**
@@ -767,6 +761,27 @@ public class VirgilCrypto {
         } catch (Exception e) {
             throw new VerificationException(e);
         }
+    }
+
+    /**
+     * Wrap key pair with {@link com.virgilsecurity.sdk.crypto.VirgilKeyPair}
+     * 
+     * @param privateKey
+     *            the private key data.
+     * @param publicKey
+     *            the public key data.
+     * @return wrapped key pair.
+     * @throws CryptoException
+     *             if crypto operation failed.
+     */
+    public com.virgilsecurity.sdk.crypto.VirgilKeyPair wrapKeyPair(byte[] privateKey, byte[] publicKey)
+            throws CryptoException {
+        byte[] keyPairId = this.computePublicKeyHash(publicKey);
+
+        VirgilPublicKey virgilPublicKey = new VirgilPublicKey(keyPairId, VirgilKeyPair.publicKeyToDER(publicKey));
+        VirgilPrivateKey virgilPrivateKey = new VirgilPrivateKey(keyPairId, VirgilKeyPair.privateKeyToDER(privateKey));
+
+        return new com.virgilsecurity.sdk.crypto.VirgilKeyPair(virgilPublicKey, virgilPrivateKey);
     }
 
     private byte[] computePublicKeyHash(byte[] publicKey) throws CryptoException {

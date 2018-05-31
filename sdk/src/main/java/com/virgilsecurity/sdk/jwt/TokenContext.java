@@ -37,7 +37,7 @@ package com.virgilsecurity.sdk.jwt;
  * The {@link TokenContext} class represents set of data that helps to get token.
  */
 public class TokenContext {
-    private static final String DEFAULT_SERVICE = "default_service";
+    private static final String DEFAULT_SERVICE = "cards";
 
     private String identity;
     private String operation;

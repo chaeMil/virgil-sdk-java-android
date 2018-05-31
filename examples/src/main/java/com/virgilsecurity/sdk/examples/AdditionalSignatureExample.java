@@ -69,6 +69,7 @@ public class AdditionalSignatureExample {
 
     public static void main(String[] args) throws CryptoException {
         new AdditionalSignatureExample().run();
+        System.out.println("Done!");
     }
 
     private void run() throws CryptoException {

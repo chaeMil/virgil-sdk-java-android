@@ -95,7 +95,7 @@
 		<version.testng>6.9.10</version.testng>
 		<version.jsonsimple>1.1.1</version.jsonsimple>
 		<version.restassured>2.9.0</version.restassured>
-		<version.crypto>2.4.4-beta1</version.crypto>
+		<version.crypto>2.4.5</version.crypto>
 		<gpg.keyname>empty</gpg.keyname>
 	</properties>
 
@@ -112,12 +112,6 @@
 				<groupId>com.google.code.gson</groupId>
 				<artifactId>gson</artifactId>
 				<version>${version.gson}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.virgilsecurity</groupId>
-				<artifactId>crypto</artifactId>
-				<version>${version.crypto}</version>
-				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>com.google.android</groupId>

@@ -30,36 +30,39 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.crypto;
 
-import org.junit.Test;
+package com.virgilsecurity.crypto;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Test;
+
 /**
+ * Unit tests for {@link VirgilVersion}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class VirgilVersionTest {
 
-    @Test
-    public void asString() {
-        assertEquals("2.4.2", VirgilVersion.asString());
-    }
+  @Test
+  public void asString() {
+    assertEquals("2.4.2", VirgilVersion.asString());
+  }
 
-    @Test
-    public void majorVersion() {
-        assertEquals(2, VirgilVersion.majorVersion());
-    }
+  @Test
+  public void majorVersion() {
+    assertEquals(2, VirgilVersion.majorVersion());
+  }
 
-    @Test
-    public void minorVersion() {
-        assertEquals(4, VirgilVersion.minorVersion());
-    }
+  @Test
+  public void minorVersion() {
+    assertEquals(4, VirgilVersion.minorVersion());
+  }
 
-    @Test
-    public void patchVersion() {
-        assertEquals(2, VirgilVersion.patchVersion());
-    }
+  @Test
+  public void patchVersion() {
+    assertEquals(2, VirgilVersion.patchVersion());
+  }
 
 }

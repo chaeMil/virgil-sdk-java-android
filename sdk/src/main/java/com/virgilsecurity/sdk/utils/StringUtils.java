@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.utils;
 
 /**
@@ -39,37 +40,36 @@ package com.virgilsecurity.sdk.utils;
  */
 public class StringUtils {
 
-    /**
-     * <p>
-     * Checks if a CharSequence is whitespace, empty ("") or null.
-     *
-     * @param cs
-     *            the CharSequence to check, may be null
-     * @return {@code true} if the CharSequence is null, empty or whitespace
-     */
-    public static boolean isBlank(final CharSequence cs) {
-        int strLen;
-        if (cs == null || (strLen = cs.length()) == 0) {
-            return true;
-        }
-        for (int i = 0; i < strLen; i++) {
-            if (!Character.isWhitespace(cs.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
+  /**
+   * Compares two Strings, returning {@code true} if they are equal.
+   * 
+   * @param str1
+   *          the first String, may be null
+   * @param str2
+   *          the second String, may be null
+   * @return {@code true} if the Strings are equal, case sensitive, or both {@code null}
+   */
+  public static boolean equals(String str1, String str2) {
+    return str1 == null ? str2 == null : str1.equals(str2);
+  }
 
-    /**
-     * Compares two Strings, returning {@code true} if they are equal.
-     * 
-     * @param str1
-     *            the first String, may be null
-     * @param str2
-     *            the second String, may be null
-     * @return {@code true} if the Strings are equal, case sensitive, or both {@code null}
-     */
-    public static boolean equals(String str1, String str2) {
-        return str1 == null ? str2 == null : str1.equals(str2);
+  /**
+   * Checks if a CharSequence is whitespace, empty ("") or null.
+   *
+   * @param cs
+   *          the CharSequence to check, may be null
+   * @return {@code true} if the CharSequence is null, empty or whitespace
+   */
+  public static boolean isBlank(final CharSequence cs) {
+    int strLen;
+    if (cs == null || (strLen = cs.length()) == 0) {
+      return true;
     }
+    for (int i = 0; i < strLen; i++) {
+      if (!Character.isWhitespace(cs.charAt(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

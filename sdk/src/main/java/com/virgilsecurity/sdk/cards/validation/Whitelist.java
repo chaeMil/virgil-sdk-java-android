@@ -40,44 +40,45 @@ import java.util.List;
  * The {@link Whitelist} represents list of trusted signatures for cards verification.
  */
 public class Whitelist {
-    private List<VerifierCredentials> verifiersCredentials;
+  private List<VerifierCredentials> verifiersCredentials;
 
-    public Whitelist() {
+  public Whitelist() {
+  }
+
+  public Whitelist(List<VerifierCredentials> verifiersCredentials) {
+    this.verifiersCredentials = verifiersCredentials;
+  }
+
+  /**
+   * Add verifiers credential.
+   *
+   * @param verifiersCredential
+   *          the verifiers credentials
+   */
+  public void addVerifiersCredentials(VerifierCredentials verifiersCredential) {
+    if (verifiersCredentials == null) {
+      this.verifiersCredentials = new ArrayList<>();
     }
 
-    public Whitelist(List<VerifierCredentials> verifiersCredentials) {
-        this.verifiersCredentials = verifiersCredentials;
-    }
+    this.verifiersCredentials.add(verifiersCredential);
+  }
 
-    /**
-     * Gets verifiers credentials.
-     *
-     * @return the verifiers credentials
-     */
-    public List<VerifierCredentials> getVerifiersCredentials() {
-        return verifiersCredentials;
-    }
+  /**
+   * Gets verifiers credentials.
+   *
+   * @return the verifiers credentials
+   */
+  public List<VerifierCredentials> getVerifiersCredentials() {
+    return verifiersCredentials;
+  }
 
-    /**
-     * Sets verifiers credentials.
-     *
-     * @param verifiersCredentials
-     *            the verifiers credentials
-     */
-    public void setVerifiersCredentials(List<VerifierCredentials> verifiersCredentials) {
-        this.verifiersCredentials = verifiersCredentials;
-    }
-
-    /**
-     * Add verifiers credential.
-     *
-     * @param verifiersCredential
-     *            the verifiers credentials
-     */
-    public void addVerifiersCredentials(VerifierCredentials verifiersCredential) {
-        if (verifiersCredentials == null)
-            this.verifiersCredentials = new ArrayList<>();
-
-        this.verifiersCredentials.add(verifiersCredential);
-    }
+  /**
+   * Sets verifiers credentials.
+   *
+   * @param verifiersCredentials
+   *          the verifiers credentials
+   */
+  public void setVerifiersCredentials(List<VerifierCredentials> verifiersCredentials) {
+    this.verifiersCredentials = verifiersCredentials;
+  }
 }

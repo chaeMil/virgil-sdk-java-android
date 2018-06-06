@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto.exceptions;
 
 /**
@@ -40,13 +41,13 @@ package com.virgilsecurity.sdk.crypto.exceptions;
  */
 public class SignatureIsNotValidException extends CryptoException {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    /**
-     * Create a new instance of {@code SignatureIsNotValidException}
-     *
-     */
-    public SignatureIsNotValidException() {
-        super("Digital signature is not valid");
-    }
+  /**
+   * Create a new instance of {@code SignatureIsNotValidException}.
+   *
+   */
+  public SignatureIsNotValidException() {
+    super("Digital signature is not valid");
+  }
 }

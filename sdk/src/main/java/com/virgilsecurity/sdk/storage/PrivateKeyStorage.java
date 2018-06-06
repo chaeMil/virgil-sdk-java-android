@@ -30,17 +30,18 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.storage;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+package com.virgilsecurity.sdk.storage;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.Tuple;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Virgil implementation of a storage facility for cryptographic keys.
@@ -50,166 +51,182 @@ import com.virgilsecurity.sdk.utils.Tuple;
  */
 public class PrivateKeyStorage {
 
-    private PrivateKeyExporter keyExporter;
-    private KeyStorage keyStorage;
+  private class PrivateKeyEntry implements KeyEntry {
+
+    private String name;
+    private byte[] value;
+    private Map<String, String> meta;
 
     /**
-     * Create new instance of {@link PrivateKeyStorage}.
+     * Create new instance of {@link PrivateKeyEntry}.
      * 
-     * @param keyExporter
-     *            the {@link PrivateKeyExporter}
-     * @param keyStorage
-     *            the {@link KeyStorage}
-     */
-    public PrivateKeyStorage(PrivateKeyExporter keyExporter, KeyStorage keyStorage) {
-        super();
-        if (keyExporter == null) {
-            throw new NullArgumentException("keyExporter");
-        }
-        if (keyStorage == null) {
-            throw new NullArgumentException("keyStorage");
-        }
-        this.keyExporter = keyExporter;
-        this.keyStorage = keyStorage;
-    }
-
-    /**
-     * Store private key in key storage.
-     * 
-     * @param privateKey
-     *            The private key to store.
      * @param name
-     *            The alias which identifies stored key.
+     *          the entry name.
+     * @param value
+     *          the entry value.
+     */
+    public PrivateKeyEntry(String name, byte[] value) {
+      super();
+      this.name = name;
+      this.value = value;
+
+      this.meta = new HashMap<>();
+    }
+
+    /**
+     * Get the entry metadata.
+     * 
+     * @return the metadata
+     */
+    public Map<String, String> getMeta() {
+      return meta;
+    }
+
+    /**
+     * Get the entry name.
+     * 
+     * @return the name
+     */
+    public String getName() {
+      return name;
+    }
+
+    /**
+     * Get the entry value.
+     * 
+     * @return the value
+     */
+    public byte[] getValue() {
+      return value;
+    }
+
+    /**
+     * Set the entry metadata.
+     * 
      * @param meta
-     *            The key meta data.
-     * @throws CryptoException
-     *             if private couldn't be exported
+     *          the meta to set
      */
-    public void store(PrivateKey privateKey, String name, Map<String, String> meta) throws CryptoException {
-        byte[] exportedKeyData = this.keyExporter.exportPrivateKey(privateKey);
-
-        KeyEntry keyEntry = new PrivateKeyEntry(name, exportedKeyData);
-        if (meta != null && !meta.isEmpty()) {
-            keyEntry.getMeta().putAll(meta);
-        }
-        this.keyStorage.store(keyEntry);
+    public void setMeta(Map<String, String> meta) {
+      this.meta = meta;
     }
 
     /**
-     * Load private key from key storage.
+     * Set the entry name.
      * 
-     * @param keyName
-     *            The alias which identifies stored key.
-     * @return The pair of private key and key meta data.
-     * @throws CryptoException
-     *             if private key couldn't be imported
+     * @param name
+     *          the name to set
      */
-    public Tuple<PrivateKey, Map<String, String>> load(String keyName) throws CryptoException {
-        KeyEntry keyEntry = this.keyStorage.load(keyName);
-        if (keyEntry != null) {
-            PrivateKey privateKey = this.keyExporter.importPrivateKey(keyEntry.getValue());
-            Tuple<PrivateKey, Map<String, String>> pair = new Tuple<PrivateKey, Map<String, String>>(privateKey,
-                    keyEntry.getMeta());
-            return pair;
-        }
-        return null;
+    public void setName(String name) {
+      this.name = name;
     }
 
     /**
-     * Check if key stored in key store.
+     * Set the entry value.
      * 
-     * @param keyName
-     *            The alias which identifies stored key.
-     * @return {@code true} if key exists, {@code false} otherwise.
+     * @param value
+     *          the value to set
      */
-    public boolean exists(String keyName) {
-        return this.keyStorage.exists(keyName);
+    public void setValue(byte[] value) {
+      this.value = value;
     }
 
-    /**
-     * Remove key from key storage.
-     * 
-     * @param keyName
-     *            The alias which identifies stored key.
-     */
-    public void delete(String keyName) {
-        this.keyStorage.delete(keyName);
+  }
+
+  private PrivateKeyExporter keyExporter;
+
+  private KeyStorage keyStorage;
+
+  /**
+   * Create new instance of {@link PrivateKeyStorage}.
+   * 
+   * @param keyExporter
+   *          the {@link PrivateKeyExporter}
+   * @param keyStorage
+   *          the {@link KeyStorage}
+   */
+  public PrivateKeyStorage(PrivateKeyExporter keyExporter, KeyStorage keyStorage) {
+    super();
+    if (keyExporter == null) {
+      throw new NullArgumentException("keyExporter");
     }
-
-    /**
-     * List name of all keys stored in key storage.
-     * 
-     * @return The keys names as a list.
-     */
-    public Set<String> names() {
-        return this.keyStorage.names();
+    if (keyStorage == null) {
+      throw new NullArgumentException("keyStorage");
     }
+    this.keyExporter = keyExporter;
+    this.keyStorage = keyStorage;
+  }
 
-    private class PrivateKeyEntry implements KeyEntry {
+  /**
+   * Remove key from key storage.
+   * 
+   * @param keyName
+   *          The alias which identifies stored key.
+   */
+  public void delete(String keyName) {
+    this.keyStorage.delete(keyName);
+  }
 
-        private String name;
-        private byte[] value;
-        private Map<String, String> meta;
+  /**
+   * Check if key stored in key store.
+   * 
+   * @param keyName
+   *          The alias which identifies stored key.
+   * @return {@code true} if key exists, {@code false} otherwise.
+   */
+  public boolean exists(String keyName) {
+    return this.keyStorage.exists(keyName);
+  }
 
-        /**
-         * Create new instance of {@link PrivateKeyEntry}.
-         * 
-         * @param name
-         * @param value
-         */
-        public PrivateKeyEntry(String name, byte[] value) {
-            super();
-            this.name = name;
-            this.value = value;
-
-            this.meta = new HashMap<>();
-        }
-
-        /**
-         * @return the name
-         */
-        public String getName() {
-            return name;
-        }
-
-        /**
-         * @param name
-         *            the name to set
-         */
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        /**
-         * @return the value
-         */
-        public byte[] getValue() {
-            return value;
-        }
-
-        /**
-         * @param value
-         *            the value to set
-         */
-        public void setValue(byte[] value) {
-            this.value = value;
-        }
-
-        /**
-         * @return the meta
-         */
-        public Map<String, String> getMeta() {
-            return meta;
-        }
-
-        /**
-         * @param meta
-         *            the meta to set
-         */
-        public void setMeta(Map<String, String> meta) {
-            this.meta = meta;
-        }
-
+  /**
+   * Load private key from key storage.
+   * 
+   * @param keyName
+   *          The alias which identifies stored key.
+   * @return The pair of private key and key meta data.
+   * @throws CryptoException
+   *           if private key couldn't be imported
+   */
+  public Tuple<PrivateKey, Map<String, String>> load(String keyName) throws CryptoException {
+    KeyEntry keyEntry = this.keyStorage.load(keyName);
+    if (keyEntry != null) {
+      PrivateKey privateKey = this.keyExporter.importPrivateKey(keyEntry.getValue());
+      Tuple<PrivateKey, Map<String, String>> pair = new Tuple<PrivateKey, Map<String, String>>(
+          privateKey, keyEntry.getMeta());
+      return pair;
     }
+    return null;
+  }
+
+  /**
+   * List name of all keys stored in key storage.
+   * 
+   * @return The keys names as a list.
+   */
+  public Set<String> names() {
+    return this.keyStorage.names();
+  }
+
+  /**
+   * Store private key in key storage.
+   * 
+   * @param privateKey
+   *          The private key to store.
+   * @param name
+   *          The alias which identifies stored key.
+   * @param meta
+   *          The key meta data.
+   * @throws CryptoException
+   *           if private couldn't be exported
+   */
+  public void store(PrivateKey privateKey, String name, Map<String, String> meta)
+      throws CryptoException {
+    byte[] exportedKeyData = this.keyExporter.exportPrivateKey(privateKey);
+
+    KeyEntry keyEntry = new PrivateKeyEntry(name, exportedKeyData);
+    if (meta != null && !meta.isEmpty()) {
+      keyEntry.getMeta().putAll(meta);
+    }
+    this.keyStorage.store(keyEntry);
+  }
 
 }

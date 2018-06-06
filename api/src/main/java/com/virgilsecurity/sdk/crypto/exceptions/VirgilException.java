@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto.exceptions;
 
 /**
@@ -40,46 +41,47 @@ package com.virgilsecurity.sdk.crypto.exceptions;
  */
 public class VirgilException extends Exception {
 
-    private static final long serialVersionUID = -93962084934375263L;
+  private static final long serialVersionUID = -93962084934375263L;
 
-    /**
-     * Create a new instance of {@code VirgilException}
-     *
-     */
-    public VirgilException() {
-    }
+  /**
+   * Create a new instance of {@code VirgilException}.
+   *
+   */
+  public VirgilException() {
+  }
 
-    /**
-     * Create a new instance of {@code VirgilException}
-     *
-     * @param cause
-     *            the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
-     *            value is permitted, and indicates that the cause is nonexistent or unknown.)
-     */
-    public VirgilException(Throwable cause) {
-        super(cause);
-    }
+  /**
+   * Create a new instance of {@code VirgilException} with the specified detail message.
+   *
+   * @param message
+   *          the detail message. The detail message is saved for later retrieval by the
+   *          {@link #getMessage()} method.
+   */
+  public VirgilException(String message) {
+    super(message);
+  }
 
-    /**
-     * Create a new instance of {@code VirgilException} with the specified detail message.
-     *
-     * @param message
-     *            the detail message. The detail message is saved for later retrieval by the {@link #getMessage()}
-     *            method.
-     */
-    public VirgilException(String message) {
-        super(message);
-    }
+  /**
+   * Create new instance of {@link VirgilException}.
+   * 
+   * @param message
+   *          the detail message
+   * @param cause
+   *          the cause
+   */
+  public VirgilException(String message, Throwable cause) {
+    super(message, cause);
+  }
 
-    /**
-     * Create new instance of {@link VirgilException}.
-     * 
-     * @param message
-     *            the detail message
-     * @param cause
-     *            the cause
-     */
-    public VirgilException(String message, Throwable cause) {
-        super(message, cause);
-    }
+  /**
+   * Create a new instance of {@code VirgilException}.
+   *
+   * @param cause
+   *          the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
+   *          <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or
+   *          unknown.)
+   */
+  public VirgilException(Throwable cause) {
+    super(cause);
+  }
 }

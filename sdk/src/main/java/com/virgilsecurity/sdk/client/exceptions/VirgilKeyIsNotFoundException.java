@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
@@ -40,14 +41,14 @@ package com.virgilsecurity.sdk.client.exceptions;
  */
 public class VirgilKeyIsNotFoundException extends VirgilClientException {
 
-    private static final long serialVersionUID = -6143239665038260797L;
+  private static final long serialVersionUID = -6143239665038260797L;
 
-    /**
-     * Create a new instance of {@code VirgilKeyIsNotFoundException}
-     *
-     */
-    public VirgilKeyIsNotFoundException() {
-        super("Virgil Key is not found.");
-    }
+  /**
+   * Create a new instance of {@code VirgilKeyIsNotFoundException}.
+   *
+   */
+  public VirgilKeyIsNotFoundException() {
+    super("Virgil Key is not found.");
+  }
 
 }

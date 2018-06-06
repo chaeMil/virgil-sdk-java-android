@@ -43,213 +43,222 @@ import java.util.Date;
 import java.util.logging.Logger;
 
 /**
- * The {@link Jwt} class implements {@link AccessToken} interface and is used to get access for network requests.
+ * The {@link Jwt} class implements {@link AccessToken} interface and is used to get access for
+ * network requests.
  */
 public class Jwt implements AccessToken {
-    private static final Logger LOGGER = Logger.getLogger(Jwt.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(Jwt.class.getName());
 
-    private JwtHeaderContent headerContent;
-    private JwtBodyContent bodyContent;
-    private byte[] signatureData;
-    private String stringRepresentation;
-    private String unsignedStringRepresentation;
+  private JwtHeaderContent headerContent;
+  private JwtBodyContent bodyContent;
+  private byte[] signatureData;
+  private String stringRepresentation;
+  private String unsignedStringRepresentation;
 
-    /**
-     * Instantiates a new Jwt.
-     *
-     * @param headerContent
-     *            the header content
-     * @param bodyContent
-     *            the body content
-     */
-    public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
-        this(headerContent, bodyContent, null);
+  /**
+   * Instantiates a new Jwt.
+   *
+   * @param headerContent
+   *          the header content
+   * @param bodyContent
+   *          the body content
+   */
+  public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent) {
+    this(headerContent, bodyContent, null);
+  }
+
+  /**
+   * Instantiates a new Jwt.
+   *
+   * @param headerContent
+   *          the header content
+   * @param bodyContent
+   *          the body content
+   * @param signatureData
+   *          the signature data
+   */
+  public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
+    Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
+    Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
+
+    this.headerContent = headerContent;
+    this.bodyContent = bodyContent;
+    this.signatureData = signatureData;
+
+    StringBuilder sb = new StringBuilder();
+    sb.append(this.headerBase64()).append(".").append(this.bodyBase64());
+    this.unsignedStringRepresentation = sb.toString();
+
+    if (signatureData != null) {
+      sb.append(".").append(signatureBase64());
+    } else {
+      LOGGER.fine("Instantiated Jwt has not signature data");
     }
 
-    /**
-     * Instantiates a new Jwt.
-     *
-     * @param headerContent
-     *            the header content
-     * @param bodyContent
-     *            the body content
-     * @param signatureData
-     *            the signature data
-     */
-    public Jwt(JwtHeaderContent headerContent, JwtBodyContent bodyContent, byte[] signatureData) {
-        Validator.checkNullAgrument(headerContent, "Jwt -> 'headerContent' should not be null");
-        Validator.checkNullAgrument(bodyContent, "Jwt -> 'bodyContent' should not be null");
+    this.stringRepresentation = sb.toString();
+  }
 
-        this.headerContent = headerContent;
-        this.bodyContent = bodyContent;
-        this.signatureData = signatureData;
+  /**
+   * Instantiates a new Jwt.
+   *
+   * @param jwtToken
+   *          the jwt token in string representation. Should have at least two parts - header and
+   *          body. (ex. "***.***", where "***" is base64 encoded string)
+   */
+  public Jwt(String jwtToken) {
+    String[] jwtParts = jwtToken.split("[.]");
 
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.headerBase64()).append(".").append(this.bodyBase64());
-        this.unsignedStringRepresentation = sb.toString();
-
-        if (signatureData != null) {
-            sb.append(".").append(signatureBase64());
-        } else {
-            LOGGER.fine("Instantiated Jwt has not signature data");
-        }
-
-        this.stringRepresentation = sb.toString();
+    if (jwtParts.length < 2 || jwtParts.length > 3) {
+      LOGGER.warning(String.format(
+          "Jwt has wrong format. It has '%s' parts, while min is 2, max is 3", jwtParts.length));
+      throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
     }
 
-    /**
-     * Instantiates a new Jwt.
-     *
-     * @param jwtToken
-     *            the jwt token in string representation. Should have at least two parts - header and body. (ex.
-     *            "***.***", where "***" is base64 encoded string)
-     */
-    public Jwt(String jwtToken) {
-        String[] jwtParts = jwtToken.split("[.]");
+    String headerJson = Base64Url.decode(jwtParts[0]);
+    headerContent = JwtParser.parseJwtHeaderContent(headerJson);
 
-        if (jwtParts.length < 2 || jwtParts.length > 3) {
-            LOGGER.warning(String.format("Jwt has wrong format. It has '%s' parts, while min is 2, max is 3",
-                    jwtParts.length));
-            throw new IllegalArgumentException("Jwt -> 'jwtToken' has wrong format");
-        }
+    String bodyJson = Base64Url.decode(jwtParts[1]);
+    bodyContent = JwtParser.parseJwtBodyContent(bodyJson);
 
-        String headerJson = Base64Url.decode(jwtParts[0]);
-        headerContent = JwtParser.parseJwtHeaderContent(headerJson);
-
-        String bodyJson = Base64Url.decode(jwtParts[1]);
-        bodyContent = JwtParser.parseJwtBodyContent(bodyJson);
-
-        if (jwtParts.length == 3) {
-            signatureData = Base64Url.decodeToBytes(jwtParts[2]);
-        } else {
-            LOGGER.info("Instantiated Jwt has not signature data");
-        }
-
-        this.unsignedStringRepresentation = jwtParts[0] + "." + jwtParts[1];
-        this.stringRepresentation = jwtToken;
+    if (jwtParts.length == 3) {
+      signatureData = Base64Url.decodeToBytes(jwtParts[2]);
+    } else {
+      LOGGER.info("Instantiated Jwt has not signature data");
     }
 
-    /**
-     * Gets header content.
-     *
-     * @return the header content
-     */
-    public JwtHeaderContent getHeaderContent() {
-        return headerContent;
-    }
+    this.unsignedStringRepresentation = jwtParts[0] + "." + jwtParts[1];
+    this.stringRepresentation = jwtToken;
+  }
 
-    /**
-     * Gets body content.
-     *
-     * @return the body content
-     */
-    public JwtBodyContent getBodyContent() {
-        return bodyContent;
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    Jwt other = (Jwt) obj;
+    if (bodyContent == null) {
+      if (other.bodyContent != null) {
+        return false;
+      }
+    } else if (!bodyContent.equals(other.bodyContent)) {
+      return false;
+    }
+    if (headerContent == null) {
+      if (other.headerContent != null) {
+        return false;
+      }
+    } else if (!headerContent.equals(other.headerContent)) {
+      return false;
+    }
+    return Arrays.equals(signatureData, other.signatureData);
+  }
 
-    /**
-     * Get signature data.
-     *
-     * @return the signature data in byte [ ]
-     */
-    public byte[] getSignatureData() {
-        return signatureData;
-    }
+  /**
+   * Gets body content.
+   *
+   * @return the body content
+   */
+  public JwtBodyContent getBodyContent() {
+    return bodyContent;
+  }
 
-    @Override
-    public String getIdentity() {
-        return bodyContent.getIdentity();
-    }
+  /**
+   * Gets header content.
+   *
+   * @return the header content
+   */
+  public JwtHeaderContent getHeaderContent() {
+    return headerContent;
+  }
 
-    /**
-     * Whether the token is expired comparing to current date.
-     *
-     * @return if the token is already expired then - {@code true}, otherwise {@code false}
-     */
-    public boolean isExpired() {
-        long currentTimeStamp = new Date().getTime() / 1000;
-        return currentTimeStamp >= bodyContent.getExpiresAt();
-    }
+  @Override
+  public String getIdentity() {
+    return bodyContent.getIdentity();
+  }
 
-    /**
-     * Whether the token is expired comparing to some predefined date.
-     *
-     * @param lifeTimePredefined
-     *            predefined date that will be used in comparison to check whether the token is expired.
-     *            For example to set expiration date in some near future (+5 seconds beyond current time).
-     *
-     * @return if the token is already expired then - {@code true}, otherwise {@code false}
-     */
-    public boolean isExpired(Date lifeTimePredefined) {
-        long currentTimeStamp = lifeTimePredefined.getTime() / 1000;
-        return currentTimeStamp >= bodyContent.getExpiresAt();
-    }
+  /**
+   * Get signature data.
+   *
+   * @return the signature data in byte [ ]
+   */
+  public byte[] getSignatureData() {
+    return signatureData;
+  }
 
-    private String headerBase64() {
-        return Base64Url.encode(ConvertionUtils.captureSnapshot(this.headerContent));
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((bodyContent == null) ? 0 : bodyContent.hashCode());
+    result = prime * result + ((headerContent == null) ? 0 : headerContent.hashCode());
+    result = prime * result + Arrays.hashCode(signatureData);
+    return result;
+  }
 
-    private String bodyBase64() {
-        return Base64Url.encode(ConvertionUtils.captureSnapshot(this.bodyContent));
-    }
+  /**
+   * Whether the token is expired comparing to current date.
+   *
+   * @return if the token is already expired then - {@code true}, otherwise {@code false}
+   */
+  public boolean isExpired() {
+    long currentTimeStamp = new Date().getTime() / 1000;
+    return currentTimeStamp >= bodyContent.getExpiresAt();
+  }
 
-    private String signatureBase64() {
-        return Base64Url.encode(this.signatureData);
-    }
+  /**
+   * Whether the token is expired comparing to some predefined date.
+   *
+   * @param lifeTimePredefined
+   *          predefined date that will be used in comparison to check whether the token is expired.
+   *          For example to set expiration date in some near future (+5 seconds beyond current
+   *          time).
+   *
+   * @return if the token is already expired then - {@code true}, otherwise {@code false}
+   */
+  public boolean isExpired(Date lifeTimePredefined) {
+    long currentTimeStamp = lifeTimePredefined.getTime() / 1000;
+    return currentTimeStamp >= bodyContent.getExpiresAt();
+  }
 
-    String unsigned() {
-        return unsignedStringRepresentation;
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#toString()
+   */
+  @Override
+  public String stringRepresentation() {
+    return stringRepresentation;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String stringRepresentation() {
-        return stringRepresentation;
-    }
+  String unsigned() {
+    return unsignedStringRepresentation;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((bodyContent == null) ? 0 : bodyContent.hashCode());
-        result = prime * result + ((headerContent == null) ? 0 : headerContent.hashCode());
-        result = prime * result + Arrays.hashCode(signatureData);
-        return result;
-    }
+  private String bodyBase64() {
+    return Base64Url.encode(ConvertionUtils.captureSnapshot(this.bodyContent));
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Jwt other = (Jwt) obj;
-        if (bodyContent == null) {
-            if (other.bodyContent != null)
-                return false;
-        } else if (!bodyContent.equals(other.bodyContent))
-            return false;
-        if (headerContent == null) {
-            if (other.headerContent != null)
-                return false;
-        } else if (!headerContent.equals(other.headerContent))
-            return false;
-        return Arrays.equals(signatureData, other.signatureData);
-    }
+  private String headerBase64() {
+    return Base64Url.encode(ConvertionUtils.captureSnapshot(this.headerContent));
+  }
+
+  private String signatureBase64() {
+    return Base64Url.encode(this.signatureData);
+  }
 }

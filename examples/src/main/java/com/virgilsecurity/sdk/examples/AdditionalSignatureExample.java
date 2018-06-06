@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.cards.CardManager;
@@ -39,7 +40,11 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
@@ -55,93 +60,92 @@ import java.util.Date;
  */
 public class AdditionalSignatureExample {
 
-    // Your's server private key
-    private final PrivateKey PRIVATE_KEY;
+  // Your's server private key
+  private static PrivateKey PRIVATE_KEY;
 
-    /**
-     * Create new instance of {@link AdditionalSignatureExample}.
-     * 
-     * @throws CryptoException
-     */
-    public AdditionalSignatureExample() throws CryptoException {
-        PRIVATE_KEY = new VirgilCrypto().generateKeys().getPrivateKey();
-    }
+  public static void main(String[] args) throws CryptoException {
+    new AdditionalSignatureExample().run();
+    System.out.println("Done!");
+  }
 
-    public static void main(String[] args) throws CryptoException {
-        new AdditionalSignatureExample().run();
-        System.out.println("Done!");
-    }
+  /**
+   * Create new instance of {@link AdditionalSignatureExample}.
+   * 
+   * @throws CryptoException
+   */
+  public AdditionalSignatureExample() throws CryptoException {
+    PRIVATE_KEY = new VirgilCrypto().generateKeys().getPrivateKey();
+  }
 
-    private void run() throws CryptoException {
-        Tuple<String, String> keys = generateKey();
+  private Tuple<String, String> generateKey() throws CryptoException {
+    // generate a key pair
+    VirgilCrypto crypto = new VirgilCrypto();
+    VirgilKeyPair keyPair = crypto.generateKeys();
 
-        RawCardContent rawCard = new RawCardContent("Alice", keys.getRight(), new Date());
-        String rawCardStr = rawCard.exportAsBase64String();
-        System.out.println(String.format("Unigned card: %s", rawCardStr));
-        String signedCard = signCard(rawCardStr);
-        System.out.println(String.format("Signed card: %s", signedCard));
-    }
+    // export private and public key
+    byte[] privateKeyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), "<YOUR_PASSWORD>");
+    byte[] publicKeyData = crypto.exportPublicKey(keyPair.getPublicKey());
 
-    private Tuple<String, String> generateKey() throws CryptoException {
-        // generate a key pair
-        VirgilCrypto crypto = new VirgilCrypto();
-        VirgilKeyPair keyPair = crypto.generateKeys();
+    // Save it securely
+    String privateKeyStr = ConvertionUtils.toBase64String(privateKeyData);
 
-        // export private and public key
-        byte[] privateKeyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), "<YOUR_PASSWORD>");
-        byte[] publicKeyData = crypto.exportPublicKey(keyPair.getPublicKey());
+    // Embed it in client-side apps
+    String publicKeyStr = ConvertionUtils.toBase64String(publicKeyData);
 
-        // Save it securely
-        String privateKeyStr = ConvertionUtils.toBase64String(privateKeyData);
+    return new Tuple<String, String>(privateKeyStr, publicKeyStr);
+  }
 
-        // Embed it in client-side apps
-        String publicKeyStr = ConvertionUtils.toBase64String(publicKeyData);
+  private void run() throws CryptoException {
+    Tuple<String, String> keys = generateKey();
 
-        return new Tuple<String, String>(privateKeyStr, publicKeyStr);
-    }
+    RawCardContent rawCard = new RawCardContent("Alice", keys.getRight(), new Date());
+    String rawCardStr = rawCard.exportAsBase64String();
+    System.out.println(String.format("Unigned card: %s", rawCardStr));
+    String signedCard = signCard(rawCardStr);
+    System.out.println(String.format("Signed card: %s", signedCard));
+  }
 
-    @SuppressWarnings("unused")
-    private void transmitCard() {
-        CardCrypto cardCrypto = new VirgilCardCrypto();
-        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(new CallbackJwtProvider.GetTokenCallback() {
-            @Override
-            public String onGetToken(TokenContext tokenContext) {
-                return "your token generation implementation";
-            }
+  private String signCard(String rawCardStr) throws CryptoException {
+    // Receive rawCardStr from a client
+    RawSignedModel rawCard = new RawSignedModel(rawCardStr);
+
+    CardCrypto cardCrypto = new VirgilCardCrypto();
+    ModelSigner modelSigner = new ModelSigner(cardCrypto);
+
+    // sign a user's card with a server's private key
+    modelSigner.sign(rawCard, "YOUR_BACKEND", PRIVATE_KEY);
+
+    // Send it back to the client
+    String newRawCardStr = rawCard.exportAsBase64String();
+
+    return newRawCardStr;
+  }
+
+  @SuppressWarnings("unused")
+  private void transmitCard() {
+    CardCrypto cardCrypto = new VirgilCardCrypto();
+    AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(
+        new CallbackJwtProvider.GetTokenCallback() {
+          @Override
+          public String onGetToken(TokenContext tokenContext) {
+            return "your token generation implementation";
+          }
         });
-        CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto);
-        SignCallback signCallback = new SignCallback() {
+    CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto);
+    SignCallback signCallback = new SignCallback() {
 
-            @Override
-            public RawSignedModel onSign(RawSignedModel rawCard) {
-                String rawCardStr = rawCard.exportAsBase64String();
+      @Override
+      public RawSignedModel onSign(RawSignedModel rawCard) {
+        String rawCardStr = rawCard.exportAsBase64String();
 
-                // Send this string to server-side, where it will be signed
-                RawSignedModel signedRawCard = new RawSignedModel(rawCardStr);
-                return signedRawCard;
-            }
-        };
+        // Send this string to server-side, where it will be signed
+        RawSignedModel signedRawCard = new RawSignedModel(rawCardStr);
+        return signedRawCard;
+      }
+    };
 
-        CardManager cardManager = new CardManager(cardCrypto,
-                                                  accessTokenProvider,
-                                                  cardVerifier,
-                                                  signCallback);
-    }
-
-    private String signCard(String rawCardStr) throws CryptoException {
-        // Receive rawCardStr from a client
-        RawSignedModel rawCard = new RawSignedModel(rawCardStr);
-
-        CardCrypto cardCrypto = new VirgilCardCrypto();
-        ModelSigner modelSigner = new ModelSigner(cardCrypto);
-
-        // sign a user's card with a server's private key
-        modelSigner.sign(rawCard, "YOUR_BACKEND", PRIVATE_KEY);
-
-        // Send it back to the client
-        String newRawCardStr = rawCard.exportAsBase64String();
-
-        return newRawCardStr;
-    }
+    CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, cardVerifier,
+        signCallback);
+  }
 
 }

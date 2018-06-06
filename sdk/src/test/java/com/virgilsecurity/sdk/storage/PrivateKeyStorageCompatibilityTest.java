@@ -30,19 +30,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.storage;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-
-import java.io.File;
-import java.util.Map;
-import java.util.UUID;
-
-import org.junit.Before;
-import org.junit.Test;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
@@ -53,56 +47,67 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.io.File;
+import java.util.Map;
+import java.util.UUID;
+
+import org.junit.Before;
+import org.junit.Test;
+
 /**
+ * Unit tests for {@link PrivateKeyStorage} which verify cross-platform compatibility.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class PrivateKeyStorageCompatibilityTest {
 
-    private VirgilCrypto crypto;
-    private String keyName;
-    private PrivateKeyStorage privateKeyStorage;
+  private VirgilCrypto crypto;
+  private String keyName;
+  private PrivateKeyStorage privateKeyStorage;
 
-    @Before
-    public void setUp() throws CryptoException {
-        this.crypto = new VirgilCrypto();
-        this.keyName = UUID.randomUUID().toString();
+  @Before
+  public void setUp() throws CryptoException {
+    this.crypto = new VirgilCrypto();
+    this.keyName = UUID.randomUUID().toString();
 
-        PrivateKeyExporter keyExporter = new VirgilPrivateKeyExporter(this.crypto);
-        KeyStorage keyStorage = new JsonFileKeyStorage(
-                System.getProperty("java.io.tmpdir") + File.separator + this.keyName);
-        privateKeyStorage = new PrivateKeyStorage(keyExporter, keyStorage);
+    PrivateKeyExporter keyExporter = new VirgilPrivateKeyExporter(this.crypto);
+    KeyStorage keyStorage = new JsonFileKeyStorage(
+        System.getProperty("java.io.tmpdir") + File.separator + this.keyName);
+    privateKeyStorage = new PrivateKeyStorage(keyExporter, keyStorage);
+  }
+
+  @Test
+  public void stc_7() throws CryptoException {
+    // STC_7
+    // Generate PrivateKey
+    PrivateKey privateKey = this.crypto.generateKeys().getPrivateKey();
+
+    // Store PrivateKey
+    this.privateKeyStorage.store(privateKey, this.keyName, null);
+
+    // Load PrivateKey
+    Tuple<PrivateKey, Map<String, String>> privateKeyInfo = this.privateKeyStorage
+        .load(this.keyName);
+    assertNotNull(privateKeyInfo);
+
+    // Loaded PrivateKey is exactly the same as instantiated
+    VirgilPrivateKey virgilPrivateKey = (VirgilPrivateKey) privateKey;
+    VirgilPrivateKey loadedVirgilPrivateKey = (VirgilPrivateKey) privateKeyInfo.getLeft();
+    assertArrayEquals(virgilPrivateKey.getIdentifier(), loadedVirgilPrivateKey.getIdentifier());
+    assertArrayEquals(virgilPrivateKey.getRawKey(), loadedVirgilPrivateKey.getRawKey());
+    assertTrue(privateKeyInfo.getRight().isEmpty());
+
+    // Delete PrivateKey
+    this.privateKeyStorage.delete(this.keyName);
+
+    // Load PrivateKey
+    try {
+      this.privateKeyStorage.load(this.keyName);
+      fail("Private key is removed");
+    } catch (KeyEntryNotFoundException e) {
+      // PrivateKey is absent
     }
-
-    @Test
-    public void STC_7() throws CryptoException {
-        // Generate PrivateKey
-        PrivateKey privateKey = this.crypto.generateKeys().getPrivateKey();
-
-        // Store PrivateKey
-        this.privateKeyStorage.store(privateKey, this.keyName, null);
-
-        // Load PrivateKey
-        Tuple<PrivateKey, Map<String, String>> privateKeyInfo = this.privateKeyStorage.load(this.keyName);
-        assertNotNull(privateKeyInfo);
-
-        // Loaded PrivateKey is exactly the same as instantiated
-        VirgilPrivateKey virgilPrivateKey = (VirgilPrivateKey) privateKey;
-        VirgilPrivateKey loadedVirgilPrivateKey = (VirgilPrivateKey) privateKeyInfo.getLeft();
-        assertArrayEquals(virgilPrivateKey.getIdentifier(), loadedVirgilPrivateKey.getIdentifier());
-        assertArrayEquals(virgilPrivateKey.getRawKey(), loadedVirgilPrivateKey.getRawKey());
-        assertTrue(privateKeyInfo.getRight().isEmpty());
-
-        // Delete PrivateKey
-        this.privateKeyStorage.delete(this.keyName);
-
-        // Load PrivateKey
-        try {
-            this.privateKeyStorage.load(this.keyName);
-            fail("Private key is removed");
-        } catch (KeyEntryNotFoundException e) {
-            // PrivateKey is absent
-        }
-    }
+  }
 
 }

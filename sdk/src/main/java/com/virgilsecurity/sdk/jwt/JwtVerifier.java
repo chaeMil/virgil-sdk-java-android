@@ -45,54 +45,56 @@ import java.util.logging.Logger;
  * The {@link JwtVerifier} class is implemented for verification of {@link Jwt}.
  */
 public class JwtVerifier {
-    private static final Logger LOGGER = Logger.getLogger(JwtVerifier.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(JwtVerifier.class.getName());
 
-    private PublicKey apiPublicKey;
-    private String apiPublicKeyIdentifier;
-    private AccessTokenSigner accessTokenSigner;
+  private PublicKey apiPublicKey;
+  private String apiPublicKeyIdentifier;
+  private AccessTokenSigner accessTokenSigner;
 
-    /**
-     * Instantiates a new Jwt verifier.
-     *
-     * @param apiPublicKey
-     *            the api public key
-     * @param apiPublicKeyIdentifier
-     *            the api public key identifier
-     * @param accessTokenSigner
-     *            the access token signer
-     */
-    public JwtVerifier(PublicKey apiPublicKey, String apiPublicKeyIdentifier, AccessTokenSigner accessTokenSigner) {
-        this.apiPublicKey = apiPublicKey;
-        this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
-        this.accessTokenSigner = accessTokenSigner;
+  /**
+   * Instantiates a new Jwt verifier.
+   *
+   * @param apiPublicKey
+   *          the api public key
+   * @param apiPublicKeyIdentifier
+   *          the api public key identifier
+   * @param accessTokenSigner
+   *          the access token signer
+   */
+  public JwtVerifier(PublicKey apiPublicKey, String apiPublicKeyIdentifier,
+      AccessTokenSigner accessTokenSigner) {
+    this.apiPublicKey = apiPublicKey;
+    this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
+    this.accessTokenSigner = accessTokenSigner;
+  }
+
+  /**
+   * Checks whether the token's signature is valid.
+   *
+   * @param jwtToken
+   *          the jwt token
+   * @return {@code true} if the token's signature is valid, otherwise {@code false}
+   * @throws CryptoException
+   *           if issue occurred during token's signature verification
+   */
+  public boolean verifyToken(Jwt jwtToken) throws CryptoException {
+    if (jwtToken == null) {
+      throw new NullArgumentException("jwtToken");
     }
 
-    /**
-     * Checks whether the token's signature is valid.
-     *
-     * @param jwtToken
-     *            the jwt token
-     * @return {@code true} if the token's signature is valid, otherwise {@code false}
-     * @throws CryptoException
-     *             if issue occurred during token's signature verification
-     */
-    public boolean verifyToken(Jwt jwtToken) throws CryptoException {
-        if (jwtToken == null) {
-            throw new NullArgumentException("jwtToken");
-        }
-
-        JwtHeaderContent header = jwtToken.getHeaderContent();
-        if (!this.apiPublicKeyIdentifier.equals(header.getKeyIdentifier())
-                || !this.accessTokenSigner.getAlgorithm().equals(header.getAlgorithm())
-                || !JwtHeaderContent.VIRGIL_CONTENT_TYPE.equals(header.getContentType())
-                || !JwtHeaderContent.JWT_TYPE.equals(header.getType())) {
-            LOGGER.info(
-                    "Some of next args mismatches in Jwt header and provided data while instantiating JwtVerifier:\n"
-                            + "api public key identifier, algorithm, content type, jwt type");
-            return false;
-        }
-
-        byte[] jwtBytes = ConvertionUtils.toBytes(jwtToken.unsigned());
-        return this.accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(), jwtBytes, apiPublicKey);
+    JwtHeaderContent header = jwtToken.getHeaderContent();
+    if (!this.apiPublicKeyIdentifier.equals(header.getKeyIdentifier())
+        || !this.accessTokenSigner.getAlgorithm().equals(header.getAlgorithm())
+        || !JwtHeaderContent.VIRGIL_CONTENT_TYPE.equals(header.getContentType())
+        || !JwtHeaderContent.JWT_TYPE.equals(header.getType())) {
+      LOGGER.info(
+          "Some of next args mismatches in Jwt header and provided data while instantiating JwtVerifier:\n"
+              + "api public key identifier, algorithm, content type, jwt type");
+      return false;
     }
+
+    byte[] jwtBytes = ConvertionUtils.toBytes(jwtToken.unsigned());
+    return this.accessTokenSigner.verifyTokenSignature(jwtToken.getSignatureData(), jwtBytes,
+        apiPublicKey);
+  }
 }

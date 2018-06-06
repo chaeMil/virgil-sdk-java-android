@@ -27,10 +27,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,61 +46,60 @@ import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameter;
 import org.junit.runners.Parameterized.Parameters;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
-
 /**
+ * Unit tests for {@link VirgilPrivateKeyExporter}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 @RunWith(Parameterized.class)
 public class VirgilPrivateKeyExporterTest {
 
-    private VirgilCrypto crypto;
-    private VirgilPrivateKey privateKey;
+  private VirgilCrypto crypto;
+  private VirgilPrivateKey privateKey;
 
-    @Parameter(0)
-    public VirgilPrivateKeyExporter exporter;
-    @Parameter(1)
-    public String password;
+  @Parameter(0)
+  public VirgilPrivateKeyExporter exporter;
+  @Parameter(1)
+  public String password;
 
-    @Parameters(name = "{index}: password={1}")
-    public static Collection<Object[]> params() {
-        return Arrays.asList(new Object[][] { { new VirgilPrivateKeyExporter(), null },
-                { new VirgilPrivateKeyExporter(new VirgilCrypto()), null },
-                { new VirgilPrivateKeyExporter(new VirgilCrypto(), null), null },
-                { new VirgilPrivateKeyExporter(new VirgilCrypto(), "PASSWORD"), "PASSWORD" } });
-    }
+  @Parameters(name = "{index}: password={1}")
+  public static Collection<Object[]> params() {
+    return Arrays.asList(new Object[][] { { new VirgilPrivateKeyExporter(), null },
+        { new VirgilPrivateKeyExporter(new VirgilCrypto()), null },
+        { new VirgilPrivateKeyExporter(new VirgilCrypto(), null), null },
+        { new VirgilPrivateKeyExporter(new VirgilCrypto(), "PASSWORD"), "PASSWORD" } });
+  }
 
-    @Before
-    public void setup() throws CryptoException {
-        this.crypto = new VirgilCrypto();
-        this.privateKey = this.crypto.generateKeys().getPrivateKey();
-    }
+  @Test
+  public void exportPrivateKey() throws CryptoException {
+    byte[] exportedKeyData = exporter.exportPrivateKey(privateKey);
+    assertNotNull(exportedKeyData);
+  }
 
-    @Test
-    public void exportPrivateKey() throws CryptoException {
-        byte[] exportedKeyData = exporter.exportPrivateKey(privateKey);
-        assertNotNull(exportedKeyData);
-    }
+  @Test
+  public void importPrivateKey() throws CryptoException {
+    byte[] exportedKeyData = exporter.exportPrivateKey(privateKey);
 
-    @Test
-    public void importPrivateKey() throws CryptoException {
-        byte[] exportedKeyData = exporter.exportPrivateKey(privateKey);
+    VirgilPrivateKey importedKey = (VirgilPrivateKey) exporter.importPrivateKey(exportedKeyData);
+    assertNotNull(importedKey);
+    assertEquals(privateKey, importedKey);
+  }
 
-        VirgilPrivateKey importedKey = (VirgilPrivateKey) exporter.importPrivateKey(exportedKeyData);
-        assertNotNull(importedKey);
-        assertEquals(privateKey, importedKey);
-    }
+  @Test(expected = CryptoException.class)
+  public void importPrivateKey_invalidData() throws CryptoException {
+    exporter.importPrivateKey("wrong_data".getBytes());
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void importPrivateKey_null() throws CryptoException {
-        exporter.importPrivateKey(null);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void importPrivateKey_null() throws CryptoException {
+    exporter.importPrivateKey(null);
+  }
 
-    @Test(expected = CryptoException.class)
-    public void importPrivateKey_invalidData() throws CryptoException {
-        exporter.importPrivateKey("wrong_data".getBytes());
-    }
+  @Before
+  public void setup() throws CryptoException {
+    this.crypto = new VirgilCrypto();
+    this.privateKey = this.crypto.generateKeys().getPrivateKey();
+  }
 
 }

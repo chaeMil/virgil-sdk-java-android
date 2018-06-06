@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.exception;
 
 /**
@@ -40,16 +41,16 @@ package com.virgilsecurity.sdk.exception;
  */
 public class EmptyArgumentException extends IllegalArgumentException {
 
-    private static final long serialVersionUID = -7883321347455886411L;
+  private static final long serialVersionUID = -7883321347455886411L;
 
-    /**
-     * Create a new instance of {@code NullArgumentException}
-     *
-     * @param argName
-     *            the name of the argument that was {@code null} or empty.
-     */
-    public EmptyArgumentException(String argName) {
-        super((argName == null ? "Argument" : argName) + " must not be empty.");
-    }
+  /**
+   * Create a new instance of {@code NullArgumentException}.
+   *
+   * @param argName
+   *          the name of the argument that was {@code null} or empty.
+   */
+  public EmptyArgumentException(String argName) {
+    super((argName == null ? "Argument" : argName) + " must not be empty.");
+  }
 
 }

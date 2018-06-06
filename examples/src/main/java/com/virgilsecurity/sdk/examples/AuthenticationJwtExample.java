@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.common.TimeSpan;
@@ -44,7 +45,6 @@ import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.utils.Base64;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 import java.util.concurrent.TimeUnit;
@@ -55,54 +55,54 @@ import java.util.concurrent.TimeUnit;
  */
 public class AuthenticationJwtExample {
 
-    public static void main(String[] args) throws CryptoException {
-        new AuthenticationJwtExample().run();
-        System.out.println("Done!");
-    }
+  public static void main(String[] args) throws CryptoException {
+    new AuthenticationJwtExample().run();
+    System.out.println("Done!");
+  }
 
-    private void run() throws CryptoException {
-        setupJwt();
-        jwtGeneration();
-    }
+  private void jwtGeneration() throws CryptoException {
+    // API_KEY
+    String apiKeyBase64 = "MC4CAQAwBQYDK2VwBCIEINlK4BhgsijAbNmUqU6us0ZU9MGi+HxdYCA6TdZeHjR4";
+    byte[] apiKeyData = ConvertionUtils.base64ToBytes(apiKeyBase64);
 
-    private void setupJwt() {
-        // Get generated token from server-side
-        final String authenticatedQueryToServerSide = "eyJraWQiOiI3MGI0NDdlMzIxZjNhMGZkIiwidHlwIjoiSldUIiwiYWxnIjoiVkVEUzUxMiIsImN0eSI6InZpcmdpbC1qd3Q7dj0xIn0.eyJleHAiOjE1MTg2OTg5MTcsImlzcyI6InZpcmdpbC1iZTAwZTEwZTRlMWY0YmY1OGY5YjRkYzg1ZDc5Yzc3YSIsInN1YiI6ImlkZW50aXR5LUFsaWNlIiwiaWF0IjoxNTE4NjEyNTE3fQ.MFEwDQYJYIZIAWUDBAIDBQAEQP4Yo3yjmt8WWJ5mqs3Yrqc_VzG6nBtrW2KIjP-kxiIJL_7Wv0pqty7PDbDoGhkX8CJa6UOdyn3rBWRvMK7p7Ak";
+    // import a private key
+    VirgilCrypto crypto = new VirgilCrypto();
+    PrivateKey apiKey = crypto.importPrivateKey(apiKeyData);
 
-        // Setup AccessTokenProvider
-        GetTokenCallback getTokenCallback = new GetTokenCallback() {
+    AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
-            @Override
-            public String onGetToken(TokenContext tokenContext) {
-                return authenticatedQueryToServerSide;
-            }
-        };
-        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(getTokenCallback);
-    }
+    String appId = "be00e10e4e1f4bf58f9b4dc85d79c77a"; // APP_ID
+    String apiKeyId = "70b447e321f3a0fd"; // API_KEY_ID
+    TimeSpan ttl = TimeSpan.fromTime(1, TimeUnit.HOURS); // 1 hour
 
-    private void jwtGeneration() throws CryptoException {
-        // API_KEY
-        String apiKeyBase64 = "MC4CAQAwBQYDK2VwBCIEINlK4BhgsijAbNmUqU6us0ZU9MGi+HxdYCA6TdZeHjR4";
-        byte[] apiKeyData = ConvertionUtils.base64ToBytes(apiKeyBase64);
+    // setup JWT generator
+    JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId, ttl, accessTokenSigner);
 
-        // import a private key
-        VirgilCrypto crypto = new VirgilCrypto();
-        PrivateKey apiKey = crypto.importPrivateKey(apiKeyData);
+    // generate JWT for a user
+    String identity = "Alice";
+    Jwt aliceJwt = jwtGenerator.generateToken(identity);
 
-        AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+    // Send to client-side
+    String jwtString = aliceJwt.stringRepresentation();
+  }
 
-        String appId = "be00e10e4e1f4bf58f9b4dc85d79c77a"; // APP_ID
-        String apiKeyId = "70b447e321f3a0fd"; // API_KEY_ID
-        TimeSpan ttl = TimeSpan.fromTime(1, TimeUnit.HOURS); // 1 hour
+  private void run() throws CryptoException {
+    setupJwt();
+    jwtGeneration();
+  }
 
-        // setup JWT generator
-        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId, ttl, accessTokenSigner);
+  private void setupJwt() {
+    // Get generated token from server-side
+    final String authenticatedQueryToServerSide = "eyJraWQiOiI3MGI0NDdlMzIxZjNhMGZkIiwidHlwIjoiSldUIiwiYWxnIjoiVkVEUzUxMiIsImN0eSI6InZpcmdpbC1qd3Q7dj0xIn0.eyJleHAiOjE1MTg2OTg5MTcsImlzcyI6InZpcmdpbC1iZTAwZTEwZTRlMWY0YmY1OGY5YjRkYzg1ZDc5Yzc3YSIsInN1YiI6ImlkZW50aXR5LUFsaWNlIiwiaWF0IjoxNTE4NjEyNTE3fQ.MFEwDQYJYIZIAWUDBAIDBQAEQP4Yo3yjmt8WWJ5mqs3Yrqc_VzG6nBtrW2KIjP-kxiIJL_7Wv0pqty7PDbDoGhkX8CJa6UOdyn3rBWRvMK7p7Ak";
 
-        // generate JWT for a user
-        String identity = "Alice";
-        Jwt aliceJwt = jwtGenerator.generateToken(identity);
+    // Setup AccessTokenProvider
+    GetTokenCallback getTokenCallback = new GetTokenCallback() {
 
-        // Send to client-side
-        String jwtString = aliceJwt.stringRepresentation();
-    }
+      @Override
+      public String onGetToken(TokenContext tokenContext) {
+        return authenticatedQueryToServerSide;
+      }
+    };
+    AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(getTokenCallback);
+  }
 }

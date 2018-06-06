@@ -38,18 +38,19 @@ package com.virgilsecurity.sdk.jwt.contract;
  */
 public interface AccessToken {
 
-    /**
-     * Gets identity of access token.
-     *
-     * @return the identity of access token
-     */
-    String getIdentity();
+  /**
+   * Gets identity of access token.
+   *
+   * @return the identity of access token
+   */
+  String getIdentity();
 
-    /**
-     * Gets string representation of access token that is saved during it's lifetime, because secondary computation of
-     * access token's string representation can be not equal to the first one.
-     *
-     * @return string representation of access token that is saved during it's lifetime
-     */
-    String stringRepresentation();
+  /**
+   * Gets string representation of access token that is saved during it's lifetime, because
+   * secondary computation of access token's string representation can be not equal to the first
+   * one.
+   *
+   * @return string representation of access token that is saved during it's lifetime
+   */
+  String stringRepresentation();
 }

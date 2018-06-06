@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.storage;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -39,6 +40,12 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 
 import java.io.File;
 import java.io.IOException;
@@ -50,14 +57,8 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-
 /**
- * Unit tests for {@code VirgilKeyStorage}
+ * Unit tests for {@code VirgilKeyStorage}.
  *
  * @author Andrii Iakovenko
  * 
@@ -65,195 +66,191 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
  *
  */
 public class DefaultKeyStorageTest {
-    private VirgilCrypto crypto;
-    private KeyStorage storage;
+  private class TestKeyEntry implements KeyEntry {
+    private String keyName;
+    private byte[] keyValue;
+    private Map<String, String> keyMeta;
 
-    private File tmpDir;
-    private String alias;
-    private KeyEntry entry;
-
-    private VirgilKeyPair keyPair;
-
-    @Before
-    public void setUp() throws CryptoException {
-        crypto = new VirgilCrypto();
-
-        tmpDir = new File(System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
-        storage = new DefaultKeyStorage(tmpDir.getAbsolutePath(), UUID.randomUUID().toString());
-
-        keyPair = crypto.generateKeys();
-
-        alias = UUID.randomUUID().toString();
-
-        entry = new TestKeyEntry();
-        entry.setName(alias);
-        entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey(), null));
-        entry.getMeta().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+    public TestKeyEntry() {
+      keyMeta = new HashMap<>();
     }
 
-    @Test
-    public void exists_nullAlias() {
-        assertFalse(storage.exists(null));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.KeyEntry#getMeta()
+     */
+    @Override
+    public Map<String, String> getMeta() {
+      return this.keyMeta;
     }
 
-    @Test
-    public void exists_randomName() {
-        assertFalse(storage.exists(UUID.randomUUID().toString()));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.KeyEntry#getName()
+     */
+    @Override
+    public String getName() {
+      return keyName;
     }
 
-    @Test
-    public void exists() throws IOException {
-        if (!tmpDir.exists()) {
-            tmpDir.mkdirs();
-        }
-        storage.store(entry);
-
-        assertTrue(storage.exists(entry.getName()));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#getValue()
+     */
+    @Override
+    public byte[] getValue() {
+      return keyValue;
     }
 
-    @Test
-    public void store() {
-        storage.store(entry);
-
-        assertTrue(storage.exists(alias));
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#setMeta(java.util.Map)
+     */
+    @Override
+    public void setMeta(Map<String, String> meta) {
+      this.keyMeta = meta;
     }
 
-    @Test(expected = KeyEntryAlreadyExistsException.class)
-    public void store_duplicated() {
-        storage.store(entry);
-        storage.store(entry);
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.crypto.KeyEntry#setName(java.lang.String)
+     */
+    @Override
+    public void setName(String name) {
+      this.keyName = name;
     }
 
-    @Test
-    public void load() {
-        storage.store(entry);
-
-        KeyEntry loadedEntry = storage.load(alias);
-
-        assertThat(loadedEntry, instanceOf(JsonKeyEntry.class));
-        assertEquals(entry.getName(), loadedEntry.getName());
-        assertArrayEquals(entry.getValue(), loadedEntry.getValue());
-        assertEquals(entry.getMeta(), loadedEntry.getMeta());
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#setValue(byte[])
+     */
+    @Override
+    public void setValue(byte[] value) {
+      this.keyValue = value;
     }
+  }
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void load_nullName() {
-        storage.load(alias);
+  private VirgilCrypto crypto;
+
+  private KeyStorage storage;
+  private File tmpDir;
+  private String alias;
+
+  private KeyEntry entry;
+
+  private VirgilKeyPair keyPair;
+
+  @Test
+  public void delete() {
+    storage.store(entry);
+    storage.delete(alias);
+
+    assertFalse(storage.exists(alias));
+  }
+
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void delete_nonExisting() {
+    storage.delete(alias);
+  }
+
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void delete_nullName() {
+    storage.delete(null);
+  }
+
+  @Test
+  public void exists() throws IOException {
+    if (!tmpDir.exists()) {
+      tmpDir.mkdirs();
     }
+    storage.store(entry);
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void load_nonExisting() {
-        storage.load(alias);
-    }
+    assertTrue(storage.exists(entry.getName()));
+  }
 
-    @Test
-    public void delete() {
-        storage.store(entry);
-        storage.delete(alias);
+  @Test
+  public void exists_nullAlias() {
+    assertFalse(storage.exists(null));
+  }
 
-        assertFalse(storage.exists(alias));
-    }
+  @Test
+  public void exists_randomName() {
+    assertFalse(storage.exists(UUID.randomUUID().toString()));
+  }
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void delete_nullName() {
-        storage.delete(null);
-    }
+  @Test
+  public void load() {
+    storage.store(entry);
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void delete_nonExisting() {
-        storage.delete(alias);
-    }
+    KeyEntry loadedEntry = storage.load(alias);
 
-    @Test
-    public void names_empty() {
-        Set<String> names = storage.names();
-        assertNotNull(names);
-        assertTrue(names.isEmpty());
-    }
+    assertThat(loadedEntry, instanceOf(JsonKeyEntry.class));
+    assertEquals(entry.getName(), loadedEntry.getName());
+    assertArrayEquals(entry.getValue(), loadedEntry.getValue());
+    assertEquals(entry.getMeta(), loadedEntry.getMeta());
+  }
 
-    @Test
-    public void names() {
-        storage.store(entry);
-        Set<String> names = storage.names();
-        assertNotNull(names);
-        assertEquals(1, names.size());
-        assertEquals(entry.getName(), names.iterator().next());
-    }
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void load_nonExisting() {
+    storage.load(alias);
+  }
 
-    private class TestKeyEntry implements KeyEntry {
-        private String keyName;
-        private byte[] keyValue;
-        private Map<String, String> keyMeta;
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void load_nullName() {
+    storage.load(alias);
+  }
 
-        public TestKeyEntry() {
-            keyMeta = new HashMap<>();
-        }
+  @Test
+  public void names() {
+    storage.store(entry);
+    Set<String> names = storage.names();
+    assertNotNull(names);
+    assertEquals(1, names.size());
+    assertEquals(entry.getName(), names.iterator().next());
+  }
 
-        public TestKeyEntry(String name, byte[] value) {
-            this();
-            this.keyName = name;
-            this.keyValue = value;
-        }
+  @Test
+  public void names_empty() {
+    Set<String> names = storage.names();
+    assertNotNull(names);
+    assertTrue(names.isEmpty());
+  }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.virgilsecurity.sdk.crypto.KeyEntry#getName()
-         */
-        @Override
-        public String getName() {
-            return keyName;
-        }
+  @Before
+  public void setUp() throws CryptoException {
+    crypto = new VirgilCrypto();
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.virgilsecurity.sdk.crypto.KeyEntry#setName(java.lang.String)
-         */
-        @Override
-        public void setName(String name) {
-            this.keyName = name;
-        }
+    tmpDir = new File(
+        System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
+    storage = new DefaultKeyStorage(tmpDir.getAbsolutePath(), UUID.randomUUID().toString());
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.virgilsecurity.sdk.storage.KeyEntry#getValue()
-         */
-        @Override
-        public byte[] getValue() {
-            return keyValue;
-        }
+    keyPair = crypto.generateKeys();
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.virgilsecurity.sdk.storage.KeyEntry#setValue(byte[])
-         */
-        @Override
-        public void setValue(byte[] value) {
-            this.keyValue = value;
-        }
+    alias = UUID.randomUUID().toString();
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.virgilsecurity.sdk.crypto.KeyEntry#getMeta()
-         */
-        @Override
-        public Map<String, String> getMeta() {
-            return this.keyMeta;
-        }
+    entry = new TestKeyEntry();
+    entry.setName(alias);
+    entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey(), null));
+    entry.getMeta().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+  }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.virgilsecurity.sdk.storage.KeyEntry#setMeta(java.util.Map)
-         */
-        @Override
-        public void setMeta(Map<String, String> meta) {
-            this.keyMeta = meta;
-        }
-    }
+  @Test
+  public void store() {
+    storage.store(entry);
+
+    assertTrue(storage.exists(alias));
+  }
+
+  @Test(expected = KeyEntryAlreadyExistsException.class)
+  public void store_duplicated() {
+    storage.store(entry);
+    storage.store(entry);
+  }
 
 }

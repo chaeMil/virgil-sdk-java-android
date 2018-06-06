@@ -30,9 +30,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.examples;
 
-import java.util.Map;
+package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
@@ -45,33 +44,36 @@ import com.virgilsecurity.sdk.storage.KeyStorage;
 import com.virgilsecurity.sdk.storage.PrivateKeyStorage;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.util.Map;
+
 /**
  * @author Andrii Iakovenko
  *
  */
 public class KeyStorageExample {
 
-    public static void main(String[] args) throws CryptoException {
-        // Generate some private key
-        VirgilCrypto crypto = new VirgilCrypto();
-        VirgilKeyPair keyPair = crypto.generateKeys();
-        VirgilPrivateKey privateKey = keyPair.getPrivateKey();
+  @SuppressWarnings("unused")
+  public static void main(String[] args) throws CryptoException {
+    // Generate some private key
+    VirgilCrypto crypto = new VirgilCrypto();
+    VirgilKeyPair keyPair = crypto.generateKeys();
+    VirgilPrivateKey privateKey = keyPair.getPrivateKey();
 
-        // Setup PrivateKeyStorage
-        VirgilPrivateKeyExporter privateKeyExporter = new VirgilPrivateKeyExporter(crypto);
-        KeyStorage keyStorage = new JsonFileKeyStorage();
-        PrivateKeyStorage privateKeyStorage = new PrivateKeyStorage(privateKeyExporter, keyStorage);
+    // Setup PrivateKeyStorage
+    VirgilPrivateKeyExporter privateKeyExporter = new VirgilPrivateKeyExporter(crypto);
+    KeyStorage keyStorage = new JsonFileKeyStorage();
+    PrivateKeyStorage privateKeyStorage = new PrivateKeyStorage(privateKeyExporter, keyStorage);
 
-        // Store a private key
-        privateKeyStorage.store(privateKey, "Alice", null);
+    // Store a private key
+    privateKeyStorage.store(privateKey, "Alice", null);
 
-        // Load a private key
-        Tuple<PrivateKey, Map<String, String>> privateKeyEntry = privateKeyStorage.load("Alice");
+    // Load a private key
+    Tuple<PrivateKey, Map<String, String>> privateKeyEntry = privateKeyStorage.load("Alice");
 
-        // Delete a private key
-        privateKeyStorage.delete("Alice");
+    // Delete a private key
+    privateKeyStorage.delete("Alice");
 
-        System.out.println("Done!");
-    }
+    System.out.println("Done!");
+  }
 
 }

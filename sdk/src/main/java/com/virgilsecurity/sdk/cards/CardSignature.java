@@ -42,126 +42,129 @@ import java.util.Objects;
  */
 public class CardSignature {
 
+  /**
+   * The Card signature builder.
+   */
+  public static final class CardSignatureBuilder {
     private String signer;
     private byte[] signature;
     private byte[] snapshot;
     private Map<String, String> extraFields;
 
     /**
-     * Gets signer.
-     *
-     * @return the signer identifier
+     * Create new instance of {@link CardSignatureBuilder}.
+     * 
+     * @param signer
+     *          the signer type
+     * @param signature
+     *          the signature
      */
-    public String getSigner() {
-        return signer;
+    public CardSignatureBuilder(String signer, byte[] signature) {
+      this.signer = signer;
+      this.signature = signature;
     }
 
     /**
-     * Gets signer signature.
+     * Build {@link CardSignature}.
      *
-     * @return the signature
+     * @return the card signature
      */
-    public byte[] getSignature() {
-        return signature;
+    public CardSignature build() {
+      CardSignature cardSignature = new CardSignature();
+      cardSignature.signer = this.signer;
+      cardSignature.signature = this.signature;
+      cardSignature.snapshot = this.snapshot;
+      cardSignature.extraFields = this.extraFields;
+
+      return cardSignature;
     }
 
     /**
-     * Gets snapshot.
+     * Sets extra fields. It's optional property.
      *
-     * @return the snapshot
+     * @param extraFields
+     *          the extra fields
+     * @return the card signature builder
      */
-    public byte[] getSnapshot() {
-        return snapshot;
+    public CardSignatureBuilder extraFields(Map<String, String> extraFields) {
+      this.extraFields = extraFields;
+      return this;
     }
 
     /**
-     * Gets extra fields associated with the signature.
+     * Sets snapshot. It's optional property.
      *
-     * @return the extra fields associated with the signature
+     * @param snapshot
+     *          the snapshot
+     * @return the card signature builder
      */
-    public Map<String, String> getExtraFields() {
-        return extraFields;
+    public CardSignatureBuilder snapshot(byte[] snapshot) {
+      this.snapshot = snapshot;
+      return this;
     }
+  }
+  
+  private String signer;
+  private byte[] signature;
+  private byte[] snapshot;
 
-    /**
-     * The Card signature builder.
-     */
-    public static final class CardSignatureBuilder {
-        private String signer;
-        private byte[] signature;
-        private byte[] snapshot;
-        private Map<String, String> extraFields;
+  private Map<String, String> extraFields;
 
-        /**
-         * Create new instance of {@link CardSignatureBuilder}.
-         * 
-         * @param signer
-         *            the signer type
-         * @param signature
-         *            the signature
-         */
-        public CardSignatureBuilder(String signer, byte[] signature) {
-            this.signer = signer;
-            this.signature = signature;
-        }
-
-        /**
-         * Sets snapshot. It's optional property.
-         *
-         * @param snapshot
-         *            the snapshot
-         * @return the card signature builder
-         */
-        public CardSignatureBuilder snapshot(byte[] snapshot) {
-            this.snapshot = snapshot;
-            return this;
-        }
-
-        /**
-         * Sets extra fields. It's optional property.
-         *
-         * @param extraFields
-         *            the extra fields
-         * @return the card signature builder
-         */
-        public CardSignatureBuilder extraFields(Map<String, String> extraFields) {
-            this.extraFields = extraFields;
-            return this;
-        }
-
-        /**
-         * Build {@link CardSignature}.
-         *
-         * @return the card signature
-         */
-        public CardSignature build() {
-            CardSignature cardSignature = new CardSignature();
-            cardSignature.signer = this.signer;
-            cardSignature.signature = this.signature;
-            cardSignature.snapshot = this.snapshot;
-            cardSignature.extraFields = this.extraFields;
-
-            return cardSignature;
-        }
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        CardSignature that = (CardSignature) o;
-        return Objects.equals(signer, that.signer) && Arrays.equals(signature, that.signature)
-                && Arrays.equals(snapshot, that.snapshot) && Objects.equals(extraFields, that.extraFields);
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    CardSignature that = (CardSignature) o;
+    return Objects.equals(signer, that.signer) && Arrays.equals(signature, that.signature)
+        && Arrays.equals(snapshot, that.snapshot) && Objects.equals(extraFields, that.extraFields);
+  }
 
-    @Override
-    public int hashCode() {
+  /**
+   * Gets extra fields associated with the signature.
+   *
+   * @return the extra fields associated with the signature
+   */
+  public Map<String, String> getExtraFields() {
+    return extraFields;
+  }
 
-        int result = Objects.hash(signer, extraFields);
-        result = 31 * result + Arrays.hashCode(signature);
-        result = 31 * result + Arrays.hashCode(snapshot);
-        return result;
-    }
+  /**
+   * Gets signer signature.
+   *
+   * @return the signature
+   */
+  public byte[] getSignature() {
+    return signature;
+  }
+
+  /**
+   * Gets signer.
+   *
+   * @return the signer identifier
+   */
+  public String getSigner() {
+    return signer;
+  }
+
+  /**
+   * Gets snapshot.
+   *
+   * @return the snapshot
+   */
+  public byte[] getSnapshot() {
+    return snapshot;
+  }
+
+  @Override
+  public int hashCode() {
+
+    int result = Objects.hash(signer, extraFields);
+    result = 31 * result + Arrays.hashCode(signature);
+    result = 31 * result + Arrays.hashCode(snapshot);
+    return result;
+  }
 }

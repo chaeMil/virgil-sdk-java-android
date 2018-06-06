@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto.exceptions;
 
 /**
@@ -40,13 +41,13 @@ package com.virgilsecurity.sdk.crypto.exceptions;
  */
 public class KeyEntryNotFoundException extends KeyStorageException {
 
-    private static final long serialVersionUID = 3298336334182492503L;
+  private static final long serialVersionUID = 3298336334182492503L;
 
-    /**
-     * Create a new instance of {@code KeyEntryNotFoundException}
-     *
-     */
-    public KeyEntryNotFoundException() {
-    }
+  /**
+   * Create a new instance of {@code KeyEntryNotFoundException}.
+   *
+   */
+  public KeyEntryNotFoundException() {
+  }
 
 }

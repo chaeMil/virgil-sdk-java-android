@@ -30,7 +30,16 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.jwt;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -42,6 +51,11 @@ import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
+import java.io.InputStreamReader;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,166 +66,182 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import java.io.InputStreamReader;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-
 /**
+ * Unit tests for {@link Jwt} which verify cross-platform compatibility.
+ * 
  * @author Andrii Iakovenko
  */
 @RunWith(MockitoJUnitRunner.class)
 public class JwtCrossCompatibilityTest {
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
+  private static final int TOKEN_EXPIRE_IN_SECONDS = 3;
 
-    private static final int TOKEN_EXPIRE_IN_SECONDS = 3;
-    private static final String INVALID_TOKEN = "INVALID_TOKEN";
-    private static final String TEST_OPERATION = "TEST_OPERATION_STC_24";
-    private static final String TOKEN_CONTEXT_SERVICE = "cards";
+  private static final String INVALID_TOKEN = "INVALID_TOKEN";
+  private static final String TEST_OPERATION = "TEST_OPERATION_STC_24";
+  private static final String TOKEN_CONTEXT_SERVICE = "cards";
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-    private JsonObject sampleJson;
-    private FakeDataFactory fake;
+  private JsonObject sampleJson;
+  private FakeDataFactory fake;
 
-    @Mock
-    private GetTokenCallback callback;
+  @Mock
+  private GetTokenCallback callback;
 
-    @Before
-    public void setUp() throws CryptoException {
-        this.sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(
-                this.getClass().getClassLoader().getResourceAsStream("com/virgilsecurity/sdk/test_data.txt")));
-        this.fake = new FakeDataFactory();
-    }
+  @Before
+  public void setUp() throws CryptoException {
+    this.sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(this.getClass()
+        .getClassLoader().getResourceAsStream("com/virgilsecurity/sdk/test_data.txt")));
+    this.fake = new FakeDataFactory();
+  }
 
-    @Test
-    public void STC_24() throws InterruptedException {
-        // Setup CallbackJwtProvider
-        CallbackJwtProvider provider = new CallbackJwtProvider(callback);
+  @Test
+  public void stc_24() throws InterruptedException {
+    //STC_24
+    // Setup CallbackJwtProvider
+    CallbackJwtProvider provider = new CallbackJwtProvider(callback);
 
-        // Prepare contexts
-        TokenContext ctx = new TokenContext(fake.getIdentity(), TEST_OPERATION, false, TOKEN_CONTEXT_SERVICE);
+    // Prepare contexts
+    TokenContext ctx = new TokenContext(fake.getIdentity(), TEST_OPERATION, false,
+        TOKEN_CONTEXT_SERVICE);
 
-        // Set getTokenCallback to use JwtGenerator + call counter
-        TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
+    // Set getTokenCallback to use JwtGenerator + call counter
+    TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
 
-        final JwtGenerator generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(),
-                fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
-        when(this.callback.onGetToken(ctx)).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return generator.generateToken(fake.getIdentity()).stringRepresentation();
-            }
-        });
+    final JwtGenerator generator = new JwtGenerator(fake.getApplicationId(),
+        fake.getApiPrivateKey(), fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
+    when(this.callback.onGetToken(ctx)).thenAnswer(new Answer<String>() {
+      @Override
+      public String answer(InvocationOnMock invocationOnMock) throws Throwable {
+        return generator.generateToken(fake.getIdentity()).stringRepresentation();
+      }
+    });
 
-        // Call getToken(false)
-        Jwt accessToken1 = (Jwt) provider.getToken(ctx);
-        assertNotNull(accessToken1);
-        verify(this.callback, times(1)).onGetToken(ctx);
+    // Call getToken(false)
+    Jwt accessToken1 = (Jwt) provider.getToken(ctx);
+    assertNotNull(accessToken1);
+    verify(this.callback, times(1)).onGetToken(ctx);
 
-        //For tokens have
-        Thread.sleep(2000);
+    // For tokens have
+    Thread.sleep(2000);
 
-        // Call getToken(false)
-        Jwt accessToken2 = (Jwt) provider.getToken(ctx);
-        assertNotNull(accessToken2);
-        assertFalse("CallbackJwtProvider should always return new token", Objects.equals(accessToken1, accessToken2));
-        verify(this.callback, times(2)).onGetToken(ctx);
+    // Call getToken(false)
+    Jwt accessToken2 = (Jwt) provider.getToken(ctx);
+    assertNotNull(accessToken2);
+    assertFalse("CallbackJwtProvider should always return new token",
+        Objects.equals(accessToken1, accessToken2));
+    verify(this.callback, times(2)).onGetToken(ctx);
 
-        //Return invalid token
-        when(this.callback.onGetToken(ctx))
-                .thenReturn(INVALID_TOKEN);
+    // Return invalid token
+    when(this.callback.onGetToken(ctx)).thenReturn(INVALID_TOKEN);
 
-        expectedException.expect(IllegalArgumentException.class);
-        provider.getToken(ctx);
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    provider.getToken(ctx);
+  }
 
-    @Test
-    public void STC_37() throws CryptoException, InterruptedException {
-        // Setup ConstAccessTokenProvider with fake token
-        TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
+  @Test
+  public void stc_28() {
+    // STC_28
+    // Import JWT from string STC-28.jwt
+    String token = sampleJson.get("STC-28.jwt").getAsString();
+    Jwt jwt = new Jwt(token);
 
-        JwtGenerator generator = new JwtGenerator(this.fake.getApplicationId(), this.fake.getApiPrivateKey(),
-                this.fake.getApiPublicKeyId(), ttl, new VirgilAccessTokenSigner());
-        ConstAccessTokenProvider tokenProvider = new ConstAccessTokenProvider(
-                generator.generateToken(this.fake.getIdentity()));
+    assertEquals(sampleJson.get("STC-28.jwt_identity").getAsString(),
+        jwt.getBodyContent().getIdentity());
+    assertEquals(sampleJson.get("STC-28.jwt_app_id").getAsString(),
+        jwt.getBodyContent().getAppId());
+    assertEquals(sampleJson.get("STC-28.jw_issuer").getAsString(),
+        jwt.getBodyContent().getIssuer());
+    assertEquals(sampleJson.get("STC-28.jwt_subject").getAsString(),
+        jwt.getBodyContent().getSubject());
+    assertEquals(sampleJson.get("STC-28.jwt_additional_data").getAsString(),
+        ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
+    assertEquals(sampleJson.get("STC-28.jwt_expires_at").getAsLong(),
+        jwt.getBodyContent().getExpiresAt());
+    assertEquals(sampleJson.get("STC-28.jwt_issued_at").getAsLong(),
+        jwt.getBodyContent().getIssuedAt().getTime() / 1000);
+    assertEquals(sampleJson.get("STC-28.jwt_algorithm").getAsString(),
+        jwt.getHeaderContent().getAlgorithm());
+    assertEquals(sampleJson.get("STC-28.jwt_api_key_id").getAsString(),
+        jwt.getHeaderContent().getKeyIdentifier());
+    assertEquals(sampleJson.get("STC-28.jwt_content_type").getAsString(),
+        jwt.getHeaderContent().getContentType());
+    assertEquals(sampleJson.get("STC-28.jwt_type").getAsString(), jwt.getHeaderContent().getType());
+    assertEquals(sampleJson.get("STC-28.jwt_signature_base64").getAsString(),
+        ConvertionUtils.toBase64String(jwt.getSignatureData()));
 
-        // Prepare contexts
-        TokenContext ctx = new TokenContext(fake.getIdentity(), "stc_37", false, TOKEN_CONTEXT_SERVICE);
+    // Call isExpired()
+    assertTrue(jwt.isExpired());
 
-        assertFalse("Token should not be expired", ((Jwt) tokenProvider.getToken(ctx)).isExpired());
+    // Call stringRepresentation()
+    assertEquals(token, jwt.stringRepresentation());
+  }
 
-        // Wait till token is expired
-        Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
+  @Test
+  public void stc_29() {
+    // STC_29
+    // Import JWT from string STC-29.jwt
+    String token = sampleJson.get("STC-29.jwt").getAsString();
+    Jwt jwt = new Jwt(token);
 
-        // Check if tokens are the same regardless of the tokenContext and won't force reload
-        Jwt jwtOne = (Jwt) tokenProvider.getToken(ctx);
-        assertTrue("Token should be expired", jwtOne.isExpired());
-        Jwt jwtTwo = (Jwt) tokenProvider.getToken(ctx);
-        assertEquals("ConstAccessTokenProvider always returns the same token regardless of the tokenContext", jwtOne,
-                jwtTwo);
-        assertTrue("Token should be expired", jwtTwo.isExpired());
-    }
+    assertEquals(sampleJson.get("STC-29.jwt_identity").getAsString(),
+        jwt.getBodyContent().getIdentity());
+    assertEquals(sampleJson.get("STC-29.jwt_app_id").getAsString(),
+        jwt.getBodyContent().getAppId());
+    assertEquals(sampleJson.get("STC-29.jw_issuer").getAsString(),
+        jwt.getBodyContent().getIssuer());
+    assertEquals(sampleJson.get("STC-29.jwt_subject").getAsString(),
+        jwt.getBodyContent().getSubject());
+    assertEquals(sampleJson.get("STC-29.jwt_additional_data").getAsString(),
+        ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
+    assertEquals(sampleJson.get("STC-29.jwt_expires_at").getAsLong(),
+        jwt.getBodyContent().getExpiresAt());
+    assertEquals(sampleJson.get("STC-29.jwt_issued_at").getAsLong(),
+        jwt.getBodyContent().getIssuedAt().getTime() / 1000);
+    assertEquals(sampleJson.get("STC-29.jwt_algorithm").getAsString(),
+        jwt.getHeaderContent().getAlgorithm());
+    assertEquals(sampleJson.get("STC-29.jwt_api_key_id").getAsString(),
+        jwt.getHeaderContent().getKeyIdentifier());
+    assertEquals(sampleJson.get("STC-29.jwt_content_type").getAsString(),
+        jwt.getHeaderContent().getContentType());
+    assertEquals(sampleJson.get("STC-29.jwt_type").getAsString(), jwt.getHeaderContent().getType());
+    assertEquals(sampleJson.get("STC-29.jwt_signature_base64").getAsString(),
+        ConvertionUtils.toBase64String(jwt.getSignatureData()));
 
-    @Test
-    public void STC_28() {
-        // Import JWT from string STC-28.jwt
-        String token = sampleJson.get("STC-28.jwt").getAsString();
-        Jwt jwt = new Jwt(token);
+    // Call isExpired()
+    assertFalse(jwt.isExpired());
 
-        assertEquals(sampleJson.get("STC-28.jwt_identity").getAsString(), jwt.getBodyContent().getIdentity());
-        assertEquals(sampleJson.get("STC-28.jwt_app_id").getAsString(), jwt.getBodyContent().getAppId());
-        assertEquals(sampleJson.get("STC-28.jw_issuer").getAsString(), jwt.getBodyContent().getIssuer());
-        assertEquals(sampleJson.get("STC-28.jwt_subject").getAsString(), jwt.getBodyContent().getSubject());
-        assertEquals(sampleJson.get("STC-28.jwt_additional_data").getAsString(),
-                ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
-        assertEquals(sampleJson.get("STC-28.jwt_expires_at").getAsLong(),
-                jwt.getBodyContent().getExpiresAt());
-        assertEquals(sampleJson.get("STC-28.jwt_issued_at").getAsLong(),
-                jwt.getBodyContent().getIssuedAt().getTime() / 1000);
-        assertEquals(sampleJson.get("STC-28.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());
-        assertEquals(sampleJson.get("STC-28.jwt_api_key_id").getAsString(), jwt.getHeaderContent().getKeyIdentifier());
-        assertEquals(sampleJson.get("STC-28.jwt_content_type").getAsString(), jwt.getHeaderContent().getContentType());
-        assertEquals(sampleJson.get("STC-28.jwt_type").getAsString(), jwt.getHeaderContent().getType());
-        assertEquals(sampleJson.get("STC-28.jwt_signature_base64").getAsString(),
-                ConvertionUtils.toBase64String(jwt.getSignatureData()));
+    // Call stringRepresentation()
+    assertEquals(token, jwt.stringRepresentation());
+  }
 
-        // Call isExpired()
-        assertTrue(jwt.isExpired());
+  @Test
+  public void stc_37() throws CryptoException, InterruptedException {
+    // STC_37
+    // Setup ConstAccessTokenProvider with fake token
+    TimeSpan ttl = TimeSpan.fromTime(TOKEN_EXPIRE_IN_SECONDS, TimeUnit.SECONDS);
 
-        // Call stringRepresentation()
-        assertEquals(token, jwt.stringRepresentation());
-    }
+    JwtGenerator generator = new JwtGenerator(this.fake.getApplicationId(),
+        this.fake.getApiPrivateKey(), this.fake.getApiPublicKeyId(), ttl,
+        new VirgilAccessTokenSigner());
+    ConstAccessTokenProvider tokenProvider = new ConstAccessTokenProvider(
+        generator.generateToken(this.fake.getIdentity()));
 
-    @Test
-    public void STC_29() {
-        // Import JWT from string STC-29.jwt
-        String token = sampleJson.get("STC-29.jwt").getAsString();
-        Jwt jwt = new Jwt(token);
+    // Prepare contexts
+    TokenContext ctx = new TokenContext(fake.getIdentity(), "stc_37", false, TOKEN_CONTEXT_SERVICE);
 
-        assertEquals(sampleJson.get("STC-29.jwt_identity").getAsString(), jwt.getBodyContent().getIdentity());
-        assertEquals(sampleJson.get("STC-29.jwt_app_id").getAsString(), jwt.getBodyContent().getAppId());
-        assertEquals(sampleJson.get("STC-29.jw_issuer").getAsString(), jwt.getBodyContent().getIssuer());
-        assertEquals(sampleJson.get("STC-29.jwt_subject").getAsString(), jwt.getBodyContent().getSubject());
-        assertEquals(sampleJson.get("STC-29.jwt_additional_data").getAsString(),
-                ConvertionUtils.serializeToJson(jwt.getBodyContent().getAdditionalData()));
-        assertEquals(sampleJson.get("STC-29.jwt_expires_at").getAsLong(),
-                jwt.getBodyContent().getExpiresAt());
-        assertEquals(sampleJson.get("STC-29.jwt_issued_at").getAsLong(),
-                jwt.getBodyContent().getIssuedAt().getTime() / 1000);
-        assertEquals(sampleJson.get("STC-29.jwt_algorithm").getAsString(), jwt.getHeaderContent().getAlgorithm());
-        assertEquals(sampleJson.get("STC-29.jwt_api_key_id").getAsString(), jwt.getHeaderContent().getKeyIdentifier());
-        assertEquals(sampleJson.get("STC-29.jwt_content_type").getAsString(), jwt.getHeaderContent().getContentType());
-        assertEquals(sampleJson.get("STC-29.jwt_type").getAsString(), jwt.getHeaderContent().getType());
-        assertEquals(sampleJson.get("STC-29.jwt_signature_base64").getAsString(),
-                ConvertionUtils.toBase64String(jwt.getSignatureData()));
+    assertFalse("Token should not be expired", ((Jwt) tokenProvider.getToken(ctx)).isExpired());
 
-        // Call isExpired()
-        assertFalse(jwt.isExpired());
+    // Wait till token is expired
+    Thread.sleep(TOKEN_EXPIRE_IN_SECONDS * 1000);
 
-        // Call stringRepresentation()
-        assertEquals(token, jwt.stringRepresentation());
-    }
+    // Check if tokens are the same regardless of the tokenContext and won't force reload
+    Jwt jwtOne = (Jwt) tokenProvider.getToken(ctx);
+    assertTrue("Token should be expired", jwtOne.isExpired());
+    Jwt jwtTwo = (Jwt) tokenProvider.getToken(ctx);
+    assertEquals(
+        "ConstAccessTokenProvider always returns the same token regardless of the tokenContext",
+        jwtOne, jwtTwo);
+    assertTrue("Token should be expired", jwtTwo.isExpired());
+  }
 }

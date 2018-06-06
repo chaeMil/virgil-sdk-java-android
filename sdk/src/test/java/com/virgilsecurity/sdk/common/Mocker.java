@@ -33,10 +33,18 @@
 
 package com.virgilsecurity.sdk.common;
 
+import static org.junit.Assert.fail;
+
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
@@ -46,157 +54,160 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.fail;
-
 public class Mocker extends PropertyManager {
 
-    private static final String IDENTITY = "TEST";
-    private static final String FAKE_PRIVATE_KEY_BASE64 = "MC4CAQAwBQYDK2VwBCIEIFxOB4ppNAm8J/C95hPiIJ/A9gPRoERMxjRQN7HcGYnW";
+  private static final String IDENTITY = "TEST";
+  private static final String FAKE_PRIVATE_KEY_BASE64 = "MC4CAQAwBQYDK2VwBCIEIFxOB4ppNAm8J/C95hPiIJ/A9gPRoERMxjRQN7HcGYnW";
 
-    private JwtGenerator jwtGenerator;
-    private JwtGenerator jwtGeneratorSevenSeconds;
-    private JwtGenerator jwtGeneratorFake;
-    private final JwtGenerator jwtGeneratorExpired;
-    private VirgilCrypto crypto;
-    private JwtVerifier verifier;
+  private JwtGenerator jwtGenerator;
+  private JwtGenerator jwtGeneratorSevenSeconds;
+  private JwtGenerator jwtGeneratorFake;
+  private final JwtGenerator jwtGeneratorExpired;
+  private VirgilCrypto crypto;
+  private JwtVerifier verifier;
 
-    public Mocker() {
-        this.crypto = new VirgilCrypto();
-        AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
+  public Mocker() {
+    this.crypto = new VirgilCrypto();
+    AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
-        VirgilPrivateKey privateKey = getApiPrivateKey();
-        VirgilPrivateKey privateKeyFake = null;
+    VirgilPrivateKey privateKey = getApiPrivateKey();
+    VirgilPrivateKey privateKeyFake = null;
 
-        try {
-            privateKeyFake = crypto.importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64));
-        } catch (CryptoException e) {
-            fail("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");
-        }
-
-        jwtGenerator = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
-                                        TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
-
-        jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
-                                        TimeSpan.fromTime(7, TimeUnit.SECONDS), accessTokenSigner);
-
-        jwtGeneratorFake = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
-                                            TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
-
-        TimeSpan timeSpanExpired = TimeSpan.fromTime(1, TimeUnit.MINUTES);
-        timeSpanExpired.decrease(5 * 60 * 1000);
-        jwtGeneratorExpired = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(), timeSpanExpired,
-                accessTokenSigner);
-
-        verifier = new JwtVerifier(getApiPublicKey(), getApiPublicKeyId(), accessTokenSigner);
+    try {
+      privateKeyFake = crypto
+          .importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64));
+    } catch (CryptoException e) {
+      fail("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");
     }
 
-    private JwtGenerator initJwtGenerator(String appId, VirgilPrivateKey privateKey, String apiPublicKeyIdentifier,
-                                          TimeSpan timeSpan, AccessTokenSigner accessTokenSigner) {
-        return new JwtGenerator(appId, privateKey, apiPublicKeyIdentifier, timeSpan, accessTokenSigner);
+    jwtGenerator = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
+        TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+
+    jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
+        TimeSpan.fromTime(7, TimeUnit.SECONDS), accessTokenSigner);
+
+    jwtGeneratorFake = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
+        TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
+
+    TimeSpan timeSpanExpired = TimeSpan.fromTime(1, TimeUnit.MINUTES);
+    timeSpanExpired.decrease(5 * 60 * 1000);
+    jwtGeneratorExpired = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
+        timeSpanExpired, accessTokenSigner);
+
+    verifier = new JwtVerifier(getApiPublicKey(), getApiPublicKeyId(), accessTokenSigner);
+  }
+
+  public Jwt generateAccessToken(String identity) throws CryptoException {
+    return jwtGenerator.generateToken(identity);
+  }
+
+  public RawSignedModel generateCardModel(String identity) throws CryptoException {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, 2018);
+    calendar.set(Calendar.MONTH, 1);
+    calendar.set(Calendar.DAY_OF_MONTH, 6);
+    calendar.set(Calendar.HOUR_OF_DAY, 10);
+
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
+    VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
+
+    RawCardContent rawCardContent = new RawCardContent(identity,
+        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0",
+        calendar.getTime());
+
+    RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
+
+    ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
+    signer.selfSign(cardModel, privateKey);
+
+    return cardModel;
+  }
+
+  public RawSignedModel generateCardModelSigned() throws CryptoException {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, 2018);
+    calendar.set(Calendar.MONTH, 1);
+    calendar.set(Calendar.DAY_OF_MONTH, 6);
+    calendar.set(Calendar.HOUR_OF_DAY, 10);
+    calendar.clear(Calendar.MILLISECOND);
+
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
+    VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
+
+    RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
+        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0",
+        calendar.getTime());
+
+    RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
+
+    ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
+    signer.selfSign(cardModel, privateKey);
+
+    return cardModel;
+  }
+
+  public RawSignedModel generateCardModelUnsigned(VirgilPublicKey publicKey)
+      throws CryptoException {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, 2018);
+    calendar.set(Calendar.MONTH, 1);
+    calendar.set(Calendar.DAY_OF_MONTH, 6);
+    calendar.set(Calendar.HOUR_OF_DAY, 10);
+    calendar.clear(Calendar.MILLISECOND);
+
+    RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
+        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0",
+        calendar.getTime());
+
+    return new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
+  }
+
+  public Jwt generateExpiredAccessToken(String identity) throws CryptoException {
+    return jwtGeneratorExpired.generateToken(identity);
+  }
+
+  public Jwt generateFakeAccessToken(String identity) throws CryptoException {
+    return jwtGeneratorFake.generateToken(identity);
+  }
+
+  public VirgilPrivateKey generatePrivateKey() {
+    try {
+      return crypto.generateKeys().getPrivateKey();
+    } catch (CryptoException e) {
+      fail(e.getMessage());
+      return null;
     }
+  }
 
-    public RawSignedModel generateCardModelSigned() throws CryptoException {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 6);
-        calendar.set(Calendar.HOUR_OF_DAY, 10);
-        calendar.clear(Calendar.MILLISECOND);
-
-        VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
-        VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
-        VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
-
-        RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
-
-        RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
-
-        ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
-        signer.selfSign(cardModel, privateKey);
-
-        return cardModel;
+  public VirgilPublicKey generatePublicKey() {
+    try {
+      return crypto.generateKeys().getPublicKey();
+    } catch (CryptoException e) {
+      fail(e.getMessage());
+      return null;
     }
+  }
 
-    public RawSignedModel generateCardModelUnsigned(VirgilPublicKey publicKey) throws CryptoException {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 6);
-        calendar.set(Calendar.HOUR_OF_DAY, 10);
-        calendar.clear(Calendar.MILLISECOND);
+  public Jwt generateSevenSecondsAccessToken(String identity) throws CryptoException {
+    return jwtGeneratorSevenSeconds.generateToken(identity);
+  }
 
-        RawCardContent rawCardContent = new RawCardContent(Generator.identity(),
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
+  public JwtGenerator getJwtGenerator() {
+    return jwtGenerator;
+  }
 
-        return new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
-    }
+  public JwtGenerator getJwtGeneratorSevenSeconds() {
+    return jwtGeneratorSevenSeconds;
+  }
 
-    public RawSignedModel generateCardModel(String identity) throws CryptoException {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, 2018);
-        calendar.set(Calendar.MONTH, 1);
-        calendar.set(Calendar.DAY_OF_MONTH, 6);
-        calendar.set(Calendar.HOUR_OF_DAY, 10);
+  public JwtVerifier getVerifier() {
+    return verifier;
+  }
 
-        VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
-        VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
-        VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
-
-        RawCardContent rawCardContent = new RawCardContent(identity,
-                ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), "5.0", calendar.getTime());
-
-        RawSignedModel cardModel = new RawSignedModel(ConvertionUtils.captureSnapshot(rawCardContent));
-
-        ModelSigner signer = new ModelSigner(new VirgilCardCrypto());
-        signer.selfSign(cardModel, privateKey);
-
-        return cardModel;
-    }
-
-    public Jwt generateAccessToken(String identity) throws CryptoException {
-        return jwtGenerator.generateToken(identity);
-    }
-
-    public Jwt generateFakeAccessToken(String identity) throws CryptoException {
-        return jwtGeneratorFake.generateToken(identity);
-    }
-
-    public Jwt generateSevenSecondsAccessToken(String identity) throws CryptoException {
-        return jwtGeneratorSevenSeconds.generateToken(identity);
-    }
-
-    public Jwt generateExpiredAccessToken(String identity) throws CryptoException {
-        return jwtGeneratorExpired.generateToken(identity);
-    }
-
-    public JwtVerifier getVerifier() {
-        return verifier;
-    }
-
-    public JwtGenerator getJwtGeneratorSevenSeconds() {
-        return jwtGeneratorSevenSeconds;
-    }
-
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
-    }
-
-    public VirgilPublicKey generatePublicKey() {
-        try {
-            return crypto.generateKeys().getPublicKey();
-        } catch (CryptoException e) {
-            fail(e.getMessage());
-            return null;
-        }
-    }
-
-    public VirgilPrivateKey generatePrivateKey() {
-        try {
-            return crypto.generateKeys().getPrivateKey();
-        } catch (CryptoException e) {
-            fail(e.getMessage());
-            return null;
-        }
-    }
+  private JwtGenerator initJwtGenerator(String appId, VirgilPrivateKey privateKey,
+      String apiPublicKeyIdentifier, TimeSpan timeSpan, AccessTokenSigner accessTokenSigner) {
+    return new JwtGenerator(appId, privateKey, apiPublicKeyIdentifier, timeSpan, accessTokenSigner);
+  }
 }

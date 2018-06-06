@@ -30,9 +30,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.examples;
 
-import java.util.concurrent.TimeUnit;
+package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
@@ -55,94 +54,99 @@ import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCa
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Base64;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author Andrii Iakovenko
  *
  */
 public class GenerateCardExample {
 
-    public static void main(String[] args) throws CryptoException {
-        String identity = "Alice";
-        VirgilCrypto virgilCrypto = new VirgilCrypto();
-        CardCrypto cardCrypto = new VirgilCardCrypto(virgilCrypto);
-        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(null);
-        CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, new VirgilCardVerifier(cardCrypto, true, false));
+  public static void main(String[] args) throws CryptoException {
+    String identity = "Alice";
+    VirgilCrypto virgilCrypto = new VirgilCrypto();
+    CardCrypto cardCrypto = new VirgilCardCrypto(virgilCrypto);
+    AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(null);
+    CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider,
+        new VirgilCardVerifier(cardCrypto, true, false));
 
-        // generate a key pair
-        VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    // generate a key pair
+    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
 
+    // generate card model
+    RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(),
+        keyPair.getPublicKey(), identity);
+    String exportedSignedModel = signedModel.exportAsBase64String();
+    System.out.println(String.format("Your card is: %s", exportedSignedModel));
 
-        // generate card model
-        RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), identity);
-        String exportedSignedModel = signedModel.exportAsBase64String();
-        System.out.println(String.format("Your card is: %s", exportedSignedModel));
+    // attempt to import
+    Card card = cardManager.importCardAsRawModel(signedModel);
 
-        //attempt to import
-        Card card = cardManager.importCardAsRawModel(signedModel);
+    System.out.println("Done!");
+  }
 
-        System.out.println("Done!");
-    }
+  public void generateCard() throws CryptoException {
+    String identity = "Alice";
 
-    public void generateCard() throws CryptoException {
-        String identity = "Alice";
+    VirgilCrypto virgilCrypto = new VirgilCrypto();
+    CardCrypto cardCrypto = new VirgilCardCrypto(virgilCrypto);
+    AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(null);
+    CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider,
+        new VirgilCardVerifier(cardCrypto));
 
-        VirgilCrypto virgilCrypto = new VirgilCrypto();
-        CardCrypto cardCrypto = new VirgilCardCrypto(virgilCrypto);
-        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(null);
-        CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, new VirgilCardVerifier(cardCrypto));
+    // generate a key pair
+    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
 
-        // generate a key pair
-        VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    // generate card model
+    RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(),
+        keyPair.getPublicKey(), identity);
+    String exportedSignedModel = signedModel.exportAsBase64String();
+    System.out.println(String.format("Your card is: %s", exportedSignedModel));
+  }
 
-        // generate card model
-        RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(), keyPair.getPublicKey(),
-                identity);
-        String exportedSignedModel = signedModel.exportAsBase64String();
-        System.out.println(String.format("Your card is: %s", exportedSignedModel));
-    }
+  public String jwtTokenGeneratorOnServer(TokenContext tokenContext) throws CryptoException {
+    // This is SERVER side code, it's OK to implement it on client for non-production
+    String appId = "Application ID";
+    String apiKeyBase64 = "Base64 encoded API Key";
+    String apiKeyId = "API Key identifier";
 
-    public void publishCard() throws CryptoException, VirgilServiceException {
-        final String identity = "Alice";
-        VirgilCrypto virgilCrypto = new VirgilCrypto();
+    VirgilCrypto virgilCrypto = new VirgilCrypto();
+    // Import API Private key from string
+    PrivateKey apiKey = virgilCrypto.importPrivateKey(Base64.decode(apiKeyBase64));
+    AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner(virgilCrypto);
+    JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId,
+        TimeSpan.fromTime(1, TimeUnit.DAYS), accessTokenSigner);
 
-        // Initialize CardManager
-        CardCrypto cardCrypto = new VirgilCardCrypto(virgilCrypto);
-        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(new GetTokenCallback() {
+    return jwtGenerator.generateToken(tokenContext.getIdentity()).stringRepresentation();
+  }
 
-            @Override
-            public String onGetToken(TokenContext tokenContext) {
-                // Make call to your Server to obtain Jwt token
-                try {
-                    return jwtTokenGeneratorOnServer(tokenContext);
-                } catch (CryptoException e) {
-                    // Handle an error here
-                    return null;
-                }
-            }
-        });
-        CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, new VirgilCardVerifier(cardCrypto));
+  public void publishCard() throws CryptoException, VirgilServiceException {
+    final String identity = "Alice";
+    VirgilCrypto virgilCrypto = new VirgilCrypto();
 
-        // Generate a key pair
-        VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    // Initialize CardManager
+    CardCrypto cardCrypto = new VirgilCardCrypto(virgilCrypto);
+    AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(new GetTokenCallback() {
 
-        // Publish card
-        cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), identity);
-    }
+      @Override
+      public String onGetToken(TokenContext tokenContext) {
+        // Make call to your Server to obtain Jwt token
+        try {
+          return jwtTokenGeneratorOnServer(tokenContext);
+        } catch (CryptoException e) {
+          // Handle an error here
+          return null;
+        }
+      }
+    });
+    CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider,
+        new VirgilCardVerifier(cardCrypto));
 
-    public String jwtTokenGeneratorOnServer(TokenContext tokenContext) throws CryptoException {
-        // This is SERVER side code, it's OK to implement it on client for non-production
-        String appId = "Application ID";
-        String apiKeyBase64 = "Base64 encoded API Key";
-        String apiKeyId = "API Key identifier";
+    // Generate a key pair
+    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
 
-        VirgilCrypto virgilCrypto = new VirgilCrypto();
-        // Import API Private key from string
-        PrivateKey apiKey = virgilCrypto.importPrivateKey(Base64.decode(apiKeyBase64));
-        AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner(virgilCrypto);
-        JwtGenerator jwtGenerator = new JwtGenerator(appId, apiKey, apiKeyId,
-                TimeSpan.fromTime(1, TimeUnit.DAYS), accessTokenSigner);
-
-        return jwtGenerator.generateToken(tokenContext.getIdentity()).stringRepresentation();
-    }
+    // Publish card
+    cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), identity);
+  }
 
 }

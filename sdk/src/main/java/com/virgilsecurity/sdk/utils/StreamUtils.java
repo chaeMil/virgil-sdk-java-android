@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.utils;
 
 import java.io.IOException;
@@ -44,22 +45,22 @@ import java.io.OutputStream;
  */
 public class StreamUtils {
 
-    /**
-     * Copies stream from input to the output.
-     *
-     * @param input
-     *            to copy from
-     * @param output
-     *            to receive to
-     * @throws IOException
-     *             if any stream operation failed
-     */
-    public static void copyStream(InputStream input, OutputStream output) throws IOException {
-        byte[] buffer = new byte[1024];
-        int bytesRead;
-        while ((bytesRead = input.read(buffer)) != -1) {
-            output.write(buffer, 0, bytesRead);
-        }
+  /**
+   * Copies stream from input to the output.
+   *
+   * @param input
+   *          to copy from
+   * @param output
+   *          to receive to
+   * @throws IOException
+   *           if any stream operation failed
+   */
+  public static void copyStream(InputStream input, OutputStream output) throws IOException {
+    byte[] buffer = new byte[1024];
+    int bytesRead;
+    while ((bytesRead = input.read(buffer)) != -1) {
+      output.write(buffer, 0, bytesRead);
     }
+  }
 
 }

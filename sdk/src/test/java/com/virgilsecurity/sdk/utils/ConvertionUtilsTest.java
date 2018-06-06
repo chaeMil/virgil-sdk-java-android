@@ -30,9 +30,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.utils;
 
 import static org.junit.Assert.assertEquals;
+
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.common.ClassForSerialization;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,9 +44,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.common.ClassForSerialization;
 
 /**
  * Unit tests for {@linkplain ConvertionUtils}.
@@ -53,82 +54,87 @@ import com.virgilsecurity.sdk.common.ClassForSerialization;
  */
 public class ConvertionUtilsTest {
 
-    private static final String TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+  private static final String TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit";
 
-    @Test
-    public void base64String() {
-        String base64string = ConvertionUtils.toBase64String(TEXT);
-        String str = ConvertionUtils.base64ToString(base64string);
+  @Test
+  public void autoByteToBase64StringSerialization() {
+    // FIXME: 1/29/18 Check where we can change String with byte[]
+    // in models - gson automatically will transform it
+    ClassForSerialization classForSerialization = new ClassForSerialization("Petro",
+        "Grigorovych".getBytes());
 
-        assertEquals(TEXT, str);
+    String serialized = ConvertionUtils.serializeToJson(classForSerialization);
+
+    Map<String, String> mapJson = ConvertionUtils.deserializeMapFromJson(serialized);
+    String data = "";
+    for (Map.Entry<String, String> entry : mapJson.entrySet()) {
+      if (entry.getKey().equals("data")) {
+        data = mapJson.get(entry.getKey());
+      }
     }
 
-    @Test
-    public void base64ByteArray() {
-        byte[] base64bytes = ConvertionUtils.toBase64Bytes(TEXT);
-        String str = ConvertionUtils.base64ToString(base64bytes);
+    assertEquals(ConvertionUtils.base64ToString(data), "Grigorovych");
+  }
 
-        assertEquals(TEXT, str);
-    }
+  @Test
+  public void backslashJsonSerialization() {
+    String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
+    String serializedToJson = ConvertionUtils.serializeToJson(hello);
 
-    @Test
-    public void toBytes() {
-        byte[] bytes = ConvertionUtils.toBytes(TEXT);
-        String str = ConvertionUtils.toString(bytes);
-        assertEquals(TEXT, str);
-    }
+    assertEquals(hello, serializedToJson.replace("\"", ""));
+  }
 
-    @Test
-    public void toHEX() {
-        byte[] bytes = ConvertionUtils.toBytes(TEXT);
-        String str = ConvertionUtils.toHex(bytes);
-        bytes = ConvertionUtils.hexToBytes(str);
-        str = ConvertionUtils.toString(bytes);
-        assertEquals(TEXT, str);
-    }
+  @Test
+  public void base64ByteArray() {
+    byte[] base64bytes = ConvertionUtils.toBase64Bytes(TEXT);
+    String str = ConvertionUtils.base64ToString(base64bytes);
 
-    @Test
-    public void deSerializationJson() {
-        String rawJson = "{ \"id\": \"12345\", \"content_snapshot\":\"AQIDBAU=\" }";
-        RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
+    assertEquals(TEXT, str);
+  }
 
-        Assert.assertTrue(Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
-    }
+  @Test
+  public void base64String() {
+    String base64string = ConvertionUtils.toBase64String(TEXT);
+    String str = ConvertionUtils.base64ToString(base64string);
 
-    @Test
-    public void deSerializationHashMap() {
-        Map<String, String> additionalData = new HashMap<>();
-        additionalData.put("Info", "best");
-        additionalData.put("Hello", "Buddy");
+    assertEquals(TEXT, str);
+  }
 
-        String hashMapSerialized = ConvertionUtils.serializeToJson(additionalData);
-        Map<String, String> deserializeFromJson = ConvertionUtils.deserializeMapFromJson(hashMapSerialized);
+  @Test
+  public void deSerializationHashMap() {
+    Map<String, String> additionalData = new HashMap<>();
+    additionalData.put("Info", "best");
+    additionalData.put("Hello", "Buddy");
 
-        assertEquals(additionalData, deserializeFromJson);
-    }
+    String hashMapSerialized = ConvertionUtils.serializeToJson(additionalData);
+    Map<String, String> deserializeFromJson = ConvertionUtils
+        .deserializeMapFromJson(hashMapSerialized);
 
-    @Test
-    public void backslashJsonSerialization() {
-        String hello = "MCowBQYDK2VwAyEAr0rjTWlCLJ8q9em0og33grHEh/3vmqp0IewosUaVnQg=";
-        String serializedToJson = ConvertionUtils.serializeToJson(hello);
+    assertEquals(additionalData, deserializeFromJson);
+  }
 
-        assertEquals(hello, serializedToJson.replace("\"", ""));
-    }
+  @Test
+  public void deSerializationJson() {
+    String rawJson = "{ \"id\": \"12345\", \"content_snapshot\":\"AQIDBAU=\" }";
+    RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
 
-    @Test
-    public void autoByteToBase64StringSerialization() {
-        // FIXME: 1/29/18 Check where we can change String with byte[]
-        // in models - gson automatically will transform it
-        ClassForSerialization classForSerialization = new ClassForSerialization("Petro", "Grigorovych".getBytes());
+    Assert.assertTrue(
+        Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
+  }
 
-        String serialized = ConvertionUtils.serializeToJson(classForSerialization);
+  @Test
+  public void toBytes() {
+    byte[] bytes = ConvertionUtils.toBytes(TEXT);
+    String str = ConvertionUtils.toString(bytes);
+    assertEquals(TEXT, str);
+  }
 
-        Map<String, String> mapJson = ConvertionUtils.deserializeMapFromJson(serialized);
-        String data = "";
-        for (Map.Entry<String, String> entry : mapJson.entrySet())
-            if (entry.getKey().equals("data"))
-                data = mapJson.get(entry.getKey());
-
-        assertEquals(ConvertionUtils.base64ToString(data), "Grigorovych");
-    }
+  @Test
+  public void toHex() {
+    byte[] bytes = ConvertionUtils.toBytes(TEXT);
+    String str = ConvertionUtils.toHex(bytes);
+    bytes = ConvertionUtils.hexToBytes(str);
+    str = ConvertionUtils.toString(bytes);
+    assertEquals(TEXT, str);
+  }
 }

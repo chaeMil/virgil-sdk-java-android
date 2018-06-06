@@ -30,7 +30,14 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.jwt;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.common.TimeSpan;
@@ -39,78 +46,76 @@ import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
+ * Unit tests for {@link JwtGenerator}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class JwtGeneratorTest {
 
-    private FakeDataFactory fake;
-    private AccessTokenSigner signer;
-    private JwtGenerator generator;
-    private String identity;
+  private FakeDataFactory fake;
+  private AccessTokenSigner signer;
+  private JwtGenerator generator;
+  private String identity;
 
-    @Before
-    public void setup() throws CryptoException {
-        this.fake = new FakeDataFactory();
-        this.signer = new VirgilAccessTokenSigner();
-        this.generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(), fake.getApiPublicKeyId(),
-                                          TimeSpan.fromTime(10, TimeUnit.MINUTES), signer);
+  @Test
+  public void generateToken_autohandle_of_expireAt() throws CryptoException, InterruptedException {
+    FakeDataFactory fake = new FakeDataFactory();
+    VirgilAccessTokenSigner signer = new VirgilAccessTokenSigner();
 
-        this.identity = fake.getIdentity();
-    }
+    String appId = fake.getApplicationId();
+    PrivateKey privateKey = fake.getApiPrivateKey();
+    final String apiPublicKeyId = fake.getApiPublicKeyId();
 
-    @Test
-    public void generateToken_byIdentity() throws CryptoException {
-        Jwt jwt = this.generator.generateToken(this.identity);
+    JwtGenerator generator = new JwtGenerator(appId, privateKey, apiPublicKeyId,
+        TimeSpan.fromTime(2, TimeUnit.SECONDS), signer);
 
-        assertNotNull(jwt);
-        assertEquals(this.identity, jwt.getIdentity());
-        assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), ConvertionUtils.toBytes(jwt.unsigned()),
-                fake.getApiPublicKey()));
-    }
+    Jwt jwt = generator.generateToken(this.identity);
+    assertFalse(jwt.isExpired());
+    Thread.sleep(3 * 1000);
+    assertTrue(jwt.isExpired());
 
-    @Test
-    public void generateToken_byIdentity_nullIdentity() throws CryptoException {
-        Jwt jwt = this.generator.generateToken(null);
+    Jwt jwt2 = generator.generateToken(this.identity);
+    assertFalse(jwt2.isExpired());
+    Thread.sleep(3 * 1000);
+    assertTrue(jwt2.isExpired());
+  }
 
-        assertNotNull(jwt);
-        assertNull(jwt.getIdentity());
-        assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(), ConvertionUtils.toBytes(jwt.unsigned()),
-                fake.getApiPublicKey()));
-    }
+  @Test
+  public void generateToken_byIdentity() throws CryptoException {
+    Jwt jwt = this.generator.generateToken(this.identity);
 
-    @Test
-    public void generateToken_autohandle_of_expireAt() throws CryptoException, InterruptedException {
-        FakeDataFactory fake = new FakeDataFactory();
-        VirgilAccessTokenSigner signer = new VirgilAccessTokenSigner();
+    assertNotNull(jwt);
+    assertEquals(this.identity, jwt.getIdentity());
+    assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(),
+        ConvertionUtils.toBytes(jwt.unsigned()), fake.getApiPublicKey()));
+  }
 
-        String appId = fake.getApplicationId();
-        PrivateKey privateKey = fake.getApiPrivateKey();
-        final String apiPublicKeyId = fake.getApiPublicKeyId();
+  @Test
+  public void generateToken_byIdentity_nullIdentity() throws CryptoException {
+    Jwt jwt = this.generator.generateToken(null);
 
-        JwtGenerator generator = new JwtGenerator(appId,
-                                                  privateKey,
-                                                  apiPublicKeyId,
-                                                  TimeSpan.fromTime(2, TimeUnit.SECONDS),
-                                                  signer);
+    assertNotNull(jwt);
+    assertNull(jwt.getIdentity());
+    assertTrue(signer.verifyTokenSignature(jwt.getSignatureData(),
+        ConvertionUtils.toBytes(jwt.unsigned()), fake.getApiPublicKey()));
+  }
 
-        Jwt jwt = generator.generateToken(this.identity);
-        assertFalse(jwt.isExpired());
-        Thread.sleep(3 * 1000);
-        assertTrue(jwt.isExpired());
+  @Before
+  public void setup() throws CryptoException {
+    this.fake = new FakeDataFactory();
+    this.signer = new VirgilAccessTokenSigner();
+    this.generator = new JwtGenerator(fake.getApplicationId(), fake.getApiPrivateKey(),
+        fake.getApiPublicKeyId(), TimeSpan.fromTime(10, TimeUnit.MINUTES), signer);
 
-        Jwt jwt2 = generator.generateToken(this.identity);
-        assertFalse(jwt2.isExpired());
-        Thread.sleep(3 * 1000);
-        assertTrue(jwt2.isExpired());
-    }
+    this.identity = fake.getIdentity();
+  }
 
 }

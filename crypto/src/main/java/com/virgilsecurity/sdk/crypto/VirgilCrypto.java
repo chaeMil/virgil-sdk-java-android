@@ -77,6 +77,8 @@ public class VirgilCrypto {
       .getBytes(UTF8_CHARSET);
   private static final byte[] CUSTOM_PARAM_SIGNER_ID = "VIRGIL-DATA-SIGNER-ID"
       .getBytes(UTF8_CHARSET);
+  private static final String ERROR_PARSE_TEXT = "Error code: ";
+  private static final int ERROR_CODE_WRONG_PRIVATE_KEY = 12;
 
   private KeysType defaultKeyPairType;
 
@@ -209,7 +211,17 @@ public class VirgilCrypto {
           privateKey.getRawKey());
       return decryptedData;
     } catch (Exception e) {
-      throw new DecryptionException(e);
+      String error = e.getMessage();
+      int errorCode = Integer.parseInt(error.substring(error.indexOf(ERROR_PARSE_TEXT)
+                                                               + ERROR_PARSE_TEXT.length(),
+                                                       error.indexOf('.', error.indexOf(ERROR_PARSE_TEXT)
+                                                               + ERROR_PARSE_TEXT.length())));
+
+      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY)
+        throw new DecryptionException(new Throwable("Given Private key does not corresponds to any of " +
+                                                            "Public keys that were used for encryption."));
+      else
+        throw new DecryptionException(e);
     }
   }
 
@@ -234,7 +246,17 @@ public class VirgilCrypto {
       cipher.decryptWithKey(dataSource, dataSink, privateKey.getIdentifier(),
           privateKey.getRawKey());
     } catch (IOException e) {
-      throw new DecryptionException(e);
+      String error = e.getMessage();
+      int errorCode = Integer.parseInt(error.substring(error.indexOf(ERROR_PARSE_TEXT)
+                                                               + ERROR_PARSE_TEXT.length(),
+                                                       error.indexOf('.', error.indexOf(ERROR_PARSE_TEXT)
+                                                               + ERROR_PARSE_TEXT.length())));
+
+      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY)
+        throw new DecryptionException(new Throwable("Given Private key does not corresponds to any of " +
+                                                            "Public keys that were used for encryption."));
+      else
+        throw new DecryptionException(e);
     }
   }
 
@@ -281,7 +303,17 @@ public class VirgilCrypto {
 
       return decryptedData;
     } catch (Exception e) {
-      throw new CryptoException(e.getMessage());
+      String error = e.getMessage();
+      int errorCode = Integer.parseInt(error.substring(error.indexOf(ERROR_PARSE_TEXT)
+                                                               + ERROR_PARSE_TEXT.length(),
+                                                       error.indexOf('.', error.indexOf(ERROR_PARSE_TEXT)
+                                                               + ERROR_PARSE_TEXT.length())));
+
+      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY)
+        throw new DecryptionException(new Throwable("Given Private key does not corresponds to any of " +
+                                                            "Public keys that were used for encryption."));
+      else
+        throw new CryptoException(e.getMessage());
     }
   }
 

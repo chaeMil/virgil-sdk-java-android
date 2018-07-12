@@ -69,7 +69,7 @@
 				<artifactId>maven-dependency-plugin</artifactId>
 				<executions>
 					<execution>
-						<id>unpack-dependencies</id>
+						<id>unpack-sources</id>
 						<goals>
 							<goal>unpack-dependencies</goal>
 						</goals>
@@ -82,6 +82,21 @@
 							<includeArtifactIds>crypto</includeArtifactIds>
 							<excludeTransitive>false</excludeTransitive>
 							<includes>**/*.java,**/*.properties</includes>
+						</configuration>
+					</execution>
+                    <execution>
+						<id>unpack-classes</id>
+						<goals>
+							<goal>unpack-dependencies</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
+							<outputDirectory>${project.build.directory}/classes</outputDirectory>
+							<includeGroupIds>com.virgilsecurity</includeGroupIds>
+							<includeArtifactIds>crypto</includeArtifactIds>
+							<excludeTransitive>false</excludeTransitive>
+							<includes>**/*.class,**/*.properties</includes>
 						</configuration>
 					</execution>
 				</executions>

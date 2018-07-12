@@ -79,6 +79,9 @@ public class VirgilCryptoTest {
       14, -88, 7, 2, 32, 13, -71, -99, 8, -69, -77, 30, 98, 20, -25, 60, 125, -19, 67, 12, -30, 65,
       93, -29, -92, -58, -91, 91, 50, -111, -79, 50, -123, -39, 36, 48, -20 };
 
+  @org.junit.Rule
+  public org.junit.rules.ExpectedException expectedException = org.junit.rules.ExpectedException.none();
+
   private KeysType keysType;
   private VirgilCrypto crypto;
 
@@ -128,6 +131,20 @@ public class VirgilCryptoTest {
       byte[] decrypted = crypto.decrypt(encrypted, privateKey);
       assertArrayEquals(TEXT.getBytes(), decrypted);
     }
+  }
+
+  @Test
+  public void decrypt_verbose_error() throws VirgilException {
+    VirgilKeyPair keyPair = crypto.generateKeys();
+    byte[] encrypted = crypto.encrypt(TEXT.getBytes(), keyPair.getPublicKey());
+    byte[] decrypted = crypto.decrypt(encrypted, keyPair.getPrivateKey());
+    assertArrayEquals(TEXT.getBytes(), decrypted);
+
+    VirgilKeyPair keyPairWrong = crypto.generateKeys();
+
+    expectedException.expectMessage("Given Private key does not corresponds to any of " +
+                                            "Public keys that were used for encryption.");
+    crypto.decrypt(encrypted, keyPairWrong.getPrivateKey());
   }
 
   @Test

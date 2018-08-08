@@ -37,7 +37,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.virgilsecurity.sdk</groupId>
 	<artifactId>parent</artifactId>
-	<version>5.0.4-SNAPSHOT</version>
+	<version>5.0.4</version>
 	<packaging>pom</packaging>
 	<name>Virgil SDK - Parent</name>
 
@@ -53,7 +53,7 @@
 	<licenses>
 		<license>
 			<name>Virgil Security, Inc. license</name>
-			<url>https://github.com/VirgilSecurity/virgil-sdk-java/blob/master/LICENSE.txt</url>
+			<url>https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/master/LICENSE.md</url>
 		</license>
 	</licenses>
 

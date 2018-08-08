@@ -134,6 +134,7 @@ public class JsonFileKeyStorageTest {
     public void setValue(byte[] value) {
       this.keyValue = value;
     }
+
   }
 
   private VirgilCrypto crypto;

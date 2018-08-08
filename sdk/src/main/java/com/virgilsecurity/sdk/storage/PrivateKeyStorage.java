@@ -39,6 +39,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -56,6 +57,8 @@ public class PrivateKeyStorage {
     private String name;
     private byte[] value;
     private Map<String, String> meta;
+    private Date createdAt;
+    private Date modifiedAt;
 
     /**
      * Create new instance of {@link PrivateKeyEntry}.
@@ -128,6 +131,42 @@ public class PrivateKeyStorage {
      */
     public void setValue(byte[] value) {
       this.value = value;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#getCreatedAt()
+     */
+    public Date getCreatedAt() {
+      return createdAt;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#setCreatedAt(java.util.Date)
+     */
+    public void setCreatedAt(Date createdAt) {
+      this.createdAt = createdAt;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#getModifiedAt()
+     */
+    public Date getModifiedAt() {
+      return modifiedAt;
+    }
+
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.virgilsecurity.sdk.storage.KeyEntry#setModifiedAt(java.util.Date)
+     */
+    public void setModifiedAt(Date modifiedAt) {
+      this.modifiedAt = modifiedAt;
     }
 
   }

@@ -205,4 +205,29 @@ public class JsonFileKeyStorage implements KeyStorage {
     return gson;
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.storage.KeyStorage#createEntry(java.lang.String, byte[])
+   */
+  @Override
+  public KeyEntry createEntry(String name, byte[] value) {
+    return new JsonKeyEntry(name, value);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.storage.KeyStorage#update(com.virgilsecurity.sdk.storage.KeyEntry)
+   */
+  @Override
+  public void update(KeyEntry keyEntry) {
+    String keyName = keyEntry.getName();
+    if (!exists(keyName)) {
+      throw new KeyEntryNotFoundException();
+    }
+    delete(keyName);
+    store(keyEntry);
+  }
+
 }

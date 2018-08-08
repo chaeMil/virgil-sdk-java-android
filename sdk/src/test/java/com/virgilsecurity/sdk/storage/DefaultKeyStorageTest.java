@@ -66,6 +66,10 @@ import org.junit.Test;
  *
  */
 public class DefaultKeyStorageTest {
+  /**
+   * @author Andrii Iakovenko
+   *
+   */
   private class TestKeyEntry implements KeyEntry {
     private String keyName;
     private byte[] keyValue;
@@ -134,6 +138,7 @@ public class DefaultKeyStorageTest {
     public void setValue(byte[] value) {
       this.keyValue = value;
     }
+
   }
 
   private VirgilCrypto crypto;

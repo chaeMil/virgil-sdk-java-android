@@ -37,57 +37,57 @@ package com.virgilsecurity.sdk.cards.validation;
  * The {@link VerifierCredentials} class represents data set of verifier.
  */
 public class VerifierCredentials {
-    private String signer;
-    private byte[] publicKey;
+  private String signer;
+  private byte[] publicKey;
 
-    /**
-     * Instantiates a new Verifier credentials.
-     *
-     * @param signer
-     *            the signer
-     * @param publicKey
-     *            the public key of verifier
-     */
-    public VerifierCredentials(String signer, byte[] publicKey) {
-        this.signer = signer;
-        this.publicKey = publicKey;
-    }
+  /**
+   * Instantiates a new Verifier credentials.
+   *
+   * @param signer
+   *          the signer
+   * @param publicKey
+   *          the public key of verifier
+   */
+  public VerifierCredentials(String signer, byte[] publicKey) {
+    this.signer = signer;
+    this.publicKey = publicKey;
+  }
 
-    /**
-     * Gets signer.
-     *
-     * @return the signer
-     */
-    public String getSigner() {
-        return signer;
-    }
+  /**
+   * Get public key of verifier.
+   *
+   * @return the public key in byte [ ]
+   */
+  public byte[] getPublicKey() {
+    return publicKey;
+  }
 
-    /**
-     * Sets signer.
-     *
-     * @param signer
-     *            the signer
-     */
-    public void setSigner(String signer) {
-        this.signer = signer;
-    }
+  /**
+   * Gets signer.
+   *
+   * @return the signer
+   */
+  public String getSigner() {
+    return signer;
+  }
 
-    /**
-     * Get public key of verifier.
-     *
-     * @return the public key in byte [ ]
-     */
-    public byte[] getPublicKey() {
-        return publicKey;
-    }
+  /**
+   * Sets public key of verifier.
+   *
+   * @param publicKey
+   *          the public key
+   */
+  public void setPublicKey(byte[] publicKey) {
+    this.publicKey = publicKey;
+  }
 
-    /**
-     * Sets public key of verifier.
-     *
-     * @param publicKey
-     *            the public key
-     */
-    public void setPublicKey(byte[] publicKey) {
-        this.publicKey = publicKey;
-    }
+  /**
+   * Sets signer.
+   *
+   * @param signer
+   *          the signer
+   */
+  public void setSigner(String signer) {
+    this.signer = signer;
+  }
 }

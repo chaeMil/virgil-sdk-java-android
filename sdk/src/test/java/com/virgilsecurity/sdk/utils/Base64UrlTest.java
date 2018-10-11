@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.utils;
 
 import static org.junit.Assert.assertArrayEquals;
@@ -40,31 +41,33 @@ import java.util.Random;
 import org.junit.Test;
 
 /**
+ * Unit tests for {@link Base64Url}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class Base64UrlTest {
 
-    @Test
-    public void string_convertion() {
-        String raw = "This is the best string ever!";
+  @Test
+  public void bytes_convertion() {
+    Random random = new Random();
+    byte[] data = new byte[100];
+    random.nextBytes(data);
 
-        String encodedBase64Url = Base64Url.encode(raw);
-        String base64toRaw = Base64Url.decode(encodedBase64Url);
+    String encoded = Base64Url.encode(data);
+    byte[] decoded = Base64Url.decodeToBytes(encoded);
 
-        assertEquals(raw, base64toRaw);
-    }
+    assertArrayEquals(data, decoded);
+  }
 
-    @Test
-    public void bytes_convertion() {
-        Random random = new Random();
-        byte[] data = new byte[100];
-        random.nextBytes(data);
+  @Test
+  public void string_convertion() {
+    String raw = "This is the best string ever!";
 
-        String encoded = Base64Url.encode(data);
-        byte[] decoded = Base64Url.decodeToBytes(encoded);
+    String encodedBase64Url = Base64Url.encode(raw);
+    String base64toRaw = Base64Url.decode(encodedBase64Url);
 
-        assertArrayEquals(data, decoded);
-    }
+    assertEquals(raw, base64toRaw);
+  }
 
 }

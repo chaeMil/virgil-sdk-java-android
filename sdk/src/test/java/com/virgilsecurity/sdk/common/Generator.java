@@ -35,90 +35,92 @@ package com.virgilsecurity.sdk.common;
 
 import static org.junit.Assert.fail;
 
+import com.virgilsecurity.sdk.crypto.CardCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.utils.ConvertionUtils;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
-import com.virgilsecurity.sdk.crypto.CardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
 public class Generator {
-    private static final String IDENTITY = "TEST-java-v5-";
-    private static final String ALPHA_NUMERIC_STRING = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
+  private static final String IDENTITY = "TEST-java-v5-";
+  private static final String ALPHA_NUMERIC_STRING = "AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz0123456789";
 
-    private static Random randomizer;
+  private static Random randomizer;
 
-    public static byte[] randomBytes(int length) {
-        if (randomizer == null)
-            randomizer = new Random();
+  public static String cardId() {
+    byte[] fingerprint = randomBytes(32);
+    CardCrypto crypto = new VirgilCardCrypto();
 
-        byte[] rndBytes = new byte[length];
-        randomizer.nextBytes(rndBytes);
-
-        return rndBytes;
+    try {
+      return ConvertionUtils.toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32),
+          StringEncoding.HEX);
+    } catch (CryptoException e) {
+      fail(e.getMessage());
     }
 
-    public static int randomInt(int bound) {
-        if (randomizer == null)
-            randomizer = new Random();
+    return null;
+  }
 
-        return randomizer.nextInt(bound);
+  public static String firstName() {
+    String[] names = new String[] { "Alice", "Bob", "Greg", "Jenny", "John", "Molly" };
+    return names[randomInt(5)];
+  }
+
+  public static String identity() {
+    return IDENTITY + randomAlphaNumeric(32);
+  }
+
+  public static String identity(String prefix) {
+    return prefix + Arrays.toString(randomBytes(32));
+  }
+
+  public static String lastName() {
+    String[] names = new String[] { "Archer", "Slater", "Cook", "Fisher", "Hunter", "Glover" };
+    return names[randomInt(5)];
+  }
+
+  public static String randomAlphaNumeric(int count) {
+    StringBuilder builder = new StringBuilder();
+    while (count-- != 0) {
+      int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
+      builder.append(ALPHA_NUMERIC_STRING.charAt(character));
+    }
+    return builder.toString();
+  }
+
+  public static <T> T randomArrayElement(List<T> list) {
+    return list.get(randomInt(list.size() - 1));
+  }
+
+  public static byte[] randomBytes(int length) {
+    if (randomizer == null) {
+      randomizer = new Random();
     }
 
-    public static String firstName() {
-        String[] names = new String[] { "Alice", "Bob", "Greg", "Jenny", "John", "Molly" };
-        return names[randomInt(5)];
+    byte[] rndBytes = new byte[length];
+    randomizer.nextBytes(rndBytes);
+
+    return rndBytes;
+  }
+
+  public static Date randomDate() {
+    Calendar calendar = Calendar.getInstance();
+    calendar.set(Calendar.YEAR, randomInt(4000));
+    calendar.set(Calendar.MONTH, randomInt(11));
+    calendar.set(Calendar.DAY_OF_MONTH, randomInt(27));
+    return calendar.getTime();
+  }
+
+  public static int randomInt(int bound) {
+    if (randomizer == null) {
+      randomizer = new Random();
     }
 
-    public static String lastName() {
-        String[] names = new String[] { "Archer", "Slater", "Cook", "Fisher", "Hunter", "Glover" };
-        return names[randomInt(5)];
-    }
-
-    public static String identity() {
-        return IDENTITY + randomAlphaNumeric(32);
-    }
-
-    public static String identity(String prefix) {
-        return prefix + Arrays.toString(randomBytes(32));
-    }
-
-    public static String cardId() {
-        byte[] fingerprint = randomBytes(32);
-        CardCrypto crypto = new VirgilCardCrypto();
-
-        try {
-            return ConvertionUtils.toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32),
-                    StringEncoding.HEX);
-        } catch (CryptoException e) {
-            fail(e.getMessage());
-        }
-
-        return null;
-    }
-
-    public static <T> T randomArrayElement(List<T> list) {
-        return list.get(randomInt(list.size() - 1));
-    }
-
-    public static Date randomDate() {
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(Calendar.YEAR, randomInt(4000));
-        calendar.set(Calendar.MONTH, randomInt(11));
-        calendar.set(Calendar.DAY_OF_MONTH, randomInt(27));
-        return calendar.getTime();
-    }
-
-    public static String randomAlphaNumeric(int count) {
-        StringBuilder builder = new StringBuilder();
-        while (count-- != 0) {
-            int character = (int) (Math.random() * ALPHA_NUMERIC_STRING.length());
-            builder.append(ALPHA_NUMERIC_STRING.charAt(character));
-        }
-        return builder.toString();
-    }
+    return randomizer.nextInt(bound);
+  }
 }

@@ -40,31 +40,31 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
  */
 public class VirgilCardVerificationException extends CryptoException {
 
-    private static final long serialVersionUID = 326772901510143833L;
+  private static final long serialVersionUID = 326772901510143833L;
 
-    /**
-     * Instantiates a new Virgil card verification exception.
-     */
-    public VirgilCardVerificationException() {
-    }
+  /**
+   * Instantiates a new Virgil card verification exception.
+   */
+  public VirgilCardVerificationException() {
+  }
 
-    /**
-     * Instantiates a new Virgil card verification exception.
-     *
-     * @param message
-     *            the message
-     */
-    public VirgilCardVerificationException(String message) {
-        super(message);
-    }
+  /**
+   * Instantiates a new Virgil card verification exception.
+   *
+   * @param message
+   *          the message
+   */
+  public VirgilCardVerificationException(String message) {
+    super(message);
+  }
 
-    /**
-     * Instantiates a new Virgil card verification exception.
-     *
-     * @param cause
-     *            the cause
-     */
-    public VirgilCardVerificationException(Throwable cause) {
-        super(cause);
-    }
+  /**
+   * Instantiates a new Virgil card verification exception.
+   *
+   * @param cause
+   *          the cause
+   */
+  public VirgilCardVerificationException(Throwable cause) {
+    super(cause);
+  }
 }

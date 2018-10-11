@@ -33,8 +33,6 @@
 
 package com.virgilsecurity.sdk.jwt.accessProviders;
 
-import java.util.Map;
-
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.TokenContext;
@@ -42,88 +40,98 @@ import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
+import java.util.Map;
+
 /**
- * The {@link GeneratorJwtProvider} class is implemented for generating {@link com.virgilsecurity.sdk.jwt.Jwt} with
- * provided {@link JwtGenerator}.
+ * The {@link GeneratorJwtProvider} class is implemented for generating
+ * {@link com.virgilsecurity.sdk.jwt.Jwt} with provided {@link JwtGenerator}.
  */
 public class GeneratorJwtProvider implements AccessTokenProvider {
 
-    private JwtGenerator jwtGenerator;
-    private Map<String, String> additionalData;
-    private String defaultIdentity;
+  private JwtGenerator jwtGenerator;
+  private Map<String, String> additionalData;
+  private String defaultIdentity;
 
-    /**
-     * Instantiates a new Generator jwt provider.
-     *
-     * @param jwtGenerator
-     *            the jwt generator
-     * @param defaultIdentity
-     *            the default identity
-     */
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(defaultIdentity, "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
+  /**
+   * Instantiates a new Generator jwt provider.
+   *
+   * @param jwtGenerator
+   *          the jwt generator
+   * @param defaultIdentity
+   *          the default identity
+   */
+  public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity) {
+    Validator.checkNullAgrument(jwtGenerator,
+        "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+    Validator.checkNullAgrument(defaultIdentity,
+        "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
 
-        this.jwtGenerator = jwtGenerator;
-        this.defaultIdentity = defaultIdentity;
-    }
+    this.jwtGenerator = jwtGenerator;
+    this.defaultIdentity = defaultIdentity;
+  }
 
-    /**
-     * Instantiates a new Generator jwt provider.
-     *
-     * @param jwtGenerator
-     *            the jwt generator
-     * @param defaultIdentity
-     *            the default identity
-     * @param additionalData
-     *            the additional data
-     */
-    public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity, Map<String, String> additionalData) {
-        Validator.checkNullAgrument(jwtGenerator, "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
-        Validator.checkNullAgrument(defaultIdentity, "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
-        Validator.checkNullAgrument(additionalData, "GeneratorJwtProvider -> 'additionalData' should not be null");
+  /**
+   * Instantiates a new Generator jwt provider.
+   *
+   * @param jwtGenerator
+   *          the jwt generator
+   * @param defaultIdentity
+   *          the default identity
+   * @param additionalData
+   *          the additional data
+   */
+  public GeneratorJwtProvider(JwtGenerator jwtGenerator, String defaultIdentity,
+      Map<String, String> additionalData) {
+    Validator.checkNullAgrument(jwtGenerator,
+        "GeneratorJwtProvider -> 'jwtGenerator' should not be null");
+    Validator.checkNullAgrument(defaultIdentity,
+        "GeneratorJwtProvider -> 'defaultIdentity' should not be null");
+    Validator.checkNullAgrument(additionalData,
+        "GeneratorJwtProvider -> 'additionalData' should not be null");
 
-        this.jwtGenerator = jwtGenerator;
-        this.defaultIdentity = defaultIdentity;
-        this.additionalData = additionalData;
-    }
+    this.jwtGenerator = jwtGenerator;
+    this.defaultIdentity = defaultIdentity;
+    this.additionalData = additionalData;
+  }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(com.virgilsecurity.sdk.jwt.TokenContext)
-     */
-    @Override
-    public AccessToken getToken(TokenContext context) throws CryptoException {
-        return jwtGenerator.generateToken(context.getIdentity() != null ? context.getIdentity() : defaultIdentity,
-                additionalData);
-    }
+  /**
+   * Gets additional data.
+   *
+   * @return the additional data
+   */
+  public Map<String, String> getAdditionalData() {
+    return additionalData;
+  }
 
-    /**
-     * Gets jwt generator.
-     *
-     * @return the jwt generator
-     */
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
-    }
+  /**
+   * Gets jwt generator.
+   *
+   * @return the jwt generator
+   */
+  public JwtGenerator getJwtGenerator() {
+    return jwtGenerator;
+  }
 
-    /**
-     * Gets additional data.
-     *
-     * @return the additional data
-     */
-    public Map<String, String> getAdditionalData() {
-        return additionalData;
-    }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see
+   * com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(com.virgilsecurity.sdk.jwt.
+   * TokenContext)
+   */
+  @Override
+  public AccessToken getToken(TokenContext context) throws CryptoException {
+    return jwtGenerator.generateToken(
+        context.getIdentity() != null ? context.getIdentity() : defaultIdentity, additionalData);
+  }
 
-    /**
-     * Sets additional data.
-     *
-     * @param additionalData
-     *            the additional data
-     */
-    public void setAdditionalData(Map<String, String> additionalData) {
-        this.additionalData = additionalData;
-    }
+  /**
+   * Sets additional data.
+   *
+   * @param additionalData
+   *          the additional data
+   */
+  public void setAdditionalData(Map<String, String> additionalData) {
+    this.additionalData = additionalData;
+  }
 }

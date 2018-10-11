@@ -44,76 +44,79 @@ import java.util.Date;
 import java.util.Map;
 
 /**
- * The {@link JwtGenerator} class is used for generation of {@link Jwt} with provided tools and data.
+ * The {@link JwtGenerator} class is used for generation of {@link Jwt} with provided tools and
+ * data.
  */
 public class JwtGenerator {
 
-    private final PrivateKey apiKey;
-    private final String apiPublicKeyIdentifier;
-    private final AccessTokenSigner accessTokenSigner;
-    private final String appId;
-    private final TimeSpan ttl;
+  private final PrivateKey apiKey;
+  private final String apiPublicKeyIdentifier;
+  private final AccessTokenSigner accessTokenSigner;
+  private final String appId;
+  private final TimeSpan ttl;
 
-    /**
-     * Instantiates a new Jwt generator.
-     *
-     * @param appId
-     *            the application identifier
-     * @param apiKey
-     *            the api private key
-     * @param apiPublicKeyIdentifier
-     *            the api public key identifier
-     * @param ttl
-     *            the lifetime of token - when it expires at
-     * @param accessTokenSigner
-     *            the access token signer
-     */
-    public JwtGenerator(String appId, PrivateKey apiKey, String apiPublicKeyIdentifier, TimeSpan ttl,
-            AccessTokenSigner accessTokenSigner) {
-        this.appId = appId;
-        this.apiKey = apiKey;
-        this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
-        this.ttl = ttl;
-        this.accessTokenSigner = accessTokenSigner;
-    }
+  /**
+   * Instantiates a new Jwt generator.
+   *
+   * @param appId
+   *          the application identifier
+   * @param apiKey
+   *          the api private key
+   * @param apiPublicKeyIdentifier
+   *          the api public key identifier
+   * @param ttl
+   *          the lifetime of token - when it expires at
+   * @param accessTokenSigner
+   *          the access token signer
+   */
+  public JwtGenerator(String appId, PrivateKey apiKey, String apiPublicKeyIdentifier, TimeSpan ttl,
+      AccessTokenSigner accessTokenSigner) {
+    this.appId = appId;
+    this.apiKey = apiKey;
+    this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
+    this.ttl = ttl;
+    this.accessTokenSigner = accessTokenSigner;
+  }
 
-    /**
-     * Generate token jwt.
-     *
-     * @param identity
-     *            the identity
-     * @param additionalData
-     *            the additional data associated with token
-     * @return the generated Jwt
-     * @throws CryptoException
-     *             if issue occurred while generating token signature
-     */
-    public Jwt generateToken(String identity, Map<String, String> additionalData) throws CryptoException {
-        JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
-        JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, additionalData, ttl, new Date());
+  /**
+   * Generate token jwt.
+   *
+   * @param identity
+   *          the identity
+   * @return the generated Jwt
+   * @throws CryptoException
+   *           if issue occurred while generating token signature
+   */
+  public Jwt generateToken(String identity) throws CryptoException {
+    JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
+    JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, ttl, new Date());
 
-        Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
-        byte[] signature = this.accessTokenSigner.generateTokenSignature(ConvertionUtils.toBytes(jwtToken.unsigned()),
-                apiKey);
-        return new Jwt(jwtToken.stringRepresentation() + "." + Base64Url.encode(signature));
-    }
+    Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
+    byte[] signature = this.accessTokenSigner
+        .generateTokenSignature(ConvertionUtils.toBytes(jwtToken.unsigned()), apiKey);
+    return new Jwt(jwtToken.stringRepresentation() + "." + Base64Url.encode(signature));
+  }
 
-    /**
-     * Generate token jwt.
-     *
-     * @param identity
-     *            the identity
-     * @return the generated Jwt
-     * @throws CryptoException
-     *             if issue occurred while generating token signature
-     */
-    public Jwt generateToken(String identity) throws CryptoException {
-        JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
-        JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, ttl, new Date());
+  /**
+   * Generate token jwt.
+   *
+   * @param identity
+   *          the identity
+   * @param additionalData
+   *          the additional data associated with token
+   * @return the generated Jwt
+   * @throws CryptoException
+   *           if issue occurred while generating token signature
+   */
+  public Jwt generateToken(String identity, Map<String, String> additionalData)
+      throws CryptoException {
+    JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
+    JwtBodyContent jwtBodyContent = new JwtBodyContent(appId, identity, additionalData, ttl,
+        new Date());
 
-        Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
-        byte[] signature = this.accessTokenSigner.generateTokenSignature(ConvertionUtils.toBytes(jwtToken.unsigned()),
-                apiKey);
-        return new Jwt(jwtToken.stringRepresentation() + "." + Base64Url.encode(signature));
-    }
+    Jwt jwtToken = new Jwt(jwtHeaderContent, jwtBodyContent);
+    byte[] signature = this.accessTokenSigner
+        .generateTokenSignature(ConvertionUtils.toBytes(jwtToken.unsigned()), apiKey);
+    return new Jwt(jwtToken.stringRepresentation() + "." + Base64Url.encode(signature));
+  }
 }

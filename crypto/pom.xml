@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.0.3</version>
+		<version>5.0.4</version>
 	</parent>
 	<artifactId>crypto</artifactId>
 	<packaging>jar</packaging>
@@ -70,6 +70,9 @@
 		<dependency>
 			<groupId>com.virgilsecurity</groupId>
 			<artifactId>crypto</artifactId>
+            <version>${version.crypto}</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/libs/virgil_crypto_java.jar</systemPath>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -83,25 +86,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-install-plugin</artifactId>
-				<executions>
-					<execution>
-						<phase>initialize</phase>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
-						<configuration>
-							<groupId>com.virgilsecurity</groupId>
-							<artifactId>crypto</artifactId>
-							<version>${version.crypto}</version>
-							<packaging>jar</packaging>
-							<file>${project.basedir}/libs/virgil_crypto_java.jar</file>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

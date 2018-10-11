@@ -40,58 +40,58 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
  */
 public class VirgilCardIsOutdatedException extends VirgilServiceException {
 
-    private static final long serialVersionUID = 3841365581319657840L;
-    private RawSignedModel cardModel;
-    private String message;
+  private static final long serialVersionUID = 3841365581319657840L;
+  private RawSignedModel cardModel;
+  private String message;
 
-    /**
-     * Instantiates a new Virgil card is outdated exception.
-     */
-    public VirgilCardIsOutdatedException() {
+  /**
+   * Instantiates a new Virgil card is outdated exception.
+   */
+  public VirgilCardIsOutdatedException() {
 
-    }
+  }
 
-    /**
-     * Instantiates a new Virgil card is outdated exception.
-     *
-     * @param message
-     *            message to be stored to get it later
-     */
-    public VirgilCardIsOutdatedException(String message) {
-        this.message = message;
-    }
+  /**
+   * Instantiates a new Virgil card is outdated exception.
+   *
+   * @param cause
+   *          the cause
+   */
+  public VirgilCardIsOutdatedException(Exception cause) {
+    super(cause);
+  }
 
-    /**
-     * Instantiates a new Virgil card is outdated exception.
-     *
-     * @param cardModel
-     *            the card model of outdated Card
-     */
-    public VirgilCardIsOutdatedException(RawSignedModel cardModel) {
-        this.cardModel = cardModel;
-    }
+  /**
+   * Instantiates a new Virgil card is outdated exception.
+   *
+   * @param cardModel
+   *          the card model of outdated Card
+   */
+  public VirgilCardIsOutdatedException(RawSignedModel cardModel) {
+    this.cardModel = cardModel;
+  }
 
-    /**
-     * Instantiates a new Virgil card is outdated exception.
-     *
-     * @param cause
-     *            the cause
-     */
-    public VirgilCardIsOutdatedException(Exception cause) {
-        super(cause);
-    }
+  /**
+   * Instantiates a new Virgil card is outdated exception.
+   *
+   * @param message
+   *          message to be stored to get it later
+   */
+  public VirgilCardIsOutdatedException(String message) {
+    this.message = message;
+  }
 
-    @Override
-    protected String getMessageBundleName() {
-        return message != null ? message : "Message was not set.";
-    }
+  /**
+   * Gets card model.
+   *
+   * @return the card model
+   */
+  public RawSignedModel getCardModel() {
+    return cardModel;
+  }
 
-    /**
-     * Gets card model.
-     *
-     * @return the card model
-     */
-    public RawSignedModel getCardModel() {
-        return cardModel;
-    }
+  @Override
+  protected String getMessageBundleName() {
+    return message != null ? message : "Message was not set.";
+  }
 }

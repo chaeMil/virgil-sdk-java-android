@@ -45,57 +45,62 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
  */
 public class VirgilAccessTokenSigner implements AccessTokenSigner {
 
-    private static final String ALGORITHM = "VEDS512";
+  private static final String ALGORITHM = "VEDS512";
 
-    private VirgilCrypto virgilCrypto;
+  private VirgilCrypto virgilCrypto;
 
-    /**
-     * Instantiates a new Virgil access token signer.
-     */
-    public VirgilAccessTokenSigner() {
-        this.virgilCrypto = new VirgilCrypto();
+  /**
+   * Instantiates a new Virgil access token signer.
+   */
+  public VirgilAccessTokenSigner() {
+    this.virgilCrypto = new VirgilCrypto();
+  }
+
+  /**
+   * Instantiates a new Virgil access token signer.
+   * 
+   * @param virgilCrypto
+   *          the Virgil Crypto.
+   */
+  public VirgilAccessTokenSigner(VirgilCrypto virgilCrypto) {
+    this.virgilCrypto = virgilCrypto;
+  }
+
+  @Override
+  public byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException {
+    if (privateKey == null) {
+      throw new NullArgumentException("privateKey");
     }
-    
-    /**
-     * Instantiates a new Virgil access token signer.
-     * 
-     * @param virgilCrypto the Virgil Crypto.
-     */
-    public VirgilAccessTokenSigner(VirgilCrypto virgilCrypto) {
-        this.virgilCrypto = virgilCrypto;
-    }
-
-    @Override
-    public byte[] generateTokenSignature(byte[] token, PrivateKey privateKey) throws CryptoException {
-        if (privateKey == null) {
-            throw new NullArgumentException("privateKey");
-        }
-        if (!(privateKey instanceof VirgilPrivateKey)) {
-            throw new CryptoException("VirgilAccessTokenSigner -> 'privateKey' should be of 'VirgilPrivateKey' type");
-        }
-
-        return virgilCrypto.generateSignature(token, (VirgilPrivateKey) privateKey);
-    }
-
-    @Override
-    public String getAlgorithm() {
-        return ALGORITHM;
+    if (!(privateKey instanceof VirgilPrivateKey)) {
+      throw new CryptoException(
+          "VirgilAccessTokenSigner -> 'privateKey' should be of 'VirgilPrivateKey' type");
     }
 
-    /**
-     * Gets Virgil crypto.
-     *
-     * @return the Virgil crypto
-     */
-    public VirgilCrypto getVirgilCrypto() {
-        return virgilCrypto;
+    return virgilCrypto.generateSignature(token, (VirgilPrivateKey) privateKey);
+  }
+
+  @Override
+  public String getAlgorithm() {
+    return ALGORITHM;
+  }
+
+  /**
+   * Gets Virgil crypto.
+   *
+   * @return the Virgil crypto
+   */
+  public VirgilCrypto getVirgilCrypto() {
+    return virgilCrypto;
+  }
+
+  @Override
+  public boolean verifyTokenSignature(byte[] signature, byte[] data, PublicKey publicKey)
+      throws CryptoException {
+    if (!(publicKey instanceof VirgilPublicKey)) {
+      throw new CryptoException(
+          "VirgilAccessTokenSigner -> 'publicKey' should be of 'VirgilPublicKey' type");
     }
 
-    @Override
-    public boolean verifyTokenSignature(byte[] signature, byte[] data, PublicKey publicKey) throws CryptoException {
-        if (!(publicKey instanceof VirgilPublicKey))
-            throw new CryptoException("VirgilAccessTokenSigner -> 'publicKey' should be of 'VirgilPublicKey' type");
-
-        return virgilCrypto.verifySignature(signature, data, (VirgilPublicKey) publicKey);
-    }
+    return virgilCrypto.verifySignature(signature, data, (VirgilPublicKey) publicKey);
+  }
 }

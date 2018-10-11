@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.exception;
 
 /**
@@ -40,16 +41,16 @@ package com.virgilsecurity.sdk.exception;
  */
 public class NullArgumentException extends IllegalArgumentException {
 
-    private static final long serialVersionUID = -3048179118807192393L;
+  private static final long serialVersionUID = -3048179118807192393L;
 
-    /**
-     * Create a new instance of {@code NullArgumentException}
-     *
-     * @param argName
-     *            the name of the argument that was {@code null}.
-     */
-    public NullArgumentException(String argName) {
-        super((argName == null ? "Argument" : argName) + " must not be null.");
-    }
+  /**
+   * Create a new instance of {@code NullArgumentException}.
+   *
+   * @param argName
+   *          the name of the argument that was {@code null}.
+   */
+  public NullArgumentException(String argName) {
+    super((argName == null ? "Argument" : argName) + " must not be null.");
+  }
 
 }

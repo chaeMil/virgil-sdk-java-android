@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.utils;
 
 /**
@@ -40,58 +41,58 @@ package com.virgilsecurity.sdk.utils;
  */
 public class Tuple<A, B> {
 
-    private A left;
+  private A left;
 
-    private B right;
+  private B right;
 
-    /**
-     * Create new instance of {@link Tuple}.
-     */
-    public Tuple() {
-    }
+  /**
+   * Create new instance of {@link Tuple}.
+   */
+  public Tuple() {
+  }
 
-    /**
-     * Create new instance of {@link Tuple}.
-     * 
-     * @param left
-     *            the left object
-     * @param right
-     *            the right object
-     */
-    public Tuple(A left, B right) {
-        super();
-        this.left = left;
-        this.right = right;
-    }
+  /**
+   * Create new instance of {@link Tuple}.
+   * 
+   * @param left
+   *          the left object
+   * @param right
+   *          the right object
+   */
+  public Tuple(A left, B right) {
+    super();
+    this.left = left;
+    this.right = right;
+  }
 
-    /**
-     * @return the left object
-     */
-    public A getLeft() {
-        return left;
-    }
+  /**
+   * @return the left object
+   */
+  public A getLeft() {
+    return left;
+  }
 
-    /**
-     * @param left
-     *            the left object to set
-     */
-    public void setLeft(A left) {
-        this.left = left;
-    }
+  /**
+   * @return the right object
+   */
+  public B getRight() {
+    return right;
+  }
 
-    /**
-     * @return the right object
-     */
-    public B getRight() {
-        return right;
-    }
+  /**
+   * @param left
+   *          the left object to set
+   */
+  public void setLeft(A left) {
+    this.left = left;
+  }
 
-    /**
-     * @param right
-     *            the right object to set
-     */
-    public void setRight(B right) {
-        this.right = right;
-    }
+  /**
+   * @param right
+   *          the right object to set
+   */
+  public void setRight(B right) {
+    this.right = right;
+  }
 
 }

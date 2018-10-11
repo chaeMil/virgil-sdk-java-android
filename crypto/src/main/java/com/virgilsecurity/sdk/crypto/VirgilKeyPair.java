@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
 /**
@@ -37,58 +38,66 @@ package com.virgilsecurity.sdk.crypto;
  */
 public class VirgilKeyPair {
 
-    private VirgilPublicKey publicKey;
+  private VirgilPublicKey publicKey;
 
-    private VirgilPrivateKey privateKey;
+  private VirgilPrivateKey privateKey;
 
-    /**
-     * Create a new instance of {@code KeyPairVirgiled}
-     *
-     */
-    public VirgilKeyPair() {
-    }
+  /**
+   * Create a new instance of {@code KeyPairVirgiled}.
+   *
+   */
+  public VirgilKeyPair() {
+  }
 
-    /**
-     * Create a new instance of {@code KeyPair}
-     *
-     * @param publicKey
-     *            the Virgil public key.
-     * @param privateKey
-     *            the Virgil private key.
-     */
-    public VirgilKeyPair(VirgilPublicKey publicKey, VirgilPrivateKey privateKey) {
-        this.publicKey = publicKey;
-        this.privateKey = privateKey;
-    }
+  /**
+   * Create a new instance of {@code KeyPair}.
+   *
+   * @param publicKey
+   *          the Virgil public key.
+   * @param privateKey
+   *          the Virgil private key.
+   */
+  public VirgilKeyPair(VirgilPublicKey publicKey, VirgilPrivateKey privateKey) {
+    this.publicKey = publicKey;
+    this.privateKey = privateKey;
+  }
 
-    /**
-     * @return the Virgil privateKey
-     */
-    public VirgilPrivateKey getPrivateKey() {
-        return privateKey;
-    }
+  /**
+   * Get the Virgil private key.
+   * 
+   * @return the Virgil private key
+   */
+  public VirgilPrivateKey getPrivateKey() {
+    return privateKey;
+  }
 
-    /**
-     * @return the Virgil publicKey
-     */
-    public VirgilPublicKey getPublicKey() {
-        return publicKey;
-    }
+  /**
+   * Get the Virgil public key.
+   * 
+   * @return the Virgil public key
+   */
+  public VirgilPublicKey getPublicKey() {
+    return publicKey;
+  }
 
-    /**
-     * @param privateKey
-     *            the Virgil privateKey to set
-     */
-    public void setPrivateKey(VirgilPrivateKey privateKey) {
-        this.privateKey = privateKey;
-    }
+  /**
+   * Set the Virgil private key.
+   * 
+   * @param privateKey
+   *          the Virgil private key to set.
+   */
+  public void setPrivateKey(VirgilPrivateKey privateKey) {
+    this.privateKey = privateKey;
+  }
 
-    /**
-     * @param publicKey
-     *            the Virgil public key to set
-     */
-    public void setPublicKey(VirgilPublicKey publicKey) {
-        this.publicKey = publicKey;
-    }
+  /**
+   * Set the Virgil public key.
+   * 
+   * @param publicKey
+   *          the Virgil public key to set.
+   */
+  public void setPublicKey(VirgilPublicKey publicKey) {
+    this.publicKey = publicKey;
+  }
 
 }

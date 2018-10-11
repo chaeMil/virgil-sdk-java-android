@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.exception;
 
 /**
@@ -40,16 +41,16 @@ package com.virgilsecurity.sdk.exception;
  */
 public class IncompleteInitializationException extends RuntimeException {
 
-    private static final long serialVersionUID = 3068771212931746387L;
+  private static final long serialVersionUID = 3068771212931746387L;
 
-    /**
-     * Create new instance of {@link IncompleteInitializationException}.
-     * 
-     * @param message
-     *            the detail message.
-     */
-    public IncompleteInitializationException(String message) {
-        super(message);
-    }
+  /**
+   * Create new instance of {@link IncompleteInitializationException}.
+   * 
+   * @param message
+   *          the detail message.
+   */
+  public IncompleteInitializationException(String message) {
+    super(message);
+  }
 
 }

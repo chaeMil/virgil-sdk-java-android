@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
 import static org.junit.Assert.assertEquals;
@@ -37,83 +38,85 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
+
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
-
 /**
+ * Unit tests for {@link VirgilAccessTokenSigner}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class VirgilAccessTokenSignerTest {
 
-    private static final byte[] TOKEN = "the token".getBytes(StandardCharsets.UTF_8);
+  private static final byte[] TOKEN = "the token".getBytes(StandardCharsets.UTF_8);
 
-    private VirgilAccessTokenSigner signer;
-    private PublicKey publicKey;
-    private PrivateKey privateKey;
+  private VirgilAccessTokenSigner signer;
+  private PublicKey publicKey;
+  private PrivateKey privateKey;
 
-    @Before
-    public void setup() throws CryptoException {
-        this.signer = new VirgilAccessTokenSigner();
+  @Test
+  public void generateTokenSignature() throws CryptoException {
+    byte[] signature = this.signer.generateTokenSignature(TOKEN, this.privateKey);
 
-        VirgilKeyPair keyPair = this.signer.getVirgilCrypto().generateKeys();
-        this.privateKey = keyPair.getPrivateKey();
-        this.publicKey = keyPair.getPublicKey();
-    }
+    assertNotNull(signature);
+  }
 
-    @Test
-    public void generateTokenSignature() throws CryptoException {
-        byte[] signature = this.signer.generateTokenSignature(TOKEN, this.privateKey);
+  @Test(expected = NullArgumentException.class)
+  public void generateTokenSignature_nullKey() throws CryptoException {
+    this.signer.generateTokenSignature(TOKEN, null);
+  }
 
-        assertNotNull(signature);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void generateTokenSignature_nullToken() throws CryptoException {
+    this.signer.generateTokenSignature(null, this.privateKey);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void generateTokenSignature_nullToken() throws CryptoException {
-        this.signer.generateTokenSignature(null, this.privateKey);
-    }
+  @Test
+  public void getAlgorithm() {
+    assertEquals("VEDS512", this.signer.getAlgorithm());
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void generateTokenSignature_nullKey() throws CryptoException {
-        this.signer.generateTokenSignature(TOKEN, null);
-    }
+  @Test
+  public void getVirgilCrypto() {
+    assertNotNull(this.signer.getVirgilCrypto());
+  }
 
-    @Test
-    public void getAlgorithm() {
-        assertEquals("VEDS512", this.signer.getAlgorithm());
-    }
+  @Before
+  public void setup() throws CryptoException {
+    this.signer = new VirgilAccessTokenSigner();
 
-    @Test
-    public void getVirgilCrypto() {
-        assertNotNull(this.signer.getVirgilCrypto());
-    }
+    VirgilKeyPair keyPair = this.signer.getVirgilCrypto().generateKeys();
+    this.privateKey = keyPair.getPrivateKey();
+    this.publicKey = keyPair.getPublicKey();
+  }
 
-    @Test
-    public void verifyTokenSignature() throws CryptoException {
-        byte[] signature = this.signer.generateTokenSignature(TOKEN, this.privateKey);
-        assertTrue(this.signer.verifyTokenSignature(signature, TOKEN, this.publicKey));
-    }
+  @Test
+  public void verifyTokenSignature() throws CryptoException {
+    byte[] signature = this.signer.generateTokenSignature(TOKEN, this.privateKey);
+    assertTrue(this.signer.verifyTokenSignature(signature, TOKEN, this.publicKey));
+  }
 
-    @Test
-    public void verifyTokenSignature_wrongSignature() throws CryptoException {
-        byte[] signature = this.signer.generateTokenSignature(TOKEN, this.privateKey);
-        assertFalse(this.signer.verifyTokenSignature(signature, ArrayUtils.subarray(TOKEN, 0, TOKEN.length - 2),
-                this.publicKey));
-    }
+  @Test(expected = NullArgumentException.class)
+  public void verifyTokenSignature_nullKey() throws CryptoException {
+    this.signer.generateTokenSignature(TOKEN, null);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void verifyTokenSignature_nullToken() throws CryptoException {
-        this.signer.generateTokenSignature(null, this.privateKey);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void verifyTokenSignature_nullToken() throws CryptoException {
+    this.signer.generateTokenSignature(null, this.privateKey);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void verifyTokenSignature_nullKey() throws CryptoException {
-        this.signer.generateTokenSignature(TOKEN, null);
-    }
+  @Test
+  public void verifyTokenSignature_wrongSignature() throws CryptoException {
+    byte[] signature = this.signer.generateTokenSignature(TOKEN, this.privateKey);
+    assertFalse(this.signer.verifyTokenSignature(signature,
+        ArrayUtils.subarray(TOKEN, 0, TOKEN.length - 2), this.publicKey));
+  }
 }

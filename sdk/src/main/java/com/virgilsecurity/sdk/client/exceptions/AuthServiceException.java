@@ -30,62 +30,67 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
+ * This exception occurred if authentication failed.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class AuthServiceException extends VirgilServiceException {
 
-    /**
-     * Create new instance of {@link AuthServiceException}.
-     */
-    public AuthServiceException() {
-        super();
-    }
+  private static final long serialVersionUID = 7886850997785564466L;
 
-    /**
-     * Create new instance of {@link AuthServiceException}.
-     * 
-     * @param cause
-     *            the cause
-     */
-    public AuthServiceException(Exception cause) {
-        super(cause);
-    }
+  /**
+   * Create new instance of {@link AuthServiceException}.
+   */
+  public AuthServiceException() {
+    super();
+  }
 
-    /**
-     * Create new instance of {@link AuthServiceException}.
-     * 
-     * @param code
-     *            the error code
-     * @param cause
-     *            the cause
-     */
-    public AuthServiceException(int code, Exception cause) {
-        super(code, cause);
-    }
+  /**
+   * Create new instance of {@link AuthServiceException}.
+   * 
+   * @param cause
+   *          the cause
+   */
+  public AuthServiceException(Exception cause) {
+    super(cause);
+  }
 
-    /**
-     * Create new instance of {@link AuthServiceException}.
-     * 
-     * @param code
-     *            the error code
-     */
-    public AuthServiceException(int code) {
-        super(code);
-    }
+  /**
+   * Create new instance of {@link AuthServiceException}.
+   * 
+   * @param code
+   *          the error code
+   */
+  public AuthServiceException(int code) {
+    super(code);
+  }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException#getMessageBundleName()
-     */
-    @Override
-    protected String getMessageBundleName() {
-        // FIXME auth server message bundle
-        return "";
-    }
+  /**
+   * Create new instance of {@link AuthServiceException}.
+   * 
+   * @param code
+   *          the error code
+   * @param cause
+   *          the cause
+   */
+  public AuthServiceException(int code, Exception cause) {
+    super(code, cause);
+  }
+
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException#getMessageBundleName()
+   */
+  @Override
+  protected String getMessageBundleName() {
+    // FIXME auth server message bundle
+    return "";
+  }
 
 }

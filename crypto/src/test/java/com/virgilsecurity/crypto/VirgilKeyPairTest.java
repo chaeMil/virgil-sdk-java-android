@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.crypto;
 
 import static org.junit.Assert.assertNotNull;
@@ -38,46 +39,40 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 /**
- * Unit tests for {@link VirgilKeyPair}
+ * Unit tests for {@link VirgilKeyPair}.
  *
  * @author Andrii Iakovenko
  *
  */
 public class VirgilKeyPairTest {
 
-    private static final byte[] PWD = "12345678".getBytes();
-    private static final byte[] PRIVATE_KEY_PEM = ("-----BEGIN PRIVATE KEY-----\n"
-            + "MC4CAQAwBQYDK2VwBCIEINzRBu+EahDeUI8R9GQNGBRl1wKNJzPlZbXWpyiZL7/o\n" + "-----END PRIVATE KEY-----")
-                    .getBytes();
+  private static final byte[] PWD = "12345678".getBytes();
+  private static final byte[] PRIVATE_KEY_PEM = ("-----BEGIN PRIVATE KEY-----\n"
+      + "MC4CAQAwBQYDK2VwBCIEINzRBu+EahDeUI8R9GQNGBRl1wKNJzPlZbXWpyiZL7/o\n"
+      + "-----END PRIVATE KEY-----").getBytes();
 
-    private static final byte[] PRIVATE_KEY_WITH_PWD_PEM = ("-----BEGIN ENCRYPTED PRIVATE KEY-----"
-            + "MIGhMF0GCSqGSIb3DQEFDTBQMC8GCSqGSIb3DQEFDDAiBBAh2/nefw5GKD1v2GzZ"
-            + "GLijAgIRljAKBggqhkiG9w0CCjAdBglghkgBZQMEASoEEE1eLCunQ0uoV/LMzac6"
-            + "1lQEQLyX0mupWyvmgnAtameTQXEz9gson2ziiopjO1Wk59PkKjB1ovI3ZelARFPm" + "o0Eso0K/Qzb8MOBI6WCEMVpW4Qo="
-            + "-----END ENCRYPTED PRIVATE KEY------").getBytes();
+  @Test
+  public void privateKeyToDer() {
+    byte[] key = VirgilKeyPair.privateKeyToDER(PRIVATE_KEY_PEM);
+    assertNotNull(key);
+    assertTrue(key.length > 0);
+  }
 
-    @Test
-    public void privateKeyToPEM() {
-        VirgilKeyPair keyPair = VirgilKeyPair.generateRecommended();
+  @Test
+  public void privateKeyToPem() {
+    VirgilKeyPair keyPair = VirgilKeyPair.generateRecommended();
 
-        byte[] key = VirgilKeyPair.privateKeyToPEM(keyPair.privateKey());
-        assertNotNull(key);
-    }
+    byte[] key = VirgilKeyPair.privateKeyToPEM(keyPair.privateKey());
+    assertNotNull(key);
+  }
 
-    @Test
-    public void privateKeyToPEM_withPassword() {
-        VirgilKeyPair keyPair = VirgilKeyPair.generateRecommended(PWD);
+  @Test
+  public void privateKeyToPem_withPassword() {
+    VirgilKeyPair keyPair = VirgilKeyPair.generateRecommended(PWD);
 
-        byte[] key = VirgilKeyPair.privateKeyToPEM(keyPair.privateKey(), PWD);
-        assertNotNull(key);
-        assertTrue(key.length > 0);
-    }
-
-    @Test
-    public void privateKeyToDER() {
-        byte[] key = VirgilKeyPair.privateKeyToDER(PRIVATE_KEY_PEM);
-        assertNotNull(key);
-        assertTrue(key.length > 0);
-    }
+    byte[] key = VirgilKeyPair.privateKeyToPEM(keyPair.privateKey(), PWD);
+    assertNotNull(key);
+    assertTrue(key.length > 0);
+  }
 
 }

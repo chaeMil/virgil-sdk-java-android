@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.storage;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
@@ -43,6 +44,14 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import com.virgilsecurity.sdk.crypto.PrivateKey;
+import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
+import com.virgilsecurity.sdk.utils.Tuple;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -60,16 +69,8 @@ import org.mockito.Mockito;
 import org.mockito.internal.util.collections.Sets;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-import com.virgilsecurity.sdk.utils.Tuple;
-
 /**
- * Unit tests for {@code VirgilKeyStorage}
+ * Unit tests for {@code VirgilKeyStorage}.
  *
  * @author Andrii Iakovenko
  * 
@@ -78,182 +79,186 @@ import com.virgilsecurity.sdk.utils.Tuple;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class PrivateKeyStorageTest {
-    private VirgilCrypto crypto;
-    private String keyName;
-    private PrivateKey privateKey;
+  private VirgilCrypto crypto;
+  private String keyName;
+  private PrivateKey privateKey;
 
-    @Mock
-    private PrivateKeyExporter keyExporter;
+  @Mock
+  private PrivateKeyExporter keyExporter;
 
-    @Mock
-    private KeyStorage keyStorage;
-    private PrivateKeyStorage storage;
+  @Mock
+  private KeyStorage keyStorage;
+  private PrivateKeyStorage storage;
 
-    @Before
-    public void setUp() throws CryptoException {
-        this.crypto = new VirgilCrypto();
-        this.privateKey = this.crypto.generateKeys().getPrivateKey();
-        this.keyName = UUID.randomUUID().toString();
+  @Test
+  public void delete() {
+    storage.delete(this.keyName);
 
-        storage = new PrivateKeyStorage(keyExporter, keyStorage);
+    ArgumentCaptor<String> keyNameCaptor = ArgumentCaptor.forClass(String.class);
+    verify(this.keyStorage, times(1)).delete(keyNameCaptor.capture());
 
-        // Configure mocks
-        byte[] privateKeyData = ((VirgilPrivateKey) privateKey).getRawKey();
-        when(this.keyExporter.exportPrivateKey(privateKey)).thenReturn(privateKeyData);
-        when(this.keyExporter.importPrivateKey(privateKeyData))
-                .thenReturn(this.crypto.importPrivateKey(privateKeyData));
-    }
+    assertEquals(this.keyName, keyNameCaptor.getValue());
+  }
 
-    @Test
-    public void exists_nullAlias() {
-        when(this.keyStorage.exists(null)).thenReturn(false);
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void delete_nonExisting() {
+    doThrow(KeyEntryNotFoundException.class).when(this.keyStorage).delete(this.keyName);
 
-        assertFalse(storage.exists(null));
-    }
+    storage.delete(this.keyName);
+  }
 
-    @Test
-    public void exists_randomName() {
-        when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void delete_nullName() {
+    doThrow(KeyEntryNotFoundException.class).when(this.keyStorage).delete(null);
 
-        assertFalse(storage.exists(UUID.randomUUID().toString()));
-    }
+    storage.delete(null);
+  }
 
-    @Test
-    public void exists() throws IOException, CryptoException {
-        when(this.keyStorage.exists(this.keyName)).thenReturn(true);
+  @Test
+  public void exists() throws IOException, CryptoException {
+    when(this.keyStorage.exists(this.keyName)).thenReturn(true);
 
-        assertTrue(storage.exists(this.keyName));
-    }
+    assertTrue(storage.exists(this.keyName));
+  }
 
-    @Test
-    public void store() throws CryptoException {
-        // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+  @Test
+  public void exists_nullAlias() {
+    when(this.keyStorage.exists(null)).thenReturn(false);
 
-        Map<String, String> meta = new HashMap<>();
-        meta.put("key1", "value1");
-        meta.put("key2", "value2");
-        storage.store(this.privateKey, this.keyName, meta);
+    assertFalse(storage.exists(null));
+  }
 
-        verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);
+  @Test
+  public void exists_randomName() {
+    when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
 
-        ArgumentCaptor<KeyEntry> keyEntryCaptor = ArgumentCaptor.forClass(KeyEntry.class);
-        verify(this.keyStorage, times(1)).store(keyEntryCaptor.capture());
+    assertFalse(storage.exists(UUID.randomUUID().toString()));
+  }
 
-        KeyEntry keyEntry = keyEntryCaptor.getValue();
-        assertNotNull(keyEntry);
-        assertEquals(this.keyName, keyEntry.getName());
-        assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
-        assertNotNull(keyEntry.getMeta());
-        assertEquals(meta, keyEntry.getMeta());
-    }
+  @Test
+  public void load() throws CryptoException {
+    Map<String, String> meta = new HashMap<>();
+    meta.put("key1", "value1");
+    meta.put("key2", "value2");
+    KeyEntry entry = new JsonKeyEntry(this.keyName,
+        this.keyExporter.exportPrivateKey(this.privateKey));
+    entry.setMeta(meta);
+    when(this.keyStorage.load(this.keyName)).thenReturn(entry);
 
-    @Test
-    public void store_noMeta() throws CryptoException {
-        // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
-        storage.store(this.privateKey, this.keyName, Collections.EMPTY_MAP);
+    Tuple<PrivateKey, Map<String, String>> keyData = storage.load(this.keyName);
+    assertNotNull(keyData);
 
-        verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);
+    PrivateKey key = keyData.getLeft();
+    assertNotNull(key);
+    assertThat(key, instanceOf(VirgilPrivateKey.class));
+    assertEquals(this.privateKey, key);
 
-        ArgumentCaptor<KeyEntry> keyEntryCaptor = ArgumentCaptor.forClass(KeyEntry.class);
-        verify(this.keyStorage, times(1)).store(keyEntryCaptor.capture());
+    assertEquals(meta, keyData.getRight());
+  }
 
-        KeyEntry keyEntry = keyEntryCaptor.getValue();
-        assertNotNull(keyEntry);
-        assertEquals(this.keyName, keyEntry.getName());
-        assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
-        assertNotNull(keyEntry.getMeta());
-        assertTrue(keyEntry.getMeta().isEmpty());
-    }
+  @Test
+  public void load_noMeta() throws CryptoException {
+    KeyEntry entry = new JsonKeyEntry(this.keyName,
+        this.keyExporter.exportPrivateKey(this.privateKey));
+    when(this.keyStorage.load(this.keyName)).thenReturn(entry);
 
-    @Test
-    public void load() throws CryptoException {
-        Map<String, String> meta = new HashMap<>();
-        meta.put("key1", "value1");
-        meta.put("key2", "value2");
-        KeyEntry entry = new JsonKeyEntry(this.keyName, this.keyExporter.exportPrivateKey(this.privateKey));
-        entry.setMeta(meta);
-        when(this.keyStorage.load(this.keyName)).thenReturn(entry);
+    Tuple<PrivateKey, Map<String, String>> keyData = storage.load(this.keyName);
+    assertNotNull(keyData);
 
-        Tuple<PrivateKey, Map<String, String>> keyData = storage.load(this.keyName);
-        assertNotNull(keyData);
+    PrivateKey key = keyData.getLeft();
+    assertNotNull(key);
+    assertThat(key, instanceOf(VirgilPrivateKey.class));
+    assertEquals(this.privateKey, key);
 
-        PrivateKey key = keyData.getLeft();
-        assertNotNull(key);
-        assertThat(key, instanceOf(VirgilPrivateKey.class));
-        assertEquals(this.privateKey, key);
+    assertTrue(keyData.getRight().isEmpty());
+  }
 
-        assertEquals(meta, keyData.getRight());
-    }
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void load_nonExisting() throws CryptoException {
+    when(this.keyStorage.load(this.keyName)).thenThrow(KeyEntryNotFoundException.class);
+    storage.load(this.keyName);
+  }
 
-    @Test
-    public void load_noMeta() throws CryptoException {
-        KeyEntry entry = new JsonKeyEntry(this.keyName, this.keyExporter.exportPrivateKey(this.privateKey));
-        when(this.keyStorage.load(this.keyName)).thenReturn(entry);
+  @Test(expected = KeyEntryNotFoundException.class)
+  public void load_nullName() throws CryptoException {
+    when(this.keyStorage.load(null)).thenThrow(KeyEntryNotFoundException.class);
+    storage.load(null);
+  }
 
-        Tuple<PrivateKey, Map<String, String>> keyData = storage.load(this.keyName);
-        assertNotNull(keyData);
+  @Test
+  public void names() {
+    when(this.keyStorage.names()).thenReturn(Sets.newSet("key1"));
 
-        PrivateKey key = keyData.getLeft();
-        assertNotNull(key);
-        assertThat(key, instanceOf(VirgilPrivateKey.class));
-        assertEquals(this.privateKey, key);
+    Set<String> names = storage.names();
+    assertNotNull(names);
+    assertEquals(1, names.size());
+    assertEquals("key1", names.iterator().next());
+  }
 
-        assertTrue(keyData.getRight().isEmpty());
-    }
+  @SuppressWarnings("unchecked")
+  @Test
+  public void names_empty() {
+    when(this.keyStorage.names()).thenReturn(Collections.EMPTY_SET);
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void load_nullName() throws CryptoException {
-        when(this.keyStorage.load(null)).thenThrow(KeyEntryNotFoundException.class);
-        storage.load(null);
-    }
+    Set<String> names = storage.names();
+    assertNotNull(names);
+    assertTrue(names.isEmpty());
+  }
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void load_nonExisting() throws CryptoException {
-        when(this.keyStorage.load(this.keyName)).thenThrow(KeyEntryNotFoundException.class);
-        storage.load(this.keyName);
-    }
+  @Before
+  public void setUp() throws CryptoException {
+    this.crypto = new VirgilCrypto();
+    this.privateKey = this.crypto.generateKeys().getPrivateKey();
+    this.keyName = UUID.randomUUID().toString();
 
-    @Test
-    public void delete() {
-        storage.delete(this.keyName);
+    storage = new PrivateKeyStorage(keyExporter, keyStorage);
 
-        ArgumentCaptor<String> keyNameCaptor = ArgumentCaptor.forClass(String.class);
-        verify(this.keyStorage, times(1)).delete(keyNameCaptor.capture());
+    // Configure mocks
+    byte[] privateKeyData = ((VirgilPrivateKey) privateKey).getRawKey();
+    when(this.keyExporter.exportPrivateKey(privateKey)).thenReturn(privateKeyData);
+    when(this.keyExporter.importPrivateKey(privateKeyData))
+        .thenReturn(this.crypto.importPrivateKey(privateKeyData));
+  }
 
-        assertEquals(this.keyName, keyNameCaptor.getValue());
-    }
+  @Test
+  public void store() throws CryptoException {
+    // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void delete_nullName() {
-        doThrow(KeyEntryNotFoundException.class).when(this.keyStorage).delete(null);
+    Map<String, String> meta = new HashMap<>();
+    meta.put("key1", "value1");
+    meta.put("key2", "value2");
+    storage.store(this.privateKey, this.keyName, meta);
 
-        storage.delete(null);
-    }
+    verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);
 
-    @Test(expected = KeyEntryNotFoundException.class)
-    public void delete_nonExisting() {
-        doThrow(KeyEntryNotFoundException.class).when(this.keyStorage).delete(this.keyName);
+    ArgumentCaptor<KeyEntry> keyEntryCaptor = ArgumentCaptor.forClass(KeyEntry.class);
+    verify(this.keyStorage, times(1)).store(keyEntryCaptor.capture());
 
-        storage.delete(this.keyName);
-    }
+    KeyEntry keyEntry = keyEntryCaptor.getValue();
+    assertNotNull(keyEntry);
+    assertEquals(this.keyName, keyEntry.getName());
+    assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
+    assertNotNull(keyEntry.getMeta());
+    assertEquals(meta, keyEntry.getMeta());
+  }
 
-    @Test
-    public void names_empty() {
-        when(this.keyStorage.names()).thenReturn(Collections.EMPTY_SET);
+  @SuppressWarnings("unchecked")
+  @Test
+  public void store_noMeta() throws CryptoException {
+    // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
+    storage.store(this.privateKey, this.keyName, Collections.EMPTY_MAP);
 
-        Set<String> names = storage.names();
-        assertNotNull(names);
-        assertTrue(names.isEmpty());
-    }
+    verify(this.keyExporter, times(1)).exportPrivateKey(privateKey);
 
-    @Test
-    public void names() {
-        when(this.keyStorage.names()).thenReturn(Sets.newSet("key1"));
+    ArgumentCaptor<KeyEntry> keyEntryCaptor = ArgumentCaptor.forClass(KeyEntry.class);
+    verify(this.keyStorage, times(1)).store(keyEntryCaptor.capture());
 
-        Set<String> names = storage.names();
-        assertNotNull(names);
-        assertEquals(1, names.size());
-        assertEquals("key1", names.iterator().next());
-    }
+    KeyEntry keyEntry = keyEntryCaptor.getValue();
+    assertNotNull(keyEntry);
+    assertEquals(this.keyName, keyEntry.getName());
+    assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
+    assertNotNull(keyEntry.getMeta());
+    assertTrue(keyEntry.getMeta().isEmpty());
+  }
 
 }

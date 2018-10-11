@@ -30,11 +30,8 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.examples;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
@@ -49,100 +46,109 @@ import com.virgilsecurity.sdk.storage.PrivateKeyStorage;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author Andrii Iakovenko
  *
  */
 public class PublicKeyManagementExample {
 
-    private void createCard(PrivateKeyStorage privateKeyStorage, CardManager cardManager) throws CryptoException {
-        VirgilCrypto crypto = new VirgilCrypto();
+  public void decryptThenVerify(PrivateKeyStorage privateKeyStorage, CardManager cardManager,
+      byte[] encryptedData) throws CryptoException {
+    VirgilCrypto crypto = new VirgilCrypto();
 
-        // generate a key pair
-        VirgilKeyPair keyPair = crypto.generateKeys();
+    // prepare a user's private key
+    Tuple<PrivateKey, Map<String, String>> bobPrivateKeyEntry = privateKeyStorage.load("Bob");
+    VirgilPrivateKey bobPrivateKey = (VirgilPrivateKey) bobPrivateKeyEntry.getLeft();
 
-        // save a private key into key storage
-        privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);
-
-        // publish user's on the Cards Service
-        try {
-            Card card = cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), "Alice");
-            // // Card is created
-        } catch (CryptoException | VirgilServiceException e) {
-            // Error occured
+    try {
+      // using cardManager search for user's cards on Cards Service
+      List<Card> cards = cardManager.searchCards("Alice");
+      // Cards are obtained
+      List<VirgilPublicKey> aliceRelevantCardsPublicKeys = new ArrayList<>();
+      for (Card card : cards) {
+        if (!card.isOutdated()) {
+          aliceRelevantCardsPublicKeys.add((VirgilPublicKey) card.getPublicKey());
         }
-    }
+      }
 
-    private void findCardById(CardManager cardManager) {
-        // using cardManager get a user's card from the Cards Service
-        try {
-            Card card = cardManager.getCard("f4bf9f7fcbedaba0392f108c59d8f4a38b3838efb64877380171b54475c2ade8");
-            // Card is obtained
-        } catch (CryptoException | VirgilServiceException e) {
-            // Error occured
+      // decrypt with a private key and verify using a public key
+      byte[] decryptedData = crypto.decryptThenVerify(encryptedData, bobPrivateKey,
+          aliceRelevantCardsPublicKeys);
+    } catch (CryptoException | VirgilServiceException e) {
+      // Error occured
+    }
+  }
+
+  public void searchCardByIdentity(CardManager cardManager) {
+    try {
+      List<Card> cards = cardManager.searchCards("Bob");
+      // Cards are obtained
+    } catch (CryptoException | VirgilServiceException e) {
+      // Error occured
+    }
+  }
+
+  public void signThenEncrypt(PrivateKeyStorage privateKeyStorage, CardManager cardManager)
+      throws CryptoException {
+    VirgilCrypto crypto = new VirgilCrypto();
+
+    // prepare a message
+    String messageToEncrypt = "Hello, Bob!";
+    byte[] dataToEncrypt = ConvertionUtils.toBytes(messageToEncrypt);
+
+    // prepare a user's private key
+    Tuple<PrivateKey, Map<String, String>> alicePrivateKeyEntry = privateKeyStorage.load("Alice");
+    VirgilPrivateKey alicePrivateKey = (VirgilPrivateKey) alicePrivateKeyEntry.getLeft();
+
+    // using cardManager search for user's cards on Cards Service
+    try {
+      List<Card> cards = cardManager.searchCards("Bob");
+      // Cards are obtained
+      List<VirgilPublicKey> bobRelevantCardsPublicKeys = new ArrayList<>();
+      for (Card card : cards) {
+        if (!card.isOutdated()) {
+          bobRelevantCardsPublicKeys.add((VirgilPublicKey) card.getPublicKey());
         }
+      }
+      // sign a message with a private key then encrypt on a public key
+      byte[] encryptedData = crypto.signThenEncrypt(dataToEncrypt, alicePrivateKey,
+          bobRelevantCardsPublicKeys);
+    } catch (CryptoException | VirgilServiceException e) {
+      // Error occured
     }
+  }
 
-    public void searchCardByIdentity(CardManager cardManager) {
-        try {
-            List<Card> cards = cardManager.searchCards("Bob");
-            // Cards are obtained
-        } catch (CryptoException | VirgilServiceException e) {
-            // Error occured
-        }
+  private void createCard(PrivateKeyStorage privateKeyStorage, CardManager cardManager)
+      throws CryptoException {
+    VirgilCrypto crypto = new VirgilCrypto();
+
+    // generate a key pair
+    VirgilKeyPair keyPair = crypto.generateKeys();
+
+    // save a private key into key storage
+    privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);
+
+    // publish user's on the Cards Service
+    try {
+      Card card = cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), "Alice");
+      // // Card is created
+    } catch (CryptoException | VirgilServiceException e) {
+      // Error occured
     }
+  }
 
-    public void signThenEncrypt(PrivateKeyStorage privateKeyStorage, CardManager cardManager) throws CryptoException {
-        VirgilCrypto crypto = new VirgilCrypto();
-
-        // prepare a message
-        String messageToEncrypt = "Hello, Bob!";
-        byte[] dataToEncrypt = ConvertionUtils.toBytes(messageToEncrypt);
-
-        // prepare a user's private key
-        Tuple<PrivateKey, Map<String, String>> alicePrivateKeyEntry = privateKeyStorage.load("Alice");
-        VirgilPrivateKey alicePrivateKey = (VirgilPrivateKey) alicePrivateKeyEntry.getLeft();
-
-        // using cardManager search for user's cards on Cards Service
-        try {
-            List<Card> cards = cardManager.searchCards("Bob");
-            // Cards are obtained
-            List<VirgilPublicKey> bobRelevantCardsPublicKeys = new ArrayList<>();
-            for (Card card : cards) {
-                if (!card.isOutdated()) {
-                    bobRelevantCardsPublicKeys.add((VirgilPublicKey) card.getPublicKey());
-                }
-            }
-            // sign a message with a private key then encrypt on a public key
-            byte[] encryptedData = crypto.signThenEncrypt(dataToEncrypt, alicePrivateKey, bobRelevantCardsPublicKeys);
-        } catch (CryptoException | VirgilServiceException e) {
-            // Error occured
-        }
+  private void findCardById(CardManager cardManager) {
+    // using cardManager get a user's card from the Cards Service
+    try {
+      Card card = cardManager
+          .getCard("f4bf9f7fcbedaba0392f108c59d8f4a38b3838efb64877380171b54475c2ade8");
+      // Card is obtained
+    } catch (CryptoException | VirgilServiceException e) {
+      // Error occured
     }
-
-    public void decryptThenVerify(PrivateKeyStorage privateKeyStorage, CardManager cardManager, byte[] encryptedData)
-            throws CryptoException {
-        VirgilCrypto crypto = new VirgilCrypto();
-
-        // prepare a user's private key
-        Tuple<PrivateKey, Map<String, String>> bobPrivateKeyEntry = privateKeyStorage.load("Bob");
-        VirgilPrivateKey bobPrivateKey = (VirgilPrivateKey) bobPrivateKeyEntry.getLeft();
-
-        try {
-            // using cardManager search for user's cards on Cards Service
-            List<Card> cards = cardManager.searchCards("Alice");
-            // Cards are obtained
-            List<VirgilPublicKey> aliceRelevantCardsPublicKeys = new ArrayList<>();
-            for (Card card : cards) {
-                if (!card.isOutdated()) {
-                    aliceRelevantCardsPublicKeys.add((VirgilPublicKey) card.getPublicKey());
-                }
-            }
-
-            // decrypt with a private key and verify using a public key
-            byte[] decryptedData = crypto.decryptThenVerify(encryptedData, bobPrivateKey, aliceRelevantCardsPublicKeys);
-        } catch (CryptoException | VirgilServiceException e) {
-            // Error occured
-        }
-    }
+  }
 }

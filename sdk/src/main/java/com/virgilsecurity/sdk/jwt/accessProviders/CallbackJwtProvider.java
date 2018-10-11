@@ -40,54 +40,59 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
 /**
- * The {@link CallbackJwtProvider} class is implemented for usage of get token callback mechanism which should predefine
- * implementation of generating/receiving/caching of token. Caching should be implemented by user if needed.
+ * The {@link CallbackJwtProvider} class is implemented for usage of get token callback mechanism
+ * which should predefine implementation of generating/receiving/caching of token. Caching should be
+ * implemented by user if needed.
  */
 public class CallbackJwtProvider implements AccessTokenProvider {
 
-    private GetTokenCallback getTokenCallback;
-
+  /**
+   * The interface Get token callback.
+   */
+  public interface GetTokenCallback {
     /**
-     * Instantiates a new Callback jwt provider.
-     *
-     * @param getTokenCallback
-     *         the get token callback
+     * In this callback you should return valid JsonWebToken as base64 string in 2 or 3 parts
+     * separated with dot ('.').
+     * 
+     * @param tokenContext
+     *          the tokenContext that is used to get token
+     * @return the string
      */
-    public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
-        this.getTokenCallback = getTokenCallback;
-    }
+    String onGetToken(TokenContext tokenContext);
+  }
 
-    @Override
-    public AccessToken getToken(TokenContext tokenContext) {
-        Validator.checkNullAgrument(tokenContext, "CallbackJwtProvider -> 'tokenContext' should not be null");
-        Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> set getTokenCallback first");
+  private GetTokenCallback getTokenCallback;
 
-        return new Jwt(getTokenCallback.onGetToken(tokenContext));
-    }
+  /**
+   * Instantiates a new Callback jwt provider.
+   *
+   * @param getTokenCallback
+   *          the get token callback
+   */
+  public CallbackJwtProvider(GetTokenCallback getTokenCallback) {
+    this.getTokenCallback = getTokenCallback;
+  }
 
-    /**
-     * Sets get token callback.
-     *
-     * @param getTokenCallback
-     *         the get token callback
-     */
-    public void setGetTokenCallback(GetTokenCallback getTokenCallback) {
-        Validator.checkNullAgrument(getTokenCallback, "CallbackJwtProvider -> 'getTokenCallback' should not be null");
+  @Override
+  public AccessToken getToken(TokenContext tokenContext) {
+    Validator.checkNullAgrument(tokenContext,
+        "CallbackJwtProvider -> 'tokenContext' should not be null");
+    Validator.checkNullAgrument(getTokenCallback,
+        "CallbackJwtProvider -> set getTokenCallback first");
 
-        this.getTokenCallback = getTokenCallback;
-    }
+    return new Jwt(getTokenCallback.onGetToken(tokenContext));
+  }
 
-    /**
-     * The interface Get token callback.
-     */
-    public interface GetTokenCallback {
-        /**
-         * In this callback you should return valid JsonWebToken as base64 string
-         * in 2 or 3 parts separated with dot ('.').
-         * @param tokenContext
-         *            the tokenContext that is used to get token
-         * @return the string
-         */
-        String onGetToken(TokenContext tokenContext);
-    }
+  /**
+   * Sets get token callback.
+   *
+   * @param getTokenCallback
+   *          the get token callback
+   */
+  public void setGetTokenCallback(GetTokenCallback getTokenCallback) {
+    Validator.checkNullAgrument(getTokenCallback,
+        "CallbackJwtProvider -> 'getTokenCallback' should not be null");
+
+    this.getTokenCallback = getTokenCallback;
+  }
 }

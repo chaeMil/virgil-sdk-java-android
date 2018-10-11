@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.examples;
 
 import com.virgilsecurity.sdk.cards.CardManager;
@@ -53,53 +54,54 @@ import java.util.Arrays;
  */
 public class SetupCardManagerExample {
 
-    private static final String PUBLIC_KEY_STR = "Your public key as Base64 encoded string";
+  private static final String PUBLIC_KEY_STR = "Your public key as Base64 encoded string";
 
-    public static void main(String[] args) {
-        CardCrypto cardCrypto = setupCrypto();
-        AccessTokenProvider accessTokenProvider = setupAccessTokenProvider();
-        CardVerifier cardVerifier = setupCardVerifier(cardCrypto);
-        CardManager cardManager = initializeCardManager(cardCrypto, accessTokenProvider, cardVerifier);
-    }
+  public static void main(String[] args) {
+    CardCrypto cardCrypto = setupCrypto();
+    AccessTokenProvider accessTokenProvider = setupAccessTokenProvider();
+    CardVerifier cardVerifier = setupCardVerifier(cardCrypto);
+    CardManager cardManager = initializeCardManager(cardCrypto, accessTokenProvider, cardVerifier);
+  }
 
-    private static CardCrypto setupCrypto() {
-        // Setup Crypto
-        CardCrypto cardCrypto = new VirgilCardCrypto();
+  private static CardManager initializeCardManager(CardCrypto cardCrypto,
+      AccessTokenProvider accessTokenProvider, CardVerifier cardVerifier) {
 
-        return cardCrypto;
-    }
+    CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, cardVerifier);
 
-    private static AccessTokenProvider setupAccessTokenProvider() {
-        GetTokenCallback getTokenCallback = new GetTokenCallback() {
+    return cardManager;
+  }
 
-            @Override
-            public String onGetToken(TokenContext tokenContext) {
-                // Generate token here
-                return null;
-            }
-        };
-        AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(getTokenCallback);
+  private static AccessTokenProvider setupAccessTokenProvider() {
+    GetTokenCallback getTokenCallback = new GetTokenCallback() {
 
-        return accessTokenProvider;
-    }
+      @Override
+      public String onGetToken(TokenContext tokenContext) {
+        // Generate token here
+        return null;
+      }
+    };
+    AccessTokenProvider accessTokenProvider = new CallbackJwtProvider(getTokenCallback);
 
-    private static CardVerifier setupCardVerifier(CardCrypto cardCrypto) {
-        VerifierCredentials yourBackendVerifierCredenetials = new VerifierCredentials("YOUR_BACKEND",
-                ConvertionUtils.base64ToBytes(PUBLIC_KEY_STR));
+    return accessTokenProvider;
+  }
 
-        Whitelist yourBackendWhitelist = new Whitelist(Arrays.asList(yourBackendVerifierCredenetials));
+  private static CardVerifier setupCardVerifier(CardCrypto cardCrypto) {
+    VerifierCredentials yourBackendVerifierCredenetials = new VerifierCredentials("YOUR_BACKEND",
+        ConvertionUtils.base64ToBytes(PUBLIC_KEY_STR));
 
-        CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto, Arrays.asList(yourBackendWhitelist));
+    Whitelist yourBackendWhitelist = new Whitelist(Arrays.asList(yourBackendVerifierCredenetials));
 
-        return cardVerifier;
-    }
+    CardVerifier cardVerifier = new VirgilCardVerifier(cardCrypto,
+        Arrays.asList(yourBackendWhitelist));
 
-    private static CardManager initializeCardManager(CardCrypto cardCrypto, AccessTokenProvider accessTokenProvider,
-            CardVerifier cardVerifier) {
+    return cardVerifier;
+  }
 
-        CardManager cardManager = new CardManager(cardCrypto, accessTokenProvider, cardVerifier);
+  private static CardCrypto setupCrypto() {
+    // Setup Crypto
+    CardCrypto cardCrypto = new VirgilCardCrypto();
 
-        return cardManager;
-    }
+    return cardCrypto;
+  }
 
 }

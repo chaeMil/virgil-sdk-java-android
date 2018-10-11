@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
@@ -43,108 +44,113 @@ import java.util.Arrays;
  */
 public class VirgilPrivateKey implements PrivateKey, Serializable {
 
-    private static final long serialVersionUID = 3949844179494530851L;
+  private static final long serialVersionUID = 3949844179494530851L;
 
-    /**
-     * The Private key identifier
-     */
-    private byte[] identifier;
+  /**
+   * The Private key identifier.
+   */
+  private byte[] identifier;
 
-    /**
-     * The Private key rawKey
-     */
-    private byte[] rawKey;
+  /**
+   * The Private key raw date.
+   */
+  private byte[] rawKey;
 
-    /**
-     * Create a new instance of {@code VirgilPrivateKey}
-     */
-    public VirgilPrivateKey() {
+  /**
+   * Create a new instance of {@code VirgilPrivateKey}.
+   */
+  public VirgilPrivateKey() {
+  }
+
+  /**
+   * Create a new instance of {@code VirgilPrivateKey}.
+   *
+   * @param identifier
+   *          the key identifier.
+   * @param rawKey
+   *          the key rawKey.
+   */
+  public VirgilPrivateKey(byte[] identifier, byte[] rawKey) {
+    this.identifier = identifier;
+    this.rawKey = rawKey;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
     }
-
-    /**
-     * Create a new instance of {@code VirgilPrivateKey}
-     *
-     * @param identifier
-     *            the key identifier.
-     * @param rawKey
-     *            the key rawKey.
-     */
-    public VirgilPrivateKey(byte[] identifier, byte[] rawKey) {
-        this.identifier = identifier;
-        this.rawKey = rawKey;
+    if (obj == null) {
+      return false;
     }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        VirgilPrivateKey other = (VirgilPrivateKey) obj;
-        if (!Arrays.equals(identifier, other.identifier))
-            return false;
-        if (!Arrays.equals(rawKey, other.rawKey))
-            return false;
-        return true;
+    if (getClass() != obj.getClass()) {
+      return false;
     }
-
-    /**
-     * Get identifier byte [ ].
-     *
-     * @return the byte [ ]
-     */
-    public byte[] getIdentifier() {
-        return identifier;
+    VirgilPrivateKey other = (VirgilPrivateKey) obj;
+    if (!Arrays.equals(identifier, other.identifier)) {
+      return false;
     }
-
-    /**
-     * Get raw key byte [ ].
-     *
-     * @return the byte [ ]
-     */
-    public byte[] getRawKey() {
-        return rawKey;
+    if (!Arrays.equals(rawKey, other.rawKey)) {
+      return false;
     }
+    return true;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + Arrays.hashCode(identifier);
-        result = prime * result + Arrays.hashCode(rawKey);
-        return result;
-    }
+  /**
+   * Get identifier byte [ ].
+   *
+   * @return the byte [ ]
+   */
+  public byte[] getIdentifier() {
+    return identifier;
+  }
 
-    /**
-     * Sets identifier.
-     *
-     * @param identifier
-     *            the identifier
-     */
-    public void setIdentifier(byte[] identifier) {
-        this.identifier = identifier;
-    }
+  /**
+   * Get raw key byte [ ].
+   *
+   * @return the byte [ ]
+   */
+  public byte[] getRawKey() {
+    return rawKey;
+  }
 
-    /**
-     * Sets raw key.
-     *
-     * @param rawKey
-     *            the rawKey to set
-     */
-    public void setRawKey(byte[] rawKey) {
-        this.rawKey = rawKey;
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(identifier);
+    result = prime * result + Arrays.hashCode(rawKey);
+    return result;
+  }
+
+  /**
+   * Sets identifier.
+   *
+   * @param identifier
+   *          the identifier
+   */
+  public void setIdentifier(byte[] identifier) {
+    this.identifier = identifier;
+  }
+
+  /**
+   * Sets raw key.
+   *
+   * @param rawKey
+   *          the rawKey to set
+   */
+  public void setRawKey(byte[] rawKey) {
+    this.rawKey = rawKey;
+  }
 
 }

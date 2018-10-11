@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
@@ -44,97 +45,102 @@ import java.util.Arrays;
  */
 public class VirgilPublicKey implements PublicKey, Serializable {
 
-    private static final long serialVersionUID = -9006213204395528391L;
+  private static final long serialVersionUID = -9006213204395528391L;
 
-    /**
-     * The Public key identifier
-     */
-    private byte[] identifier;
+  /**
+   * The Public key identifier.
+   */
+  private byte[] identifier;
 
-    /**
-     * The Public key rawKey
-     */
-    private byte[] rawKey;
+  /**
+   * The Public key rawKey.
+   */
+  private byte[] rawKey;
 
-    /**
-     * Create a new instance of {@code VirgilPublicKey}
-     */
-    public VirgilPublicKey() {
+  /**
+   * Create a new instance of {@code VirgilPublicKey}.
+   */
+  public VirgilPublicKey() {
+  }
+
+  /**
+   * Create a new instance of {@code VirgilPublicKey}.
+   *
+   * @param identifier
+   *          the public key identifier.
+   * @param rawKey
+   *          the public key raw data.
+   */
+  public VirgilPublicKey(byte[] identifier, byte[] rawKey) {
+    this.identifier = identifier;
+    this.rawKey = rawKey;
+  }
+
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#equals(java.lang.Object)
+   */
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    /**
-     * Create a new instance of {@code VirgilPublicKey}
-     *
-     * @param identifier
-     * @param rawKey
-     */
-    public VirgilPublicKey(byte[] identifier, byte[] rawKey) {
-        this.identifier = identifier;
-        this.rawKey = rawKey;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    VirgilPublicKey publicKey = (VirgilPublicKey) o;
+    return Arrays.equals(identifier, publicKey.identifier)
+        && Arrays.equals(rawKey, publicKey.rawKey);
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        VirgilPublicKey publicKey = (VirgilPublicKey) o;
-        return Arrays.equals(identifier, publicKey.identifier) && Arrays.equals(rawKey, publicKey.rawKey);
-    }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.crypto.PublicKey#getIdentifier()
+   */
+  public byte[] getIdentifier() {
+    return identifier;
+  }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.crypto.PublicKey#getIdentifier()
-     */
-    public byte[] getIdentifier() {
-        return identifier;
-    }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.crypto.PublicKey#getRawKey()
+   */
+  public byte[] getRawKey() {
+    return rawKey;
+  }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.crypto.PublicKey#getRawKey()
-     */
-    public byte[] getRawKey() {
-        return rawKey;
-    }
+  /*
+   * (non-Javadoc)
+   *
+   * @see java.lang.Object#hashCode()
+   */
+  @Override
+  public int hashCode() {
+    int result = Arrays.hashCode(identifier);
+    result = 31 * result + Arrays.hashCode(rawKey);
+    return result;
+  }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        int result = Arrays.hashCode(identifier);
-        result = 31 * result + Arrays.hashCode(rawKey);
-        return result;
-    }
+  /**
+   * Set the Public key hash.
+   *
+   * @param identifier
+   *          the Id to set
+   */
+  public void setIdentifier(byte[] identifier) {
+    this.identifier = identifier;
+  }
 
-    /**
-     * Set the Public key hash.
-     *
-     * @param identifier
-     *            the Id to set
-     */
-    public void setIdentifier(byte[] identifier) {
-        this.identifier = identifier;
-    }
-
-    /**
-     * Set the Public key rawKey.
-     *
-     * @param rawKey
-     *            the rawKey to set
-     */
-    public void setRawKey(byte[] rawKey) {
-        this.rawKey = rawKey;
-    }
+  /**
+   * Set the Public key rawKey.
+   *
+   * @param rawKey
+   *          the rawKey to set
+   */
+  public void setRawKey(byte[] rawKey) {
+    this.rawKey = rawKey;
+  }
 }

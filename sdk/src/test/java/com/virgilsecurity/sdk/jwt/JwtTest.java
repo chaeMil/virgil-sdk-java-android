@@ -30,62 +30,69 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.jwt;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import org.junit.Before;
-import org.junit.Test;
 
 import java.util.Date;
 
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
+ * Unit tests for {@link Jwt}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class JwtTest {
-    private static final long FUTURE_TIME_EXPIRATION = 6 * 1000; // 6 sec
+  private static final long FUTURE_TIME_EXPIRATION = 6 * 1000; // 6 sec
 
-    private FakeDataFactory fake;
-    private String identity;
+  private FakeDataFactory fake;
+  private String identity;
 
-    @Before
-    public void setup() throws CryptoException {
-        this.fake = new FakeDataFactory();
-        this.identity = "IDENTITY_" + fake.getApplicationId();
-    }
+  @Test
+  public void future_expire() throws CryptoException, InterruptedException {
+    JwtGenerator generator = fake.getJwtGeneratorFiveSeconds();
+    Jwt jwt = generator.generateToken(this.identity);
+    assertNotNull(jwt);
 
-    @Test
-    public void generate_byIdentity() throws CryptoException {
-        JwtGenerator generator = fake.getJwtGenerator();
-        Jwt jwt = generator.generateToken(this.identity);
+    assertFalse(jwt.isExpired());
+    assertTrue(jwt.isExpired(new Date(System.currentTimeMillis() + FUTURE_TIME_EXPIRATION)));
 
-        assertNotNull(jwt);
-        assertEquals(this.identity, jwt.getIdentity());
-    }
+    Thread.sleep(FUTURE_TIME_EXPIRATION);
 
-    @Test
-    public void instantiate_fromString() throws CryptoException {
-        Jwt jwt = this.fake.generateToken();
-        Jwt importedJwt = new Jwt(jwt.stringRepresentation());
+    assertTrue(jwt.isExpired());
+  }
 
-        assertEquals(jwt, importedJwt);
-        assertEquals(jwt.stringRepresentation(), importedJwt.stringRepresentation());
-    }
+  @Test
+  public void generate_byIdentity() throws CryptoException {
+    JwtGenerator generator = fake.getJwtGenerator();
+    Jwt jwt = generator.generateToken(this.identity);
 
-    @Test
-    public void future_expire() throws CryptoException, InterruptedException {
-        JwtGenerator generator = fake.getJwtGeneratorFiveSeconds();
-        Jwt jwt = generator.generateToken(this.identity);
-        assertNotNull(jwt);
+    assertNotNull(jwt);
+    assertEquals(this.identity, jwt.getIdentity());
+  }
 
-        assertFalse(jwt.isExpired());
-        assertTrue(jwt.isExpired(new Date(System.currentTimeMillis() + FUTURE_TIME_EXPIRATION)));
+  @Test
+  public void instantiate_fromString() throws CryptoException {
+    Jwt jwt = this.fake.generateToken();
+    Jwt importedJwt = new Jwt(jwt.stringRepresentation());
 
-        Thread.sleep(FUTURE_TIME_EXPIRATION);
+    assertEquals(jwt, importedJwt);
+    assertEquals(jwt.stringRepresentation(), importedJwt.stringRepresentation());
+  }
 
-        assertTrue(jwt.isExpired());
-    }
+  @Before
+  public void setup() throws CryptoException {
+    this.fake = new FakeDataFactory();
+    this.identity = "IDENTITY_" + fake.getApplicationId();
+  }
 }

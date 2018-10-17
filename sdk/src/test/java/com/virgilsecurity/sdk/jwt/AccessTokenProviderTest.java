@@ -38,6 +38,7 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.accessProviders.CachingJwtProvider;
@@ -135,6 +136,83 @@ public class AccessTokenProviderTest {
     if (failedConcurrency) {
       fail();
     }
+  }
+
+  @Test
+  public void caching_jwt_provider_thread_safe() throws InterruptedException {
+      final int[] counter = new int[1];
+
+      final CachingJwtProvider jwtProvider = new CachingJwtProvider(new CachingJwtProvider.RenewJwtCallback() {
+          @Override
+          public Jwt renewJwt(TokenContext tokenContext) {
+              try {
+                  counter[0]++;
+                  return mocker.generateSevenSecondsAccessToken(FAKE_IDENTITY);
+              } catch (CryptoException e) {
+                  e.printStackTrace();
+                  throw new NullPointerException("Error generating token");
+              }
+          }
+      });
+
+      final TokenContext tokenContext = new TokenContext(TOKEN_OPERATION, TOKEN_FORCE_RELOAD, TOKEN_SERVICE);
+
+      ExecutorService exec = Executors.newFixedThreadPool(6);
+
+      for (int i = 0; i <= 5; i++) {
+          exec.execute(new Runnable() {
+              @Override
+              public void run() {
+                  System.out.println("Thread id: " + Thread.currentThread().getName());
+
+                  AccessToken token1 = jwtProvider.getToken(tokenContext);
+                  if (token1 == null) {
+                      throw new NullPointerException();
+                  }
+              }
+          });
+      }
+
+      exec.shutdown();
+      exec.awaitTermination(10, TimeUnit.SECONDS);
+
+      assertEquals(1, counter[0]);
+  }
+
+  @Test
+  public void stc_40_caching_token_provider_initial_value() throws CryptoException, InterruptedException {
+    final int[] counter = new int[1];
+    final String identity = Generator.identity();
+
+    final JwtGenerator jwtGeneratorSevenSeconds =  mocker.getJwtGeneratorForSeconds(10);
+    Jwt tokenInitial = jwtGeneratorSevenSeconds.generateToken(identity);
+    CachingJwtProvider cachingJwtProvider = new CachingJwtProvider(new CachingJwtProvider.RenewJwtCallback() {
+
+      @Override public Jwt renewJwt(TokenContext tokenContext) {
+          try {
+              counter[0]++;
+              return jwtGeneratorSevenSeconds.generateToken(identity);
+          } catch (CryptoException e) {
+              e.printStackTrace();
+              return null;
+          }
+      }
+    }, tokenInitial);
+
+    AccessToken tokenOne = cachingJwtProvider.getToken(new TokenContext("test_operation", false));
+    assertEquals(tokenInitial, tokenOne);
+
+    Thread.sleep(3 * 1000);
+
+    AccessToken tokenTwo = cachingJwtProvider.getToken(new TokenContext("test_operation", false));
+    assertEquals(tokenInitial, tokenTwo);
+
+    Thread.sleep(5 * 1000);
+
+    AccessToken tokenThree = cachingJwtProvider.getToken(new TokenContext("test_operation", false));
+    assertNotEquals(tokenInitial, tokenThree);
+
+    assertEquals(1, counter[0]);
   }
 
   @Before

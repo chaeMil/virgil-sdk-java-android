@@ -86,6 +86,19 @@ public class CachingJwtProvider implements AccessTokenProvider {
   }
 
   /**
+   * Instantiates a new Caching jwt provider.
+   *
+   * @param renewJwtCallback
+   *          the renew jwt callback
+   * @param initialJwt
+   *          the initial jwt that will be used until expired
+   */
+  public CachingJwtProvider(RenewJwtCallback renewJwtCallback, Jwt initialJwt) {
+    this.renewJwtCallback = renewJwtCallback;
+    this.jwt = initialJwt;
+  }
+
+  /**
    * Gets renew jwt callback.
    *
    * @return the renew jwt callback
@@ -95,7 +108,7 @@ public class CachingJwtProvider implements AccessTokenProvider {
   }
 
   @Override
-  public AccessToken getToken(TokenContext tokenContext) {
+  public synchronized AccessToken getToken(TokenContext tokenContext) {
     if (jwt != null
         && !jwt.isExpired(new Date(System.currentTimeMillis() + TOKEN_FUTURE_EXPIRATION_TIME))) {
       return jwt;

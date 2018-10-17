@@ -202,6 +202,12 @@ public class Mocker extends PropertyManager {
     return jwtGeneratorSevenSeconds;
   }
 
+  public JwtGenerator getJwtGeneratorForSeconds(int seconds) {
+    return jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), getApiPrivateKey(), getApiPublicKeyId(),
+                                                       TimeSpan.fromTime(seconds, TimeUnit.SECONDS),
+                                                       new VirgilAccessTokenSigner());
+  }
+
   public JwtVerifier getVerifier() {
     return verifier;
   }

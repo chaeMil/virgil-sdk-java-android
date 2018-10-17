@@ -31,56 +31,39 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.storage;
+package com.virgilsecurity.sdk.client;
 
 import java.util.Map;
 
 /**
- * Represents a key pair storage entry.
+ * @author Andrii Iakovenko
+ *
  */
-public interface KeyEntry {
+public class HttpResponse {
 
-  /**
-   * @return the key entry metadata.
-   */
-  Map<String, String> getMeta();
+  private String body;
+  private Map<String, String> headers;
 
-  /**
-   * Gets the key entry name.
-   * 
-   * @return the key entry name.
-   */
-  String getName();
+  public HttpResponse(String body, Map<String, String> headers) {
+    super();
+    this.body = body;
+    this.headers = headers;
+  }
 
-  /**
-   * Gets the key entry value.
-   * 
-   * @return the key entry value.
-   */
-  byte[] getValue();
+  public String getBody() {
+    return body;
+  }
 
-  /**
-   * Sets the key entry metadata.
-   *
-   * @param meta
-   *          the key entry metadata.
-   */
-  void setMeta(Map<String, String> meta);
+  public void setBody(String body) {
+    this.body = body;
+  }
 
-  /**
-   * Sets the key entry name.
-   * 
-   * @param name
-   *          the key entry name.
-   */
-  void setName(String name);
+  public Map<String, String> getHeaders() {
+    return headers;
+  }
 
-  /**
-   * Sets the key entry value.
-   * 
-   * @param value
-   *          the key entry value.
-   */
-  void setValue(byte[] value);
+  public void setHeaders(Map<String, String> headers) {
+    this.headers = headers;
+  }
 
 }

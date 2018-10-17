@@ -73,9 +73,9 @@ import java.util.List;
 public class VirgilCrypto {
 
   private static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
-  private static final byte[] CUSTOM_PARAM_SIGNATURE = "VIRGIL-DATA-SIGNATURE"
+  public static final byte[] CUSTOM_PARAM_SIGNATURE = "VIRGIL-DATA-SIGNATURE"
       .getBytes(UTF8_CHARSET);
-  private static final byte[] CUSTOM_PARAM_SIGNER_ID = "VIRGIL-DATA-SIGNER-ID"
+  public static final byte[] CUSTOM_PARAM_SIGNER_ID = "VIRGIL-DATA-SIGNER-ID"
       .getBytes(UTF8_CHARSET);
   private static final String ERROR_PARSE_TEXT = "Error code: ";
   private static final int ERROR_CODE_WRONG_PRIVATE_KEY = 12;

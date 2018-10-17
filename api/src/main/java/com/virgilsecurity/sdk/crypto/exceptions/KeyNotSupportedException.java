@@ -31,56 +31,45 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.storage;
-
-import java.util.Map;
+package com.virgilsecurity.sdk.crypto.exceptions;
 
 /**
- * Represents a key pair storage entry.
+ * This exception should be throw if key is not supported by Crypto implementation.
+ *
+ * @author Andrii Iakovenko
+ *
  */
-public interface KeyEntry {
+public class KeyNotSupportedException extends CryptoException {
+
+  private static final long serialVersionUID = -93962084934375263L;
 
   /**
-   * @return the key entry metadata.
-   */
-  Map<String, String> getMeta();
-
-  /**
-   * Gets the key entry name.
-   * 
-   * @return the key entry name.
-   */
-  String getName();
-
-  /**
-   * Gets the key entry value.
-   * 
-   * @return the key entry value.
-   */
-  byte[] getValue();
-
-  /**
-   * Sets the key entry metadata.
+   * Create a new instance of {@code VirgilException}.
    *
-   * @param meta
-   *          the key entry metadata.
    */
-  void setMeta(Map<String, String> meta);
+  public KeyNotSupportedException() {
+  }
 
   /**
-   * Sets the key entry name.
-   * 
-   * @param name
-   *          the key entry name.
+   * Create a new instance of {@code VirgilException} with the specified detail message.
+   *
+   * @param message
+   *          the detail message. The detail message is saved for later retrieval by the
+   *          {@link #getMessage()} method.
    */
-  void setName(String name);
+  public KeyNotSupportedException(String message) {
+    super(message);
+  }
 
   /**
-   * Sets the key entry value.
-   * 
-   * @param value
-   *          the key entry value.
+   * Create a new instance of {@code VirgilException}.
+   *
+   * @param cause
+   *          the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
+   *          <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or
+   *          unknown.)
    */
-  void setValue(byte[] value);
-
+  public KeyNotSupportedException(Throwable cause) {
+    super(cause);
+  }
 }

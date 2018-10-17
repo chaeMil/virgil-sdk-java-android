@@ -233,4 +233,29 @@ public class DefaultKeyStorage implements KeyStorage {
     }
   }
 
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.storage.KeyStorage#createEntry(java.lang.String, byte[])
+   */
+  @Override
+  public KeyEntry createEntry(String name, byte[] value) {
+    return new JsonKeyEntry(name, value);
+  }
+
+  /* (non-Javadoc)
+   * @see com.virgilsecurity.sdk.storage.KeyStorage#update(com.virgilsecurity.sdk.storage.KeyEntry)
+   */
+  @Override
+  public void update(KeyEntry keyEntry) {
+    synchronized (this) {
+      Entries entries = load();
+      if (!entries.containsKey(keyEntry.getName())) {
+        throw new KeyEntryNotFoundException();
+      }
+      entries.put(keyEntry.getName(), (JsonKeyEntry) keyEntry);
+      save(entries);
+    }
+  }
+
 }

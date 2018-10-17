@@ -34,6 +34,7 @@
 package com.virgilsecurity.sdk.storage;
 
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 
 import java.util.Set;
 
@@ -46,10 +47,21 @@ import java.util.Set;
 public interface KeyStorage {
 
   /**
+   * Factory method for creating {@linkplain KeyEntry}.
+   * 
+   * @param name
+   *          the key name.
+   * @param value
+   *          the key value.
+   * @return created {@linkplain KeyEntry instance}.
+   */
+  KeyEntry createEntry(String name, byte[] value);
+
+  /**
    * Deletes the private key from key store by given Id.
    *
    * @param name
-   *          The key name.
+   *          the key name.
    */
   void delete(String name);
 
@@ -57,7 +69,7 @@ public interface KeyStorage {
    * Checks if the private key exists in this storage by given alias.
    *
    * @param name
-   *          The key name.
+   *          the key name.
    * @return {@code true} if the private key exists, {@code false} otherwise.
    */
   boolean exists(String name);
@@ -66,7 +78,7 @@ public interface KeyStorage {
    * Loads the private key associated with the given alias.
    *
    * @param name
-   *          The key name.
+   *          the key name.
    * @return The requested private key, or null if the given alias does not exist or does not
    *         identify a key-related entry.
    */
@@ -83,10 +95,20 @@ public interface KeyStorage {
    * Stores the private key (that has already been protected) to the given alias.
    *
    * @param keyEntry
-   *          The key entry.
+   *          the key entry.
    * @throws KeyEntryAlreadyExistsException
    *           if key with the same name is already stored
    */
   void store(KeyEntry keyEntry);
+
+  /**
+   * Updates the private key (that has already been protected) to the given alias.
+   *
+   * @param keyEntry
+   *          the key entry.
+   * @throws KeyEntryNotFoundException
+   *           if key with the same name doesn't exists.
+   */
+  void update(KeyEntry keyEntry);
 
 }

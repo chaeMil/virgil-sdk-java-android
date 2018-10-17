@@ -566,6 +566,39 @@ public class CardManager {
    *          the private key that used to generate self signature
    * @param publicKey
    *          the public key
+   * @return the card that is returned from the Virgil Cards service after successful publishing
+   * @throws CryptoException
+   *           if issue occurred during get generating token or verifying card that was received
+   *           from the Virgil Cards service
+   * @throws VirgilServiceException
+   *           if card was not created by a service
+   */
+  public Card publishCard(PrivateKey privateKey, PublicKey publicKey)
+      throws CryptoException, VirgilServiceException {
+
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
+        TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, token.getIdentity());
+
+    return publishRawSignedModel(cardModel, tokenContext, token);
+  }
+
+  /**
+   * Publish card to the Virgil Cards service. You can use {@link #setRetryOnUnauthorized(boolean)}
+   * method passing {@code true} to retry request with new token on {@code unauthorized} http error.
+   * <p>
+   * Internally {@link #generateRawCard(PrivateKey, PublicKey, String)} method will be called to
+   * generate {@link RawSignedModel} with provided parameters after that card model will be
+   * published via {@link #publishCard(RawSignedModel)} method
+   * </p>
+   *
+   * @param privateKey
+   *          the private key that used to generate self signature
+   * @param publicKey
+   *          the public key
    * @param identity
    *          the unique identity value
    * @return the card that is returned from the Virgil Cards service after successful publishing
@@ -577,7 +610,13 @@ public class CardManager {
    */
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity)
       throws CryptoException, VirgilServiceException {
-    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity);
+
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
+        TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, token.getIdentity());
 
     return publishCard(cardModel);
   }
@@ -609,7 +648,13 @@ public class CardManager {
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
       Map<String, String> additionalData) throws CryptoException, VirgilServiceException {
 
-    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, additionalData);
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
+        TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, token.getIdentity(),
+        additionalData);
 
     return publishCard(cardModel);
   }
@@ -641,7 +686,13 @@ public class CardManager {
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
       String previousCardId) throws CryptoException, VirgilServiceException {
 
-    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId);
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
+        TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, token.getIdentity(),
+        previousCardId);
 
     return publishCard(cardModel);
   }
@@ -676,8 +727,13 @@ public class CardManager {
       String previousCardId, Map<String, String> additionalData)
       throws CryptoException, VirgilServiceException {
 
-    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, identity, previousCardId,
-        additionalData);
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
+        TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    RawSignedModel cardModel = generateRawCard(privateKey, publicKey, token.getIdentity(),
+        previousCardId, additionalData);
 
     return publishCard(cardModel);
   }
@@ -701,8 +757,36 @@ public class CardManager {
   public Card publishCard(RawSignedModel cardModel) throws CryptoException, VirgilServiceException {
     Validator.checkNullAgrument(cardModel, "CardManager -> 'cardModel' should not be null");
 
-    AccessToken token = accessTokenProvider
-        .getToken(new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false, TOKEN_CONTEXT_SERVICE));
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
+        TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    String cardModelIdentity = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()))
+        .getIdentity();
+
+    if (!cardModelIdentity.equals(token.getIdentity()))
+      throw new IllegalArgumentException(
+          "Identity in provided RawSignedModel and in JWT must be equal."
+              + "Identity specified in provided RawSignedModel: " + cardModelIdentity + ". " + // Possibly
+                                                                                               // move
+                                                                                               // this
+                                                                                               // and
+                                                                                               // bottom
+                                                                                               // lines
+                                                                                               // to
+                                                                                               // Logs
+              "Identity specified in JWT: " + token.getIdentity() + ".");
+
+    return publishRawSignedModel(cardModel, tokenContext, token);
+  }
+
+  private Card publishRawSignedModel(RawSignedModel cardModel, TokenContext tokenContext,
+      AccessToken initialToken) throws CryptoException, VirgilServiceException { // Initial token is
+                                                                                 // intended for not
+                                                                                 // to call getToken
+                                                                                 // twice
+
     RawSignedModel cardModelPublished;
 
     if (signCallback != null) {
@@ -713,16 +797,16 @@ public class CardManager {
     }
 
     try {
-      cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
+      cardModelPublished = cardClient.publishCard(cardModel, initialToken.stringRepresentation());
     } catch (VirgilServiceException exceptionOuter) {
       if (exceptionOuter.getHttpError() != null
           && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
           && retryOnUnauthorized) {
         LOGGER.fine("Token is expired, trying to reload...");
-        token = accessTokenProvider.getToken(
-            new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, true, TOKEN_CONTEXT_SERVICE));
+        initialToken = accessTokenProvider.getToken(tokenContext);
         try {
-          cardModelPublished = cardClient.publishCard(cardModel, token.stringRepresentation());
+          cardModelPublished = cardClient.publishCard(cardModel,
+              initialToken.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
           LOGGER.log(Level.SEVERE, "An error ocurred while publishing a card", exceptionOuter);
           throw exceptionInner;

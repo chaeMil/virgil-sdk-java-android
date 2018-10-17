@@ -31,56 +31,12 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.storage;
-
-import java.util.Map;
+package com.virgilsecurity.sdk.client;
 
 /**
- * Represents a key pair storage entry.
+ * @author Andrii Iakovenko
+ *
  */
-public interface KeyEntry {
-
-  /**
-   * @return the key entry metadata.
-   */
-  Map<String, String> getMeta();
-
-  /**
-   * Gets the key entry name.
-   * 
-   * @return the key entry name.
-   */
-  String getName();
-
-  /**
-   * Gets the key entry value.
-   * 
-   * @return the key entry value.
-   */
-  byte[] getValue();
-
-  /**
-   * Sets the key entry metadata.
-   *
-   * @param meta
-   *          the key entry metadata.
-   */
-  void setMeta(Map<String, String> meta);
-
-  /**
-   * Sets the key entry name.
-   * 
-   * @param name
-   *          the key entry name.
-   */
-  void setName(String name);
-
-  /**
-   * Sets the key entry value.
-   * 
-   * @param value
-   *          the key entry value.
-   */
-  void setValue(byte[] value);
-
+public enum HttpMethod {
+  GET, POST, PUT, DELETE
 }

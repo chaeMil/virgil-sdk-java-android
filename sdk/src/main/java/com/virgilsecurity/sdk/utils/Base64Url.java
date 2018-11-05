@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.utils;
 
 /**
@@ -41,66 +42,66 @@ package com.virgilsecurity.sdk.utils;
  */
 public class Base64Url {
 
-    /**
-     * Encodes bytes to base64url string.
-     * 
-     * @param bytes
-     *            The bytes for encoding.
-     * @return base64url encoded string.
-     */
-    public static String encode(byte[] bytes) {
-        String s = ConvertionUtils.toBase64String(bytes);
-        return s.replace("=", "").replace("+", "-").replace("/", "_");
+  /**
+   * Decodes base64url string to base64.
+   *
+   * @param value
+   *          base64url encoded string.
+   * @return decoded string.
+   */
+  public static String decode(String value) {
+    return ConvertionUtils.toString(decodeToBytes(value));
+  }
+
+  /**
+   * Decodes base64url string to base64.
+   *
+   * @param value
+   *          base64url encoded string.
+   * @return decoded string.
+   */
+  public static byte[] decodeToBytes(String value) {
+    String s = value;
+
+    s = s.replace("-", "+");
+    s = s.replace("_", "/");
+
+    switch (s.length() % 4) {
+      case 0:
+        break;
+      case 2:
+        s += "==";
+        break;
+      case 3:
+        s += "=";
+        break;
+      default:
+        throw new IllegalArgumentException("ConvertionUtils -> 'input' has wrong base64url format");
     }
 
-    /**
-     * Encodes string to base64url.
-     *
-     * @param value
-     *            The string for encoding.
-     * @return base64url encoded string.
-     */
-    public static String encode(String value) {
-        return encode(ConvertionUtils.toBytes(value));
-    }
+    return ConvertionUtils.base64ToBytes(s);
+  }
 
-    /**
-     * Decodes base64url string to base64
-     *
-     * @param value
-     *            base64url encoded string.
-     * @return decoded string.
-     */
-    public static String decode(String value) {
-        return ConvertionUtils.toString(decodeToBytes(value));
-    }
+  /**
+   * Encodes bytes to base64url string.
+   * 
+   * @param bytes
+   *          The bytes for encoding.
+   * @return base64url encoded string.
+   */
+  public static String encode(byte[] bytes) {
+    String s = ConvertionUtils.toBase64String(bytes);
+    return s.replace("=", "").replace("+", "-").replace("/", "_");
+  }
 
-    /**
-     * Decodes base64url string to base64
-     *
-     * @param value
-     *            base64url encoded string.
-     * @return decoded string.
-     */
-    public static byte[] decodeToBytes(String value) {
-        String s = value;
-
-        s = s.replace("-", "+");
-        s = s.replace("_", "/");
-
-        switch (s.length() % 4) {
-        case 0:
-            break;
-        case 2:
-            s += "==";
-            break;
-        case 3:
-            s += "=";
-            break;
-        default:
-            throw new IllegalArgumentException("ConvertionUtils -> 'input' has wrong base64url format");
-        }
-
-        return ConvertionUtils.base64ToBytes(s);
-    }
+  /**
+   * Encodes string to base64url.
+   *
+   * @param value
+   *          The string for encoding.
+   * @return base64url encoded string.
+   */
+  public static String encode(String value) {
+    return encode(ConvertionUtils.toBytes(value));
+  }
 }

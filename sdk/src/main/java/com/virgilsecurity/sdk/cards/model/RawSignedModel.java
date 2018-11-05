@@ -33,207 +33,218 @@
 
 package com.virgilsecurity.sdk.cards.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Logger;
-
 import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
 /**
  * The Raw signed model.
  */
 public class RawSignedModel {
-    private static final Logger LOGGER = Logger.getLogger(RawSignedModel.class.getName());
+  private static final Logger LOGGER = Logger.getLogger(RawSignedModel.class.getName());
 
-    @SerializedName("content_snapshot")
-    private byte[] contentSnapshot;
+  @SerializedName("content_snapshot")
+  private byte[] contentSnapshot;
 
-    @SerializedName("signatures")
-    private List<RawSignature> signatures;
+  @SerializedName("signatures")
+  private List<RawSignature> signatures;
 
-    /**
-     * Instantiates a new Raw signed model.
-     *
-     * @param contentSnapshot
-     *            the content snapshot
-     */
-    public RawSignedModel(byte[] contentSnapshot) {
-        Validator.checkNullEmptyAgrument(contentSnapshot,
-                "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+  /**
+   * Instantiate {@link RawSignedModel} from provided string.
+   *
+   * @param cardModel
+   *          the card model
+   * @return the raw signed model
+   */
+  public static RawSignedModel fromJson(String cardModel) {
+    return ConvertionUtils.deserializeFromJson(cardModel, RawSignedModel.class);
+  }
 
-        this.contentSnapshot = contentSnapshot;
+  /**
+   * Instantiate {@link RawSignedModel} from provided base64 string.
+   *
+   * @param cardModel
+   *          the card model
+   * @return the raw signed model
+   */
+  public static RawSignedModel fromString(String cardModel) {
+    return fromJson(ConvertionUtils.base64ToString(cardModel));
+  }
 
-        signatures = new ArrayList<>();
+  /**
+   * Instantiates a new Raw signed model.
+   *
+   * @param contentSnapshot
+   *          the content snapshot
+   */
+  public RawSignedModel(byte[] contentSnapshot) {
+    Validator.checkNullEmptyAgrument(contentSnapshot,
+        "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+
+    this.contentSnapshot = contentSnapshot;
+
+    signatures = new ArrayList<>();
+  }
+
+  /**
+   * Instantiates a new Raw signed model.
+   *
+   * @param contentSnapshot
+   *          the content snapshot
+   * @param signatures
+   *          the list of signatures
+   */
+  public RawSignedModel(byte[] contentSnapshot, List<RawSignature> signatures) {
+    Validator.checkNullEmptyAgrument(contentSnapshot,
+        "RawSignedModel -> 'contentSnapshot' should not be null or empty");
+    Validator.checkNullEmptyAgrument(signatures,
+        "RawSignedModel -> 'signatures' should not be null or empty");
+
+    if (!isAllSignaturesUnique(signatures)) {
+      throw new SignatureNotUniqueException(
+          "RawSignedModel -> 'signatures' should have unique signatures");
     }
 
-    /**
-     * Create new instance of {@link RawSignedModel}.
-     * 
-     * @param base64EncodedString
-     *            the Base64-encoded card content snapshot.
-     */
-    public RawSignedModel(String base64EncodedString) {
-        this(ConvertionUtils.base64ToBytes(base64EncodedString));
+    this.contentSnapshot = contentSnapshot;
+    this.signatures = signatures;
+  }
+
+  /**
+   * Create new instance of {@link RawSignedModel}.
+   * 
+   * @param base64EncodedString
+   *          the Base64-encoded card content snapshot.
+   */
+  public RawSignedModel(String base64EncodedString) {
+    this(ConvertionUtils.base64ToBytes(base64EncodedString));
+  }
+
+  /**
+   * Add signature. The signature that is about to add must be unique (by signer). Max number of
+   * signatures is up to 8.
+   *
+   * @param rawSignature
+   *          the raw signature
+   */
+  public void addSignature(RawSignature rawSignature) {
+    if (signatures.size() > 7) {
+      LOGGER.warning("RawSignedModel can hold up to 8 signatures only and is full already");
+      throw new IllegalArgumentException(
+          "RawSignedModel -> 'signatures' can hold up to 8 signatures only");
     }
 
-    /**
-     * Instantiates a new Raw signed model.
-     *
-     * @param contentSnapshot
-     *            the content snapshot
-     * @param signatures
-     *            the list of signatures
-     */
-    public RawSignedModel(byte[] contentSnapshot, List<RawSignature> signatures) {
-        Validator.checkNullEmptyAgrument(contentSnapshot,
-                "RawSignedModel -> 'contentSnapshot' should not be null or empty");
-        Validator.checkNullEmptyAgrument(signatures, "RawSignedModel -> 'signatures' should not be null or empty");
-
-        if (!isAllSignaturesUnique(signatures))
-            throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
-
-        this.contentSnapshot = contentSnapshot;
-        this.signatures = signatures;
+    if (!isSignaturesUnique(rawSignature)) {
+      throw new SignatureNotUniqueException(
+          "RawSignedModel -> 'signatures' should have unique signatures");
     }
 
-    /**
-     * Get content snapshot.
-     *
-     * @return the byte [ ]
-     */
-    public byte[] getContentSnapshot() {
-        return contentSnapshot;
+    signatures.add(rawSignature);
+  }
+
+  /**
+   * Export as base64 string.
+   *
+   * @return the string
+   */
+  public String exportAsBase64String() {
+    return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
+  }
+
+  /**
+   * Export as json in string format.
+   *
+   * @return the string
+   */
+  public String exportAsJson() {
+    return ConvertionUtils.serializeToJson(this);
+  }
+
+  /**
+   * Get content snapshot.
+   *
+   * @return the byte [ ]
+   */
+  public byte[] getContentSnapshot() {
+    return contentSnapshot;
+  }
+
+  /**
+   * Gets list of signatures.
+   *
+   * @return the signatures
+   */
+  public List<RawSignature> getSignatures() {
+    return signatures;
+  }
+
+  /**
+   * Sets content snapshot.
+   *
+   * @param contentSnapshot
+   *          the content snapshot
+   */
+  public void setContentSnapshot(byte[] contentSnapshot) {
+    this.contentSnapshot = contentSnapshot;
+  }
+
+  /**
+   * Sets list of signatures.
+   *
+   * @param signatures
+   *          the list of signatures
+   */
+  public void setSignatures(List<RawSignature> signatures) {
+    if (signatures.size() > 8) {
+      LOGGER.warning("RawSignedModel can hold up to 8 signatures only. While 'signatures' size is "
+          + signatures.size());
+      throw new IllegalArgumentException(
+          "RawSignedModel -> 'signatures' can hold up to 8 signatures only"); // TODO:
+                                                                              // 2/13/18
+                                                                              // add
+                                                                              // size
+                                                                              // test
     }
 
-    /**
-     * Sets content snapshot.
-     *
-     * @param contentSnapshot
-     *            the content snapshot
-     */
-    public void setContentSnapshot(byte[] contentSnapshot) {
-        this.contentSnapshot = contentSnapshot;
+    if (!isAllSignaturesUnique(signatures)) {
+      throw new SignatureNotUniqueException(
+          "RawSignedModel -> 'signatures' should have unique signatures");
     }
 
-    /**
-     * Gets list of signatures.
-     *
-     * @return the signatures
-     */
-    public List<RawSignature> getSignatures() {
-        return signatures;
-    }
+    this.signatures = signatures;
+  }
 
-    /**
-     * Sets list of signatures.
-     *
-     * @param signatures
-     *            the list of signatures
-     */
-    public void setSignatures(List<RawSignature> signatures) {
-        if (signatures.size() > 8) {
-            LOGGER.warning(
-                    "RawSignedModel can hold up to 8 signatures only. While 'signatures' size is " + signatures.size());
-            throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only"); // TODO:
-                                                                                                                   // 2/13/18
-                                                                                                                   // add
-                                                                                                                   // size
-                                                                                                                   // test
+  private boolean isAllSignaturesUnique(List<RawSignature> signatures) {
+    for (RawSignature rawSignatureOuter : signatures) {
+      for (RawSignature rawSignatureInner : signatures) {
+        if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner())) {
+          LOGGER.warning(String.format(
+              "RawSignedModel should have unique signatures only. "
+              + "The '%s' signature is already present",
+              rawSignatureOuter.getSigner()));
+          return false;
         }
-
-        if (!isAllSignaturesUnique(signatures))
-            throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
-
-        this.signatures = signatures;
+      }
     }
 
-    /**
-     * Add signature. The signature that is about to add must be unique (by signer). Max number of signatures is up to
-     * 8.
-     *
-     * @param rawSignature
-     *            the raw signature
-     */
-    public void addSignature(RawSignature rawSignature) {
-        if (signatures.size() > 7) {
-            LOGGER.warning("RawSignedModel can hold up to 8 signatures only and is full already");
-            throw new IllegalArgumentException("RawSignedModel -> 'signatures' can hold up to 8 signatures only");
-        }
+    return true;
+  }
 
-        if (!isSignaturesUnique(rawSignature))
-            throw new SignatureNotUniqueException("RawSignedModel -> 'signatures' should have unique signatures");
-
-        signatures.add(rawSignature);
+  private boolean isSignaturesUnique(RawSignature signature) {
+    for (RawSignature rawSignatureOuter : signatures) {
+      if (rawSignatureOuter.getSigner().equals(signature.getSigner())) {
+        LOGGER.warning(String.format(
+            "RawSignedModel should have unique signatures only. "
+            + "The '%s' signature is already present",
+            signature.getSigner()));
+        return false;
+      }
     }
 
-    private boolean isAllSignaturesUnique(List<RawSignature> signatures) {
-        for (RawSignature rawSignatureOuter : signatures) {
-            for (RawSignature rawSignatureInner : signatures) {
-                if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner())) {
-                    LOGGER.warning(String.format(
-                            "RawSignedModel should have unique signatures only. The '%s' signature is already present",
-                            rawSignatureOuter.getSigner()));
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    private boolean isSignaturesUnique(RawSignature signature) {
-        for (RawSignature rawSignatureOuter : signatures) {
-            if (rawSignatureOuter.getSigner().equals(signature.getSigner())) {
-                LOGGER.warning(String.format(
-                        "RawSignedModel should have unique signatures only. The '%s' signature is already present",
-                        signature.getSigner()));
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * Export as base64 string.
-     *
-     * @return the string
-     */
-    public String exportAsBase64String() {
-        return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
-    }
-
-    /**
-     * Export as json in string format.
-     *
-     * @return the string
-     */
-    public String exportAsJson() {
-        return ConvertionUtils.serializeToJson(this);
-    }
-
-    /**
-     * Instantiate {@link RawSignedModel} from provided base64 string.
-     *
-     * @param cardModel
-     *            the card model
-     * @return the raw signed model
-     */
-    public static RawSignedModel fromString(String cardModel) {
-        return fromJson(ConvertionUtils.base64ToString(cardModel));
-    }
-
-    /**
-     * Instantiate {@link RawSignedModel} from provided string.
-     *
-     * @param cardModel
-     *            the card model
-     * @return the raw signed model
-     */
-    public static RawSignedModel fromJson(String cardModel) {
-        return ConvertionUtils.deserializeFromJson(cardModel, RawSignedModel.class);
-    }
+    return true;
+  }
 }

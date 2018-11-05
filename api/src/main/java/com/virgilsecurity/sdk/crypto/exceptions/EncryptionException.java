@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto.exceptions;
 
 /**
@@ -40,24 +41,25 @@ package com.virgilsecurity.sdk.crypto.exceptions;
  */
 public class EncryptionException extends CryptoException {
 
-    private static final long serialVersionUID = -4006283921503784462L;
+  private static final long serialVersionUID = -4006283921503784462L;
 
-    /**
-     * Create a new instance of {@code EncryptionException}
-     *
-     */
-    public EncryptionException() {
-    }
+  /**
+   * Create a new instance of {@code EncryptionException}.
+   *
+   */
+  public EncryptionException() {
+  }
 
-    /**
-     * Create a new instance of {@code EncryptionException}
-     *
-     * @param cause
-     *            the cause (which is saved for later retrieval by the {@link #getCause()} method). (A <tt>null</tt>
-     *            value is permitted, and indicates that the cause is nonexistent or unknown.)
-     */
-    public EncryptionException(Throwable cause) {
-        super(cause);
-    }
+  /**
+   * Create a new instance of {@code EncryptionException}.
+   *
+   * @param cause
+   *          the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
+   *          <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or
+   *          unknown.)
+   */
+  public EncryptionException(Throwable cause) {
+    super(cause);
+  }
 
 }

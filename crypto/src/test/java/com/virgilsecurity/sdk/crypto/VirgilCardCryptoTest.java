@@ -30,151 +30,160 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
+
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 import com.virgilsecurity.crypto.VirgilBase64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
+
+import java.nio.charset.StandardCharsets;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
-
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.junit.Assert.*;
-
 /**
+ * Unit tests for {@link VirgilCardCrypto}.
+ * 
  * @author Andrii Iakovenko
  *
  */
 public class VirgilCardCryptoTest {
 
-    private final static String TEST_TEXT = "Lorem Ipsum is simply dummy text of the printing and typesetting industry.";
-    private final static byte[] TEST_DATA = TEST_TEXT.getBytes(StandardCharsets.UTF_8);
+  private static final String TEST_TEXT = "Lorem Ipsum is simply dummy text.";
+  private static final byte[] TEST_DATA = TEST_TEXT.getBytes(StandardCharsets.UTF_8);
 
-    private VirgilCardCrypto cardCrypto;
-    private PublicKey publicKey;
-    private PrivateKey privateKey;
+  private VirgilCardCrypto cardCrypto;
+  private PublicKey publicKey;
+  private PrivateKey privateKey;
 
-    @Before
-    public void setup() throws CryptoException {
-        this.cardCrypto = new VirgilCardCrypto();
+  @Test
+  public void exportPublicKey() throws CryptoException {
+    byte[] keyData = this.cardCrypto.exportPublicKey(this.publicKey);
+    assertNotNull(keyData);
+  }
 
-        VirgilKeyPair keyPair = this.cardCrypto.getVirgilCrypto().generateKeys();
-        this.privateKey = keyPair.getPrivateKey();
-        this.publicKey = keyPair.getPublicKey();
-    }
+  @Test(expected = NullArgumentException.class)
+  public void exportPublicKey_null() throws CryptoException {
+    this.cardCrypto.exportPublicKey(null);
+  }
 
-    @Test
-    public void exportPublicKey() throws CryptoException {
-        byte[] keyData = this.cardCrypto.exportPublicKey(this.publicKey);
-        assertNotNull(keyData);
-    }
+  @Test(expected = CryptoException.class)
+  public void exportPublicKey_wrongKey() throws CryptoException {
+    PublicKey key = new PublicKey() {
+    };
+    this.cardCrypto.exportPublicKey(key);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void exportPublicKey_null() throws CryptoException {
-        this.cardCrypto.exportPublicKey(null);
-    }
+  @Test
+  @Ignore
+  public void generateSha512() throws CryptoException {
+    byte[] hash = this.cardCrypto.generateSHA512(TEST_DATA);
+    assertNotNull(hash);
+    assertArrayEquals(
+        VirgilBase64.decode(
+            "UVRFAY8h/41lGy4Jm82uLcbhseXLS852XZ2rE7kH8wJvSneUkpu04NmFqwhtWuz78P+T63xMhxEW0wXP0B21dA=="),
+        hash);
+  }
 
-    @Test(expected = CryptoException.class)
-    public void exportPublicKey_wrongKey() throws CryptoException {
-        PublicKey key = new PublicKey() {
-        };
-        this.cardCrypto.exportPublicKey(key);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void generateSha512_null() throws CryptoException {
+    this.cardCrypto.generateSHA512(null);
+  }
 
-    @Test
-    @Ignore
-    public void generateSHA512() throws CryptoException {
-        byte[] hash = this.cardCrypto.generateSHA512(TEST_DATA);
-        assertNotNull(hash);
-        assertArrayEquals(
-                VirgilBase64
-                        .decode("UVRFAY8h/41lGy4Jm82uLcbhseXLS852XZ2rE7kH8wJvSneUkpu04NmFqwhtWuz78P+T63xMhxEW0wXP0B21dA=="),
-                hash);
-    }
+  @Test
+  public void generateSignature() throws CryptoException {
+    byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
 
-    @Test(expected = NullArgumentException.class)
-    public void generateSHA512_null() throws CryptoException {
-        this.cardCrypto.generateSHA512(null);
-    }
+    assertNotNull(signature);
+  }
 
-    @Test
-    public void generateSignature() throws CryptoException {
-        byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
+  @Test(expected = NullArgumentException.class)
+  public void generateSignature_nullData() throws CryptoException {
+    this.cardCrypto.generateSignature(null, this.privateKey);
+  }
 
-        assertNotNull(signature);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void generateSignature_nullKey() throws CryptoException {
+    this.cardCrypto.generateSignature(TEST_DATA, null);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void generateSignature_nullData() throws CryptoException {
-        this.cardCrypto.generateSignature(null, this.privateKey);
-    }
+  @Test(expected = CryptoException.class)
+  public void generateSignature_wrongKey() throws CryptoException {
+    PrivateKey key = new PrivateKey() {
+    };
+    this.cardCrypto.generateSignature(TEST_DATA, key);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void generateSignature_nullKey() throws CryptoException {
-        this.cardCrypto.generateSignature(TEST_DATA, null);
-    }
+  @Test
+  public void getVirgilCrypto() {
+    VirgilCrypto crypto = this.cardCrypto.getVirgilCrypto();
+    assertNotNull(crypto);
+  }
 
-    @Test(expected = CryptoException.class)
-    public void generateSignature_wrongKey() throws CryptoException {
-        PrivateKey key = new PrivateKey() {
-        };
-        this.cardCrypto.generateSignature(TEST_DATA, key);
-    }
+  @Test
+  public void importPublicKey() throws CryptoException {
+    byte[] exportedKeyData = this.cardCrypto.exportPublicKey(this.publicKey);
+    PublicKey importedPublicKey = this.cardCrypto.importPublicKey(exportedKeyData);
 
-    @Test
-    public void getVirgilCrypto() {
-        VirgilCrypto crypto = this.cardCrypto.getVirgilCrypto();
-        assertNotNull(crypto);
-    }
+    assertNotNull(importedPublicKey);
+    assertThat(importedPublicKey, instanceOf(VirgilPublicKey.class));
+  }
 
-    @Test
-    public void importPublicKey() throws CryptoException {
-        byte[] exportedKeyData = this.cardCrypto.exportPublicKey(this.publicKey);
-        PublicKey importedPublicKey = this.cardCrypto.importPublicKey(exportedKeyData);
+  @Test(expected = NullArgumentException.class)
+  public void importPublicKey_null() throws CryptoException {
+    this.cardCrypto.importPublicKey(null);
+  }
 
-        assertNotNull(importedPublicKey);
-        assertThat(importedPublicKey, instanceOf(VirgilPublicKey.class));
-    }
+  @Test(expected = CryptoException.class)
+  public void importPublicKey_wrongData() throws CryptoException {
+    this.cardCrypto.importPublicKey(TEST_DATA);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void importPublicKey_null() throws CryptoException {
-        this.cardCrypto.importPublicKey(null);
-    }
+  @Before
+  public void setup() throws CryptoException {
+    this.cardCrypto = new VirgilCardCrypto();
 
-    @Test(expected = CryptoException.class)
-    public void importPublicKey_wrongData() throws CryptoException {
-        this.cardCrypto.importPublicKey(TEST_DATA);
-    }
+    VirgilKeyPair keyPair = this.cardCrypto.getVirgilCrypto().generateKeys();
+    this.privateKey = keyPair.getPrivateKey();
+    this.publicKey = keyPair.getPublicKey();
+  }
 
-    @Test
-    public void verifySignature() throws CryptoException {
-        byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
-        assertTrue(this.cardCrypto.verifySignature(signature, TEST_DATA, this.publicKey));
-    }
+  @Test
+  public void verifySignature() throws CryptoException {
+    byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
+    assertTrue(this.cardCrypto.verifySignature(signature, TEST_DATA, this.publicKey));
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void verifySignature_nullSignature() throws CryptoException {
-        this.cardCrypto.verifySignature(null, TEST_DATA, this.publicKey);
-    }
+  @Test
+  public void verifySignature_invalidSignature() throws CryptoException {
+    byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
+    assertFalse(
+        this.cardCrypto.verifySignature(signature, (TEST_TEXT + " ").getBytes(), this.publicKey));
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void verifySignature_nullData() throws CryptoException {
-        byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
-        this.cardCrypto.verifySignature(signature, null, this.publicKey);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void verifySignature_nullData() throws CryptoException {
+    byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
+    this.cardCrypto.verifySignature(signature, null, this.publicKey);
+  }
 
-    @Test(expected = NullArgumentException.class)
-    public void verifySignature_nullKey() throws CryptoException {
-        byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
-        this.cardCrypto.verifySignature(signature, TEST_DATA, null);
-    }
+  @Test(expected = NullArgumentException.class)
+  public void verifySignature_nullKey() throws CryptoException {
+    byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
+    this.cardCrypto.verifySignature(signature, TEST_DATA, null);
+  }
 
-    @Test
-    public void verifySignature_invalidSignature() throws CryptoException {
-        byte[] signature = this.cardCrypto.generateSignature(TEST_DATA, this.privateKey);
-        assertFalse(this.cardCrypto.verifySignature(signature, (TEST_TEXT + " ").getBytes(), this.publicKey));
-    }
+  @Test(expected = NullArgumentException.class)
+  public void verifySignature_nullSignature() throws CryptoException {
+    this.cardCrypto.verifySignature(null, TEST_DATA, this.publicKey);
+  }
 }

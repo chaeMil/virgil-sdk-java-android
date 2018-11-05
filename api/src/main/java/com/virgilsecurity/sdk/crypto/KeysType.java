@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.crypto;
 
 /**
@@ -39,42 +40,43 @@ package com.virgilsecurity.sdk.crypto;
  *
  */
 public enum KeysType {
-    /** Recommended most safe type */
-    Default,
-    // RSA with key size less than 2k are unsecured and shouldn't be supported
-    RSA_2048,
-    /** RSA 3072 bit */
-    RSA_3072,
-    /** RSA 4096 bit */
-    RSA_4096,
-    /** RSA 8192 bit */
-    RSA_8192,
-    /** 192-bits NIST curve */
-    EC_SECP192R1,
-    /** 224-bits NIST curve */
-    EC_SECP224R1,
-    /** 256-bits NIST curve */
-    EC_SECP256R1,
-    /** 384-bits NIST curve */
-    EC_SECP384R1,
-    /** 521-bits NIST curve */
-    EC_SECP521R1,
-    /** 256-bits Brainpool curve */
-    EC_BP256R1,
-    /** 384-bits Brainpool curve */
-    EC_BP384R1,
-    /** 512-bits Brainpool curve */
-    EC_BP512R1,
-    /** 192-bits "Koblitz" curve */
-    EC_SECP192K1,
-    /** 224-bits "Koblitz" curve */
-    EC_SECP224K1,
-    /** 256-bits "Koblitz" curve */
-    EC_SECP256K1,
-    /** Diffie–Hellman X25519 */
-    EC_CURVE25519,
-    /** Fast Diffie–Hellman X25519 */
-    FAST_EC_X25519,
-    /** EdDSA Ed25519 */
-    FAST_EC_ED25519
+  /** Recommended most safe type. */
+  Default,
+  // RSA with key size less than 2k are unsecured and shouldn't be supported
+  /** RSA 2048 bit. */
+  RSA_2048,
+  /** RSA 3072 bit. */
+  RSA_3072,
+  /** RSA 4096 bit. */
+  RSA_4096,
+  /** RSA 8192 bit. */
+  RSA_8192,
+  /** 192-bits NIST curve. */
+  EC_SECP192R1,
+  /** 224-bits NIST curve. */
+  EC_SECP224R1,
+  /** 256-bits NIST curve. */
+  EC_SECP256R1,
+  /** 384-bits NIST curve. */
+  EC_SECP384R1,
+  /** 521-bits NIST curve. */
+  EC_SECP521R1,
+  /** 256-bits Brainpool curve. */
+  EC_BP256R1,
+  /** 384-bits Brainpool curve. */
+  EC_BP384R1,
+  /** 512-bits Brainpool curve. */
+  EC_BP512R1,
+  /** 192-bits "Koblitz" curve. */
+  EC_SECP192K1,
+  /** 224-bits "Koblitz" curve. */
+  EC_SECP224K1,
+  /** 256-bits "Koblitz" curve. */
+  EC_SECP256K1,
+  /** Diffie–Hellman X25519. */
+  EC_CURVE25519,
+  /** Fast Diffie–Hellman X25519. */
+  FAST_EC_X25519,
+  /** EdDSA Ed25519. */
+  FAST_EC_ED25519
 }

@@ -49,54 +49,71 @@ import java.util.Date;
  */
 
 /**
- * The {@link CachingJwtProvider} class is implemented for usage of renew token callback mechanism which should predefine
- * implementation of renewing of token. Token is been cached.
+ * The {@link CachingJwtProvider} class is implemented for usage of renew token callback mechanism
+ * which should predefine implementation of renewing of token. Token is been cached.
  */
 public class CachingJwtProvider implements AccessTokenProvider {
 
-    private static final long TOKEN_FUTURE_EXPIRATION_TIME = 5 * 1000; // 5 seconds in milliseconds
-
-    private volatile Jwt jwt;
-    private final RenewJwtCallback renewJwtCallback;
-
+  /**
+   * The interface Renew jwt callback.
+   */
+  public interface RenewJwtCallback {
     /**
-     * Instantiates a new Caching jwt provider.
-     *
-     * @param renewJwtCallback the renew jwt callback
+     * <p>Implement the jwt renew mechanism.</p>
+     * In this callback you should return valid JsonWebToken as base64 string in 2 or 3 parts
+     * separated with dot ('.').
+     * 
+     * @param tokenContext
+     *          the tokenContext that is used to get token
+     * @return the renewed jwt
      */
-    public CachingJwtProvider(RenewJwtCallback renewJwtCallback) {
-        this.renewJwtCallback = renewJwtCallback;
+    Jwt renewJwt(TokenContext tokenContext);
+  }
+
+  private static final long TOKEN_FUTURE_EXPIRATION_TIME = 5 * 1000; // 5 seconds in milliseconds
+  private volatile Jwt jwt;
+
+  private final RenewJwtCallback renewJwtCallback;
+
+  /**
+   * Instantiates a new Caching jwt provider.
+   *
+   * @param renewJwtCallback
+   *          the renew jwt callback
+   */
+  public CachingJwtProvider(RenewJwtCallback renewJwtCallback) {
+    this.renewJwtCallback = renewJwtCallback;
+  }
+
+  /**
+   * Instantiates a new Caching jwt provider.
+   *
+   * @param renewJwtCallback
+   *          the renew jwt callback
+   * @param initialJwt
+   *          the initial jwt that will be used until expired
+   */
+  public CachingJwtProvider(RenewJwtCallback renewJwtCallback, Jwt initialJwt) {
+    this.renewJwtCallback = renewJwtCallback;
+    this.jwt = initialJwt;
+  }
+
+  /**
+   * Gets renew jwt callback.
+   *
+   * @return the renew jwt callback
+   */
+  public RenewJwtCallback getRenewJwtCallback() {
+    return renewJwtCallback;
+  }
+
+  @Override
+  public synchronized AccessToken getToken(TokenContext tokenContext) {
+    if (jwt != null
+        && !jwt.isExpired(new Date(System.currentTimeMillis() + TOKEN_FUTURE_EXPIRATION_TIME))) {
+      return jwt;
     }
 
-    @Override public AccessToken getToken(TokenContext tokenContext) {
-        if (jwt != null && !jwt.isExpired(new Date(System.currentTimeMillis() + TOKEN_FUTURE_EXPIRATION_TIME)))
-            return jwt;
-
-        return jwt = renewJwtCallback.renewJwt(tokenContext);
-    }
-
-    /**
-     * Gets renew jwt callback.
-     *
-     * @return the renew jwt callback
-     */
-    public RenewJwtCallback getRenewJwtCallback() {
-        return renewJwtCallback;
-    }
-
-    /**
-     * The interface Renew jwt callback.
-     */
-    public interface RenewJwtCallback {
-        /**
-         * Implement the jwt renew mechanism.
-         *
-         * In this callback you should return valid JsonWebToken as base64 string
-         * in 2 or 3 parts separated with dot ('.').
-         * @param tokenContext
-         *            the tokenContext that is used to get token
-         * @return the renewed jwt
-         */
-        Jwt renewJwt(TokenContext tokenContext);
-    }
+    return jwt = renewJwtCallback.renewJwt(tokenContext);
+  }
 }

@@ -42,115 +42,117 @@ import java.util.Objects;
  */
 public class RawSignature {
 
-    @SerializedName("snapshot")
-    private String snapshot;
+  @SerializedName("snapshot")
+  private String snapshot;
 
-    @SerializedName("signer")
-    private String signer;
+  @SerializedName("signer")
+  private String signer;
 
-    @SerializedName("signature")
-    private String signature;
+  @SerializedName("signature")
+  private String signature;
 
-    /**
-     * Instantiates a new Raw signature.
-     *
-     * @param signer
-     *            the signer type
-     * @param signature
-     *            the signature
-     */
-    public RawSignature(String signer, String signature) {
-        this.signer = signer;
-        this.signature = signature;
+  /**
+   * Instantiates a new Raw signature.
+   *
+   * @param signer
+   *          the signer type
+   * @param signature
+   *          the signature
+   */
+  public RawSignature(String signer, String signature) {
+    this.signer = signer;
+    this.signature = signature;
+  }
+
+  /**
+   * Instantiates a new Raw signature.
+   *
+   * @param snapshot
+   *          the snapshot that contains additional data associated with signature
+   * @param signer
+   *          the signer type
+   * @param signature
+   *          the signature
+   */
+  public RawSignature(String snapshot, String signer, String signature) {
+    this.snapshot = snapshot;
+    this.signer = signer;
+    this.signature = signature;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    /**
-     * Instantiates a new Raw signature.
-     *
-     * @param snapshot
-     *            the snapshot that contains additional data associated with signature
-     * @param signer
-     *            the signer type
-     * @param signature
-     *            the signature
-     */
-    public RawSignature(String snapshot, String signer, String signature) {
-        this.snapshot = snapshot;
-        this.signer = signer;
-        this.signature = signature;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    RawSignature that = (RawSignature) o;
+    return Objects.equals(snapshot, that.snapshot) && Objects.equals(signer, that.signer)
+        && Objects.equals(signature, that.signature);
+  }
 
-    /**
-     * Gets snapshot that contains additional data associated with signature.
-     *
-     * @return the snapshot that contains additional data associated with signature
-     */
-    public String getSnapshot() {
-        return snapshot;
-    }
+  /**
+   * Gets signature.
+   *
+   * @return the signature
+   */
+  public String getSignature() {
+    return signature;
+  }
 
-    /**
-     * Sets snapshot that contains additional data associated with signature.
-     *
-     * @param snapshot
-     *            the snapshot that contains additional data associated with signature
-     */
-    public void setSnapshot(String snapshot) {
-        this.snapshot = snapshot;
-    }
+  /**
+   * Gets signer type.
+   *
+   * @return the signer
+   */
+  public String getSigner() {
+    return signer;
+  }
 
-    /**
-     * Gets signer type.
-     *
-     * @return the signer
-     */
-    public String getSigner() {
-        return signer;
-    }
+  /**
+   * Gets snapshot that contains additional data associated with signature.
+   *
+   * @return the snapshot that contains additional data associated with signature
+   */
+  public String getSnapshot() {
+    return snapshot;
+  }
 
-    /**
-     * Sets signer type.
-     *
-     * @param signer
-     *            the signer
-     */
-    public void setSigner(String signer) {
-        this.signer = signer;
-    }
+  @Override
+  public int hashCode() {
 
-    /**
-     * Gets signature.
-     *
-     * @return the signature
-     */
-    public String getSignature() {
-        return signature;
-    }
+    return Objects.hash(snapshot, signer, signature);
+  }
 
-    /**
-     * Sets signature.
-     *
-     * @param signature
-     *            the signature
-     */
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
+  /**
+   * Sets signature.
+   *
+   * @param signature
+   *          the signature
+   */
+  public void setSignature(String signature) {
+    this.signature = signature;
+  }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        RawSignature that = (RawSignature) o;
-        return Objects.equals(snapshot, that.snapshot) && Objects.equals(signer, that.signer)
-                && Objects.equals(signature, that.signature);
-    }
+  /**
+   * Sets signer type.
+   *
+   * @param signer
+   *          the signer
+   */
+  public void setSigner(String signer) {
+    this.signer = signer;
+  }
 
-    @Override
-    public int hashCode() {
-
-        return Objects.hash(snapshot, signer, signature);
-    }
+  /**
+   * Sets snapshot that contains additional data associated with signature.
+   *
+   * @param snapshot
+   *          the snapshot that contains additional data associated with signature
+   */
+  public void setSnapshot(String snapshot) {
+    this.snapshot = snapshot;
+  }
 }

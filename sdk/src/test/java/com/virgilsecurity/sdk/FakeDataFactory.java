@@ -30,10 +30,15 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk;
 
 import com.virgilsecurity.sdk.common.TimeSpan;
-import com.virgilsecurity.sdk.crypto.*;
+import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
+import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
@@ -49,103 +54,102 @@ import java.util.concurrent.TimeUnit;
  */
 public class FakeDataFactory {
 
-    private VirgilCrypto crypto;
-    private String applicationId;
-    private VirgilPrivateKey apiPrivateKey;
-    private VirgilPublicKey apiPublicKey;
-    private String apiPublicKeyId;
-    private JwtGenerator jwtGenerator;
-    private JwtGenerator jwtGeneratorFiveSeconds;
-    private String identity;
+  private VirgilCrypto crypto;
+  private String applicationId;
+  private VirgilPrivateKey apiPrivateKey;
+  private VirgilPublicKey apiPublicKey;
+  private String apiPublicKeyId;
+  private JwtGenerator jwtGenerator;
+  private JwtGenerator jwtGeneratorFiveSeconds;
+  private String identity;
 
-    /**
-     * Create new instance of {@link FakeDataFactory}.
-     *
-     * @throws CryptoException
-     */
-    public FakeDataFactory() throws CryptoException {
-        this.crypto = new VirgilCrypto();
+  /**
+   * Create new instance of {@link FakeDataFactory}.
+   *
+   * @throws CryptoException
+   *           if any crypto operation on fake data failed.
+   */
+  public FakeDataFactory() throws CryptoException {
+    this.crypto = new VirgilCrypto();
 
-        this.applicationId = ConvertionUtils.toHex(ConvertionUtils.toBytes(UUID.randomUUID().toString()));
-        this.identity = "IDENTITY_" + this.applicationId;
+    this.applicationId = ConvertionUtils
+        .toHex(ConvertionUtils.toBytes(UUID.randomUUID().toString()));
+    this.identity = "IDENTITY_" + this.applicationId;
 
-        VirgilKeyPair keyPair = this.crypto.generateKeys();
-        this.apiPrivateKey = keyPair.getPrivateKey();
-        this.apiPublicKey = keyPair.getPublicKey();
-        this.apiPublicKeyId = ConvertionUtils.toHex(this.crypto.exportPublicKey(apiPublicKey));
+    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    this.apiPrivateKey = keyPair.getPrivateKey();
+    this.apiPublicKey = keyPair.getPublicKey();
+    this.apiPublicKeyId = ConvertionUtils.toHex(this.crypto.exportPublicKey(apiPublicKey));
 
-        this.jwtGenerator = new JwtGenerator(this.applicationId, apiPrivateKey, apiPublicKeyId,
-                                             TimeSpan.fromTime(10, TimeUnit.MINUTES), new VirgilAccessTokenSigner());
+    this.jwtGenerator = new JwtGenerator(this.applicationId, apiPrivateKey, apiPublicKeyId,
+        TimeSpan.fromTime(10, TimeUnit.MINUTES), new VirgilAccessTokenSigner());
 
-        this.jwtGeneratorFiveSeconds = new JwtGenerator(this.applicationId,
-                                                        apiPrivateKey,
-                                                        apiPublicKeyId,
-                                                        TimeSpan.fromTime(5, TimeUnit.SECONDS),
-                                                        new VirgilAccessTokenSigner());
-    }
+    this.jwtGeneratorFiveSeconds = new JwtGenerator(this.applicationId, apiPrivateKey,
+        apiPublicKeyId, TimeSpan.fromTime(5, TimeUnit.SECONDS), new VirgilAccessTokenSigner());
+  }
 
-    public Jwt generateToken() throws CryptoException {
-        Map<String, String> additionalData = new HashMap<>();
-        additionalData.put("username", "fake_username");
-        Jwt token = this.jwtGenerator.generateToken("fake_identity", additionalData);
+  public Jwt generateToken() throws CryptoException {
+    Map<String, String> additionalData = new HashMap<>();
+    additionalData.put("username", "fake_username");
+    Jwt token = this.jwtGenerator.generateToken("fake_identity", additionalData);
 
-        return token;
-    }
+    return token;
+  }
 
-    /**
-     * @return the crypto
-     */
-    public VirgilCrypto getCrypto() {
-        return crypto;
-    }
+  /**
+   * @return the apiPrivateKey
+   */
+  public VirgilPrivateKey getApiPrivateKey() {
+    return apiPrivateKey;
+  }
 
-    /**
-     * @return the applicationId
-     */
-    public String getApplicationId() {
-        return applicationId;
-    }
+  /**
+   * @return the apiPublicKey
+   */
+  public VirgilPublicKey getApiPublicKey() {
+    return apiPublicKey;
+  }
 
-    /**
-     * @return the apiPrivateKey
-     */
-    public VirgilPrivateKey getApiPrivateKey() {
-        return apiPrivateKey;
-    }
+  /**
+   * @return the apiPublicKeyId
+   */
+  public String getApiPublicKeyId() {
+    return apiPublicKeyId;
+  }
 
-    /**
-     * @return the apiPublicKey
-     */
-    public VirgilPublicKey getApiPublicKey() {
-        return apiPublicKey;
-    }
+  /**
+   * @return the applicationId
+   */
+  public String getApplicationId() {
+    return applicationId;
+  }
 
-    /**
-     * @return the apiPublicKeyId
-     */
-    public String getApiPublicKeyId() {
-        return apiPublicKeyId;
-    }
+  /**
+   * @return the crypto
+   */
+  public VirgilCrypto getCrypto() {
+    return crypto;
+  }
 
-    /**
-     * @return the jwtGenerator
-     */
-    public JwtGenerator getJwtGenerator() {
-        return jwtGenerator;
-    }
+  /**
+   * @return the identity
+   */
+  public String getIdentity() {
+    return identity;
+  }
 
-    /**
-     * @return the getJwtGeneratorFiveSeconds
-     */
-    public JwtGenerator getJwtGeneratorFiveSeconds() {
-        return jwtGeneratorFiveSeconds;
-    }
+  /**
+   * @return the jwtGenerator
+   */
+  public JwtGenerator getJwtGenerator() {
+    return jwtGenerator;
+  }
 
-    /**
-     * @return the identity
-     */
-    public String getIdentity() {
-        return identity;
-    }
+  /**
+   * @return the getJwtGeneratorFiveSeconds
+   */
+  public JwtGenerator getJwtGeneratorFiveSeconds() {
+    return jwtGeneratorFiveSeconds;
+  }
 
 }

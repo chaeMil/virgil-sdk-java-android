@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
@@ -38,22 +39,22 @@ package com.virgilsecurity.sdk.client.exceptions;
  */
 public class SignatureNotUniqueException extends RuntimeException {
 
-    private static final long serialVersionUID = -391243883815607617L;
+  private static final long serialVersionUID = -391243883815607617L;
 
-    /**
-     * Create new instance of {@link SignatureNotUniqueException}.
-     */
-    public SignatureNotUniqueException() {
-    }
+  /**
+   * Create new instance of {@link SignatureNotUniqueException}.
+   */
+  public SignatureNotUniqueException() {
+  }
 
-    /**
-     * Create new instance of {@link SignatureNotUniqueException}.
-     *
-     * @param message
-     *            The message.
-     */
-    public SignatureNotUniqueException(String message) {
-        super(message);
-    }
+  /**
+   * Create new instance of {@link SignatureNotUniqueException}.
+   *
+   * @param message
+   *          The message.
+   */
+  public SignatureNotUniqueException(String message) {
+    super(message);
+  }
 
 }

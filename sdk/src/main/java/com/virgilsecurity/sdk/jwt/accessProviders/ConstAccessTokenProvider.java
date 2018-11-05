@@ -40,44 +40,46 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Validator;
 
 /**
- * The {@link ConstAccessTokenProvider} class is implemented for usage of constant Jwt stored as property.
+ * The {@link ConstAccessTokenProvider} class is implemented for usage of constant Jwt stored as
+ * property.
  */
 public class ConstAccessTokenProvider implements AccessTokenProvider {
 
-    private Jwt jwtToken;
+  private Jwt jwtToken;
 
-    /**
-     * Instantiates a new Const access token provider.
-     */
-    public ConstAccessTokenProvider() {
-    }
+  /**
+   * Instantiates a new Const access token provider.
+   */
+  public ConstAccessTokenProvider() {
+  }
 
-    /**
-     * Instantiates a new Const access token provider.
-     *
-     * @param jwtToken
-     *            the jwt token
-     */
-    public ConstAccessTokenProvider(Jwt jwtToken) {
-        Validator.checkNullAgrument(jwtToken, "ConstAccessTokenProvider -> 'jwt' should not be null");
-        this.jwtToken = jwtToken;
-    }
+  /**
+   * Instantiates a new Const access token provider.
+   *
+   * @param jwtToken
+   *          the jwt token
+   */
+  public ConstAccessTokenProvider(Jwt jwtToken) {
+    Validator.checkNullAgrument(jwtToken, "ConstAccessTokenProvider -> 'jwt' should not be null");
+    this.jwtToken = jwtToken;
+  }
 
-    @Override
-    public AccessToken getToken(TokenContext context) {
-        return jwtToken;
-    }
+  @Override
+  public AccessToken getToken(TokenContext context) {
+    return jwtToken;
+  }
 
-    /**
-     * Sets jwt.
-     *
-     * @param jwtToken
-     *            the jwt token
-     */
-    public void setJwt(Jwt jwtToken) {
-        if (jwtToken != null)
-            this.jwtToken = jwtToken;
-        else
-            throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
+  /**
+   * Sets jwt.
+   *
+   * @param jwtToken
+   *          the jwt token
+   */
+  public void setJwt(Jwt jwtToken) {
+    if (jwtToken != null) {
+      this.jwtToken = jwtToken;
+    } else {
+      throw new IllegalArgumentException("ConstAccessTokenProvider -> 'jwt' should not be null");
     }
+  }
 }

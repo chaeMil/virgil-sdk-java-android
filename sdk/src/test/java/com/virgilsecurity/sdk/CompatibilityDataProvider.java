@@ -44,43 +44,44 @@ import java.io.InputStreamReader;
 
 public class CompatibilityDataProvider {
 
-    public static final String JSON = "json";
-    public static final String STRING = "string";
+  public static final String JSON = "json";
+  public static final String STRING = "string";
 
-    private JsonObject sampleJson;
+  private JsonObject sampleJson;
 
-    public CompatibilityDataProvider() {
-        sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(
-                this.getClass().getClassLoader().getResourceAsStream("com/virgilsecurity/sdk/test_data.txt")));
+  public CompatibilityDataProvider() {
+    sampleJson = (JsonObject) new JsonParser().parse(new InputStreamReader(this.getClass()
+        .getClassLoader().getResourceAsStream("com/virgilsecurity/sdk/test_data.txt")));
+  }
+
+  public CompatibilityDataProvider(JsonObject sampleJson) {
+    this.sampleJson = sampleJson;
+  }
+
+  public String getJsonByKey(int number, String key) {
+    return sampleJson.get("STC-" + number + "." + key).getAsString();
+  }
+
+  public JsonObject getJsonObject(int number) {
+    return new Gson().fromJson(sampleJson.get("STC-" + number + ".as_" + JSON).getAsString(),
+        JsonObject.class);
+  }
+
+  public JsonObject getJsonObjectByKey(int number, String key) {
+    return sampleJson.get("STC-" + number + "." + key).getAsJsonObject();
+  }
+
+  public String getString(String key) {
+    return sampleJson.get(key).getAsString();
+  }
+
+  public String getTestDataAs(int number, String type) {
+    return sampleJson.get("STC-" + number + ".as_" + type).getAsString();
+  }
+
+  public String readFile(String name) throws IOException {
+    try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(name)) {
+      return ConvertionUtils.toString(is);
     }
-
-    public CompatibilityDataProvider(JsonObject sampleJson) {
-        this.sampleJson = sampleJson;
-    }
-
-    public String getTestDataAs(int number, String type) {
-        return sampleJson.get("STC-" + number + ".as_" + type).getAsString();
-    }
-
-    public String getString(String key) {
-        return sampleJson.get(key).getAsString();
-    }
-
-    public String getJsonByKey(int number, String key) {
-        return sampleJson.get("STC-" + number + "." + key).getAsString();
-    }
-
-    public String readFile(String name) throws IOException {
-        try (InputStream is = this.getClass().getClassLoader().getResourceAsStream(name)) {
-            return ConvertionUtils.toString(is);
-        }
-    }
-
-    public JsonObject getJsonObject(int number) {
-        return new Gson().fromJson(sampleJson.get("STC-" + number + ".as_" + JSON).getAsString(), JsonObject.class);
-    }
-
-    public JsonObject getJsonObjectByKey(int number, String key) {
-        return sampleJson.get("STC-" + number + "." + key).getAsJsonObject();
-    }
+  }
 }

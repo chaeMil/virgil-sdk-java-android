@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
@@ -40,6 +41,6 @@ package com.virgilsecurity.sdk.client.exceptions;
  */
 public class VirgilCardIsNotFoundException extends VirgilClientException {
 
-    private static final long serialVersionUID = -6014876811363283060L;
+  private static final long serialVersionUID = -6014876811363283060L;
 
 }

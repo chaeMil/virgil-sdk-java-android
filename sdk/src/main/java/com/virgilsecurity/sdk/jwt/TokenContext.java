@@ -37,125 +37,126 @@ package com.virgilsecurity.sdk.jwt;
  * The {@link TokenContext} class represents set of data that helps to get token.
  */
 public class TokenContext {
-    private static final String DEFAULT_SERVICE = "cards";
+  private static final String DEFAULT_SERVICE = "cards";
 
-    private String identity;
-    private String operation;
-    private boolean forceReload;
-    private String service;
+  private String identity;
+  private String operation;
+  private boolean forceReload;
+  private String service;
 
-    /**
-     * Instantiates a new Token context.
-     *
-     * @param operation
-     *            the operation that is token used for
-     * @param forceReload
-     *            {@code true} if token should be reloaded every time
-     *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
-     *            called, otherwise {@code false}
-     */
-    public TokenContext(String operation, boolean forceReload) {
-        this.operation = operation;
-        this.forceReload = forceReload;
+  /**
+   * Instantiates a new Token context.
+   *
+   * @param operation
+   *          the operation that is token used for
+   * @param forceReload
+   *          {@code true} if token should be reloaded every time
+   *          {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
+   *          method is called, otherwise {@code false}
+   */
+  public TokenContext(String operation, boolean forceReload) {
+    this.operation = operation;
+    this.forceReload = forceReload;
 
-        this.service = DEFAULT_SERVICE;
-    }
+    this.service = DEFAULT_SERVICE;
+  }
 
-    /**
-     * Instantiates a new Token context.
-     *
-     * @param operation
-     *            the operation that is token used for
-     * @param forceReload
-     *            {@code true} if token should be reloaded every time
-     *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
-     *            called, otherwise {@code false}
-     * @param service
-     *            requested service
-     */
-    public TokenContext(String operation, boolean forceReload, String service) {
-        this.operation = operation;
-        this.forceReload = forceReload;
-        this.service = service;
-    }
+  /**
+   * Instantiates a new Token context.
+   *
+   * @param operation
+   *          the operation that is token used for
+   * @param forceReload
+   *          {@code true} if token should be reloaded every time
+   *          {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
+   *          method is called, otherwise {@code false}
+   * @param service
+   *          requested service
+   */
+  public TokenContext(String operation, boolean forceReload, String service) {
+    this.operation = operation;
+    this.forceReload = forceReload;
+    this.service = service;
+  }
 
-    /**
-     * Instantiates a new Token context.
-     *
-     * @param identity
-     *            the identity
-     * @param operation
-     *            the operation that is token used for
-     * @param forceReload
-     *            {@code true} if token should be reloaded every time
-     *            {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is
-     *            called, otherwise {@code false}
-     * @param service
-     *            requested service
-     */
-    public TokenContext(String identity, String operation, boolean forceReload, String service) {
-        this.identity = identity;
-        this.operation = operation;
-        this.forceReload = forceReload;
-        this.service = service;
-    }
+  /**
+   * Instantiates a new Token context.
+   *
+   * @param identity
+   *          the identity
+   * @param operation
+   *          the operation that is token used for
+   * @param forceReload
+   *          {@code true} if token should be reloaded every time
+   *          {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
+   *          method is called, otherwise {@code false}
+   * @param service
+   *          requested service
+   */
+  public TokenContext(String identity, String operation, boolean forceReload, String service) {
+    this.identity = identity;
+    this.operation = operation;
+    this.forceReload = forceReload;
+    this.service = service;
+  }
 
-    /**
-     * Gets identity.
-     *
-     * @return the identity
-     */
-    public String getIdentity() {
-        return identity;
-    }
+  /**
+   * Gets identity.
+   *
+   * @return the identity
+   */
+  public String getIdentity() {
+    return identity;
+  }
 
-    /**
-     * Sets identity.
-     *
-     * @param identity
-     *            the identity
-     */
-    public void setIdentity(String identity) {
-        this.identity = identity;
-    }
+  /**
+   * Gets operation that is token used for.
+   *
+   * @return the operation that is token used for
+   */
+  public String getOperation() {
+    return operation;
+  }
 
-    /**
-     * Gets operation that is token used for.
-     *
-     * @return the operation that is token used for
-     */
-    public String getOperation() {
-        return operation;
-    }
+  /**
+   * Gets the requested service.
+   *
+   * @return the requested service.
+   */
+  public String getService() {
+    return service;
+  }
 
-    /**
-     * Sets operation that is token used for.
-     *
-     * @param operation
-     *            the operation that is token used for
-     */
-    public void setOperation(String operation) {
-        this.operation = operation;
-    }
+  /**
+   * Whether token should be reloaded every time
+   * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method
+   * is called.
+   *
+   * @return {@code true} if token should be reloaded every time
+   *         {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)}
+   *         method is called, otherwise {@code false}
+   */
+  public boolean isForceReload() {
+    return forceReload;
+  }
 
-    /**
-     * Whether token should be reloaded every time
-     * {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is called.
-     *
-     * @return {@code true} if token should be reloaded every time
-     *         {@link com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider#getToken(TokenContext)} method is called,
-     *         otherwise {@code false}
-     */
-    public boolean isForceReload() {
-        return forceReload;
-    }
+  /**
+   * Sets identity.
+   *
+   * @param identity
+   *          the identity
+   */
+  public void setIdentity(String identity) {
+    this.identity = identity;
+  }
 
-    /**
-     * Gets the requested service.
-     *
-     * @return the requested service.
-     */
-    public String getService() {
-        return service;
-    }
+  /**
+   * Sets operation that is token used for.
+   *
+   * @param operation
+   *          the operation that is token used for
+   */
+  public void setOperation(String operation) {
+    this.operation = operation;
+  }
 }

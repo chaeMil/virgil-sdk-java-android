@@ -34,39 +34,43 @@
 package com.virgilsecurity.sdk.cards;
 
 /**
- * The {@link SignerType} enum defines technical signer types for Virgil Cards service. Not suitable for use.
+ * The {@link SignerType} enum defines technical signer types for Virgil Cards service. Not suitable
+ * for use.
  */
 public enum SignerType {
-    /**
-     * Self signer type.
-     */
-    SELF("self"),
-    /**
-     * Virgil signer type.
-     */
-    VIRGIL("virgil");
+  /**
+   * Self signer type.
+   */
+  SELF("self"),
+  /**
+   * Virgil signer type.
+   */
+  VIRGIL("virgil");
 
-    /**
-     *
-     * !!!!! If you're reading this and don't know what signer type you should use: You should Never use 'self' or
-     * 'virgil' signature! Use your Own signature with any signer type - for example 'mycustomservice'. !!!!!
-     *
-     */
-    private final String signerType;
+  /**
+   * !!!!! If you're reading this and don't know what signer type you should use: You should NEVER
+   * use 'self' or 'virgil' signature! Use your Own signature with any signer type - for example
+   * 'mycustomservice'. !!!!!
+   *
+   */
+  private final String signerType;
 
-    SignerType(String signerType) {
-        this.signerType = signerType;
-    }
+  SignerType(String signerType) {
+    this.signerType = signerType;
+  }
 
-    /**
-     * If you're reading this and don't know what signer type you should use: You should Never use 'self' or 'virgil'
-     * signature! Use your Own signature with any signer type - for example 'mycustomservice'.
-     *
-     * Gets the raw value based on chosen enum type. (ex. SignerType.SELF.getRawValue() will output "self").
-     *
-     * @return the raw value
-     */
-    public String getRawValue() {
-        return signerType;
-    }
+  /**
+   * <p>
+   * If you're reading this and don't know what signer type you should use: You should Never use
+   * 'self' or 'virgil' signature! Use your Own signature with any signer type - for example
+   * 'mycustomservice'.
+   * </p>
+   * Gets the raw value based on chosen enum type. (ex.
+   * SignerType.SELF.getRawValue() will output "self").
+   *
+   * @return the raw value
+   */
+  public String getRawValue() {
+    return signerType;
+  }
 }

@@ -39,19 +39,19 @@ import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 
 public class IntegrationHelper extends PropertyManager {
 
-    private VirgilCardCrypto cardCrypto;
-    private VirgilCrypto virgilCrypto;
+  private VirgilCardCrypto cardCrypto;
+  private VirgilCrypto virgilCrypto;
 
-    public IntegrationHelper() {
-        cardCrypto = new VirgilCardCrypto();
-        virgilCrypto = new VirgilCrypto();
-    }
+  public IntegrationHelper() {
+    cardCrypto = new VirgilCardCrypto();
+    virgilCrypto = new VirgilCrypto();
+  }
 
-    public CardManager getManager(String username) {
-        // FIXME
-        // VirgilCardVerifier cardVerifier = new VirgilCardVerifier(true, true);
-        // cardVerifier.changeServiceCredentials(SERVICE_CARD_ID, SERVICE_PUBLIC_KEY_DER_BASE64);
+  public CardManager getManager(String username) {
+    // FIXME
+    // VirgilCardVerifier cardVerifier = new VirgilCardVerifier(true, true);
+    // cardVerifier.changeServiceCredentials(SERVICE_CARD_ID, SERVICE_PUBLIC_KEY_DER_BASE64);
 
-        return null;
-    }
+    return null;
+  }
 }

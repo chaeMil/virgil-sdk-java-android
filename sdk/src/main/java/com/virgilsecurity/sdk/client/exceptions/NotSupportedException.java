@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 /**
@@ -38,22 +39,22 @@ package com.virgilsecurity.sdk.client.exceptions;
  */
 public class NotSupportedException extends RuntimeException {
 
-    private static final long serialVersionUID = -7069393384373642537L;
+  private static final long serialVersionUID = -7069393384373642537L;
 
-    /**
-     * Create new instance of {@link NotSupportedException}.
-     */
-    public NotSupportedException() {
-    }
+  /**
+   * Create new instance of {@link NotSupportedException}.
+   */
+  public NotSupportedException() {
+  }
 
-    /**
-     * Create new instance of {@link NotSupportedException}.
-     * 
-     * @param message
-     *            The message.
-     */
-    public NotSupportedException(String message) {
-        super(message);
-    }
+  /**
+   * Create new instance of {@link NotSupportedException}.
+   * 
+   * @param message
+   *          The message.
+   */
+  public NotSupportedException(String message) {
+    super(message);
+  }
 
 }

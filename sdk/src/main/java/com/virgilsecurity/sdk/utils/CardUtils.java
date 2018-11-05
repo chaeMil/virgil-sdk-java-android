@@ -30,36 +30,40 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.virgilsecurity.sdk.utils;
 
-import java.util.Arrays;
+package com.virgilsecurity.sdk.utils;
 
 import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+import java.util.Arrays;
+
 /**
- * @author Andrii Iakovenko
+ * This is utils class which implements Card-specific functionality.
+ * 
+ * @author Andrii Iakovenko.
  *
  */
 public class CardUtils {
 
-    /**
-     * Generate Virgil Card identifier by card content snapshot.
-     * 
-     * @param cardCrypto
-     *            the {@link CardCrypto}
-     * @param contentSnapshot
-     *            the card content snapshot.
-     * @return the generated Virgil Card identifier.
-     * @throws CryptoException
-     *             if card identifier couldn't be generated
-     */
-    public static String generateCardId(CardCrypto cardCrypto, byte[] contentSnapshot) throws CryptoException {
-        byte[] fingerprint = Arrays.copyOfRange(cardCrypto.generateSHA512(contentSnapshot), 0, 32);
-        String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
+  /**
+   * Generate Virgil Card identifier by card content snapshot.
+   * 
+   * @param cardCrypto
+   *          the {@link CardCrypto}
+   * @param contentSnapshot
+   *          the card content snapshot.
+   * @return the generated Virgil Card identifier.
+   * @throws CryptoException
+   *           if card identifier couldn't be generated
+   */
+  public static String generateCardId(CardCrypto cardCrypto, byte[] contentSnapshot)
+      throws CryptoException {
+    byte[] fingerprint = Arrays.copyOfRange(cardCrypto.generateSHA512(contentSnapshot), 0, 32);
+    String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
 
-        return cardId;
-    }
+    return cardId;
+  }
 
 }

@@ -30,11 +30,13 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.storage;
 
-import java.util.Set;
-
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
+
+import java.util.Set;
 
 /**
  * This interface describes a storage facility for cryptographic keys.
@@ -44,49 +46,69 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
  */
 public interface KeyStorage {
 
-    /**
-     * Stores the private key (that has already been protected) to the given alias.
-     * 
-     * @param keyEntry
-     *            The key entry.
-     * @throws KeyEntryAlreadyExistsException
-     *             if key with the same name is already stored
-     */
-    void store(KeyEntry keyEntry);
+  /**
+   * Factory method for creating {@linkplain KeyEntry}.
+   * 
+   * @param name
+   *          the key name.
+   * @param value
+   *          the key value.
+   * @return created {@linkplain KeyEntry instance}.
+   */
+  KeyEntry createEntry(String name, byte[] value);
 
-    /**
-     * Loads the private key associated with the given alias.
-     * 
-     * 
-     * @param name
-     *            The key name.
-     * @return The requested private key, or null if the given alias does not exist or does not identify a key-related
-     *         entry.
-     */
-    KeyEntry load(String name);
+  /**
+   * Deletes the private key from key store by given Id.
+   *
+   * @param name
+   *          the key name.
+   */
+  void delete(String name);
 
-    /**
-     * Checks if the private key exists in this storage by given alias.
-     * 
-     * @param name
-     *            The key name.
-     * @return {@code true} if the private key exists, {@code false} otherwise.
-     */
-    boolean exists(String name);
+  /**
+   * Checks if the private key exists in this storage by given alias.
+   *
+   * @param name
+   *          the key name.
+   * @return {@code true} if the private key exists, {@code false} otherwise.
+   */
+  boolean exists(String name);
 
-    /**
-     * Deletes the private key from key store by given Id.
-     * 
-     * @param name
-     *            The key name.
-     */
-    void delete(String name);
+  /**
+   * Loads the private key associated with the given alias.
+   *
+   * @param name
+   *          the key name.
+   * @return The requested private key, or null if the given alias does not exist or does not
+   *         identify a key-related entry.
+   */
+  KeyEntry load(String name);
 
-    /**
-     * Get names of keys stored in key store.
-     * 
-     * @return the set of key names.
-     */
-    Set<String> names();
+  /**
+   * Get names of keys stored in key store.
+   * 
+   * @return the set of key names.
+   */
+  Set<String> names();
+
+  /**
+   * Stores the private key (that has already been protected) to the given alias.
+   *
+   * @param keyEntry
+   *          the key entry.
+   * @throws KeyEntryAlreadyExistsException
+   *           if key with the same name is already stored
+   */
+  void store(KeyEntry keyEntry);
+
+  /**
+   * Updates the private key (that has already been protected) to the given alias.
+   *
+   * @param keyEntry
+   *          the key entry.
+   * @throws KeyEntryNotFoundException
+   *           if key with the same name doesn't exists.
+   */
+  void update(KeyEntry keyEntry);
 
 }

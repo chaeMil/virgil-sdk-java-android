@@ -30,6 +30,7 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+
 package com.virgilsecurity.sdk.client.exceptions;
 
 import com.virgilsecurity.sdk.common.HttpError;
@@ -42,79 +43,79 @@ import com.virgilsecurity.sdk.common.HttpError;
  */
 public class VirgilCardServiceException extends VirgilServiceException {
 
-    private static final long serialVersionUID = -6168211821016742313L;
+  private static final long serialVersionUID = -6168211821016742313L;
 
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     * @param code
-     *            the error code.
-     */
-    public VirgilCardServiceException(int code) {
-        super(code);
-    }
+  /**
+   * Create a new instance of {@code VirgilCardServiceException}.
+   *
+   */
+  public VirgilCardServiceException() {
+  }
 
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     * @param code
-     *            The error code.
-     * @param message
-     *            The error message.
-     */
-    public VirgilCardServiceException(int code, String message) {
-        super(code, message);
-    }
+  /**
+   * Create a new instance of {@code VirgilCardServiceException}.
+   *
+   * @param e
+   *          the exception.
+   */
+  public VirgilCardServiceException(Exception e) {
+    super(e);
+  }
 
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     * @param code
-     *            The error code from Virgil Services.
-     * @param message
-     *            The error message from Virgil Services.
-     * @param httpError
-     *            the http error by itself
-     */
-    public VirgilCardServiceException(int code, String message, HttpError httpError) {
-        super(code, message, httpError);
-    }
+  /**
+   * Create a new instance of {@code VirgilCardServiceException}.
+   *
+   * @param code
+   *          the error code.
+   */
+  public VirgilCardServiceException(int code) {
+    super(code);
+  }
 
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     */
-    public VirgilCardServiceException() {
-    }
+  /**
+   * Create a new instance of {@code VirgilCardServiceException}.
+   *
+   * @param code
+   *          The error code.
+   * @param message
+   *          The error message.
+   */
+  public VirgilCardServiceException(int code, String message) {
+    super(code, message);
+  }
 
-    /**
-     * Create a new instance of {@code VirgilCardServiceException}
-     *
-     * @param e
-     *            the exception.
-     */
-    public VirgilCardServiceException(Exception e) {
-        super(e);
-    }
+  /**
+   * Create a new instance of {@code VirgilCardServiceException}.
+   *
+   * @param code
+   *          The error code from Virgil Services.
+   * @param message
+   *          The error message from Virgil Services.
+   * @param httpError
+   *          the http error by itself
+   */
+  public VirgilCardServiceException(int code, String message, HttpError httpError) {
+    super(code, message, httpError);
+  }
 
-    /**
-     * Create new instance of {@link VirgilCardServiceException}.
-     * 
-     * @param message
-     *            the detail message
-     */
-    public VirgilCardServiceException(String message) {
-        super(-1, message);
-    }
+  /**
+   * Create new instance of {@link VirgilCardServiceException}.
+   * 
+   * @param message
+   *          the detail message
+   */
+  public VirgilCardServiceException(String message) {
+    super(-1, message);
+  }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException# getMessageBundleName()
-     */
-    @Override
-    protected String getMessageBundleName() {
-        return "CardsServiceMessages";
-    }
+  /*
+   * (non-Javadoc)
+   * 
+   * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException# getMessageBundleName()
+   */
+  @Override
+  protected String getMessageBundleName() {
+    return "CardsServiceMessages";
+  }
 
 }

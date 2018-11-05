@@ -38,67 +38,67 @@ package com.virgilsecurity.sdk.common;
  */
 public class HttpError {
 
-    private int code;
-    private String message;
+  private int code;
+  private String message;
 
-    /**
-     * Instantiates a new Http error.
-     *
-     * @param code
-     *            the code
-     */
-    public HttpError(int code) {
-        this.code = code;
-    }
+  /**
+   * Instantiates a new Http error.
+   *
+   * @param code
+   *          the code
+   */
+  public HttpError(int code) {
+    this.code = code;
+  }
 
-    /**
-     * Instantiates a new Http error.
-     *
-     * @param code
-     *            the code
-     * @param message
-     *            the message
-     */
-    public HttpError(int code, String message) {
-        this.code = code;
-        this.message = message;
-    }
+  /**
+   * Instantiates a new Http error.
+   *
+   * @param code
+   *          the code
+   * @param message
+   *          the message
+   */
+  public HttpError(int code, String message) {
+    this.code = code;
+    this.message = message;
+  }
 
-    /**
-     * Gets code.
-     *
-     * @return the code
-     */
-    public int getCode() {
-        return code;
-    }
+  /**
+   * Gets code.
+   *
+   * @return the code
+   */
+  public int getCode() {
+    return code;
+  }
 
-    /**
-     * Sets code.
-     *
-     * @param code
-     *            the code
-     */
-    public void setCode(int code) {
-        this.code = code;
-    }
+  /**
+   * Gets message.
+   *
+   * @return the message
+   */
+  public String getMessage() {
+    return message;
+  }
 
-    /**
-     * Gets message.
-     *
-     * @return the message
-     */
-    public String getMessage() {
-        return message;
-    }
+  /**
+   * Sets code.
+   *
+   * @param code
+   *          the code
+   */
+  public void setCode(int code) {
+    this.code = code;
+  }
 
-    /**
-     * Sets message.
-     *
-     * @param message
-     *            the message
-     */
-    public void setMessage(String message) {
-        this.message = message;
-    }
+  /**
+   * Sets message.
+   *
+   * @param message
+   *          the message
+   */
+  public void setMessage(String message) {
+    this.message = message;
+  }
 }

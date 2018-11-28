@@ -42,13 +42,12 @@ import com.google.gson.JsonParser;
 import com.virgilsecurity.crypto.VirgilHash;
 import com.virgilsecurity.crypto.VirgilHash.Algorithm;
 import com.virgilsecurity.crypto.VirgilSigner;
+import com.virgilsecurity.crypto.utils.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -143,7 +142,7 @@ public class CryptoFormatsTests {
   public void stc_31_importPrivateKey() throws CryptoException {
     // STC_31
     JsonObject json = sampleJson.getAsJsonObject("STC-31");
-    byte[] keyData = DatatypeConverter.parseBase64Binary(json.get("private_key1").getAsString());
+    byte[] keyData = Base64.decode(json.get("private_key1").getAsString());
     PrivateKey privateKey = this.crypto.importPrivateKey(keyData);
     assertNotNull(privateKey);
 
@@ -155,7 +154,7 @@ public class CryptoFormatsTests {
   public void stc_31_importPrivateKeyWithPassword() throws CryptoException {
     // STC_31
     JsonObject json = sampleJson.getAsJsonObject("STC-31");
-    byte[] keyData = DatatypeConverter.parseBase64Binary(json.get("private_key2").getAsString());
+    byte[] keyData = Base64.decode(json.get("private_key2").getAsString());
     String password = json.get("private_key2_password").getAsString();
     PrivateKey privateKey = this.crypto.importPrivateKey(keyData, password);
     assertNotNull(privateKey);
@@ -168,7 +167,7 @@ public class CryptoFormatsTests {
   @Test
   public void stc_32() throws CryptoException {
     // STC_32
-    byte[] keyData = DatatypeConverter.parseBase64Binary(sampleJson.get("STC-32").getAsString());
+    byte[] keyData = Base64.decode(sampleJson.get("STC-32").getAsString());
     PublicKey publicKey = this.crypto.importPublicKey(keyData);
     assertNotNull(publicKey);
 

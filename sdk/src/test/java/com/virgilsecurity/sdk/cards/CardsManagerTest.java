@@ -49,7 +49,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.VirgilCardClient;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
@@ -94,7 +94,7 @@ public class CardsManagerTest extends PropertyManager {
   private Mocker mocker;
   private VirgilCrypto crypto;
   private CardCrypto cardCrypto;
-  private CardClient cardClient;
+  private VirgilCardClient cardClient;
   private CardManager cardManager;
   private VirgilCardVerifier cardVerifier;
   private CompatibilityDataProvider dataProvider;
@@ -106,11 +106,14 @@ public class CardsManagerTest extends PropertyManager {
     cardCrypto = new VirgilCardCrypto();
     String url = getCardsServiceUrl();
     if (StringUtils.isBlank(url)) {
-      cardClient = new CardClient();
+      cardClient = new VirgilCardClient();
     } else {
-      cardClient = new CardClient(url);
+      cardClient = new VirgilCardClient(url);
     }
     cardVerifier = new VirgilCardVerifier(cardCrypto);
+    if (!StringUtils.isBlank(getPropertyByName("CARDS_SERVICE_PUBLIC_KEY"))) {
+      cardVerifier.setServiceKey(getPropertyByName("CARDS_SERVICE_PUBLIC_KEY"));
+    }
     dataProvider = new CompatibilityDataProvider();
   }
 
@@ -349,7 +352,7 @@ public class CardsManagerTest extends PropertyManager {
     ModelSigner modelSigner = new ModelSigner(this.cardCrypto);
     AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
     CardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
-    CardClient cardClient = Mockito.mock(CardClient.class);
+    VirgilCardClient cardClient = Mockito.mock(VirgilCardClient.class);
     SignCallback signCallback = Mockito.mock(SignCallback.class);
     CardManager cardManager = new CardManager(this.cardCrypto, accessTokenProvider, cardVerifier,
         cardClient, signCallback, false);
@@ -413,6 +416,20 @@ public class CardsManagerTest extends PropertyManager {
     virgilCardManager.publishCard(rawSignedModel);
   }
 
+  @Test
+  public void stc_42() throws CryptoException, VirgilServiceException {
+    // STC-42
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
+        keyPairVirgiled.getPublicKey(), identity);
+    Card generatedCard = Card.parse(cardCrypto, cardModel);
+    Card publishedCard = cardManager.publishCard(cardModel);
+    assertNotNull(publishedCard);
+  }
+
   private CardManager init_stc_13() throws CryptoException, VirgilServiceException {
     CardVerifier cardVerifier = Mockito.mock(VirgilCardVerifier.class);
     Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(false);
@@ -420,7 +437,7 @@ public class CardsManagerTest extends PropertyManager {
     RawSignedModel modelFromString = RawSignedModel
         .fromString(dataProvider.getTestDataAs(3, STRING));
 
-    CardClient cardClientMock = Mockito.mock(CardClient.class);
+    VirgilCardClient cardClientMock = Mockito.mock(VirgilCardClient.class);
     Mockito.when(cardClientMock.publishCard(Mockito.any(RawSignedModel.class), Mockito.anyString()))
         .thenReturn(modelFromString);
     Mockito.when(cardClientMock.getCard(Mockito.anyString(), Mockito.anyString()))
@@ -452,7 +469,7 @@ public class CardsManagerTest extends PropertyManager {
     RawSignedModel modelFromString = RawSignedModel
         .fromString(dataProvider.getTestDataAs(34, STRING));
 
-    CardClient cardClientMock = Mockito.mock(CardClient.class);
+    VirgilCardClient cardClientMock = Mockito.mock(VirgilCardClient.class);
     Mockito.when(cardClientMock.publishCard(Mockito.any(RawSignedModel.class), Mockito.anyString()))
         .thenReturn(modelFromString);
 

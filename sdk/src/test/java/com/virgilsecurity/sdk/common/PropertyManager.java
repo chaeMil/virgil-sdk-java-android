@@ -87,8 +87,12 @@ public class PropertyManager {
   public VirgilPublicKey getApiPublicKey() {
     if (this.apiPublicKey == null) {
       try {
-        this.apiPublicKey = this.crypto
-            .importPublicKey(ConvertionUtils.base64ToBytes(getPropertyByName("API_PUBLIC_KEY")));
+        if (StringUtils.isNotBlank(getPropertyByName("API_PUBLIC_KEY"))) {
+          this.apiPublicKey = this.crypto
+              .importPublicKey(ConvertionUtils.base64ToBytes(getPropertyByName("API_PUBLIC_KEY")));
+        } else {
+          this.apiPublicKey = this.crypto.extractPublicKey(getApiPrivateKey());
+        }
       } catch (CryptoException e) {
         fail("API Public Key is not defined");
       }

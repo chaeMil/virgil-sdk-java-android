@@ -33,11 +33,18 @@
 
 package com.virgilsecurity.sdk.utils;
 
+import com.virgilsecurity.sdk.cards.Card;
+import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.common.StringEncoding;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * This is utils class which implements Card-specific functionality.
@@ -46,6 +53,7 @@ import java.util.Arrays;
  *
  */
 public class CardUtils {
+  private static final Logger LOGGER = Logger.getLogger(CardUtils.class.getName());
 
   /**
    * Generate Virgil Card identifier by card content snapshot.
@@ -66,4 +74,46 @@ public class CardUtils {
     return cardId;
   }
 
+  /**
+   * Parse Card models into Cards.
+   * 
+   * @param crypto
+   *          the {@linkplain CardCrypto}.
+   * @param cardModels
+   *          card models.
+   * @return list of {@linkplain Card}s.
+   * @throws CryptoException
+   *           if parsing failed.
+   */
+  public static List<Card> parseCards(CardCrypto crypto, List<RawSignedModel> cardModels)
+      throws CryptoException {
+    List<Card> cards = new ArrayList<>();
+    for (RawSignedModel cardModel : cardModels) {
+      cards.add(Card.parse(crypto, cardModel));
+    }
+    return cards;
+  }
+
+  /**
+   * Check if identities provided for search are equals to Cards identities.
+   * 
+   * @param cards
+   *          the {@linkplain Card}s.
+   * @param identities
+   *          the identites.
+   * @throws VirgilCardServiceException
+   */
+  public static void validateCardsWithIdentities(Collection<Card> cards,
+      Collection<String> identities) throws VirgilCardServiceException {
+    for (Card card : cards) {
+      for (String identity : identities) {
+        if (identity.equals(card.getIdentity())) {
+          break;
+        }
+        String msg = String.format("Card '%s' verification was failed", card.getIdentifier());
+        LOGGER.warning(msg);
+        throw new VirgilCardServiceException(msg);
+      }
+    }
+  }
 }

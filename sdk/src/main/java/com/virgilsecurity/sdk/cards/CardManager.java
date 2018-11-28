@@ -37,7 +37,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
-import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.VirgilCardClient;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
@@ -48,6 +48,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
+import com.virgilsecurity.sdk.utils.CardUtils;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
@@ -95,7 +96,7 @@ public class CardManager {
   private CardCrypto crypto;
   private AccessTokenProvider accessTokenProvider;
   private CardVerifier cardVerifier;
-  private CardClient cardClient;
+  private VirgilCardClient cardClient;
   private SignCallback signCallback;
 
   private boolean retryOnUnauthorized;
@@ -121,7 +122,7 @@ public class CardManager {
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
 
-    cardClient = new CardClient();
+    cardClient = new VirgilCardClient();
     modelSigner = new ModelSigner(crypto);
   }
 
@@ -138,7 +139,7 @@ public class CardManager {
    *          the card client
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, CardClient cardClient) {
+      CardVerifier cardVerifier, VirgilCardClient cardClient) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
@@ -170,7 +171,7 @@ public class CardManager {
    *          whether card manager should retry request with new token on unauthorized http error
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, CardClient cardClient, SignCallback signCallback,
+      CardVerifier cardVerifier, VirgilCardClient cardClient, SignCallback signCallback,
       boolean retryOnUnauthorized) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
@@ -213,7 +214,7 @@ public class CardManager {
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
 
-    cardClient = new CardClient();
+    cardClient = new VirgilCardClient();
     modelSigner = new ModelSigner(crypto);
   }
 
@@ -451,7 +452,7 @@ public class CardManager {
    *
    * @return the card client
    */
-  public CardClient getCardClient() {
+  public VirgilCardClient getCardClient() {
     return cardClient;
   }
 
@@ -903,42 +904,11 @@ public class CardManager {
       }
     }
 
-    // Parsing Card models into Cards
-    List<Card> cards = new ArrayList<>();
-    for (RawSignedModel cardModel : cardModels) {
-      cards.add(Card.parse(crypto, cardModel));
-    }
+    List<Card> cards = CardUtils.parseCards(crypto, cardModels);
+    List<Card> result = processOutdatedCards(cards);
+    CardUtils.validateCardsWithIdentities(cards, Arrays.asList(identity));
 
-    // Finding Cards that are outdated (if Card with equal previousCardId is found)
-    // and setting them as previousCard for the newer one and marking them as outdated
-    for (Card cardOuter : cards) {
-      for (Card cardInner : cards) {
-        if (cardOuter.getPreviousCardId() != null && cardInner.getPreviousCardId() != null
-            && cardOuter.getIdentifier().equals(cardInner.getIdentifier())) {
-          cardOuter.setPreviousCard(cardInner);
-          cardInner.setOutdated(true);
-          break;
-        }
-      }
-    }
-
-    // Creating Card-chains - it's List of the newest Cards
-    // which could have previousCard and is NOT outdated
-    List<Card> result = new ArrayList<>();
-    for (Card card : cards) {
-      if (!card.isOutdated()) {
-        result.add(card);
-      }
-    }
-
-    // Check if provided for search identity is equal to Cards identities that was found
-    // as well as verifying Cards
     for (Card card : result) {
-      if (!Objects.equals(identity, card.getIdentity())) {
-        LOGGER.warning(String.format("Card '%s' verification was failed", card.getIdentifier()));
-        throw new VirgilCardServiceException();
-      }
-
       verifyCard(card);
     }
 
@@ -981,5 +951,31 @@ public class CardManager {
       LOGGER.warning(String.format("Card '%s' verification was failed", card.getIdentifier()));
       throw new VirgilCardVerificationException();
     }
+  }
+
+  private List<Card> processOutdatedCards(List<Card> cards) {
+    // Finding Cards that are outdated (if Card with equal previousCardId is found)
+    // and setting them as previousCard for the newer one and marking them as outdated
+    for (Card cardOuter : cards) {
+      for (Card cardInner : cards) {
+        if (cardOuter.getPreviousCardId() != null && cardInner.getPreviousCardId() != null
+            && cardOuter.getIdentifier().equals(cardInner.getIdentifier())) {
+          cardOuter.setPreviousCard(cardInner);
+          cardInner.setOutdated(true);
+          break;
+        }
+      }
+    }
+
+    // Creating Card-chains - it's List of the newest Cards
+    // which could have previousCard and is NOT outdated
+    List<Card> result = new ArrayList<>();
+    for (Card card : cards) {
+      if (!card.isOutdated()) {
+        result.add(card);
+      }
+    }
+
+    return result;
   }
 }

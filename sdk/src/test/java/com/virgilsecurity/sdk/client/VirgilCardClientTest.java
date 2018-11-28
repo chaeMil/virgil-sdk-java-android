@@ -34,6 +34,7 @@
 package com.virgilsecurity.sdk.client;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -47,12 +48,14 @@ import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 
 import java.net.HttpURLConnection;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-public class CardClientTest extends PropertyManager {
+public class VirgilCardClientTest extends PropertyManager {
 
   private static final String IDENTITY = "SomeTestIdentity";
 
@@ -63,9 +66,9 @@ public class CardClientTest extends PropertyManager {
   public void setUp() {
     String url = getCardsServiceUrl();
     if (StringUtils.isBlank(url)) {
-      cardClient = new CardClient();
+      cardClient = new VirgilCardClient();
     } else {
-      cardClient = new CardClient(url);
+      cardClient = new VirgilCardClient(url);
     }
     mocker = new Mocker();
   }
@@ -77,7 +80,8 @@ public class CardClientTest extends PropertyManager {
       cardClient.getCard(Generator.cardId(), "Try our fried tokens");
       fail();
     } catch (VirgilServiceException e) {
-      assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
+      assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, e.getHttpError().getCode());
+      assertEquals(20303, e.getErrorCode());
     }
   }
 
@@ -91,7 +95,8 @@ public class CardClientTest extends PropertyManager {
           mocker.generateFakeAccessToken(identity).stringRepresentation());
       fail();
     } catch (VirgilServiceException e) {
-      assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
+      assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, e.getHttpError().getCode());
+      assertEquals(20303, e.getErrorCode());
     }
   }
 
@@ -105,7 +110,8 @@ public class CardClientTest extends PropertyManager {
           mocker.generateFakeAccessToken(identity).stringRepresentation());
       fail();
     } catch (VirgilServiceException e) {
-      assertEquals(HttpURLConnection.HTTP_UNAUTHORIZED, e.getHttpError().getCode());
+      assertEquals(HttpURLConnection.HTTP_BAD_REQUEST, e.getHttpError().getCode());
+      assertEquals(20303, e.getErrorCode());
     }
   }
 
@@ -125,6 +131,33 @@ public class CardClientTest extends PropertyManager {
   }
 
   @Test
+  public void stc_41() throws CryptoException, VirgilServiceException {
+    // STC-41
+    String identity1 = Generator.identity();
+    String identity2 = Generator.identity();
+
+    RawSignedModel cardModel1 = cardClient.publishCard(mocker.generateCardModel(identity1),
+        mocker.generateAccessToken(identity1).stringRepresentation());
+    RawSignedModel cardModel2 = cardClient.publishCard(mocker.generateCardModel(identity2),
+        mocker.generateAccessToken(identity2).stringRepresentation());
+
+    List<RawSignedModel> foundCardModels = cardClient.searchCards(
+        Arrays.asList(identity1, identity2),
+        mocker.generateAccessToken(identity1).stringRepresentation());
+
+    assertNotNull(foundCardModels);
+    assertEquals(2, foundCardModels.size());
+
+    RawSignedModel foundCardModel1 = TestUtils.getCardModelByIdentity(foundCardModels, identity1);
+    assertNotNull(foundCardModel1);
+    assertEquals(cardModel1, foundCardModel1);
+
+    RawSignedModel foundCardModel2 = TestUtils.getCardModelByIdentity(foundCardModels, identity2);
+    assertNotNull(foundCardModel2);
+    assertEquals(cardModel2, foundCardModel2);
+  }
+
+  @Test
   public void tokenVerification() throws CryptoException {
     Jwt accessToken = mocker.generateAccessToken(IDENTITY);
     Assert.assertTrue(mocker.getVerifier().verifyToken(accessToken));
@@ -141,4 +174,5 @@ public class CardClientTest extends PropertyManager {
 
     TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
   }
+
 }

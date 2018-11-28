@@ -89,9 +89,8 @@ public class Mocker extends PropertyManager {
     jwtGeneratorFake = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
         TimeSpan.fromTime(1, TimeUnit.HOURS), accessTokenSigner);
 
-    TimeSpan timeSpanExpired = TimeSpan.fromTime(1, TimeUnit.MINUTES);
-    timeSpanExpired.decrease(5 * 60 * 1000);
-    jwtGeneratorExpired = initJwtGenerator(getAppId(), privateKeyFake, getApiPublicKeyId(),
+    TimeSpan timeSpanExpired = TimeSpan.fromTime(1, TimeUnit.SECONDS);
+    jwtGeneratorExpired = initJwtGenerator(getAppId(), privateKey, getApiPublicKeyId(),
         timeSpanExpired, accessTokenSigner);
 
     verifier = new JwtVerifier(getApiPublicKey(), getApiPublicKeyId(), accessTokenSigner);
@@ -203,9 +202,9 @@ public class Mocker extends PropertyManager {
   }
 
   public JwtGenerator getJwtGeneratorForSeconds(int seconds) {
-    return jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), getApiPrivateKey(), getApiPublicKeyId(),
-                                                       TimeSpan.fromTime(seconds, TimeUnit.SECONDS),
-                                                       new VirgilAccessTokenSigner());
+    return jwtGeneratorSevenSeconds = initJwtGenerator(getAppId(), getApiPrivateKey(),
+        getApiPublicKeyId(), TimeSpan.fromTime(seconds, TimeUnit.SECONDS),
+        new VirgilAccessTokenSigner());
   }
 
   public JwtVerifier getVerifier() {

@@ -49,7 +49,7 @@ import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VerifierCredentials;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
 import com.virgilsecurity.sdk.cards.validation.Whitelist;
-import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.VirgilCardClient;
 import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
@@ -95,9 +95,6 @@ public class SignerAndVerifierTest extends PropertyManager {
   private VirgilCardCrypto cardCrypto;
   private ModelSigner modelSigner;
   private Mocker mocker;
-  private VirgilCardVerifier verifier;
-  private CardClient cardClient;
-  private CardManager cardManager;
   private CompatibilityDataProvider dataProvider;
 
   @Before
@@ -106,20 +103,6 @@ public class SignerAndVerifierTest extends PropertyManager {
     cardCrypto = new VirgilCardCrypto();
     modelSigner = new ModelSigner(cardCrypto);
     mocker = new Mocker();
-    verifier = new VirgilCardVerifier(cardCrypto);
-    String url = getCardsServiceUrl();
-    if (StringUtils.isBlank(url)) {
-      cardClient = new CardClient();
-    } else {
-      cardClient = new CardClient(url);
-    }
-    cardManager = new CardManager(cardCrypto, Mockito.mock(AccessTokenProvider.class), verifier,
-        cardClient, new CardManager.SignCallback() {
-          @Override
-          public RawSignedModel onSign(RawSignedModel rawSignedModel) {
-            return rawSignedModel;
-          }
-        }, false);
     dataProvider = new CompatibilityDataProvider();
   }
 
@@ -417,17 +400,17 @@ public class SignerAndVerifierTest extends PropertyManager {
   }
 
   @Test
-  public void stc_26() throws CryptoException, VirgilServiceException {
+  public void stc_26() throws CryptoException, VirgilServiceException, InterruptedException {
     // STC-26
     AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
     final CardVerifier cardVerifier = new VirgilCardVerifier(this.cardCrypto, false, false);
     String cardsServiceUrl = getCardsServiceUrl();
 
-    CardClient cardClient;
+    VirgilCardClient cardClient;
     if (StringUtils.isBlank(cardsServiceUrl)) {
-      cardClient = new CardClient();
+      cardClient = new VirgilCardClient();
     } else {
-      cardClient = new CardClient(cardsServiceUrl);
+      cardClient = new VirgilCardClient(cardsServiceUrl);
     }
     SignCallback signCallback = Mockito.mock(SignCallback.class);
 
@@ -441,6 +424,9 @@ public class SignerAndVerifierTest extends PropertyManager {
 
     CardManager cardManager = new CardManager(this.cardCrypto, accessTokenProvider, cardVerifier,
         cardClient, signCallback, true);
+
+    // Let expiredToken to expire
+    Thread.sleep(2000);
 
     Card card = cardManager.publishCard(rawSignedModel);
     assertNotNull(card);

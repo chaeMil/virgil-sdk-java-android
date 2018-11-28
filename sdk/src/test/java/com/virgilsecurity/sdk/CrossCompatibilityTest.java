@@ -52,7 +52,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.client.CardClient;
+import com.virgilsecurity.sdk.client.VirgilCardClient;
 import com.virgilsecurity.sdk.common.PropertyManager;
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.CardCrypto;
@@ -266,7 +266,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
     CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-        cardVerifier, new CardClient(), Mockito.mock(CardManager.SignCallback.class), false);
+        cardVerifier, new VirgilCardClient(), Mockito.mock(CardManager.SignCallback.class), false);
 
     String importedFromJson = dataProvider.getTestDataAs(3, JSON);
     Card card = cardManager.importCardAsJson(importedFromJson);
@@ -294,7 +294,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
     CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-        cardVerifier, new CardClient(), Mockito.mock(CardManager.SignCallback.class), false);
+        cardVerifier, new VirgilCardClient(), Mockito.mock(CardManager.SignCallback.class), false);
 
     String importedFromString = dataProvider.getTestDataAs(3, STRING);
     Card card = cardManager.importCardAsJson(ConvertionUtils.base64ToString(importedFromString));
@@ -324,7 +324,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
     CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-        cardVerifier, new CardClient(), Mockito.mock(CardManager.SignCallback.class), false);
+        cardVerifier, new VirgilCardClient(), Mockito.mock(CardManager.SignCallback.class), false);
 
     String importedFromJson = dataProvider.getTestDataAs(4, JSON);
     Card card = cardManager.importCardAsJson(importedFromJson);
@@ -380,7 +380,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     Mockito.when(cardVerifier.verifyCard(Mockito.any(Card.class))).thenReturn(true);
 
     CardManager cardManager = new CardManager(cardCrypto, new ConstAccessTokenProvider(),
-        cardVerifier, new CardClient(), Mockito.mock(CardManager.SignCallback.class), false);
+        cardVerifier, new VirgilCardClient(), Mockito.mock(CardManager.SignCallback.class), false);
 
     String importedFromString = dataProvider.getTestDataAs(4, STRING);
     Card card = cardManager.importCardAsJson(ConvertionUtils.base64ToString(importedFromString));

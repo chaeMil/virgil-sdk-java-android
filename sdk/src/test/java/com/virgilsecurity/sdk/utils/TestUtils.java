@@ -40,6 +40,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.junit.Assert;
@@ -101,6 +102,22 @@ public class TestUtils {
         && Objects.equals(getSelfSignature(cardOne), getSelfSignature(cardTwo));
   }
 
+  public static RawSignedModel getCardModelByIdentity(List<RawSignedModel> cardModels,
+      String identity) {
+    if (cardModels == null || cardModels.isEmpty()) {
+      return null;
+    }
+    for (RawSignedModel cardModel : cardModels) {
+      RawCardContent rawCardContent = ConvertionUtils
+          .deserializeFromJson(new String(cardModel.getContentSnapshot()), RawCardContent.class);
+
+      if (identity.equals(rawCardContent.getIdentity())) {
+        return cardModel;
+      }
+    }
+    return null;
+  }
+
   private static CardSignature getSelfSignature(Card card) {
     for (CardSignature cardSignature : card.getSignatures()) {
       if (cardSignature.getSigner().equals(SignerType.SELF.getRawValue())) {
@@ -120,4 +137,5 @@ public class TestUtils {
 
     throw new NullPointerException("Card -> card must have at least 'self' signature");
   }
+
 }

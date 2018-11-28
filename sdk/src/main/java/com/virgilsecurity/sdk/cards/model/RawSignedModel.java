@@ -39,6 +39,7 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -222,10 +223,8 @@ public class RawSignedModel {
     for (RawSignature rawSignatureOuter : signatures) {
       for (RawSignature rawSignatureInner : signatures) {
         if (rawSignatureOuter.getSigner().equals(rawSignatureInner.getSigner())) {
-          LOGGER.warning(String.format(
-              "RawSignedModel should have unique signatures only. "
-              + "The '%s' signature is already present",
-              rawSignatureOuter.getSigner()));
+          LOGGER.warning(String.format("RawSignedModel should have unique signatures only. "
+              + "The '%s' signature is already present", rawSignatureOuter.getSigner()));
           return false;
         }
       }
@@ -237,14 +236,41 @@ public class RawSignedModel {
   private boolean isSignaturesUnique(RawSignature signature) {
     for (RawSignature rawSignatureOuter : signatures) {
       if (rawSignatureOuter.getSigner().equals(signature.getSigner())) {
-        LOGGER.warning(String.format(
-            "RawSignedModel should have unique signatures only. "
-            + "The '%s' signature is already present",
-            signature.getSigner()));
+        LOGGER.warning(String.format("RawSignedModel should have unique signatures only. "
+            + "The '%s' signature is already present", signature.getSigner()));
         return false;
       }
     }
 
     return true;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(contentSnapshot);
+    result = prime * result + ((signatures == null) ? 0 : signatures.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    RawSignedModel other = (RawSignedModel) obj;
+    if (!Arrays.equals(contentSnapshot, other.contentSnapshot))
+      return false;
+    if (signatures == null) {
+      if (other.signatures != null)
+        return false;
+    } else if (!signatures.equals(other.signatures))
+      return false;
+    return true;
+  }
+
 }

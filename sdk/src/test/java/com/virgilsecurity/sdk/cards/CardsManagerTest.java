@@ -377,7 +377,12 @@ public class CardsManagerTest extends PropertyManager {
     // STC-35
     CardManager virgilCardManager = init_stc_35();
 
-    RawCardContent cardContent = new RawCardContent(Generator.identity(),
+    RawSignedModel modelFromString = RawSignedModel
+        .fromString(dataProvider.getTestDataAs(34, STRING));
+    String testIdentity = RawCardContent.fromJson(new String(modelFromString.getContentSnapshot()))
+        .getIdentity();
+
+    RawCardContent cardContent = new RawCardContent(testIdentity,
         dataProvider.getJsonByKey(34, "public_key_base64"), new Date());
     RawSignedModel rawSignedModelTwo = new RawSignedModel(cardContent.exportAsBase64String());
 
@@ -424,6 +429,8 @@ public class CardsManagerTest extends PropertyManager {
         .thenReturn(Collections.singletonList(modelFromString));
 
     AccessToken jwt = Mockito.mock(AccessToken.class);
+    Mockito.when(jwt.getIdentity()).thenReturn(
+        RawCardContent.fromJson(new String(modelFromString.getContentSnapshot())).getIdentity());
     Mockito.when(jwt.stringRepresentation()).thenReturn("");
 
     AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);
@@ -450,6 +457,8 @@ public class CardsManagerTest extends PropertyManager {
         .thenReturn(modelFromString);
 
     AccessToken jwt = Mockito.mock(AccessToken.class);
+    Mockito.when(jwt.getIdentity()).thenReturn(
+        RawCardContent.fromJson(new String(modelFromString.getContentSnapshot())).getIdentity());
     Mockito.when(jwt.stringRepresentation()).thenReturn(UUID.randomUUID().toString());
 
     AccessTokenProvider accessTokenProvider = Mockito.mock(AccessTokenProvider.class);

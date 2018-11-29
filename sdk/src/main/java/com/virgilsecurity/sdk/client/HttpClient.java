@@ -55,13 +55,12 @@ import java.util.logging.Logger;
  * @author Andrii Iakovenko
  */
 public class HttpClient {
+
   private static final Logger LOGGER = Logger.getLogger(HttpClient.class.getName());
 
-  /**
-   * Create new instance of {@link HttpClient}.
-   */
-  public HttpClient() {
-  }
+  private static final String AUTHORIZATION_HEADER = "Authorization";
+  private static final String CONTENT_TYPE_HEADER = "Content-Type";
+  private static final String VIRGIL_SUPERSEEDED_HEADER = "X-Virgil-Is-Superseeded";
 
   public <T> T execute(URL url, String method, String token, InputStream inputStream,
       Class<T> clazz) throws VirgilServiceException {
@@ -146,17 +145,17 @@ public class HttpClient {
     }
 
     if (!StringUtils.isBlank(token)) {
-      urlConnection.setRequestProperty("Authorization", "Virgil " + token);
+      urlConnection.setRequestProperty(AUTHORIZATION_HEADER, "Virgil " + token);
     } else {
       LOGGER.warning("Provided token is blank");
     }
-    urlConnection.setRequestProperty("Content-Type", "application/json; charset=utf-8");
+    urlConnection.setRequestProperty(CONTENT_TYPE_HEADER, "application/json; charset=utf-8");
 
     return urlConnection;
   }
 
   private boolean isSuperseeded(HttpURLConnection urlConnection) {
-    String header = urlConnection.getHeaderField("X-Virgil-Is-Superseeded");
+    String header = urlConnection.getHeaderField(VIRGIL_SUPERSEEDED_HEADER);
     if (header != null) {
       return Boolean.parseBoolean(header);
     }

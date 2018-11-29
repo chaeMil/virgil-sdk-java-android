@@ -106,10 +106,14 @@ public class CardUtils {
   public static void validateCardsWithIdentities(Collection<Card> cards,
       Collection<String> identities) throws VirgilCardServiceException {
     for (Card card : cards) {
+      boolean found = false;
       for (String identity : identities) {
         if (identity.equals(card.getIdentity())) {
+          found = true;
           break;
         }
+      }
+      if (!found) {
         String msg = String.format("Card '%s' verification was failed", card.getIdentifier());
         LOGGER.warning(msg);
         throw new VirgilCardServiceException(msg);

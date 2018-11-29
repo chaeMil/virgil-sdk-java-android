@@ -35,6 +35,7 @@ package com.virgilsecurity.sdk.cards;
 
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
+import static com.virgilsecurity.sdk.utils.TestUtils.assertCardModelsEquals;
 import static com.virgilsecurity.sdk.utils.TestUtils.assertCardsEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -296,18 +297,25 @@ public class CardsManagerTest extends PropertyManager {
 
     List<Card> searchedCards = cardManager.searchCards(identity);
     assertNotNull(searchedCards);
-    assertTrue(searchedCards.size() == 2);
+    assertEquals(2, searchedCards.size());
 
     Card singleCardFromChain = null;
+    Card newCardFromChain = null;
     for (Card card : searchedCards) {
-      if (card.getIdentifier().equals(publishedCardTwo.getIdentifier())) {
-        assertEquals(publishedCardOne.getIdentifier(), card.getPreviousCardId());
-        assertEquals(publishedCardOne, card.getPreviousCard());
-        assertFalse(card.isOutdated());
-      } else if (card.getIdentifier().equals(publishedCardThree.getIdentifier())) {
+      if (card.getIdentifier().equals(publishedCardTwo.getIdentifier()))
+        newCardFromChain = card;
+      else if (card.getIdentifier().equals(publishedCardThree.getIdentifier()))
         singleCardFromChain = card;
-      }
+      else
+        fail();
     }
+
+    assertNotNull(singleCardFromChain);
+    assertNotNull(newCardFromChain);
+
+    assertEquals(publishedCardOne.getIdentifier(), newCardFromChain.getPreviousCardId());
+    assertCardModelsEquals(publishedCardOne.getRawCard(), newCardFromChain.getPreviousCard().getRawCard());
+    assertFalse(newCardFromChain.isOutdated());
 
     assertCardsEquals(publishedCardThree, singleCardFromChain);
   }

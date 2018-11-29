@@ -956,16 +956,16 @@ public class CardManager {
   private List<Card> processOutdatedCards(List<Card> cards) {
     // Finding Cards that are outdated (if Card with equal previousCardId is found)
     // and setting them as previousCard for the newer one and marking them as outdated
-    for (Card cardOuter : cards) {
+  for (Card cardOuter : cards) {
       for (Card cardInner : cards) {
-        if (cardOuter.getPreviousCardId() != null && cardInner.getPreviousCardId() != null
-            && cardOuter.getIdentifier().equals(cardInner.getIdentifier())) {
-          cardOuter.setPreviousCard(cardInner);
-          cardInner.setOutdated(true);
-          break;
-        }
+          if ((cardOuter.getPreviousCardId() != null || cardInner.getPreviousCardId() != null)
+                  && cardOuter.getIdentifier().equals(cardInner.getPreviousCardId())) {
+              cardInner.setPreviousCard(cardOuter);
+              cardOuter.setOutdated(true);
+              break;
+          }
       }
-    }
+  }
 
     // Creating Card-chains - it's List of the newest Cards
     // which could have previousCard and is NOT outdated

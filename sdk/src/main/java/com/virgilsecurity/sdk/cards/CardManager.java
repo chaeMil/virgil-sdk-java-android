@@ -913,10 +913,10 @@ public class CardManager {
     // and setting them as previousCard for the newer one and marking them as outdated
     for (Card cardOuter : cards) {
       for (Card cardInner : cards) {
-        if (cardOuter.getPreviousCardId() != null && cardInner.getPreviousCardId() != null
-            && cardOuter.getIdentifier().equals(cardInner.getIdentifier())) {
-          cardOuter.setPreviousCard(cardInner);
-          cardInner.setOutdated(true);
+        if ((cardOuter.getPreviousCardId() != null || cardInner.getPreviousCardId() != null)
+            && cardOuter.getIdentifier().equals(cardInner.getPreviousCardId())) {
+          cardInner.setPreviousCard(cardOuter);
+          cardOuter.setOutdated(true);
           break;
         }
       }

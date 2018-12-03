@@ -66,7 +66,7 @@ public class SigningException extends CryptoException {
    *
    * @param cause
    *          The cause (which is saved for later retrieval by the {@link #getCause()} method). (A
-   *          <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or
+   *          {@code null} value is permitted, and indicates that the cause is nonexistent or
    *          unknown.)
    */
   public SigningException(Throwable cause) {

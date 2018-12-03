@@ -40,6 +40,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.junit.Assert;
@@ -64,8 +65,8 @@ public class TestUtils {
 
   public static void assertCardsEquals(Card expectedCard, Card actualCard) {
     if (!cardsEqualsSelfSignOnly(expectedCard, actualCard)) {
-      Assert.fail("\nExpected card:\n" + expectedCard.toString() + "\n\nActual card:\n"
-          + actualCard.toString());
+      Assert.fail("\nExpected card:\n" + ConvertionUtils.getGson().toJson(expectedCard)
+          + "\n\nActual card:\n" + ConvertionUtils.getGson().toJson(actualCard));
     }
   }
 
@@ -90,6 +91,12 @@ public class TestUtils {
   }
 
   public static boolean cardsEqualsSelfSignOnly(Card cardOne, Card cardTwo) {
+    if (cardOne == null && cardTwo == null) {
+      return true;
+    }
+    if (cardOne == null || cardTwo == null) {
+      return false;
+    }
     return cardOne.isOutdated() == cardTwo.isOutdated()
         && Objects.equals(cardOne.getIdentifier(), cardTwo.getIdentifier())
         && Objects.equals(cardOne.getIdentity(), cardTwo.getIdentity())
@@ -97,8 +104,36 @@ public class TestUtils {
         && Objects.equals(cardOne.getVersion(), cardTwo.getVersion())
         && Objects.equals(cardOne.getCreatedAt(), cardTwo.getCreatedAt())
         && Objects.equals(cardOne.getPreviousCardId(), cardTwo.getPreviousCardId())
-        && Objects.equals(cardOne.getPreviousCard(), cardTwo.getPreviousCard())
+        && cardsEqualsSelfSignOnly(cardOne.getPreviousCard(), cardTwo.getPreviousCard())
         && Objects.equals(getSelfSignature(cardOne), getSelfSignature(cardTwo));
+  }
+
+  public static RawSignedModel getCardModelByIdentity(List<RawSignedModel> cardModels,
+      String identity) {
+    if (cardModels == null || cardModels.isEmpty()) {
+      return null;
+    }
+    for (RawSignedModel cardModel : cardModels) {
+      RawCardContent rawCardContent = ConvertionUtils
+          .deserializeFromJson(new String(cardModel.getContentSnapshot()), RawCardContent.class);
+
+      if (identity.equals(rawCardContent.getIdentity())) {
+        return cardModel;
+      }
+    }
+    return null;
+  }
+
+  public static Card getCardByIdentity(List<Card> cards, String identity) {
+    if (cards == null || cards.isEmpty()) {
+      return null;
+    }
+    for (Card card : cards) {
+      if (identity.equals(card.getIdentity())) {
+        return card;
+      }
+    }
+    return null;
   }
 
   private static CardSignature getSelfSignature(Card card) {
@@ -120,4 +155,5 @@ public class TestUtils {
 
     throw new NullPointerException("Card -> card must have at least 'self' signature");
   }
+
 }

@@ -66,7 +66,7 @@ public class KeyStorageException extends RuntimeException {
    *
    * @param cause
    *          the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
-   *          <tt>null</tt> value is permitted, and indicates that the cause is nonexistent or
+   *          {@code null} value is permitted, and indicates that the cause is nonexistent or
    *          unknown.)
    */
   public KeyStorageException(Throwable cause) {

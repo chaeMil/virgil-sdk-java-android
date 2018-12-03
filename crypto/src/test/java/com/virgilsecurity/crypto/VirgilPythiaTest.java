@@ -40,14 +40,13 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.virgilsecurity.crypto.utils.ConvertUtils;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
 import java.util.Set;
-
-import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.junit.Before;
@@ -190,7 +189,7 @@ public class VirgilPythiaTest {
   }
 
   private byte[] getHexBytes(String key) {
-    return DatatypeConverter.parseHexBinary(this.sampleJson.get(key).getAsString());
+    return ConvertUtils.hexToBytes(this.sampleJson.get(key).getAsString());
   }
 
 }

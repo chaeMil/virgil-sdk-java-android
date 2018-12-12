@@ -52,15 +52,4 @@ public class VirgilIdentityServiceException extends VirgilServiceException {
   public VirgilIdentityServiceException(Exception e) {
     super(e);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException# getMessageBundleName()
-   */
-  @Override
-  protected String getMessageBundleName() {
-    return "IdentityServiceMessages";
-  }
-
 }

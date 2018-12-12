@@ -107,15 +107,4 @@ public class VirgilCardServiceException extends VirgilServiceException {
   public VirgilCardServiceException(String message) {
     super(-1, message);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException# getMessageBundleName()
-   */
-  @Override
-  protected String getMessageBundleName() {
-    return "CardsServiceMessages";
-  }
-
 }

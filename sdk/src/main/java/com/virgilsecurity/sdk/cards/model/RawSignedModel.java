@@ -122,7 +122,10 @@ public class RawSignedModel {
    *          the Base64-encoded card content snapshot.
    */
   public RawSignedModel(String base64EncodedString) {
-    this(ConvertionUtils.base64ToBytes(base64EncodedString));
+    RawSignedModel cardModel = RawSignedModel.fromString(base64EncodedString);
+
+    this.contentSnapshot = cardModel.getContentSnapshot();
+    this.signatures = cardModel.getSignatures();
   }
 
   /**

@@ -398,7 +398,8 @@ public class CardsManagerTest extends PropertyManager {
 
     RawCardContent cardContent = new RawCardContent(testIdentity,
         dataProvider.getJsonByKey(34, "public_key_base64"), new Date());
-    RawSignedModel rawSignedModelTwo = new RawSignedModel(cardContent.exportAsBase64String());
+    RawSignedModel rawSignedModelTwo =
+        new RawSignedModel(ConvertionUtils.base64ToBytes(cardContent.exportAsBase64String()));
 
     ModelSigner signer = new ModelSigner(cardCrypto);
     VirgilPrivateKey privateKey = crypto.importPrivateKey(

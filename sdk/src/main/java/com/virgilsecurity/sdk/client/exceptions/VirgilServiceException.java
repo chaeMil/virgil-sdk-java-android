@@ -35,9 +35,6 @@ package com.virgilsecurity.sdk.client.exceptions;
 
 import com.virgilsecurity.sdk.common.HttpError;
 
-import java.util.MissingResourceException;
-import java.util.ResourceBundle;
-
 /**
  * Base exception class for all Virgil Services operations.
  *
@@ -166,28 +163,10 @@ public abstract class VirgilServiceException extends Exception {
       return super.getMessage();
     }
 
-    try {
-      ResourceBundle bundle = ResourceBundle.getBundle(getMessageBundleName());
-      String key = String.valueOf(this.errorCode);
-      if (bundle.containsKey(key)) {
-        return message + bundle.getString(key);
-      }
-    } catch (MissingResourceException ignored) {
-      // nothing to do.
-    }
-
     if (messageError != null) {
       return message + errorCode + " : " + messageError;
     }
 
     return ERROR_UNKNOWN + ": " + errorCode;
   }
-
-  /**
-   * Get message bundle name.
-   * 
-   * @return the message bundle name
-   */
-  protected abstract String getMessageBundleName();
-
 }

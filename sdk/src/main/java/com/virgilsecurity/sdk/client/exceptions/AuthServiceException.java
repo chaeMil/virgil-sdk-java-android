@@ -81,16 +81,4 @@ public class AuthServiceException extends VirgilServiceException {
   public AuthServiceException(int code, Exception cause) {
     super(code, cause);
   }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.virgilsecurity.sdk.client.exceptions.VirgilServiceException#getMessageBundleName()
-   */
-  @Override
-  protected String getMessageBundleName() {
-    // FIXME auth server message bundle
-    return "";
-  }
-
 }

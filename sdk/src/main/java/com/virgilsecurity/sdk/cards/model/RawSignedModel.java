@@ -74,7 +74,7 @@ public class RawSignedModel {
    * @return the raw signed model
    */
   public static RawSignedModel fromString(String cardModel) {
-    return new RawSignedModel(cardModel);
+    return fromJson(ConvertionUtils.base64ToString(cardModel));
   }
 
   /**
@@ -116,13 +116,16 @@ public class RawSignedModel {
   }
 
   /**
-   * Create new instance of {@link RawSignedModel}.
+   * Creates new instance of {@link RawSignedModel}.
    * 
-   * @param base64EncodedString
-   *          the Base64-encoded card content snapshot.
+   * @param base64EncodedModel
+   *          the Base64-encoded raw signed model.
+   *
+   * @deprecated use {@link RawSignedModel#fromString(String)} instead.
    */
-  public RawSignedModel(String base64EncodedString) {
-    RawSignedModel cardModel = fromJson(ConvertionUtils.base64ToString(base64EncodedString));
+  @Deprecated
+  public RawSignedModel(String base64EncodedModel) {
+    RawSignedModel cardModel = fromString(base64EncodedModel);
 
     this.contentSnapshot = cardModel.getContentSnapshot();
     this.signatures = cardModel.getSignatures();
@@ -156,7 +159,7 @@ public class RawSignedModel {
    * @return the string
    */
   public String exportAsBase64String() {
-    return ConvertionUtils.toBase64String(ConvertionUtils.serializeToJson(this));
+    return ConvertionUtils.toBase64String(exportAsJson());
   }
 
   /**

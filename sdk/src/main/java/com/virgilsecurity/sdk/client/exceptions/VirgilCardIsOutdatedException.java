@@ -89,9 +89,4 @@ public class VirgilCardIsOutdatedException extends VirgilServiceException {
   public RawSignedModel getCardModel() {
     return cardModel;
   }
-
-  @Override
-  protected String getMessageBundleName() {
-    return message != null ? message : "Message was not set.";
-  }
 }

@@ -46,19 +46,19 @@ You can easily add SDK dependency to your project, just follow the examples belo
 
 #### Maven
 
-Use this packages for Java projects.
+Use this packages for Java projects:
 
 ```
 <dependencies>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>crypto</artifactId>
-        <version>5.0.5</version>
+        <version><latest-version></version>
     </dependency>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>sdk</artifactId>
-        <version>5.0.5</version>
+        <version><latest-version></version>
     </dependency>
 </dependencies>
 ```
@@ -73,14 +73,14 @@ repositories {
 }
 ```
 
-Use this packages for Android projects.
+Use this packages for Android projects:
 
 ```
-dependencies {
-    compile 'com.virgilsecurity.sdk:crypto-android:5.0.5@aar'
-    compile 'com.virgilsecurity.sdk:sdk:5.0.5'
-}
+    implementation "com.virgilsecurity.sdk:crypto-android:<latest-version>@aar'
+    implementation "com.virgilsecurity.sdk:sdk:<latest-version>"
 ```
+
+The **\<latest-version>** of the SDK can be found in the [Maven Central Repository](https://mvnrepository.com/artifact/com.virgilsecurity.sdk/sdk)  or in the header of current readme.
 
 ## Usage Examples
 

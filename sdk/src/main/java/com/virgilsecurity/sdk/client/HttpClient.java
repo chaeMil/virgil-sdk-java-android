@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Virgil Security, Inc.
+ * Copyright (c) 2015-2019, Virgil Security, Inc.
  *
  * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
@@ -49,6 +49,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -66,8 +67,25 @@ public class HttpClient {
   private static final String VIRGIL_AGENT_HEADER = "virgil-agent";
   private static final String VIRGIL_AGENT_PRODUCT = "sdk";
   private static final String VIRGIL_AGENT_FAMILY = "jvm";
-  private static final String VIRGIL_AGENT_VERSION = "5.0.6";
   private static final String VIRGIL_SUPERSEEDED_HEADER = "X-Virgil-Is-Superseeded";
+
+  public static final String VIRGIL_AGENT_VERSION;
+
+  static {
+    InputStream is = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("virgil.properties");
+    if (is != null) {
+      Properties properties = new Properties();
+      try {
+        properties.load(is);
+      } catch (IOException e) {
+        LOGGER.log(Level.SEVERE, "Can't load Maven properties", e);
+      }
+      VIRGIL_AGENT_VERSION = properties.getProperty("virgil.agent.version", "0");
+    } else {
+      VIRGIL_AGENT_VERSION = "0";
+    }
+  }
 
   /**
    * Executes http requests.

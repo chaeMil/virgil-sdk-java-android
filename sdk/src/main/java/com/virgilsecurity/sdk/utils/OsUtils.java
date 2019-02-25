@@ -45,20 +45,20 @@ public class OsUtils {
    */
   public static String getOs() {
     if (isAndroidOs()) {
-      return OsReturnNames.ANDROID_OS_NAME.name;
+      return OsNames.ANDROID_OS_NAME.name;
     }
 
-    String osName = System.getProperty("os.name").toLowerCase();
+    String currentOsName = System.getProperty("os.name").toLowerCase();
     String returnOsName;
 
-    if (osName.startsWith(OsNames.LINUX_OS_NAME.name)) {
-      returnOsName = OsReturnNames.LINUX_OS_NAME.name;
-    } else if (osName.startsWith(OsNames.WINDOWS_OS_NAME.name)) {
-      returnOsName = OsReturnNames.WINDOWS_OS_NAME.name;
-    } else if (osName.startsWith(OsNames.MACOS_OS_NAME.name)) {
-      returnOsName = OsReturnNames.MACOS_OS_NAME.name;
+    if (currentOsName.startsWith(OsNames.LINUX_OS_NAME.name)) {
+      returnOsName = OsNames.LINUX_OS_NAME.name;
+    } else if (currentOsName.startsWith(OsNames.WINDOWS_OS_NAME.name)) {
+      returnOsName = OsNames.WINDOWS_OS_NAME.name;
+    } else if (currentOsName.startsWith(OsNames.MACOS_OS_NAME.name)) {
+      returnOsName = OsNames.VIRGIL_AGENT_MACOS.name;
     } else {
-      returnOsName = OsReturnNames.UNKNOWN_OS.name;
+      returnOsName = OsNames.UNKNOWN_OS.name;
     }
 
     return returnOsName;
@@ -80,41 +80,20 @@ public class OsUtils {
   }
 
   /**
-   * Enum with names of OSs to filter the *os.name* system property.
+   * Enum with names of OSs to filter the *os.name* system property, and return values
+   * for virgil-agent.
    */
   private enum OsNames {
-    LINUX_OS_NAME("linux"),
-    WINDOWS_OS_NAME("windows"),
-    MACOS_OS_NAME("mac os");
-
-    private final String name;
-
-    OsNames(String name) {
-      this.name = name;
-    }
-
-    public boolean equals(String other) {
-      return name.equals(other);
-    }
-
-    @Override public String toString() {
-      return name;
-    }
-  }
-
-  /**
-   * Enum with names of OSs for user-agent header in format according to virgil agreement.
-   */
-  private enum OsReturnNames {
     ANDROID_OS_NAME("android"),
     LINUX_OS_NAME("linux"),
     WINDOWS_OS_NAME("windows"),
-    MACOS_OS_NAME("darwin"),
+    MACOS_OS_NAME("mac os"),
+    VIRGIL_AGENT_MACOS("darwin"), // Return type differs from the filter one
     UNKNOWN_OS("unknown");
 
     private final String name;
 
-    OsReturnNames(String name) {
+    OsNames(String name) {
       this.name = name;
     }
 

@@ -42,15 +42,13 @@ import org.junit.Test;
  */
 public class OsUtilsTest {
 
-  private static final String RETURN_ANDROID_OS_NAME = "android";
-  private static final String RETURN_LINUX_OS_NAME = "linux";
-  private static final String RETURN_RETURN_WINDOWS_OS_NAME = "windows";
-  private static final String RETURN_MACOS_OS_NAME = "darwin";
-  private static final String RETURN_UNKNOWN_OS = "unknown";
-
+  private static final String ANDROID_OS_NAME = "android";
   private static final String LINUX_OS_NAME = "linux";
   private static final String WINDOWS_OS_NAME = "windows";
   private static final String MACOS_OS_NAME = "mac os";
+  private static final String VIRGIL_AGENT_MACOS = "darwin";
+  private static final String UNKNOWN_OS = "unknown";
+
 
   @Test public void test_os_type() {
     Class androidClass = null;
@@ -60,19 +58,20 @@ public class OsUtilsTest {
       // Leave androidClass as null
     }
 
-    if (androidClass != null)
-      assertEquals(RETURN_ANDROID_OS_NAME, OsUtils.getOs());
+    if (androidClass != null) {
+      assertEquals(ANDROID_OS_NAME, OsUtils.getOs());
+    }
 
     String osName = System.getProperty("os.name").toLowerCase();
 
     if (osName.startsWith(LINUX_OS_NAME)) {
-      assertEquals(RETURN_LINUX_OS_NAME, OsUtils.getOs());
+      assertEquals(LINUX_OS_NAME, OsUtils.getOs());
     } else if (osName.startsWith(WINDOWS_OS_NAME)) {
-      assertEquals(RETURN_RETURN_WINDOWS_OS_NAME, OsUtils.getOs());
+      assertEquals(WINDOWS_OS_NAME, OsUtils.getOs());
     } else if (osName.startsWith(MACOS_OS_NAME)) {
-      assertEquals(RETURN_MACOS_OS_NAME, OsUtils.getOs());
+      assertEquals(VIRGIL_AGENT_MACOS, OsUtils.getOs());
     } else {
-      assertEquals(RETURN_UNKNOWN_OS, OsUtils.getOs());
+      assertEquals(UNKNOWN_OS, OsUtils.getOs());
     }
   }
 }

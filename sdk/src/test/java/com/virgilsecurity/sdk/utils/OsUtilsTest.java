@@ -60,6 +60,7 @@ public class OsUtilsTest {
 
     if (androidClass != null) {
       assertEquals(ANDROID_OS_NAME, OsUtils.getOsAgentName());
+      return;
     }
 
     String osName = System.getProperty("os.name").toLowerCase();

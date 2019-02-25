@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2018, Virgil Security, Inc.
+ * Copyright (c) 2015-2019, Virgil Security, Inc.
  *
  * Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
  *
@@ -40,6 +40,7 @@ import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.ErrorResponse;
 import com.virgilsecurity.sdk.common.HttpError;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
+import com.virgilsecurity.sdk.utils.OsUtils;
 import com.virgilsecurity.sdk.utils.StreamUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 
@@ -48,10 +49,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * HttpClient class intention is to handle http requests.
+ *
  * @author Andrii Iakovenko
  */
 public class HttpClient {
@@ -60,10 +64,48 @@ public class HttpClient {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String CONTENT_TYPE_HEADER = "Content-Type";
+  private static final String VIRGIL_AGENT_HEADER = "virgil-agent";
+  private static final String VIRGIL_AGENT_PRODUCT = "sdk";
+  private static final String VIRGIL_AGENT_FAMILY = "jvm";
   private static final String VIRGIL_SUPERSEEDED_HEADER = "X-Virgil-Is-Superseeded";
 
+  public static final String VIRGIL_AGENT;
+
+  static {
+    String virgilAgentVersion = "0";
+    InputStream is = Thread.currentThread().getContextClassLoader()
+        .getResourceAsStream("virgil.properties");
+    if (is != null) {
+      Properties properties = new Properties();
+      try {
+        properties.load(is);
+      } catch (IOException e) {
+        LOGGER.log(Level.SEVERE, "Can't load Maven properties", e);
+      }
+      virgilAgentVersion = properties.getProperty("virgil.agent.version", "0");
+    }
+
+    VIRGIL_AGENT = VIRGIL_AGENT_PRODUCT + ';'
+        + VIRGIL_AGENT_FAMILY + ';'
+        + OsUtils.getOsAgentName() + ';'
+        + virgilAgentVersion;
+  }
+
+  /**
+   * Executes http requests.
+   *
+   * @param url         endpoint to make request to.
+   * @param method      request method (POST, PUT, DELETE, GET).
+   * @param token       authentication token.
+   * @param inputStream data for the body of POST/PUT requests.
+   * @param clazz       type of the return class.
+   *
+   * @return the response that is parsed as a provided clazz argument.
+   *
+   * @throws VirgilServiceException if any issue with request is happend.
+   */
   public <T> T execute(URL url, String method, String token, InputStream inputStream,
-      Class<T> clazz) throws VirgilServiceException {
+                       Class<T> clazz) throws VirgilServiceException {
     try {
       HttpURLConnection urlConnection = createConnection(url, method, token);
       if (inputStream != null) {
@@ -79,7 +121,7 @@ public class HttpClient {
             if (!StringUtils.isBlank(body)) {
               ErrorResponse error = ConvertionUtils.getGson().fromJson(body, ErrorResponse.class);
               HttpError httpError = new HttpError(urlConnection.getResponseCode(),
-                  urlConnection.getResponseMessage());
+                                                  urlConnection.getResponseMessage());
               throw new VirgilCardServiceException(error.getCode(), error.getMessage(), httpError);
             } else {
               LOGGER.warning("Response error body is empty. Nothing to show");
@@ -90,7 +132,7 @@ public class HttpClient {
             return null;
           }
           throw new VirgilCardServiceException(urlConnection.getResponseCode(),
-              urlConnection.getResponseMessage());
+                                               urlConnection.getResponseMessage());
         } else if (clazz.isAssignableFrom(Void.class)) {
           LOGGER.warning("Void is unacceptable type");
           return null;
@@ -119,13 +161,12 @@ public class HttpClient {
   /**
    * Create and configure http connection.
    *
-   * @param url
-   *          The URL.
-   * @param method
-   *          The HTTP method.
+   * @param url    The URL.
+   * @param method The HTTP method.
+   *
    * @return The connection.
-   * @throws IOException
-   *           if connection couldn't be created.
+   *
+   * @throws IOException if connection couldn't be created.
    */
   private HttpURLConnection createConnection(URL url, String method, String token)
       throws IOException {
@@ -150,6 +191,7 @@ public class HttpClient {
       LOGGER.warning("Provided token is blank");
     }
     urlConnection.setRequestProperty(CONTENT_TYPE_HEADER, "application/json; charset=utf-8");
+    urlConnection.setRequestProperty(VIRGIL_AGENT_HEADER, VIRGIL_AGENT);
 
     return urlConnection;
   }

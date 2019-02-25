@@ -31,24 +31,46 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jwt.contract;
+package com.virgilsecurity.sdk.client;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jwt.TokenContext;
+import static org.junit.Assert.assertEquals;
 
-/**
- * The interface {@link AccessTokenProvider} describes methods to get token.
- */
-public interface AccessTokenProvider {
+import com.virgilsecurity.sdk.utils.OsUtils;
 
-  /**
-   * Gets token.
-   *
-   * @param tokenContext
-   *          the tokenContext that is used to get token
-   * @return the token
-   * @throws CryptoException
-   *           if issue occurred while getting token
-   */
-  AccessToken getToken(TokenContext tokenContext) throws CryptoException;
+import java.io.File;
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
+import org.junit.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.xml.sax.SAXException;
+
+public class HttpClientTest {
+
+  @Test
+  public void virgilAgent()
+      throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
+    File pomFile = new File(System.getProperty("user.dir"), "pom.xml");
+    DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = builderFactory.newDocumentBuilder();
+    Document xmlDocument = builder.parse(pomFile);
+
+    XPath xPath = XPathFactory.newInstance().newXPath();
+    Node node = (Node) xPath.compile("/project/parent/version").evaluate(xmlDocument,
+        XPathConstants.NODE);
+    String version = node.getTextContent();
+
+    String virgilAgent = String.format("sdk;jvm;%1$s;%2$s", OsUtils.getOsAgentName(), version);
+
+    assertEquals(virgilAgent, HttpClient.VIRGIL_AGENT);
+  }
+
 }

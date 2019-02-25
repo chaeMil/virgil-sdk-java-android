@@ -31,24 +31,76 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jwt.contract;
-
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jwt.TokenContext;
+package com.virgilsecurity.sdk.utils;
 
 /**
- * The interface {@link AccessTokenProvider} describes methods to get token.
+ * OsUtils class.
  */
-public interface AccessTokenProvider {
+public class OsUtils {
 
   /**
-   * Gets token.
+   * Get current Operation System (OS).
    *
-   * @param tokenContext
-   *          the tokenContext that is used to get token
-   * @return the token
-   * @throws CryptoException
-   *           if issue occurred while getting token
+   * @return the OS Name that is currently running the application.
    */
-  AccessToken getToken(TokenContext tokenContext) throws CryptoException;
+  public static String getOsAgentName() {
+    if (isAndroidOs()) {
+      return OsNames.ANDROID_OS_NAME.agentName;
+    }
+
+    String currentOsName = System.getProperty("os.name").toLowerCase();
+
+    for (OsNames osName : OsNames.values()) {
+      if (currentOsName.startsWith(osName.name)) {
+        return osName.agentName;
+      }
+    }
+
+    return OsNames.UNKNOWN_OS.agentName;
+  }
+
+  /**
+   * Checks whether the current OS is android.
+   *
+   * @return *true* if current OS is android, *false* otherwise.
+   */
+  private static boolean isAndroidOs() {
+    try {
+      Class.forName("android.os.Build");
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Enum with names of OSs to filter the *os.name* system property, and return values
+   * for virgil-agent.
+   */
+  private enum OsNames {
+    ANDROID_OS_NAME("android"),
+    LINUX_OS_NAME("linux"),
+    WINDOWS_OS_NAME("windows"),
+    MACOS_OS_NAME("mac os", "darwin"),
+    UNKNOWN_OS("unknown");
+
+    private final String name;
+    private final String agentName;
+
+    OsNames(String name) {
+      this.name = name;
+      this.agentName = name;
+    }
+
+    OsNames(String name, String loggedName) {
+      this.name = name;
+      this.agentName = loggedName;
+    }
+
+    @Override public String toString() {
+      return name;
+    }
+
+  }
 }

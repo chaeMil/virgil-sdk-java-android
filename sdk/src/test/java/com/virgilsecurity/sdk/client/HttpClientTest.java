@@ -35,6 +35,8 @@ package com.virgilsecurity.sdk.client;
 
 import static org.junit.Assert.assertEquals;
 
+import com.virgilsecurity.sdk.utils.OsUtils;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -54,7 +56,7 @@ import org.xml.sax.SAXException;
 public class HttpClientTest {
 
   @Test
-  public void getVirgilAgentVersion()
+  public void virgilAgent()
       throws ParserConfigurationException, SAXException, IOException, XPathExpressionException {
     File pomFile = new File(System.getProperty("user.dir"), "pom.xml");
     DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
@@ -66,6 +68,9 @@ public class HttpClientTest {
         XPathConstants.NODE);
     String version = node.getTextContent();
 
-    assertEquals(version, HttpClient.VIRGIL_AGENT_VERSION);
+    String virgilAgent = String.format("sdk;jvm;%1$s;%2$s", OsUtils.getOsAgentName(), version);
+
+    assertEquals(virgilAgent, HttpClient.VIRGIL_AGENT);
   }
+
 }

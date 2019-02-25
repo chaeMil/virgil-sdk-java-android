@@ -59,19 +59,19 @@ public class OsUtilsTest {
     }
 
     if (androidClass != null) {
-      assertEquals(ANDROID_OS_NAME, OsUtils.getOs());
+      assertEquals(ANDROID_OS_NAME, OsUtils.getOsAgentName());
     }
 
     String osName = System.getProperty("os.name").toLowerCase();
 
     if (osName.startsWith(LINUX_OS_NAME)) {
-      assertEquals(LINUX_OS_NAME, OsUtils.getOs());
+      assertEquals(LINUX_OS_NAME, OsUtils.getOsAgentName());
     } else if (osName.startsWith(WINDOWS_OS_NAME)) {
-      assertEquals(WINDOWS_OS_NAME, OsUtils.getOs());
+      assertEquals(WINDOWS_OS_NAME, OsUtils.getOsAgentName());
     } else if (osName.startsWith(MACOS_OS_NAME)) {
-      assertEquals(VIRGIL_AGENT_MACOS, OsUtils.getOs());
+      assertEquals(VIRGIL_AGENT_MACOS, OsUtils.getOsAgentName());
     } else {
-      assertEquals(UNKNOWN_OS, OsUtils.getOs());
+      assertEquals(UNKNOWN_OS, OsUtils.getOsAgentName());
     }
   }
 }

@@ -69,9 +69,10 @@ public class HttpClient {
   private static final String VIRGIL_AGENT_FAMILY = "jvm";
   private static final String VIRGIL_SUPERSEEDED_HEADER = "X-Virgil-Is-Superseeded";
 
-  public static final String VIRGIL_AGENT_VERSION;
+  public static final String VIRGIL_AGENT;
 
   static {
+    String virgilAgentVersion = "0";
     InputStream is = Thread.currentThread().getContextClassLoader()
         .getResourceAsStream("virgil.properties");
     if (is != null) {
@@ -81,10 +82,13 @@ public class HttpClient {
       } catch (IOException e) {
         LOGGER.log(Level.SEVERE, "Can't load Maven properties", e);
       }
-      VIRGIL_AGENT_VERSION = properties.getProperty("virgil.agent.version", "0");
-    } else {
-      VIRGIL_AGENT_VERSION = "0";
+      virgilAgentVersion = properties.getProperty("virgil.agent.version", "0");
     }
+
+    VIRGIL_AGENT = VIRGIL_AGENT_PRODUCT + ';'
+        + VIRGIL_AGENT_FAMILY + ';'
+        + OsUtils.getOsAgentName() + ';'
+        + virgilAgentVersion;
   }
 
   /**
@@ -187,16 +191,9 @@ public class HttpClient {
       LOGGER.warning("Provided token is blank");
     }
     urlConnection.setRequestProperty(CONTENT_TYPE_HEADER, "application/json; charset=utf-8");
-    urlConnection.setRequestProperty(VIRGIL_AGENT_HEADER, formVirgilAgent());
+    urlConnection.setRequestProperty(VIRGIL_AGENT_HEADER, VIRGIL_AGENT);
 
     return urlConnection;
-  }
-
-  private String formVirgilAgent() {
-    return VIRGIL_AGENT_PRODUCT + ';'
-        + VIRGIL_AGENT_FAMILY + ';'
-        + OsUtils.getOs() + ';'
-        + VIRGIL_AGENT_VERSION;
   }
 
   private boolean isSuperseeded(HttpURLConnection urlConnection) {

@@ -43,25 +43,20 @@ public class OsUtils {
    *
    * @return the OS Name that is currently running the application.
    */
-  public static String getOs() {
+  public static String getOsAgentName() {
     if (isAndroidOs()) {
-      return OsNames.ANDROID_OS_NAME.name;
+      return OsNames.ANDROID_OS_NAME.agentName;
     }
 
     String currentOsName = System.getProperty("os.name").toLowerCase();
-    String returnOsName;
 
-    if (currentOsName.startsWith(OsNames.LINUX_OS_NAME.name)) {
-      returnOsName = OsNames.LINUX_OS_NAME.name;
-    } else if (currentOsName.startsWith(OsNames.WINDOWS_OS_NAME.name)) {
-      returnOsName = OsNames.WINDOWS_OS_NAME.name;
-    } else if (currentOsName.startsWith(OsNames.MACOS_OS_NAME.name)) {
-      returnOsName = OsNames.VIRGIL_AGENT_MACOS.name;
-    } else {
-      returnOsName = OsNames.UNKNOWN_OS.name;
+    for (OsNames osName : OsNames.values()) {
+      if (currentOsName.startsWith(osName.name)) {
+        return osName.agentName;
+      }
     }
 
-    return returnOsName;
+    return OsNames.UNKNOWN_OS.agentName;
   }
 
   /**
@@ -87,22 +82,25 @@ public class OsUtils {
     ANDROID_OS_NAME("android"),
     LINUX_OS_NAME("linux"),
     WINDOWS_OS_NAME("windows"),
-    MACOS_OS_NAME("mac os"),
-    VIRGIL_AGENT_MACOS("darwin"), // Return type differs from the filter one
+    MACOS_OS_NAME("mac os", "darwin"),
     UNKNOWN_OS("unknown");
 
     private final String name;
+    private final String agentName;
 
     OsNames(String name) {
       this.name = name;
+      this.agentName = name;
     }
 
-    public boolean equals(String other) {
-      return name.equals(other);
+    OsNames(String name, String loggedName) {
+      this.name = name;
+      this.agentName = loggedName;
     }
 
     @Override public String toString() {
       return name;
     }
+
   }
 }

@@ -69,12 +69,15 @@ public class HttpClient {
   private static final String VIRGIL_AGENT_FAMILY = "jvm";
   private static final String VIRGIL_SUPERSEEDED_HEADER = "X-Virgil-Is-Superseeded";
 
-  public static final String VIRGIL_AGENT;
+  private String virgilAgent;
 
-  static {
+  /**
+   * Creating HttpClient with default virgil-agent header.
+   */
+  public HttpClient() {
     String virgilAgentVersion = "0";
     InputStream is = Thread.currentThread().getContextClassLoader()
-        .getResourceAsStream("virgil.properties");
+                           .getResourceAsStream("virgil.properties");
     if (is != null) {
       Properties properties = new Properties();
       try {
@@ -85,10 +88,23 @@ public class HttpClient {
       virgilAgentVersion = properties.getProperty("virgil.agent.version", "0");
     }
 
-    VIRGIL_AGENT = VIRGIL_AGENT_PRODUCT + ';'
+    virgilAgent = VIRGIL_AGENT_PRODUCT + ';'
         + VIRGIL_AGENT_FAMILY + ';'
         + OsUtils.getOsAgentName() + ';'
         + virgilAgentVersion;
+  }
+
+  /**
+   * Creating HttpClient with custom virgil-agent header setting provided product and version.
+   *
+   * @param product custom product value for virgil-agent header.
+   * @param version custom version value virgil-agent header.
+   */
+  public HttpClient(String product, String version) {
+    virgilAgent = product + ';'
+        + VIRGIL_AGENT_FAMILY + ';'
+        + OsUtils.getOsAgentName() + ';'
+        + version;
   }
 
   /**
@@ -191,7 +207,7 @@ public class HttpClient {
       LOGGER.warning("Provided token is blank");
     }
     urlConnection.setRequestProperty(CONTENT_TYPE_HEADER, "application/json; charset=utf-8");
-    urlConnection.setRequestProperty(VIRGIL_AGENT_HEADER, VIRGIL_AGENT);
+    urlConnection.setRequestProperty(VIRGIL_AGENT_HEADER, virgilAgent);
 
     return urlConnection;
   }

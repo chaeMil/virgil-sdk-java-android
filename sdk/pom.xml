@@ -40,7 +40,7 @@
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
 		<!-- Don't forget to update VIRGIL_AGENT_VERSION in HttpClient -->
-		<version>5.0.7</version>
+		<version>5.0.8</version>
 	</parent>
 	<artifactId>sdk</artifactId>
 	<packaging>jar</packaging>

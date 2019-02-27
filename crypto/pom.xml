@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright (c) 2015-2018, Virgil Security, Inc.
+  ~ Copyright (c) 2015-2019, Virgil Security, Inc.
   ~
   ~ Lead Maintainer: Virgil Security Inc. <support@virgilsecurity.com>
   ~
@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.0.6</version>
+		<version>5.0.7</version>
 	</parent>
 	<artifactId>crypto</artifactId>
 	<packaging>jar</packaging>

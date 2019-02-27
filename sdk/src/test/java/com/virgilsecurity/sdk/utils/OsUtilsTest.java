@@ -31,24 +31,48 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.jwt.contract;
+package com.virgilsecurity.sdk.utils;
 
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.jwt.TokenContext;
+import static org.junit.Assert.assertEquals;
+
+import org.junit.Test;
 
 /**
- * The interface {@link AccessTokenProvider} describes methods to get token.
+ * OsUtilsTest class.
  */
-public interface AccessTokenProvider {
+public class OsUtilsTest {
 
-  /**
-   * Gets token.
-   *
-   * @param tokenContext
-   *          the tokenContext that is used to get token
-   * @return the token
-   * @throws CryptoException
-   *           if issue occurred while getting token
-   */
-  AccessToken getToken(TokenContext tokenContext) throws CryptoException;
+  private static final String ANDROID_OS_NAME = "android";
+  private static final String LINUX_OS_NAME = "linux";
+  private static final String WINDOWS_OS_NAME = "windows";
+  private static final String MACOS_OS_NAME = "mac os";
+  private static final String VIRGIL_AGENT_MACOS = "darwin";
+  private static final String UNKNOWN_OS = "unknown";
+
+
+  @Test public void test_os_type() {
+    Class androidClass = null;
+    try {
+      androidClass = Class.forName("android.os.Build");
+    } catch (ClassNotFoundException e) {
+      // Leave androidClass as null
+    }
+
+    if (androidClass != null) {
+      assertEquals(ANDROID_OS_NAME, OsUtils.getOsAgentName());
+      return;
+    }
+
+    String osName = System.getProperty("os.name").toLowerCase();
+
+    if (osName.startsWith(LINUX_OS_NAME)) {
+      assertEquals(LINUX_OS_NAME, OsUtils.getOsAgentName());
+    } else if (osName.startsWith(WINDOWS_OS_NAME)) {
+      assertEquals(WINDOWS_OS_NAME, OsUtils.getOsAgentName());
+    } else if (osName.startsWith(MACOS_OS_NAME)) {
+      assertEquals(VIRGIL_AGENT_MACOS, OsUtils.getOsAgentName());
+    } else {
+      assertEquals(UNKNOWN_OS, OsUtils.getOsAgentName());
+    }
+  }
 }

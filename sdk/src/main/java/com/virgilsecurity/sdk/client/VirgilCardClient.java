@@ -65,7 +65,7 @@ public class VirgilCardClient implements CardClient {
   private HttpClient httpClient;
 
   /**
-   * Create a new instance of {@code CardClient}.
+   * Create a new instance of {@code CardClient} with default HttpClient.
    */
   public VirgilCardClient() {
     this("https://api.virgilsecurity.com/card/v5/");
@@ -73,6 +73,16 @@ public class VirgilCardClient implements CardClient {
 
   /**
    * Create a new instance of {@code CardClient}.
+   *
+   * @param httpClient
+   *          http client that will be used for firing requests
+   */
+  public VirgilCardClient(HttpClient httpClient) {
+    this("https://api.virgilsecurity.com/card/v5/", httpClient);
+  }
+
+  /**
+   * Create a new instance of {@code CardClient} with default HttpClient.
    *
    * @param serviceUrl
    *          the service url to fire requests to
@@ -91,10 +101,40 @@ public class VirgilCardClient implements CardClient {
    *
    * @param serviceUrl
    *          the service url to fire requests to
+   * @param httpClient
+   *          http client that will be used for firing requests
+   */
+  public VirgilCardClient(String serviceUrl, HttpClient httpClient) {
+    try {
+      this.serviceUrl = new URL(serviceUrl);
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("CardClient -> 'serviceUrl' has wrong format");
+    }
+    this.httpClient = httpClient;
+  }
+
+  /**
+   * Create a new instance of {@code CardClient} with default HttpClient.
+   *
+   * @param serviceUrl
+   *          the service url to fire requests to
    */
   public VirgilCardClient(URL serviceUrl) {
     this.serviceUrl = serviceUrl;
     httpClient = new HttpClient();
+  }
+
+  /**
+   * Create a new instance of {@code CardClient}.
+   *
+   * @param serviceUrl
+   *          the service url to fire requests to
+   * @param httpClient
+   *          http client that will be used for firing requests
+   */
+  public VirgilCardClient(URL serviceUrl, HttpClient httpClient) {
+    this.serviceUrl = serviceUrl;
+    this.httpClient = httpClient;
   }
 
   /**

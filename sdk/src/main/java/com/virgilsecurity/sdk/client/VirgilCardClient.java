@@ -61,6 +61,9 @@ import java.util.logging.Logger;
 public class VirgilCardClient implements CardClient {
   private static final Logger LOGGER = Logger.getLogger(VirgilCardClient.class.getName());
 
+  private static final String BASE_URL = "https://api.virgilsecurity.com/card";
+  private static final String SERVICE_VERSION = "/v5/";
+
   private URL serviceUrl;
   private HttpClient httpClient;
 
@@ -68,7 +71,7 @@ public class VirgilCardClient implements CardClient {
    * Create a new instance of {@code CardClient} with default HttpClient.
    */
   public VirgilCardClient() {
-    this("https://api.virgilsecurity.com/card/v5/");
+    this(BASE_URL + SERVICE_VERSION);
   }
 
   /**
@@ -78,7 +81,7 @@ public class VirgilCardClient implements CardClient {
    *          http client that will be used for firing requests
    */
   public VirgilCardClient(HttpClient httpClient) {
-    this("https://api.virgilsecurity.com/card/v5/", httpClient);
+    this(BASE_URL + SERVICE_VERSION, httpClient);
   }
 
   /**

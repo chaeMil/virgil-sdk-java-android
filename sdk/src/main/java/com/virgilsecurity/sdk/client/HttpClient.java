@@ -33,6 +33,7 @@
 
 package com.virgilsecurity.sdk.client;
 
+import com.virgilsecurity.sdk.VirgilInfo;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -49,7 +50,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -65,8 +65,6 @@ public class HttpClient {
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String CONTENT_TYPE_HEADER = "Content-Type";
   private static final String VIRGIL_AGENT_HEADER = "virgil-agent";
-  private static final String VIRGIL_AGENT_PRODUCT = "sdk";
-  private static final String VIRGIL_AGENT_FAMILY = "jvm";
   private static final String VIRGIL_SUPERSEEDED_HEADER = "X-Virgil-Is-Superseeded";
 
   private String virgilAgent;
@@ -75,23 +73,10 @@ public class HttpClient {
    * Creating HttpClient with default virgil-agent header.
    */
   public HttpClient() {
-    String virgilAgentVersion = "0";
-    InputStream is = Thread.currentThread().getContextClassLoader()
-                           .getResourceAsStream("virgil.properties");
-    if (is != null) {
-      Properties properties = new Properties();
-      try {
-        properties.load(is);
-      } catch (IOException e) {
-        LOGGER.log(Level.SEVERE, "Can't load Maven properties", e);
-      }
-      virgilAgentVersion = properties.getProperty("virgil.agent.version", "0");
-    }
-
-    virgilAgent = VIRGIL_AGENT_PRODUCT + ';'
-        + VIRGIL_AGENT_FAMILY + ';'
+    virgilAgent = VirgilInfo.PRODUCT + ';'
+        + VirgilInfo.FAMILY + ';'
         + OsUtils.getOsAgentName() + ';'
-        + virgilAgentVersion;
+        + VirgilInfo.VERSION;
   }
 
   /**
@@ -102,7 +87,7 @@ public class HttpClient {
    */
   public HttpClient(String product, String version) {
     virgilAgent = product + ';'
-        + VIRGIL_AGENT_FAMILY + ';'
+        + VirgilInfo.FAMILY + ';'
         + OsUtils.getOsAgentName() + ';'
         + version;
   }

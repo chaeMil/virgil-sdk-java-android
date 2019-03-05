@@ -61,18 +61,31 @@ import java.util.logging.Logger;
 public class VirgilCardClient implements CardClient {
   private static final Logger LOGGER = Logger.getLogger(VirgilCardClient.class.getName());
 
+  private static final String BASE_URL = "https://api.virgilsecurity.com/card";
+  private static final String SERVICE_VERSION = "/v5/";
+
   private URL serviceUrl;
   private HttpClient httpClient;
 
   /**
-   * Create a new instance of {@code CardClient}.
+   * Create a new instance of {@code CardClient} with default HttpClient.
    */
   public VirgilCardClient() {
-    this("https://api.virgilsecurity.com/card/v5/");
+    this(BASE_URL + SERVICE_VERSION);
   }
 
   /**
    * Create a new instance of {@code CardClient}.
+   *
+   * @param httpClient
+   *          http client that will be used for firing requests
+   */
+  public VirgilCardClient(HttpClient httpClient) {
+    this(BASE_URL + SERVICE_VERSION, httpClient);
+  }
+
+  /**
+   * Create a new instance of {@code CardClient} with default HttpClient.
    *
    * @param serviceUrl
    *          the service url to fire requests to
@@ -91,10 +104,40 @@ public class VirgilCardClient implements CardClient {
    *
    * @param serviceUrl
    *          the service url to fire requests to
+   * @param httpClient
+   *          http client that will be used for firing requests
+   */
+  public VirgilCardClient(String serviceUrl, HttpClient httpClient) {
+    try {
+      this.serviceUrl = new URL(serviceUrl);
+    } catch (MalformedURLException e) {
+      throw new IllegalArgumentException("CardClient -> 'serviceUrl' has wrong format");
+    }
+    this.httpClient = httpClient;
+  }
+
+  /**
+   * Create a new instance of {@code CardClient} with default HttpClient.
+   *
+   * @param serviceUrl
+   *          the service url to fire requests to
    */
   public VirgilCardClient(URL serviceUrl) {
     this.serviceUrl = serviceUrl;
     httpClient = new HttpClient();
+  }
+
+  /**
+   * Create a new instance of {@code CardClient}.
+   *
+   * @param serviceUrl
+   *          the service url to fire requests to
+   * @param httpClient
+   *          http client that will be used for firing requests
+   */
+  public VirgilCardClient(URL serviceUrl, HttpClient httpClient) {
+    this.serviceUrl = serviceUrl;
+    this.httpClient = httpClient;
   }
 
   /**

@@ -1,6 +1,6 @@
 # Virgil Security SDK and Crypto stack Java/Android
 
-[![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-java-android)
+[![Build Status](https://travis-ci.com/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.com/VirgilSecurity/virgil-sdk-java-android)
 [![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)
 [![GitHub license](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/VirgilSecurity/virgil/blob/master/LICENSE)
 
@@ -46,19 +46,19 @@ You can easily add SDK dependency to your project, just follow the examples belo
 
 #### Maven
 
-Use this packages for Java projects.
+Use this packages for Java projects:
 
 ```
 <dependencies>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>crypto</artifactId>
-        <version>5.0.9</version>
+        <version><latest-version></version>
     </dependency>
     <dependency>
         <groupId>com.virgilsecurity.sdk</groupId>
         <artifactId>sdk</artifactId>
-        <version>5.0.9</version>
+        <version><latest-version></version>
     </dependency>
 </dependencies>
 ```
@@ -73,14 +73,14 @@ repositories {
 }
 ```
 
-Use this packages for Android projects.
+Use this packages for Android projects:
 
 ```
-dependencies {
-    compile 'com.virgilsecurity.sdk:crypto-android:5.0.9@aar'
-    compile 'com.virgilsecurity.sdk:sdk:5.0.9'
-}
+    implementation "com.virgilsecurity.sdk:crypto-android:<latest-version>@aar'
+    implementation "com.virgilsecurity.sdk:sdk:<latest-version>"
 ```
+
+The **\<latest-version>** of the SDK can be found in the [Maven Central Repository](https://mvnrepository.com/artifact/com.virgilsecurity.sdk/sdk)  or in the header of current readme.
 
 ## Usage Examples
 
@@ -211,7 +211,7 @@ Our developer support team is here to help you. Find out more information on our
 
 You can find us on [Twitter](https://twitter.com/VirgilSecurity) or send us email support@VirgilSecurity.com.
 
-Also, get extra help from our support team on [Slack](https://virgilsecurity.slack.com/join/shared_invite/enQtMjg4MDE4ODM3ODA4LTc2OWQwOTQ3YjNhNTQ0ZjJiZDc2NjkzYjYxNTI0YzhmNTY2ZDliMGJjYWQ5YmZiOGU5ZWEzNmJiMWZhYWVmYTM).
+Also, get extra help from our support team on [Slack](https://virgilsecurity.com/join-community).
 
 [_virgil_crypto]: https://github.com/VirgilSecurity/virgil-crypto
 [_cards_service]: https://developer.virgilsecurity.com/docs/api-reference/card-service/v5

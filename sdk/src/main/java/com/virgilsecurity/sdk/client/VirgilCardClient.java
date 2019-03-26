@@ -236,7 +236,7 @@ public class VirgilCardClient implements CardClient {
       throw new EmptyArgumentException("CardClient -> 'identity' should not be empty");
     }
 
-    return searchCards(Arrays.asList(identity), token);
+    return searchCards(Collections.singletonList(identity), token);
   }
 
   /**
@@ -261,7 +261,7 @@ public class VirgilCardClient implements CardClient {
     }
 
     try {
-      URL url = new URL(serviceUrl, "actions/search");
+      URL url = new URL(serviceUrl, Endpoints.ACTIONS_SEARCH.path);
       SearchCardsRequestData requestData = new SearchCardsRequestData(identities);
       String body = ConvertionUtils.getGson().toJson(requestData);
 
@@ -269,6 +269,36 @@ public class VirgilCardClient implements CardClient {
           new ByteArrayInputStream(ConvertionUtils.toBytes(body)), RawSignedModel[].class);
 
       return Arrays.asList(cardModels);
+    } catch (VirgilServiceException e) {
+      LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
+      throw e;
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Some issue occurred during request executing", e);
+      throw new VirgilCardServiceException(e);
+    }
+  }
+
+  /**
+   * Deletes card in Virgil Cards service.
+   *
+   * @param rawCard raw signed model of card to be deleted.
+   * @param token   token to authorize the request.
+   *
+   * @return the {@link RawSignedModel} of the Card that is deleted from Virgil Cards service.
+   *
+   * @throws VirgilServiceException if an error occurred while deleting Card.
+   */
+  public RawSignedModel deleteCard(RawSignedModel rawCard, String token)
+      throws VirgilServiceException {
+    try {
+      URL url = new URL(serviceUrl, Endpoints.ACTIONS_DELETE.path);
+      String body = rawCard.exportAsJson();
+
+      return httpClient.execute(url,
+                                "POST",
+                                token,
+                                new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
+                                RawSignedModel.class);
     } catch (VirgilServiceException e) {
       LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
       throw e;
@@ -302,6 +332,17 @@ public class VirgilCardClient implements CardClient {
 
     public List<String> getIdentities() {
       return identities;
+    }
+  }
+
+  private enum Endpoints {
+    ACTIONS_DELETE("actions/delete"),
+    ACTIONS_SEARCH("actions/search");
+
+    private final String path;
+
+    Endpoints(String path) {
+      this.path = path;
     }
   }
 }

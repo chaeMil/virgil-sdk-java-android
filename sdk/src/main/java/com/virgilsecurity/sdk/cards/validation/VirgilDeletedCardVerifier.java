@@ -55,18 +55,19 @@ public class VirgilDeletedCardVerifier implements DeletedCardVerifier {
   private boolean skipVerify;
 
   /**
-   * Instantiates a new Virgil card verifier. // TODO update comments
+   * Instantiates a new Virgil Deleted Card signatures verifier. With {@code skipVerify = true}
+   * which means that verification of signatures will be skipped.
    */
   public VirgilDeletedCardVerifier() {
     this.skipVerify = true;
   }
 
   /**
-   * Instantiates a new Virgil card verifier. // TODO update comments
+   * Instantiates a new Virgil Deleted Card signatures verifier.
    *
    * @param cardCrypto the card crypto.
-   * @param whitelists the white lists that should contain Card signatures, otherwise Card
-   *                   validation will be failed.
+   * @param whitelists the white lists that should contain Card signatures that corresponds to
+   *                   signatures on Card, otherwise Card validation will be failed.
    */
   public VirgilDeletedCardVerifier(CardCrypto cardCrypto, List<Whitelist> whitelists) {
     Validator.checkNullAgrument(cardCrypto,
@@ -79,11 +80,11 @@ public class VirgilDeletedCardVerifier implements DeletedCardVerifier {
   }
 
   /**
-   * Instantiates a new Virgil card verifier. // TODO update comments
+   * Instantiates a new Virgil Deleted Card signatures verifier.
    *
    * @param cardCrypto the card crypto.
-   * @param whitelists the white lists that should contain Card signatures, otherwise Card
-   *                   validation will be failed.
+   * @param whitelists the white lists that should contain Card signatures that corresponds to
+   *                   signatures on Card, otherwise Card validation will be failed.
    */
   public VirgilDeletedCardVerifier(CardCrypto cardCrypto,
                                    List<Whitelist> whitelists,

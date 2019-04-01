@@ -94,11 +94,8 @@ public class Card {
 
     String cardId = CardUtils.generateCardId(cardCrypto, cardModel.getContentSnapshot());
 
-    PublicKey publicKey = null;
-    if (!rawCardContent.getPublicKey().isEmpty()) {
-      publicKey =
+    PublicKey publicKey =
           cardCrypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
-    }
 
     // Converting RawSignatures to CardSignatures
     List<CardSignature> cardSignatures = new ArrayList<>();

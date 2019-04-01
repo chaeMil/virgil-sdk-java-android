@@ -37,6 +37,8 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
+import com.virgilsecurity.sdk.cards.validation.DeletedCardVerifier;
+import com.virgilsecurity.sdk.cards.validation.VirgilDeletedCardVerifier;
 import com.virgilsecurity.sdk.client.VirgilCardClient;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
@@ -53,15 +55,8 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
-
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -77,8 +72,8 @@ public class CardManager {
     /**
      * On sign raw signed model callback than will be called when raw card is about to be generated.
      *
-     * @param rawSignedModel
-     *          the raw signed model
+     * @param rawSignedModel the raw signed model
+     *
      * @return the raw signed model
      * @see #generateRawCard(PrivateKey, PublicKey, String, String, Map)
      */
@@ -96,6 +91,7 @@ public class CardManager {
   private CardCrypto crypto;
   private AccessTokenProvider accessTokenProvider;
   private CardVerifier cardVerifier;
+  private DeletedCardVerifier deletedCardVerifier;
   private VirgilCardClient cardClient;
   private SignCallback signCallback;
 
@@ -104,12 +100,9 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardVerifier
-   *          the card verifier
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
       CardVerifier cardVerifier) {
@@ -124,31 +117,58 @@ public class CardManager {
 
     cardClient = new VirgilCardClient();
     modelSigner = new ModelSigner(crypto);
+    deletedCardVerifier = new VirgilDeletedCardVerifier();
   }
 
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardVerifier
-   *          the card verifier
-   * @param cardClient
-   *          the card client
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
+   * @param deletedCardVerifier the deleted card signatures verifier
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, VirgilCardClient cardClient) {
+                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+    Validator.checkNullAgrument(deletedCardVerifier,
+                                "CardManager -> 'deletedCardVerifier' should not be null");
+
+    this.crypto = crypto;
+    this.accessTokenProvider = accessTokenProvider;
+    this.cardVerifier = cardVerifier;
+    this.deletedCardVerifier = deletedCardVerifier;
+
+    modelSigner = new ModelSigner(crypto);
+  }
+
+  /**
+   * Instantiates a new Card manager.
+   *
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
+   * @param deletedCardVerifier the deleted card signatures verifier
+   * @param cardClient          the card client
+   */
+  public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
+                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier,
+                     VirgilCardClient cardClient) {
+    Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
+    Validator.checkNullAgrument(accessTokenProvider,
+                                "CardManager -> 'accessTokenProvider' should not be null");
+    Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+    Validator.checkNullAgrument(deletedCardVerifier,
+                                "CardManager -> 'deletedCardVerifier' should not be null");
     Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
 
     this.crypto = crypto;
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
+    this.deletedCardVerifier = deletedCardVerifier;
     this.cardClient = cardClient;
 
     modelSigner = new ModelSigner(crypto);
@@ -157,32 +177,32 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardClient
-   *          the card client
-   * @param cardVerifier
-   *          the card verifier
-   * @param signCallback
-   *          the sign callback
-   * @param retryOnUnauthorized
-   *          whether card manager should retry request with new token on unauthorized http error
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardClient          the card client
+   * @param cardVerifier        the card verifier
+   * @param deletedCardVerifier the deleted card signatures verifier
+   * @param signCallback        the sign callback
+   * @param retryOnUnauthorized whether card manager should retry request with new token on
+   *                            unauthorized http error
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, VirgilCardClient cardClient, SignCallback signCallback,
-      boolean retryOnUnauthorized) {
+                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier,
+                     VirgilCardClient cardClient, SignCallback signCallback,
+                     boolean retryOnUnauthorized) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+    Validator.checkNullAgrument(deletedCardVerifier,
+                                "CardManager -> 'deletedCardVerifier' should not be null");
     Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
     Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
 
     this.crypto = crypto;
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
+    this.deletedCardVerifier = deletedCardVerifier;
     this.cardClient = cardClient;
     this.signCallback = signCallback;
     this.retryOnUnauthorized = retryOnUnauthorized;
@@ -193,26 +213,27 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardVerifier
-   *          the card verifier
-   * @param signCallback
-   *          the sign callback
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
+   * @param deletedCardVerifier the deleted card signatures verifier
+   * @param signCallback        the sign callback
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, SignCallback signCallback) {
+                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier,
+                     SignCallback signCallback) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
+    Validator.checkNullAgrument(deletedCardVerifier,
+                                "CardManager -> 'deletedCardVerifier' should not be null");
     Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
 
     this.crypto = crypto;
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
+    this.deletedCardVerifier = deletedCardVerifier;
 
     cardClient = new VirgilCardClient();
     modelSigner = new ModelSigner(crypto);
@@ -819,16 +840,25 @@ public class CardManager {
   }
 
   /**
-   * Delete card // TODO add description
+   * Deletes card from Virgil Cards service. You should provide not empty {@code previousCardId}
+   * of last card in chain that you want to delete. Actually card is not deleted, but one more
+   * Card is published with empty public key that indicates that Card is deleted.
    *
-   * @return the card that is returned from the Virgil Cards service after successful publishing
+   * You can use {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry
+   * request with new token on {@code unauthorized} http error.
    *
-   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
-   *                                from the Virgil Cards service
+   * @param previousCardId identifier of last Card in chain that is to delete
+   *
+   * @throws CryptoException        if issue occurred during get generating token or verifying card
+   *                                that was received from the Virgil Cards service
    * @throws VirgilServiceException if card was not created by a service
+   * @throws VirgilCardVerificationException if any of signatures wasn't valid
    */
-  public Card deleteCard(String previousCardId)
+  public void deleteCard(String previousCardId)
       throws CryptoException, VirgilServiceException {
+    if (StringUtils.isBlank(previousCardId)) {
+      throw new IllegalArgumentException("'previousCardId' should not be empty");
+    }
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH,
                                                  false,
@@ -838,7 +868,7 @@ public class CardManager {
 
     RawSignedModel cardModel = generateRawSignedModel(null, token.getIdentity(), previousCardId);
 
-    return deleteRawSignedModel(cardModel, tokenContext, token);
+    deleteRawSignedModel(cardModel, tokenContext, token);
   }
 
   private Card publishRawSignedModel(RawSignedModel cardModel,
@@ -1030,9 +1060,22 @@ public class CardManager {
     return result;
   }
 
-  private Card deleteRawSignedModel(RawSignedModel cardModel,
+  /**
+   * This method deletes {@code Card} from Virgil Cards service using provided
+   * {@code RawSignedModel} and verifies signatures
+   *
+   * @param cardModel    card model to be deleted
+   * @param tokenContext context for JWT token
+   * @param initialToken token to start with to avoid odd initial refreshes
+   *
+   * @throws CryptoException        in case of crypto errors (verification, etc)
+   * @throws VirgilServiceException if any error on Virgil's Service happened
+   * @throws VirgilCardVerificationException  if any of signatures wasn't valid
+   */
+  private void deleteRawSignedModel(RawSignedModel cardModel,
                                     TokenContext tokenContext,
-                                    AccessToken initialToken) throws CryptoException, VirgilServiceException {
+                                    AccessToken initialToken)
+      throws CryptoException, VirgilServiceException {
 
     RawSignedModel cardModelDeleted;
 
@@ -1069,8 +1112,6 @@ public class CardManager {
       }
     }
 
-    Card card = Card.parse(crypto, cardModelDeleted);
-
     // Be sure that a card received from service is the same card we deleted
     if (!Arrays.equals(cardModel.getContentSnapshot(), cardModelDeleted.getContentSnapshot())) {
       LOGGER.warning("Card that is received from the Cards Service (during publishing) "
@@ -1078,27 +1119,10 @@ public class CardManager {
       throw new VirgilCardServiceException("Server returned a wrong card");
     }
 
-    // Be sure that self signatures are equals
-    RawSignature selfSignature = getSignature(SignerType.SELF.getRawValue(),
-                                              cardModel.getSignatures());
-    RawSignature responseSelfSignature = getSignature(SignerType.SELF.getRawValue(),
-                                                      cardModelDeleted.getSignatures());
-    if (selfSignature != null || responseSelfSignature != null) {
-      if (selfSignature == null || responseSelfSignature == null) {
-        String msg = String.format("Self signature is missing for card %s", card.getIdentifier());
-        LOGGER.severe(msg);
-        throw new VirgilCardServiceException(msg);
-      }
-
-      if (!StringUtils.equals(selfSignature.getSnapshot(), responseSelfSignature.getSnapshot())) {
-        String msg = String.format("Self signature was changed by a service for card %s",
-                                   card.getIdentifier());
-        LOGGER.severe(msg);
-        throw new VirgilCardServiceException(msg);
-      }
+    // Check signatures
+    if (!deletedCardVerifier.verifySignatures(cardModel)) {
+      throw new VirgilCardVerificationException();
     }
-
-    return card;
   }
 
   /**

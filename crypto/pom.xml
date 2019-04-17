@@ -49,6 +49,14 @@
 		Learn about Virgil Crypto Library https://virgilsecurity.com/api-docs/java-android/crypto-library
 	</description>
 
+	<repositories>
+		<repository>
+			<id>snapshots-repo</id>
+			<name>Snapshots repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -67,12 +75,27 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>com.virgilsecurity</groupId>-->
+			<!--<artifactId>crypto</artifactId>-->
+            <!--<version>${version.crypto}</version>-->
+            <!--<scope>system</scope>-->
+            <!--<systemPath>${project.basedir}/libs/virgil_crypto_java.jar</systemPath>-->
+		<!--</dependency>-->
 		<dependency>
-			<groupId>com.virgilsecurity</groupId>
-			<artifactId>crypto</artifactId>
-            <version>${version.crypto}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/virgil_crypto_java.jar</systemPath>
+			<groupId>com.virgilsecurity.crypto</groupId>
+			<artifactId>foundation</artifactId>
+			<version>0.6.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.virgilsecurity.crypto</groupId>
+			<artifactId>common</artifactId>
+			<version>0.6.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.virgilsecurity.crypto</groupId>
+			<artifactId>parent</artifactId>
+			<version>0.6.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

@@ -33,18 +33,8 @@
 
 package com.virgilsecurity.sdk.crypto;
 
-import com.virgilsecurity.crypto.VirgilCipher;
-import com.virgilsecurity.crypto.VirgilCustomParams;
-import com.virgilsecurity.crypto.VirgilDataSink;
-import com.virgilsecurity.crypto.VirgilDataSource;
-import com.virgilsecurity.crypto.VirgilHash;
-import com.virgilsecurity.crypto.VirgilHash.Algorithm;
-import com.virgilsecurity.crypto.VirgilKeyPair;
-import com.virgilsecurity.crypto.VirgilSigner;
-import com.virgilsecurity.crypto.VirgilStreamCipher;
-import com.virgilsecurity.crypto.VirgilStreamDataSink;
-import com.virgilsecurity.crypto.VirgilStreamDataSource;
-import com.virgilsecurity.crypto.VirgilStreamSigner;
+import com.virgilsecurity.crypto.foundation.PrivateKey;
+import com.virgilsecurity.crypto.foundation.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.DecryptionException;
 import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
@@ -52,13 +42,13 @@ import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -80,89 +70,9 @@ public class VirgilCrypto {
   private static final String ERROR_PARSE_TEXT = "Error code: ";
   private static final int ERROR_CODE_WRONG_PRIVATE_KEY = 12;
 
-  private KeysType defaultKeyPairType;
-
+  private Random rng;
+  private KeysType defaultKeyType;
   private boolean useSHA256Fingerprints;
-
-  /**
-   * Instantiate a {@link VirgilHash} instance according to an {@code algorithm}.
-   * 
-   * @param algorithm
-   *          the {@link Algorithm}.
-   * @return A {@link VirgilHash} instance.
-   */
-  public static VirgilHash createVirgilHash(HashAlgorithm algorithm) {
-    switch (algorithm) {
-      case MD5:
-        return new VirgilHash(VirgilHash.Algorithm.MD5);
-      case SHA1:
-        return new VirgilHash(VirgilHash.Algorithm.SHA1);
-      case SHA224:
-        return new VirgilHash(VirgilHash.Algorithm.SHA224);
-      case SHA256:
-        return new VirgilHash(VirgilHash.Algorithm.SHA256);
-      case SHA384:
-        return new VirgilHash(VirgilHash.Algorithm.SHA384);
-      case SHA512:
-        return new VirgilHash(VirgilHash.Algorithm.SHA512);
-      default:
-        throw new IllegalArgumentException();
-    }
-  }
-
-  /**
-   * Get {@link VirgilKeyPair} type by {@link KeysType}.
-   * 
-   * @param keysType
-   *          the keys type.
-   * @return the VirgilKeyPair type.
-   */
-  public static VirgilKeyPair.Type toVirgilKeyPairType(KeysType keysType) {
-    switch (keysType) {
-      case Default:
-        return VirgilKeyPair.Type.FAST_EC_ED25519;
-      // RSA with key size less than 2k are unsecured and shouldn't be supported
-      case RSA_2048:
-        return VirgilKeyPair.Type.RSA_2048;
-      case RSA_3072:
-        return VirgilKeyPair.Type.RSA_3072;
-      case RSA_4096:
-        return VirgilKeyPair.Type.RSA_4096;
-      case RSA_8192:
-        return VirgilKeyPair.Type.RSA_8192;
-      case EC_SECP192R1:
-        return VirgilKeyPair.Type.EC_SECP192R1;
-      case EC_SECP224R1:
-        return VirgilKeyPair.Type.EC_SECP224R1;
-      case EC_SECP256R1:
-        return VirgilKeyPair.Type.EC_SECP256R1;
-      case EC_SECP384R1:
-        return VirgilKeyPair.Type.EC_SECP384R1;
-      case EC_SECP521R1:
-        return VirgilKeyPair.Type.EC_SECP521R1;
-      case EC_BP256R1:
-        return VirgilKeyPair.Type.EC_BP256R1;
-      case EC_BP384R1:
-        return VirgilKeyPair.Type.EC_BP384R1;
-      case EC_BP512R1:
-        return VirgilKeyPair.Type.EC_BP512R1;
-      case EC_SECP192K1:
-        return VirgilKeyPair.Type.EC_SECP192K1;
-      case EC_SECP224K1:
-        return VirgilKeyPair.Type.EC_SECP224K1;
-      case EC_SECP256K1:
-        return VirgilKeyPair.Type.EC_SECP256K1;
-      case EC_CURVE25519:
-        return VirgilKeyPair.Type.EC_CURVE25519;
-      case FAST_EC_X25519:
-        return VirgilKeyPair.Type.FAST_EC_X25519;
-      case FAST_EC_ED25519:
-        return VirgilKeyPair.Type.FAST_EC_ED25519;
-      default:
-        assert false; // This should never happen! Some key type missed.
-        return VirgilKeyPair.Type.FAST_EC_ED25519;
-    }
-  }
 
   /**
    * Create new instance of {@link VirgilCrypto}.
@@ -173,30 +83,183 @@ public class VirgilCrypto {
 
   /**
    * Create new instance of {@link VirgilCrypto}.
-   * 
-   * @param useSHA256Fingerprints
-   *          set this flag to {@code true} to use SHA256 algorithm when calculating public key
-   *          identitier
+   *
+   * @param useSHA256Fingerprints set this flag to {@code true} to use SHA256 algorithm when
+   *                              calculating public key identifier.
    */
   public VirgilCrypto(boolean useSHA256Fingerprints) {
-    this.defaultKeyPairType = KeysType.Default;
+    CtrDrbg rng = new CtrDrbg();
+    rng.setupDefaults();
+
+    this.rng = rng;
+    this.defaultKeyType = KeysType.ED25519;
     this.useSHA256Fingerprints = useSHA256Fingerprints;
   }
 
   /**
    * Create new instance of {@link VirgilCrypto}.
-   * 
-   * @param keysType
-   *          the {@link KeysType} to be used by default for generating key pair
+   *
+   * @param keysType the {@link KeysType} to be used by default for generating key pair.
    */
   public VirgilCrypto(KeysType keysType) {
-    this.defaultKeyPairType = keysType;
+    CtrDrbg rng = new CtrDrbg();
+    rng.setupDefaults();
+
+    this.defaultKeyType = keysType;
     this.useSHA256Fingerprints = false;
   }
 
   /**
+   * Create new instance of {@link VirgilCrypto}.
+   *
+   * @param keysType              the {@link KeysType} to be used by default for generating key pair.
+   * @param useSHA256Fingerprints set this flag to {@code true} to use SHA256 algorithm when
+   *                              calculating public key identifier.
+   */
+  public VirgilCrypto(KeysType keysType, boolean useSHA256Fingerprints) {
+    CtrDrbg rng = new CtrDrbg();
+    rng.setupDefaults();
+
+    this.defaultKeyType = keysType;
+    this.useSHA256Fingerprints = useSHA256Fingerprints;
+  }
+
+  /**
+   * Computes hash of given {@code data} with {@link HashAlgorithm#SHA512}.
+   *
+   * @param data data to be hashed.
+   *
+   * @return hash value.
+   */
+  public byte[] computeHash(byte[] data) {
+    return computeHash(data, HashAlgorithm.SHA512);
+  }
+
+  /**
+   * Computes hash of given {@code data} according to {@code algorithm}.
+   *
+   * @param data      data to be hashed.
+   * @param algorithm hash {@link HashAlgorithm} to use.
+   *
+   * @return hash value.
+   */
+  public byte[] computeHash(byte[] data, HashAlgorithm algorithm) {
+    Hash hash;
+
+    switch (algorithm) {
+      case SHA224:
+        hash = new Sha224();
+        break;
+      case SHA256:
+        hash = new Sha256();
+        break;
+      case SHA384:
+        hash = new Sha384();
+        break;
+      case SHA512:
+        hash = new Sha512();
+        break;
+      default:
+        throw new IllegalArgumentException("Please, choose one of: SHA224, SHA256, SHA384, SHA512");
+    }
+
+    return hash.hash(data);
+  }
+
+  /**
+   * Encrypts the specified data using recipient's Public key. // TODO review methods docs for uppercase letters in the beginning.
+   *
+   * @param data      Raw data bytes for encryption.
+   * @param publicKey Recipient's public key.
+   *
+   * @return Encrypted bytes.
+   *
+   * @throws EncryptionException If encryption failed.
+   */
+  public byte[] encrypt(byte[] data, VirgilPublicKey publicKey) throws EncryptionException {
+    return encrypt(data, Collections.singletonList(publicKey));
+  }
+
+  /**
+   * Encrypts the specified data using recipients Public keys.
+   *
+   * @param data       Raw data bytes for encryption.
+   * @param publicKeys List of recipients' public keys.
+   *
+   * @return Encrypted bytes.
+   *
+   * @throws EncryptionException If encryption failed.
+   */
+  public byte[] encrypt(byte[] data, List<VirgilPublicKey> publicKeys) throws EncryptionException {
+    try (RecipientCipher cipher = new RecipientCipher()) {
+      Aes256Gcm aesGcm = new Aes256Gcm();
+      cipher.setEncryptionCipher(aesGcm);
+      cipher.setRandom(this.rng);
+
+      for (VirgilPublicKey recipient : publicKeys) {
+        cipher.addKeyRecipient(recipient.getIdentifier(), recipient.getPublicKey());
+      }
+      cipher.startEncryption();
+      byte[] messageInfo = cipher.packMessageInfo();
+      byte[] process = cipher.processDecryption(data);
+      byte[] finish = cipher.finishDecryption();
+
+      byte[] encryptedData = new byte[messageInfo.length + process.length + finish.length];
+      System.arraycopy(messageInfo, 0, encryptedData, 0, messageInfo.length);
+      System.arraycopy(process, 0, encryptedData, messageInfo.length, process.length);
+      System.arraycopy(finish,
+                       0,
+                       encryptedData,
+                       messageInfo.length + process.length,
+                       finish.length);
+
+      return encryptedData;
+    } catch (Exception e) {
+      throw new EncryptionException(e);
+    }
+  }
+
+  /**
+   * Encrypts the specified stream using recipients Public keys.
+   *
+   * @param inputStream  Input stream for encrypted.
+   * @param outputStream Output stream for encrypted data.
+   * @param publicKeys   List of recipients' public keys.
+   *
+   * @throws EncryptionException if encryption failed
+   */
+  public void encrypt(InputStream inputStream, OutputStream outputStream,
+                      List<VirgilPublicKey> publicKeys) throws EncryptionException {
+    try (VirgilStreamCipher cipher = new VirgilStreamCipher();
+         VirgilDataSource dataSource = new VirgilStreamDataSource(inputStream);
+         VirgilDataSink dataSink = new VirgilStreamDataSink(outputStream)) {
+      for (VirgilPublicKey recipient : publicKeys) {
+        cipher.addKeyRecipient(recipient.getIdentifier(), recipient.getRawKey());
+      }
+
+      cipher.encrypt(dataSource, dataSink, true);
+    } catch (IOException e) {
+      throw new EncryptionException(e);
+    }
+  }
+
+  /**
+   * Encrypts the specified stream using recipient's Public key.
+   *
+   * @param inputStream  Input stream for encrypted.
+   * @param outputStream Output stream for encrypted data.
+   * @param publicKey    Recipient's public key.
+   *
+   * @throws EncryptionException if encryption failed
+   */
+  public void encrypt(InputStream inputStream, OutputStream outputStream, VirgilPublicKey publicKey)
+      throws EncryptionException {
+    encrypt(inputStream, outputStream, Collections.singletonList(publicKey));
+  }
+
+  /**
    * Decrypts the specified data using Private key.
-   * 
+   *
    * @param cipherData
    *          the ncrypted data bytes to decrypt
    * @param privateKey
@@ -205,29 +268,22 @@ public class VirgilCrypto {
    * @throws DecryptionException
    *           if decryption failed
    */
-  public byte[] decrypt(byte[] cipherData, VirgilPrivateKey privateKey) throws DecryptionException {
-    try (VirgilCipher cipher = new VirgilCipher()) {
-      byte[] decryptedData = cipher.decryptWithKey(cipherData, privateKey.getIdentifier(),
-          privateKey.getRawKey());
-      return decryptedData;
-    } catch (Exception e) {
-      String error = e.getMessage();
-      int errorCode = Integer.parseInt(error.substring(error.indexOf(ERROR_PARSE_TEXT)
-                                                               + ERROR_PARSE_TEXT.length(),
-                                                       error.indexOf('.', error.indexOf(ERROR_PARSE_TEXT)
-                                                               + ERROR_PARSE_TEXT.length())));
+  public byte[] decrypt(byte[] cipherData, PrivateKey privateKey) throws DecryptionException {
+    try (RecipientCipher cipher = new RecipientCipher()) {
+      cipher.customParams();
 
-      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY)
-        throw new DecryptionException(new Throwable("Given Private key does not corresponds to any of " +
-                                                            "Public keys that were used for encryption."));
-      else
-        throw new DecryptionException(e);
+      byte[] decryptedData = cipher.startDecryptionWithKey(cipherData, privateKey.getIdentifier(),
+                                                           privateKey.getRawKey());
+      return decryptedData;
+    } catch (Exception exception) {
+      // Trying to get code from crypto exception or rethrow provided `exception`.
+      processErrorCode(exception);
     }
   }
 
   /**
    * Decrypts the specified stream using Private key.
-   * 
+   *
    * @param inputStream
    *          Encrypted stream for decryption.
    * @param outputStream
@@ -245,24 +301,15 @@ public class VirgilCrypto {
 
       cipher.decryptWithKey(dataSource, dataSink, privateKey.getIdentifier(),
           privateKey.getRawKey());
-    } catch (IOException e) {
-      String error = e.getMessage();
-      int errorCode = Integer.parseInt(error.substring(error.indexOf(ERROR_PARSE_TEXT)
-                                                               + ERROR_PARSE_TEXT.length(),
-                                                       error.indexOf('.', error.indexOf(ERROR_PARSE_TEXT)
-                                                               + ERROR_PARSE_TEXT.length())));
-
-      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY)
-        throw new DecryptionException(new Throwable("Given Private key does not corresponds to any of " +
-                                                            "Public keys that were used for encryption."));
-      else
-        throw new DecryptionException(e);
+    } catch (IOException exception) {
+      // Trying to get code from crypto exception or rethrow provided `exception`.
+      processErrorCode(exception);
     }
   }
 
   /**
    * Decrypts and verifies the data.
-   * 
+   *
    * @param cipherData
    *          The cipher data.
    * @param privateKey
@@ -302,107 +349,53 @@ public class VirgilCrypto {
       }
 
       return decryptedData;
-    } catch (Exception e) {
-      String error = e.getMessage();
-      int errorCode = Integer.parseInt(error.substring(error.indexOf(ERROR_PARSE_TEXT)
-                                                               + ERROR_PARSE_TEXT.length(),
-                                                       error.indexOf('.', error.indexOf(ERROR_PARSE_TEXT)
-                                                               + ERROR_PARSE_TEXT.length())));
-
-      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY)
-        throw new DecryptionException(new Throwable("Given Private key does not corresponds to any of " +
-                                                            "Public keys that were used for encryption."));
-      else
-        throw new CryptoException(e.getMessage());
+    } catch (Exception exception) {
+      // Trying to get code from crypto exception or rethrow provided `exception`.
+      processErrorCode(exception);
     }
   }
 
   /**
-   * Encrypts the specified data using recipients Public keys.
-   * 
-   * @param data
-   *          Raw data bytes for encryption.
-   * @param publicKeys
-   *          List of recipients' public keys.
-   * @return Encrypted bytes.
-   * @throws EncryptionException
-   *           if encryption failed
+   * Temporary workaround till we find other places where error usage is needed.
+   * Extract code from crypto exception and throw corresponding exception with message,
+   * or rethrow provided {@code exception}.
+   *
+   * @param exception to extract code from.
+   *
+   * @throws DecryptionException with default *error message* if *error message* is {@code null}
+   * or extraction failed, otherwise custom message for exception is being generated depending
+   * on extracted erro code.
    */
-  public byte[] encrypt(byte[] data, List<VirgilPublicKey> publicKeys) throws EncryptionException {
-    try (VirgilCipher cipher = new VirgilCipher()) {
-      for (VirgilPublicKey recipient : publicKeys) {
-        cipher.addKeyRecipient(recipient.getIdentifier(), recipient.getRawKey());
+  private void processErrorCode(Exception exception) throws DecryptionException {
+    String errorMessage = exception.getMessage();
+
+    if (errorMessage != null) {
+      int errorCode;
+
+      try {
+        // If we're unable to extract code - just forward exception
+        errorCode = Integer.parseInt(errorMessage.substring(
+            errorMessage.indexOf(ERROR_PARSE_TEXT) + ERROR_PARSE_TEXT.length(),
+            errorMessage.indexOf('.', errorMessage.indexOf(ERROR_PARSE_TEXT)
+                + ERROR_PARSE_TEXT.length())));
+      } catch (Throwable throwable) {
+        throw new DecryptionException(exception);
       }
 
-      byte[] encryptedData = cipher.encrypt(data, true);
-      return encryptedData;
-    } catch (Exception e) {
-      throw new EncryptionException(e);
-    }
-  }
-
-  /**
-   * Encrypts the specified data using recipient's Public key.
-   * 
-   * @param data
-   *          Raw data bytes for encryption.
-   * @param publicKey
-   *          Recipient's public key.
-   * @return Encrypted bytes.
-   * @throws EncryptionException
-   *           if encryption failed
-   */
-  public byte[] encrypt(byte[] data, VirgilPublicKey publicKey) throws EncryptionException {
-    return encrypt(data, Arrays.asList(publicKey));
-  }
-
-  /**
-   * Encrypts the specified stream using recipients Public keys.
-   * 
-   * @param inputStream
-   *          Input stream for encrypted.
-   * @param outputStream
-   *          Output stream for encrypted data.
-   * @param publicKeys
-   *          List of recipients' public keys.
-   * @throws EncryptionException
-   *           if encryption failed
-   */
-  public void encrypt(InputStream inputStream, OutputStream outputStream,
-      List<VirgilPublicKey> publicKeys) throws EncryptionException {
-    try (VirgilStreamCipher cipher = new VirgilStreamCipher();
-        VirgilDataSource dataSource = new VirgilStreamDataSource(inputStream);
-        VirgilDataSink dataSink = new VirgilStreamDataSink(outputStream)) {
-      for (VirgilPublicKey recipient : publicKeys) {
-        cipher.addKeyRecipient(recipient.getIdentifier(), recipient.getRawKey());
+      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY) {
+        throw new DecryptionException("Given Private key does not corresponds to any of "
+                                          + "Public keys that were used for encryption.");
+      } else {
+        throw new DecryptionException(exception);
       }
-
-      cipher.encrypt(dataSource, dataSink, true);
-    } catch (IOException e) {
-      throw new EncryptionException(e);
+    } else {
+      throw new DecryptionException(exception);
     }
-  }
-
-  /**
-   * Encrypts the specified stream using recipient's Public key.
-   * 
-   * @param inputStream
-   *          Input stream for encrypted.
-   * @param outputStream
-   *          Output stream for encrypted data.
-   * @param publicKey
-   *          Recipient's public key.
-   * @throws EncryptionException
-   *           if encryption failed
-   */
-  public void encrypt(InputStream inputStream, OutputStream outputStream, VirgilPublicKey publicKey)
-      throws EncryptionException {
-    encrypt(inputStream, outputStream, Arrays.asList(publicKey));
   }
 
   /**
    * Exports the Private key into material representation.
-   * 
+   *
    * @param privateKey
    *          The private key for export.
    * @return Key material representation bytes.
@@ -529,7 +522,7 @@ public class VirgilCrypto {
       throw new NullArgumentException("data");
     }
 
-    try (VirgilHash hasher = createVirgilHash(algorithm)) {
+    try (VirgilHash hasher = computeHash(algorithm)) {
       return hasher.hash(data);
     } catch (Exception e) {
       throw new CryptoException(e.getMessage());
@@ -544,7 +537,7 @@ public class VirgilCrypto {
    *           if crypto operation failed
    */
   public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys() throws CryptoException {
-    return generateKeys(this.defaultKeyPairType);
+    return generateKeys(this.defaultKeyType);
   }
 
   /**

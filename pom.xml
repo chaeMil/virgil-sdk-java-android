@@ -37,7 +37,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.virgilsecurity.sdk</groupId>
 	<artifactId>parent</artifactId>
-	<version>5.0.9</version>
+	<version>6.0.0-alpha-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Virgil SDK - Parent</name>
 

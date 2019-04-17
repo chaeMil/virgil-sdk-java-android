@@ -31,44 +31,63 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.crypto.exceptions;
+package com.virgilsecurity.sdk.crypto;
+
+import com.virgilsecurity.crypto.foundation.AlgId;
 
 /**
- * Signals that an exception of some sort has occurred during decryption.
- *
- * @author Andrii Iakovenko
- *
+ * KeyType class with key types supported by Crypto.
  */
-public class DecryptionException extends CryptoException {
-
-  private static final long serialVersionUID = -4006283921503784462L;
+public enum KeyType {
 
   /**
-   * Create a new instance of {@code DecryptionException}.
-   *
+   * Diffie–Hellman X25519.
    */
-  public DecryptionException() {
+  CURVE25519(AlgId.CURVE25519),
+  /**
+   * EdDSA Ed25519.
+   */
+  ED25519(AlgId.ED25519),
+  /**
+   * RSA 2048 bit.
+   */
+  RSA_2048(2048),
+  /**
+   * RSA 4096 bit.
+   */
+  RSA_4096(4096),
+  /**
+   * RSA 8192 bit.
+   */
+  RSA_8192(8192);
+
+  private AlgId algId;
+  private int rsaBitLen;
+
+  KeyType(AlgId algId) {
+    this.algId = algId;
   }
 
-  /**
-   * Create a new instance of {@code DecryptionException}.
-   *
-   * @param cause
-   *          the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
-   *          {@code null} value is permitted, and indicates that the cause is nonexistent or
-   *          unknown.)
-   */
-  public DecryptionException(Throwable cause) {
-    super(cause);
+  KeyType(int rsaBitLen) {
+    this.algId = AlgId.RSA;
+    this.rsaBitLen = rsaBitLen;
   }
 
-  /**
-   * Create a new instance of {@code DecryptionException}.
-   *
-   * @param message the error message(A {@code null} value is permitted, and indicates that the
-   *                message is nonexistent or unknown.)
-   */
-  public DecryptionException(String message) {
-    super(message);
+  public AlgId getAlgId() {
+    return algId;
+  }
+
+  public int getRsaBitLen() {
+    switch (this) {
+      case RSA_2048:
+      case RSA_4096:
+      case RSA_8192:
+        return rsaBitLen;
+      case CURVE25519:
+      case ED25519:
+        return -1;
+      default:
+        return -1;
+    }
   }
 }

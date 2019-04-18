@@ -39,9 +39,6 @@ import java.util.Objects;
 
 /**
  * A public key.
- *
- * @see VirgilCrypto
- * @see PublicKey
  */
 public class VirgilPublicKey implements PublicKey, Serializable {
 
@@ -57,7 +54,9 @@ public class VirgilPublicKey implements PublicKey, Serializable {
    */
   private com.virgilsecurity.crypto.foundation.PublicKey publicKey;
 
-
+  /**
+   * The Public key type.
+   */
   private KeyType keyType;
 
   /**
@@ -83,10 +82,11 @@ public class VirgilPublicKey implements PublicKey, Serializable {
     this.keyType = keyType;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.virgilsecurity.sdk.crypto.PublicKey#getIdentifier()
+
+  /**
+   * Get identifier byte [ ].
+   *
+   * @return the byte [ ]
    */
   public byte[] getIdentifier() {
     return identifier;
@@ -95,8 +95,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * Set the Public key hash.
    *
-   * @param identifier
-   *          the Id to set
+   * @param identifier the Id to set.
    */
   public void setIdentifier(byte[] identifier) {
     this.identifier = identifier;
@@ -105,7 +104,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * Gets public key.
    *
-   * @return the public key
+   * @return the public key.
    */
   public com.virgilsecurity.crypto.foundation.PublicKey getPublicKey() {
     return publicKey;
@@ -114,7 +113,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * Sets public key.
    *
-   * @param publicKey the public key
+   * @param publicKey the public key.
    */
   public void setPublicKey(com.virgilsecurity.crypto.foundation.PublicKey publicKey) {
     this.publicKey = publicKey;
@@ -123,7 +122,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * Gets key type.
    *
-   * @return the key type
+   * @return the key type.
    */
   public KeyType getKeyType() {
     return keyType;
@@ -132,7 +131,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * Sets key type.
    *
-   * @param keyType the key type
+   * @param keyType the key type.
    */
   public void setKeyType(KeyType keyType) {
     this.keyType = keyType;

@@ -35,12 +35,10 @@ package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A private key.
- *
- * @see VirgilCrypto
- * @see VirgilPublicKey
  */
 public class VirgilPrivateKey implements PrivateKey, Serializable {
 
@@ -54,7 +52,12 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
   /**
    * The Private key raw date.
    */
-  private byte[] rawKey;
+  private com.virgilsecurity.crypto.foundation.PrivateKey privateKey;
+
+  /**
+   * The Private Key type.
+   */
+  private KeyType keyType;
 
   /**
    * Create a new instance of {@code VirgilPrivateKey}.
@@ -65,40 +68,16 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
   /**
    * Create a new instance of {@code VirgilPrivateKey}.
    *
-   * @param identifier
-   *          the key identifier.
-   * @param rawKey
-   *          the key rawKey.
+   * @param identifier The key identifier.
+   * @param privateKey Underlying private key.
+   * @param keyType The key type.
    */
-  public VirgilPrivateKey(byte[] identifier, byte[] rawKey) {
+  public VirgilPrivateKey(byte[] identifier,
+                          com.virgilsecurity.crypto.foundation.PrivateKey privateKey,
+                          KeyType keyType) {
     this.identifier = identifier;
-    this.rawKey = rawKey;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    VirgilPrivateKey other = (VirgilPrivateKey) obj;
-    if (!Arrays.equals(identifier, other.identifier)) {
-      return false;
-    }
-    if (!Arrays.equals(rawKey, other.rawKey)) {
-      return false;
-    }
-    return true;
+    this.privateKey = privateKey;
+    this.keyType = keyType;
   }
 
   /**
@@ -111,46 +90,62 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
   }
 
   /**
-   * Get raw key byte [ ].
-   *
-   * @return the byte [ ]
-   */
-  public byte[] getRawKey() {
-    return rawKey;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Object#hashCode()
-   */
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + Arrays.hashCode(identifier);
-    result = prime * result + Arrays.hashCode(rawKey);
-    return result;
-  }
-
-  /**
    * Sets identifier.
    *
-   * @param identifier
-   *          the identifier
+   * @param identifier the identifier.
    */
   public void setIdentifier(byte[] identifier) {
     this.identifier = identifier;
   }
 
   /**
-   * Sets raw key.
+   * Gets private key.
    *
-   * @param rawKey
-   *          the rawKey to set
+   * @return the private key.
    */
-  public void setRawKey(byte[] rawKey) {
-    this.rawKey = rawKey;
+  public com.virgilsecurity.crypto.foundation.PrivateKey getPrivateKey() {
+    return privateKey;
   }
 
+  /**
+   * Sets private key.
+   *
+   * @param privateKey the private key.
+   */
+  public void setPrivateKey(com.virgilsecurity.crypto.foundation.PrivateKey privateKey) {
+    this.privateKey = privateKey;
+  }
+
+  /**
+   * Gets key type.
+   *
+   * @return the key type.
+   */
+  public KeyType getKeyType() {
+    return keyType;
+  }
+
+  /**
+   * Sets key type.
+   *
+   * @param keyType the key type.
+   */
+  public void setKeyType(KeyType keyType) {
+    this.keyType = keyType;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    VirgilPrivateKey that = (VirgilPrivateKey) o;
+    return Arrays.equals(identifier, that.identifier)
+        && privateKey.equals(that.privateKey)
+        && keyType == that.keyType;
+  }
+
+  @Override public int hashCode() {
+    int result = Objects.hash(privateKey, keyType);
+    result = 31 * result + Arrays.hashCode(identifier);
+    return result;
+  }
 }

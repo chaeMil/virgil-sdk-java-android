@@ -132,11 +132,11 @@ public class SignerAndVerifierTest extends PropertyManager {
         ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")));
     VirgilPublicKey publicKey1 = virgilCrypto.extractPublicKey(privateKey1);
 
-    VirgilKeyPair keyPair2 = this.virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair2 = this.virgilCrypto.generateKeyPair();
     VirgilPrivateKey privateKey2 = keyPair2.getPrivateKey();
     VirgilPublicKey publicKey2 = keyPair2.getPublicKey();
 
-    VirgilKeyPair keyPair3 = this.virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair3 = this.virgilCrypto.generateKeyPair();
     VirgilPrivateKey privateKey3 = keyPair3.getPrivateKey();
     VirgilPublicKey publicKey3 = keyPair3.getPublicKey();
 
@@ -169,7 +169,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilPrivateKey privateKey1 = virgilCrypto.importPrivateKey(
         ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")));
     VirgilPublicKey publicKey1 = virgilCrypto.extractPublicKey(privateKey1);
-    VirgilPublicKey publicKey2 = this.virgilCrypto.generateKeys().getPublicKey();
+    VirgilPublicKey publicKey2 = this.virgilCrypto.generateKeyPair().getPublicKey();
 
     List<VerifierCredentials> verifierCredentialsList1 = new ArrayList<>();
     verifierCredentialsList1.add(new VerifierCredentials("extra1", publicKey1.getRawKey()));
@@ -228,7 +228,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     for (RawSignature signature : rawSignedModel.getSignatures()) {
       if (SignerType.SELF.getRawValue().equals(signature.getSigner())) {
         String sign = ConvertionUtils.toBase64String(this.virgilCrypto.generateSignature(
-            rawSignedModel.getContentSnapshot(), this.virgilCrypto.generateKeys().getPrivateKey()));
+            rawSignedModel.getContentSnapshot(), this.virgilCrypto.generateKeyPair().getPrivateKey()));
         signature.setSignature(sign);
         break;
       }
@@ -250,7 +250,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     for (RawSignature signature : rawSignedModel.getSignatures()) {
       if (SignerType.VIRGIL.getRawValue().equals(signature.getSigner())) {
         String sign = ConvertionUtils.toBase64String(this.virgilCrypto.generateSignature(
-            rawSignedModel.getContentSnapshot(), this.virgilCrypto.generateKeys().getPrivateKey()));
+            rawSignedModel.getContentSnapshot(), this.virgilCrypto.generateKeyPair().getPrivateKey()));
         signature.setSignature(sign);
         break;
       }
@@ -442,11 +442,11 @@ public class SignerAndVerifierTest extends PropertyManager {
   @Test
   public void stc_8_extraSign_should_addValidSignature() throws CryptoException {
     // STC-8
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
     modelSigner.selfSign(cardModel, keyPair.getPrivateKey());
 
-    VirgilKeyPair keyPair2 = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey());
 
     assertEquals(2, cardModel.getSignatures().size());
@@ -461,10 +461,10 @@ public class SignerAndVerifierTest extends PropertyManager {
   @Test(expected = SignatureNotUniqueException.class)
   public void stc_8_secondExtraSign_should_throwException() throws CryptoException {
     // STC-8
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
 
-    VirgilKeyPair keyPair2 = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey());
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey());
   }
@@ -472,7 +472,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   @Test(expected = SignatureNotUniqueException.class)
   public void stc_8_secondSelfSign_should_throwException() throws CryptoException {
     // STC-8
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
     assertTrue(cardModel.getSignatures().isEmpty());
 
@@ -483,7 +483,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   @Test
   public void stc_8_selfSign_should_addValidSignature() throws CryptoException {
     // STC-8
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
     assertTrue(cardModel.getSignatures().isEmpty());
 
@@ -502,7 +502,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   public void stc_8_selfSignWithSignatureSnapshot_should_addValidSignature()
       throws CryptoException {
     // STC-8
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
     assertTrue(cardModel.getSignatures().isEmpty());
 
@@ -527,7 +527,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   @Test
   public void stc_9_extraSignWithExtraFields_should_addValidSignature() throws CryptoException {
     // STC-9
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
     modelSigner.selfSign(cardModel, keyPair.getPrivateKey());
 
@@ -537,7 +537,7 @@ public class SignerAndVerifierTest extends PropertyManager {
 
     final byte[] signatureSnapshot = ConvertionUtils.captureSnapshot(additionalData);
 
-    VirgilKeyPair keyPair2 = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), additionalData);
 
     assertEquals(2, cardModel.getSignatures().size());
@@ -556,14 +556,14 @@ public class SignerAndVerifierTest extends PropertyManager {
   public void stc_9_extraSignWithSignatureSnapshot_should_addValidSignature()
       throws CryptoException {
     // STC-9
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
     modelSigner.selfSign(cardModel, keyPair.getPrivateKey());
 
     byte[] signatureSnapshot = new byte[32];
     new Random().nextBytes(signatureSnapshot);
 
-    VirgilKeyPair keyPair2 = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), signatureSnapshot);
 
     assertEquals(2, cardModel.getSignatures().size());
@@ -582,13 +582,13 @@ public class SignerAndVerifierTest extends PropertyManager {
   public void stc_9_secondExtraSignWithSignatureSnapshot_should_throwException()
       throws CryptoException {
     // STC-9
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
 
     byte[] signatureSnapshot = new byte[32];
     new Random().nextBytes(signatureSnapshot);
 
-    VirgilKeyPair keyPair2 = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), signatureSnapshot);
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), signatureSnapshot);
   }
@@ -596,7 +596,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   @Test
   public void stc_9_selfSignWithExtraFields_should_addValidSignature() throws CryptoException {
     // STC-9
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
 
     Map<String, String> additionalData = new HashMap<>();
@@ -622,7 +622,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   public void stc_9_selfSignWithSignatureSnapshot_should_addValidSignature()
       throws CryptoException {
     // STC-9
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
     RawSignedModel cardModel = mocker.generateCardModelUnsigned(keyPair.getPublicKey());
 
     byte[] signatureSnapshot = new byte[32];

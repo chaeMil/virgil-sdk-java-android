@@ -232,7 +232,7 @@ public class JsonFileKeyStorageTest {
         System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
     storage = new JsonFileKeyStorage(tmpDir.getAbsolutePath());
 
-    keyPair = crypto.generateKeys();
+    keyPair = crypto.generateKeyPair();
 
     alias = UUID.randomUUID().toString();
 

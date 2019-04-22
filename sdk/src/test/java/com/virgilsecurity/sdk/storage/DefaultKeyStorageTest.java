@@ -235,7 +235,7 @@ public class DefaultKeyStorageTest {
         System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
     storage = new DefaultKeyStorage(tmpDir.getAbsolutePath(), UUID.randomUUID().toString());
 
-    keyPair = crypto.generateKeys();
+    keyPair = crypto.generateKeyPair();
 
     alias = UUID.randomUUID().toString();
 

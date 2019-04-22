@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.crypto;
 
+import com.virgilsecurity.crypto.foundation.PrivateKey;
+import com.virgilsecurity.crypto.foundation.PublicKey;
 import com.virgilsecurity.crypto.foundation.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.DecryptionException;
@@ -66,10 +68,14 @@ public class VirgilCrypto {
       .getBytes(UTF8_CHARSET);
   private static final String ERROR_PARSE_TEXT = "Error code: ";
   private static final int ERROR_CODE_WRONG_PRIVATE_KEY = 12;
+
   private static final int CHUNK_SIZE = 1024;
+  private static final int RSA_2048_LENGTH = 1024;
+  private static final int RSA_4096_LENGTH = 4096;
+  private static final int RSA_8192_LENGTH = 8192;
 
   private Random rng;
-  private KeysType defaultKeyType;
+  private KeyType defaultKeyType;
   private boolean useSHA256Fingerprints;
 
   /**
@@ -90,16 +96,16 @@ public class VirgilCrypto {
     rng.setupDefaults();
 
     this.rng = rng;
-    this.defaultKeyType = KeysType.ED25519;
+    this.defaultKeyType = KeyType.ED25519;
     this.useSHA256Fingerprints = useSHA256Fingerprints;
   }
 
   /**
    * Create new instance of {@link VirgilCrypto}.
    *
-   * @param keysType the {@link KeysType} to be used by default for generating key pair.
+   * @param keysType the {@link KeyType} to be used by default for generating key pair.
    */
-  public VirgilCrypto(KeysType keysType) {
+  public VirgilCrypto(KeyType keysType) {
     CtrDrbg rng = new CtrDrbg();
     rng.setupDefaults();
 
@@ -110,11 +116,11 @@ public class VirgilCrypto {
   /**
    * Create new instance of {@link VirgilCrypto}.
    *
-   * @param keysType              the {@link KeysType} to be used by default for generating key pair.
+   * @param keysType              the {@link KeyType} to be used by default for generating key pair.
    * @param useSHA256Fingerprints set this flag to {@code true} to use SHA256 algorithm when
    *                              calculating public key identifier.
    */
-  public VirgilCrypto(KeysType keysType, boolean useSHA256Fingerprints) {
+  public VirgilCrypto(KeyType keysType, boolean useSHA256Fingerprints) {
     CtrDrbg rng = new CtrDrbg();
     rng.setupDefaults();
 
@@ -129,25 +135,75 @@ public class VirgilCrypto {
    *
    * @throws CryptoException if crypto operation failed
    */
-  public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys() throws CryptoException {
-    return generateKeys(this.defaultKeyType);
+  public VirgilKeyPair generateKeyPair(KeyType keyType, byte[] seed) throws CryptoException {
+    KeyMaterialRng keyMaterialRng = new KeyMaterialRng();
+
+    if (!(seed.length >= keyMaterialRng.getKeyMaterialLenMin()
+        && seed.length <= keyMaterialRng.getKeyMaterialLenMax())) {
+      throw new CryptoException("Invalid seed size");
+    }
+
+    keyMaterialRng.resetKeyMaterial(seed);
+
+    return generateKeyPair(keyType, keyMaterialRng);
+  }
+
+  /**
+   * Generates asymmetric key pair that is comprised of both public and private keys.
+   *
+   * @return Generated key pair.
+   *
+   * @throws CryptoException if crypto operation failed
+   */
+  public VirgilKeyPair generateKeyPair(byte[] seed) throws CryptoException {
+    return generateKeyPair(this.defaultKeyType, seed);
   }
 
   /**
    * Generates asymmetric key pair that is comprised of both public and private keys by specified
    * type.
    *
-   * @param keysType Type of the generated keys. The possible values can be found in {@link KeysType}.
+   * @param keyType Type of the generated keys. The possible values can be found in {@link KeyType}.
    *
    * @return Generated key pair.
    *
    * @throws CryptoException if crypto operation failed
    */
-  public com.virgilsecurity.sdk.crypto.VirgilKeyPair generateKeys(KeysType keysType)
-      throws CryptoException {
-    VirgilKeyPair keyPair = VirgilKeyPair.generate(toVirgilKeyPairType(keysType));
+  public VirgilKeyPair generateKeyPair(KeyType keyType) throws CryptoException {
+    return generateKeyPair(keyType, this.rng);
+  }
 
-    return wrapKeyPair(keyPair.privateKey(), keyPair.publicKey());
+  /**
+   * Generates asymmetric key pair that is comprised of both public and private keys.
+   *
+   * @return Generated key pair.
+   *
+   * @throws CryptoException if crypto operation failed
+   */
+  public VirgilKeyPair generateKeyPair() throws CryptoException {
+    return generateKeyPair(this.defaultKeyType);
+  }
+
+  private VirgilKeyPair generateKeyPair(KeyType keyType, Random rng) throws CryptoException {
+    KeyProvider keyProvider = new KeyProvider();
+
+    if (keyType.getRsaBitLen() != -1) {
+      int rsaLength = keyType.getRsaBitLen();
+      keyProvider.setRsaParams(rsaLength);
+    }
+
+    keyProvider.setRandom(rng);
+    keyProvider.setupDefaults();
+
+    AlgId algId = keyType.getAlgId();
+    PrivateKey privateKey = keyProvider.generatePrivateKey(algId);
+    PublicKey publicKey = privateKey.extractPublicKey();
+    byte[] keyId = computePublicKeyIdentifier(publicKey);
+
+    VirgilPublicKey virgilPublicKey = new VirgilPublicKey(keyId, publicKey, keyType);
+    VirgilPrivateKey virgilPrivateKey = new VirgilPrivateKey(keyId, privateKey, keyType);
+
+    return new VirgilKeyPair(virgilPublicKey, virgilPrivateKey);
   }
 
   /**
@@ -730,29 +786,11 @@ public class VirgilCrypto {
    * @throws CryptoException if key couldn't be exported
    */
   public byte[] exportPrivateKey(VirgilPrivateKey privateKey) throws CryptoException {
-    return exportPrivateKey(privateKey, null);
-  }
-
-  /**
-   * Exports the Private key into material representation.
-   *
-   * @param privateKey The private key for export.
-   * @param password   The password.
-   *
-   * @return Key material representation bytes.
-   *
-   * @throws CryptoException if key couldn't be exported
-   */
-  public byte[] exportPrivateKey(VirgilPrivateKey privateKey, String password)
-      throws CryptoException {
     try {
-      if (password == null) {
-        return VirgilKeyPair.privateKeyToDER(privateKey.getRawKey());
-      }
-      byte[] passwordBytes = password.getBytes(UTF8_CHARSET);
-      byte[] encryptedKey = VirgilKeyPair.encryptPrivateKey(privateKey.getRawKey(), passwordBytes);
+      Pkcs8Serializer serializer = new Pkcs8Serializer();
+      serializer.setupDefaults();
 
-      return VirgilKeyPair.privateKeyToDER(encryptedKey, passwordBytes);
+      return serializer.serializePrivateKey(privateKey.getPrivateKey());
     } catch (Exception e) {
       throw new CryptoException(e);
     }
@@ -761,45 +799,38 @@ public class VirgilCrypto {
   /**
    * Imports the Private key from material representation.
    *
-   * @param keyData the private key material representation bytes
+   * @param data the private key material representation bytes
    *
    * @return imported private key
    *
    * @throws CryptoException if key couldn't be imported
    */
-  public VirgilPrivateKey importPrivateKey(byte[] keyData) throws CryptoException {
-    return importPrivateKey(keyData, null);
-  }
-
-  /**
-   * Imports the Private key from material representation.
-   *
-   * @param keyData  the private key material representation bytes
-   * @param password the private key password
-   *
-   * @return imported private key
-   *
-   * @throws CryptoException if key couldn't be imported
-   */
-  public VirgilPrivateKey importPrivateKey(byte[] keyData, String password) throws CryptoException {
-    if (keyData == null) {
-      throw new NullArgumentException("keyData");
-    }
-
+  public VirgilKeyPair importPrivateKey(byte[] data) throws CryptoException {
     try {
-      byte[] privateKeyBytes;
-      if (password == null) {
-        privateKeyBytes = VirgilKeyPair.privateKeyToDER(keyData);
-      } else {
-        privateKeyBytes = VirgilKeyPair.decryptPrivateKey(keyData, password.getBytes(UTF8_CHARSET));
+      if (data == null) {
+        throw new NullArgumentException("data");
       }
 
-      byte[] publicKey = VirgilKeyPair.extractPublicKey(privateKeyBytes, new byte[]{});
+      KeyProvider keyProvider = new KeyProvider();
+      keyProvider.setRandom(rng);
+      keyProvider.setupDefaults();
 
-      byte[] receiverId = computePublicKeyHash(publicKey);
-      byte[] value = VirgilKeyPair.privateKeyToDER(privateKeyBytes);
+      PrivateKey privateKey = keyProvider.importPrivateKey(data);
+      KeyType keyType;
+      if (privateKey.algId().equals(AlgId.RSA)) {
+        keyType = typeFromBitLength(privateKey.exportPrivateKey());
+      } else {
+        keyType = typeFromAlgId(privateKey.algId());
+      }
 
-      return new VirgilPrivateKey(receiverId, value);
+      PublicKey publicKey = privateKey.extractPublicKey();
+
+      byte[] keyId = computePublicKeyIdentifier(publicKey);
+
+      VirgilPublicKey virgilPublicKey = new VirgilPublicKey(keyId, publicKey, keyType);
+      VirgilPrivateKey virgilPrivateKey = new VirgilPrivateKey(keyId, privateKey, keyType);
+
+      return new VirgilKeyPair(virgilPublicKey, virgilPrivateKey);
     } catch (Exception e) {
       throw new CryptoException(e);
     }
@@ -816,7 +847,10 @@ public class VirgilCrypto {
    */
   public byte[] exportPublicKey(VirgilPublicKey publicKey) throws CryptoException {
     try {
-      return VirgilKeyPair.publicKeyToDER(publicKey.getRawKey());
+      Pkcs8Serializer serializer = new Pkcs8Serializer();
+      serializer.setupDefaults();
+
+      return serializer.serializePublicKey(publicKey.getPublicKey());
     } catch (Exception e) {
       throw new CryptoException(e);
     }
@@ -825,21 +859,34 @@ public class VirgilCrypto {
   /**
    * Imports the Public key from material representation.
    *
-   * @param keyData the public key material representation bytes
+   * @param data the public key material representation bytes
    *
    * @return an imported public key
    *
    * @throws CryptoException if key couldn't be imported
    */
-  public VirgilPublicKey importPublicKey(byte[] keyData) throws CryptoException {
-    if (keyData == null) {
-      throw new NullArgumentException("keyData");
+  public VirgilPublicKey importPublicKey(byte[] data) throws CryptoException {
+    if (data == null) {
+      throw new NullArgumentException("data");
     }
-    try {
-      byte[] receiverId = computePublicKeyHash(keyData);
-      byte[] value = VirgilKeyPair.publicKeyToDER(keyData);
 
-      return new VirgilPublicKey(receiverId, value);
+    try {
+      KeyProvider keyProvider = new KeyProvider();
+      keyProvider.setRandom(rng);
+      keyProvider.setupDefaults();
+
+      PublicKey publicKey = keyProvider.importPublicKey(data);
+
+      KeyType keyType;
+      if (publicKey.algId().equals(AlgId.RSA)) {
+        keyType = typeFromBitLength(publicKey.exportPublicKey());
+      } else {
+        keyType = typeFromAlgId(publicKey.algId());
+      }
+
+      byte[] keyId = computePublicKeyIdentifier(publicKey);
+
+      return new VirgilPublicKey(keyId, publicKey, keyType);
     } catch (Exception e) {
       throw new CryptoException(e);
     }
@@ -848,43 +895,18 @@ public class VirgilCrypto {
   /**
    * Extract public key from private key.
    *
-   * @param keyData the private key.
+   * @param privateKey  the private key.
    *
    * @return the extracted public key.
    */
-  public VirgilPublicKey extractPublicKey(VirgilPrivateKey keyData) {
-    return extractPublicKey(keyData, null);
-  }
-
-  /**
-   * Extract public key from private key.
-   *
-   * @param keyData  the private key.
-   * @param password the password
-   *
-   * @return the extracted public key.
-   */
-  public VirgilPublicKey extractPublicKey(VirgilPrivateKey keyData, String password) {
-    if (keyData == null) {
-      throw new NullArgumentException("keyData");
+  public VirgilPublicKey extractPublicKey(VirgilPrivateKey privateKey) {
+    if (privateKey == null) {
+      throw new NullArgumentException("privateKey"); // TODO check all null arguments
     }
 
-    if (password != null && password.isEmpty()) {
-      throw new IllegalArgumentException("VirgilCrypto -> 'password' should not be empty");
-    }
-
-    byte[] publicKeyData;
-    if (password == null) {
-      publicKeyData = VirgilKeyPair.extractPublicKey(keyData.getRawKey(), new byte[0]);
-    } else {
-      publicKeyData = VirgilKeyPair.extractPublicKey(keyData.getRawKey(),
-                                                     password.getBytes(UTF8_CHARSET));
-    }
-
-    byte[] receiverId = keyData.getIdentifier();
-    byte[] value = VirgilKeyPair.publicKeyToDER(publicKeyData);
-
-    return new VirgilPublicKey(receiverId, value);
+    return new VirgilPublicKey(privateKey.getIdentifier(),
+                               privateKey.getPrivateKey().extractPublicKey(),
+                               privateKey.getKeyType());
   }
 
   /**
@@ -896,6 +918,17 @@ public class VirgilCrypto {
    */
   public byte[] computeHash(byte[] data) {
     return computeHash(data, HashAlgorithm.SHA512);
+  }
+
+  /**
+   * Generates cryptographically secure random bytes. Uses CTR DRBG.
+   *
+   * @param size Size of random data needed.
+   *
+   * @return Random data
+   */
+  public byte[] generateRandomData(int size) {
+    return rng.random(size);
   }
 
   /**
@@ -943,37 +976,17 @@ public class VirgilCrypto {
     this.useSHA256Fingerprints = useSHA256Fingerprints;
   }
 
-  /**
-   * Wrap key pair with {@link com.virgilsecurity.sdk.crypto.VirgilKeyPair}.
-   *
-   * @param privateKey the private key data.
-   * @param publicKey  the public key data.
-   *
-   * @return wrapped key pair.
-   *
-   * @throws CryptoException if crypto operation failed.
-   */
-  public com.virgilsecurity.sdk.crypto.VirgilKeyPair wrapKeyPair(byte[] privateKey,
-                                                                 byte[] publicKey) throws CryptoException {
-    byte[] keyPairId = this.computePublicKeyHash(publicKey);
+  private byte[] computePublicKeyIdentifier(PublicKey publicKey) throws CryptoException {
+    Pkcs8Serializer serializer = new Pkcs8Serializer();
+    serializer.setupDefaults();
 
-    VirgilPublicKey virgilPublicKey = new VirgilPublicKey(keyPairId,
-                                                          VirgilKeyPair.publicKeyToDER(publicKey));
-    VirgilPrivateKey virgilPrivateKey = new VirgilPrivateKey(keyPairId,
-                                                             VirgilKeyPair.privateKeyToDER(
-                                                                 privateKey));
-
-    return new com.virgilsecurity.sdk.crypto.VirgilKeyPair(virgilPublicKey, virgilPrivateKey);
-  }
-
-  private byte[] computePublicKeyHash(byte[] publicKey) throws CryptoException {
-    byte[] publicKeyDer = VirgilKeyPair.publicKeyToDER(publicKey);
+    byte[] publicKeyDer = serializer.serializePublicKey(publicKey);
     try {
       byte[] hash;
       if (useSHA256Fingerprints) {
-        hash = this.generateHash(publicKeyDer, HashAlgorithm.SHA256);
+        hash = computeHash(publicKeyDer, HashAlgorithm.SHA256);
       } else {
-        hash = this.generateHash(publicKeyDer, HashAlgorithm.SHA512);
+        hash = computeHash(publicKeyDer, HashAlgorithm.SHA512);
         hash = Arrays.copyOfRange(hash, 0, 8);
       }
       return hash;
@@ -997,5 +1010,29 @@ public class VirgilCrypto {
     System.arraycopy(second, 0, result, first.length, second.length);
 
     return result;
+  }
+
+  private KeyType typeFromBitLength(byte[] data) throws CryptoException {
+    switch (data.length) {
+      case RSA_2048_LENGTH:
+        return KeyType.RSA_2048;
+      case RSA_4096_LENGTH:
+        return KeyType.RSA_4096;
+      case RSA_8192_LENGTH:
+        return KeyType.RSA_8192;
+      default:
+        throw new CryptoException("Unsupported RSA length " + data.length);
+    }
+  }
+
+  private KeyType typeFromAlgId(AlgId algId) throws CryptoException {
+    switch (algId) {
+      case ED25519:
+        return KeyType.ED25519;
+      case CURVE25519:
+        return KeyType.CURVE25519;
+      default:
+        throw new CryptoException("Unsupported algorithm " + algId.name());
+    }
   }
 }

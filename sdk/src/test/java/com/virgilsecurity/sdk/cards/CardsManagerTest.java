@@ -176,7 +176,7 @@ public class CardsManagerTest extends PropertyManager {
     String identity = Generator.identity();
     initCardManager(identity);
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
         keyPairVirgiled.getPublicKey(), identity);
     Card generatedCard = Card.parse(cardCrypto, cardModel);
@@ -202,7 +202,7 @@ public class CardsManagerTest extends PropertyManager {
     additionalData.put("Sense of life", "42");
     additionalData.put("Secret but not secret", "idn");
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     RawSignedModel cardModel = cardManager.generateRawCard(keyPairVirgiled.getPrivateKey(),
         keyPairVirgiled.getPublicKey(), identity, additionalData);
     Card generatedCard = Card.parse(cardCrypto, cardModel);
@@ -224,7 +224,7 @@ public class CardsManagerTest extends PropertyManager {
     String identity = Generator.identity();
     initCardManager(identity);
 
-    VirgilKeyPair keyPairVirgiled1 = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled1 = crypto.generateKeyPair();
     RawSignedModel cardModel1 = cardManager.generateRawCard(keyPairVirgiled1.getPrivateKey(),
         keyPairVirgiled1.getPublicKey(), identity);
     Card generatedCard1 = Card.parse(cardCrypto, cardModel1);
@@ -240,7 +240,7 @@ public class CardsManagerTest extends PropertyManager {
     assertCardsEquals(generatedCard1, cardFromService1);
 
     // Generate KeyPair2
-    VirgilKeyPair keyPairVirgiled2 = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled2 = crypto.generateKeyPair();
     RawSignedModel cardModel2 = cardManager.generateRawCard(keyPairVirgiled2.getPrivateKey(),
         keyPairVirgiled2.getPublicKey(), identity, generatedCard1.getIdentifier());
     Card generatedCard2 = Card.parse(cardCrypto, cardModel2);
@@ -279,19 +279,19 @@ public class CardsManagerTest extends PropertyManager {
     String identity = Generator.identity();
     initCardManager(identity);
 
-    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
     RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
         keyPairVirgiledOne.getPublicKey(), identity);
     Card publishedCardOne = cardManager.publishCard(cardModelOne);
     assertNotNull(publishedCardOne);
 
-    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeyPair();
     RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
         keyPairVirgiledTwo.getPublicKey(), identity, publishedCardOne.getIdentifier());
     Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
     assertNotNull(publishedCardTwo);
 
-    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeyPair();
     RawSignedModel cardModelThree = cardManager.generateRawCard(
         keyPairVirgiledThree.getPrivateKey(), keyPairVirgiledThree.getPublicKey(), identity);
     Card publishedCardThree = cardManager.publishCard(cardModelThree);
@@ -335,7 +335,7 @@ public class CardsManagerTest extends PropertyManager {
           public RawSignedModel onSign(RawSignedModel cardModel) {
             ModelSigner modelSigner = new ModelSigner(cardCrypto);
             try {
-              VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+              VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
               modelSigner.sign(cardModel, SIGNER_TYPE_EXTRA, keyPairVirgiled.getPrivateKey());
             } catch (CryptoException e) {
               fail(e.getMessage());
@@ -345,7 +345,7 @@ public class CardsManagerTest extends PropertyManager {
           }
         }, false);
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     RawSignedModel cardModel = cardManagerExtraSign.generateRawCard(keyPairVirgiled.getPrivateKey(),
         keyPairVirgiled.getPublicKey(), identity);
     Card generatedCard = Card.parse(cardCrypto, cardModel);
@@ -436,12 +436,12 @@ public class CardsManagerTest extends PropertyManager {
     CardManager cardManager1 = initCardManager(identity1);
     CardManager cardManager2 = initCardManager(identity2);
 
-    VirgilKeyPair keyPair = crypto.generateKeys();
+    VirgilKeyPair keyPair = crypto.generateKeyPair();
     Card i1Card1 = cardManager1.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(),
         identity1);
     assertNotNull(i1Card1);
 
-    keyPair = crypto.generateKeys();
+    keyPair = crypto.generateKeyPair();
     Card i1Card2 = cardManager1.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(),
         identity1, i1Card1.getIdentifier());
     assertNotNull(i1Card2);
@@ -449,7 +449,7 @@ public class CardsManagerTest extends PropertyManager {
     i1Card1.setOutdated(true);
     i1Card2.setPreviousCard(i1Card1);
 
-    keyPair = crypto.generateKeys();
+    keyPair = crypto.generateKeyPair();
     Card i2Card = cardManager2.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(),
         identity2);
     assertNotNull(i2Card);

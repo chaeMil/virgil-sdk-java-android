@@ -74,13 +74,13 @@ public class AdditionalSignatureExample {
    * @throws CryptoException
    */
   public AdditionalSignatureExample() throws CryptoException {
-    PRIVATE_KEY = new VirgilCrypto().generateKeys().getPrivateKey();
+    PRIVATE_KEY = new VirgilCrypto().generateKeyPair().getPrivateKey();
   }
 
   private Tuple<String, String> generateKey() throws CryptoException {
     // generate a key pair
     VirgilCrypto crypto = new VirgilCrypto();
-    VirgilKeyPair keyPair = crypto.generateKeys();
+    VirgilKeyPair keyPair = crypto.generateKeyPair();
 
     // export private and public key
     byte[] privateKeyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), "<YOUR_PASSWORD>");

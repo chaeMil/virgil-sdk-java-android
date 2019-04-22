@@ -107,7 +107,7 @@ public class Mocker extends PropertyManager {
     calendar.set(Calendar.DAY_OF_MONTH, 6);
     calendar.set(Calendar.HOUR_OF_DAY, 10);
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
     VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
@@ -131,7 +131,7 @@ public class Mocker extends PropertyManager {
     calendar.set(Calendar.HOUR_OF_DAY, 10);
     calendar.clear(Calendar.MILLISECOND);
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
     VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
@@ -173,7 +173,7 @@ public class Mocker extends PropertyManager {
 
   public VirgilPrivateKey generatePrivateKey() {
     try {
-      return crypto.generateKeys().getPrivateKey();
+      return crypto.generateKeyPair().getPrivateKey();
     } catch (CryptoException e) {
       fail(e.getMessage());
       return null;
@@ -182,7 +182,7 @@ public class Mocker extends PropertyManager {
 
   public VirgilPublicKey generatePublicKey() {
     try {
-      return crypto.generateKeys().getPublicKey();
+      return crypto.generateKeyPair().getPublicKey();
     } catch (CryptoException e) {
       fail(e.getMessage());
       return null;

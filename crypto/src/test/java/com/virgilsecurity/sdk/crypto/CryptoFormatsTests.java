@@ -44,7 +44,6 @@ import com.virgilsecurity.crypto.VirgilHash.Algorithm;
 import com.virgilsecurity.crypto.VirgilSigner;
 import com.virgilsecurity.crypto.utils.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -93,7 +92,7 @@ public class CryptoFormatsTests {
   public void stc_31_generateKeys() throws CryptoException {
     // STC_31
     // Generate keypair
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
     assertNotNull(keyPair);
     assertNotNull(keyPair.getPublicKey());
     assertNotNull(keyPair.getPrivateKey());
@@ -117,7 +116,7 @@ public class CryptoFormatsTests {
     // generate multiple key pairs
     for (KeysType keyType : KeysType.values()) {
       try {
-        VirgilKeyPair keyPair = this.crypto.generateKeys(keyType);
+        VirgilKeyPair keyPair = this.crypto.generateKeyPair(keyType);
         assertNotNull(keyPair);
         assertNotNull(keyPair.getPublicKey());
         assertNotNull(keyPair.getPrivateKey());
@@ -180,7 +179,7 @@ public class CryptoFormatsTests {
     // STC_33
     this.crypto.setUseSHA256Fingerprints(true);
 
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
     VirgilPublicKey publicKey = keyPair.getPublicKey();
 
     try (VirgilHash hasher = new VirgilHash(Algorithm.SHA256)) {
@@ -193,7 +192,7 @@ public class CryptoFormatsTests {
   @Test
   public void stc_33_sha512() throws CryptoException {
     // STC_33
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
     VirgilPublicKey publicKey = keyPair.getPublicKey();
 
     try (VirgilHash hasher = new VirgilHash(Algorithm.SHA512)) {

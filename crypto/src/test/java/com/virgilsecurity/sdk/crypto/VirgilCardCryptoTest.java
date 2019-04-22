@@ -152,7 +152,7 @@ public class VirgilCardCryptoTest {
   public void setup() throws CryptoException {
     this.cardCrypto = new VirgilCardCrypto();
 
-    VirgilKeyPair keyPair = this.cardCrypto.getVirgilCrypto().generateKeys();
+    VirgilKeyPair keyPair = this.cardCrypto.getVirgilCrypto().generateKeyPair();
     this.privateKey = keyPair.getPrivateKey();
     this.publicKey = keyPair.getPublicKey();
   }

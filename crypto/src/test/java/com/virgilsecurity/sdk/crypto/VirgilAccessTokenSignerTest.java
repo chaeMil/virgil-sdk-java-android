@@ -92,7 +92,7 @@ public class VirgilAccessTokenSignerTest {
   public void setup() throws CryptoException {
     this.signer = new VirgilAccessTokenSigner();
 
-    VirgilKeyPair keyPair = this.signer.getVirgilCrypto().generateKeys();
+    VirgilKeyPair keyPair = this.signer.getVirgilCrypto().generateKeyPair();
     this.privateKey = keyPair.getPrivateKey();
     this.publicKey = keyPair.getPublicKey();
   }

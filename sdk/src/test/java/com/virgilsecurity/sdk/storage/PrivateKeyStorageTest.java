@@ -208,7 +208,7 @@ public class PrivateKeyStorageTest {
   @Before
   public void setUp() throws CryptoException {
     this.crypto = new VirgilCrypto();
-    this.privateKey = this.crypto.generateKeys().getPrivateKey();
+    this.privateKey = this.crypto.generateKeyPair().getPrivateKey();
     this.keyName = UUID.randomUUID().toString();
 
     storage = new PrivateKeyStorage(keyExporter, keyStorage);

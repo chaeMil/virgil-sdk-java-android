@@ -72,6 +72,16 @@ public class VirgilKeyPair {
   }
 
   /**
+   * Set the Virgil private key.
+   *
+   * @param privateKey
+   *          the Virgil private key to set.
+   */
+  public void setPrivateKey(VirgilPrivateKey privateKey) {
+    this.privateKey = privateKey;
+  }
+
+  /**
    * Get the Virgil public key.
    * 
    * @return the Virgil public key
@@ -81,23 +91,12 @@ public class VirgilKeyPair {
   }
 
   /**
-   * Set the Virgil private key.
-   * 
-   * @param privateKey
-   *          the Virgil private key to set.
-   */
-  public void setPrivateKey(VirgilPrivateKey privateKey) {
-    this.privateKey = privateKey;
-  }
-
-  /**
    * Set the Virgil public key.
-   * 
+   *
    * @param publicKey
    *          the Virgil public key to set.
    */
   public void setPublicKey(VirgilPublicKey publicKey) {
     this.publicKey = publicKey;
   }
-
 }

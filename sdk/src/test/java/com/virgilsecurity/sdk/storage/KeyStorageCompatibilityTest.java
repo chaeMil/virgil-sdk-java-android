@@ -78,7 +78,7 @@ public class KeyStorageCompatibilityTest {
   public void stc_5() throws CryptoException {
     // STC_5
     // Generate some data and instantiate KeyEntry1
-    PrivateKey privateKey1 = this.crypto.generateKeys().getPrivateKey();
+    PrivateKey privateKey1 = this.crypto.generateKeyPair().getPrivateKey();
     byte[] privateKeyData1 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey1, null);
     Map<String, String> meta1 = generateMeta();
     KeyEntry keyEntry1 = new JsonKeyEntry(this.keyName, privateKeyData1);
@@ -98,7 +98,7 @@ public class KeyStorageCompatibilityTest {
 
     // Create KeyEntry2
     String keyName2 = UUID.randomUUID().toString();
-    PrivateKey privateKey2 = this.crypto.generateKeys().getPrivateKey();
+    PrivateKey privateKey2 = this.crypto.generateKeyPair().getPrivateKey();
     byte[] privateKeyData2 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey2, null);
     Map<String, String> meta2 = generateMeta();
     KeyEntry keyEntry2 = new JsonKeyEntry(keyName2, privateKeyData2);
@@ -147,7 +147,7 @@ public class KeyStorageCompatibilityTest {
   public void stc_6() throws CryptoException {
     // STC_6
     // Generate some data and instantiate KeyEntry1
-    PrivateKey privateKey1 = this.crypto.generateKeys().getPrivateKey();
+    PrivateKey privateKey1 = this.crypto.generateKeyPair().getPrivateKey();
     byte[] privateKeyData1 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey1, null);
     Map<String, String> meta1 = generateMeta();
     KeyEntry keyEntry1 = new JsonKeyEntry(this.keyName, privateKeyData1);
@@ -157,7 +157,7 @@ public class KeyStorageCompatibilityTest {
     this.keyStorage.store(keyEntry1);
 
     // Create KeyEntry2 with the same name
-    PrivateKey privateKey2 = this.crypto.generateKeys().getPrivateKey();
+    PrivateKey privateKey2 = this.crypto.generateKeyPair().getPrivateKey();
     byte[] privateKeyData2 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey2, null);
     Map<String, String> meta2 = generateMeta();
     KeyEntry keyEntry2 = new JsonKeyEntry(this.keyName, privateKeyData2);

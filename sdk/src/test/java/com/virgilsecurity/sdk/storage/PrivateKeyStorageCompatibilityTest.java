@@ -81,7 +81,7 @@ public class PrivateKeyStorageCompatibilityTest {
   public void stc_7() throws CryptoException {
     // STC_7
     // Generate PrivateKey
-    PrivateKey privateKey = this.crypto.generateKeys().getPrivateKey();
+    PrivateKey privateKey = this.crypto.generateKeyPair().getPrivateKey();
 
     // Store PrivateKey
     this.privateKeyStorage.store(privateKey, this.keyName, null);

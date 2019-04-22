@@ -127,7 +127,7 @@ public class PublicKeyManagementExample {
     VirgilCrypto crypto = new VirgilCrypto();
 
     // generate a key pair
-    VirgilKeyPair keyPair = crypto.generateKeys();
+    VirgilKeyPair keyPair = crypto.generateKeyPair();
 
     // save a private key into key storage
     privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);

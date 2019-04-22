@@ -71,7 +71,7 @@ public class GenerateCardExample {
         new VirgilCardVerifier(cardCrypto, true, false));
 
     // generate a key pair
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
 
     // generate card model
     RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(),
@@ -95,7 +95,7 @@ public class GenerateCardExample {
         new VirgilCardVerifier(cardCrypto));
 
     // generate a key pair
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
 
     // generate card model
     RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(),
@@ -143,7 +143,7 @@ public class GenerateCardExample {
         new VirgilCardVerifier(cardCrypto));
 
     // Generate a key pair
-    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
 
     // Publish card
     cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), identity);

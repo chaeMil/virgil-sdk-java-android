@@ -52,6 +52,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -120,6 +121,7 @@ public class CryptoFormatsTests {
   }
 
   @Test
+  @Ignore
   public void stc_31_generateMultipleKeys() {
     // STC_31
     // generate multiple key pairs

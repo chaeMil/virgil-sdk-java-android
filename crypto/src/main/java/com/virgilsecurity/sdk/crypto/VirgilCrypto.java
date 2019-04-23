@@ -66,8 +66,7 @@ public class VirgilCrypto {
       .getBytes(UTF8_CHARSET);
   private static final byte[] CUSTOM_PARAM_SIGNER_ID = "VIRGIL-DATA-SIGNER-ID"
       .getBytes(UTF8_CHARSET);
-  private static final String ERROR_PARSE_TEXT = "Error code: ";
-  private static final int ERROR_CODE_WRONG_PRIVATE_KEY = 12;
+  private static final int ERROR_CODE_WRONG_PRIVATE_KEY = -303;
 
   private static final int CHUNK_SIZE = 1024;
   private static final int RSA_2048_LENGTH = 1024;
@@ -433,12 +432,15 @@ public class VirgilCrypto {
                                     new byte[0]);
 
       byte[] processDecryption = cipher.processDecryption(data);
-      byte[] finish = cipher.finishEncryption();
+      byte[] finish = cipher.finishDecryption();
 
       return concatenate(processDecryption, finish);
     } catch (Exception exception) {
-      // Trying to get code from crypto exception or rethrow provided `exception`.
-      throw new DecryptionException(processErrorCode(exception));
+      if (exception instanceof FoundationException) {
+        throw new DecryptionException(processErrorCode((FoundationException) exception));
+      } else {
+        throw new DecryptionException(exception);
+      }
     }
   }
 
@@ -467,9 +469,12 @@ public class VirgilCrypto {
 
       byte[] finish = cipher.finishDecryption();
       outputStream.write(finish);
-    } catch (IOException exception) {
-      // Trying to get code from crypto exception or rethrow provided `exception`.
-      throw new DecryptionException(processErrorCode(exception));
+    } catch (Exception exception) {
+      if (exception instanceof FoundationException) {
+        throw new DecryptionException(processErrorCode((FoundationException) exception));
+      } else {
+        throw new DecryptionException(exception);
+      }
     }
   }
 
@@ -555,44 +560,27 @@ public class VirgilCrypto {
 
       return decryptedData;
     } catch (Exception exception) {
-      // Trying to get code from crypto exception or rethrow provided `exception`.
-      throw new DecryptionException(processErrorCode(exception));
+      if (exception instanceof FoundationException) {
+        throw new DecryptionException(processErrorCode((FoundationException) exception));
+      } else {
+        throw new DecryptionException(exception);
+      }
     }
   }
 
   /**
-   * Temporary workaround till we find other places where error usage is needed.
-   * Extract code from crypto exception and throw corresponding exception with message,
-   * or rethrow provided {@code exception}.
+   * Gets message from provided {@link FoundationException}'s error code.
    *
-   * @param exception to extract code from.
+   * @param exception To extract code from.
    *
-   * @return default *error message* if *error message* is {@code null} or extraction failed,
-   *         otherwise custom message for exception is being generated depending on extracted
-   *         error code.
+   * @return Error message corresponding to error code.
    */
-  private String processErrorCode(Exception exception) {
-    String errorMessage = exception.getMessage();
+  private String processErrorCode(FoundationException exception) {
+    int errorCode = exception.getStatusCode();
 
-    if (errorMessage != null) {
-      int errorCode;
-
-      try {
-        // If we're unable to extract code - just forward exception
-        errorCode = Integer.parseInt(errorMessage.substring(
-            errorMessage.indexOf(ERROR_PARSE_TEXT) + ERROR_PARSE_TEXT.length(),
-            errorMessage.indexOf('.', errorMessage.indexOf(ERROR_PARSE_TEXT)
-                + ERROR_PARSE_TEXT.length())));
-      } catch (Throwable throwable) {
-        return exception.getMessage();
-      }
-
-      if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY) {
-        return "Given Private key does not corresponds to any of "
-            + "Public keys that were used for encryption.";
-      } else {
-        return exception.getMessage();
-      }
+    if (errorCode == ERROR_CODE_WRONG_PRIVATE_KEY) {
+      return "Given Private key does not corresponds to any of "
+          + "Public keys that were used for encryption.";
     } else {
       return exception.getMessage();
     }
@@ -808,11 +796,11 @@ public class VirgilCrypto {
    * @throws CryptoException if key couldn't be imported
    */
   public VirgilKeyPair importPrivateKey(byte[] data) throws CryptoException {
-    try {
-      if (data == null) {
-        throw new NullArgumentException("data");
-      }
+    if (data == null) {
+      throw new NullArgumentException("data");
+    }
 
+    try {
       KeyProvider keyProvider = new KeyProvider();
       keyProvider.setRandom(rng);
       keyProvider.setupDefaults();

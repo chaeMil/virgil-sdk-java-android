@@ -43,34 +43,19 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
 
   private VirgilCrypto virgilCrypto;
-  private String password;
 
   /**
    * Create new instance of {@link VirgilPrivateKeyExporter} using {@link VirgilCrypto} with default
-   * {@link KeysType} - {@code FAST_EC_ED25519}.
+   * {@link KeyType} - {@code FAST_EC_ED25519}.
    */
   public VirgilPrivateKeyExporter() {
     virgilCrypto = new VirgilCrypto(KeyType.ED25519);
   }
 
   /**
-   * Create new instance of {@link VirgilPrivateKeyExporter} using {@link VirgilCrypto} with default
-   * {@link KeysType} - {@code FAST_EC_ED25519} and specified {@code password}.
-   *
-   * @param password
-   *          The password for private key.
-   */
-  public VirgilPrivateKeyExporter(String password) {
-    this.password = password;
-
-    virgilCrypto = new VirgilCrypto(KeyType.ED25519);
-  }
-
-  /**
    * Create new instance of {@link VirgilPrivateKeyExporter}.
    *
-   * @param virgilCrypto
-   *          The {@link VirgilCrypto}.
+   * @param virgilCrypto The {@link VirgilCrypto}.
    */
   public VirgilPrivateKeyExporter(VirgilCrypto virgilCrypto) {
     if (virgilCrypto == null) {
@@ -82,32 +67,14 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
   }
 
   /**
-   * Create new instance of {@link VirgilPrivateKeyExporter} with specified {@code password}.
-   *
-   * @param virgilCrypto
-   *          the Virgil Crypto
-   * @param password
-   *          the password for private key
-   */
-  public VirgilPrivateKeyExporter(VirgilCrypto virgilCrypto, String password) {
-    if (virgilCrypto == null) {
-      throw new IllegalArgumentException(
-          "VirgilPrivateKeyExporter -> 'virgilCrypto' should not be null");
-    }
-
-    this.virgilCrypto = virgilCrypto;
-    this.password = password;
-  }
-
-  /**
    * Exports the {@code privateKey} into material representation. If {@link VirgilCrypto} was
    * instantiated with {@code password} then it will be used to export private key.
    *
-   * @param privateKey
-   *          the private key
+   * @param privateKey The private key.
+   *
    * @return Private key in material representation of {@code byte[]}.
-   * @throws CryptoException
-   *           if problems occurred while exporting key
+   *
+   * @throws CryptoException If problems occurred while exporting key.
    */
   public byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException {
     if (!(privateKey instanceof VirgilPrivateKey)) {

@@ -38,10 +38,8 @@ import static org.junit.Assert.assertNotNull;
 
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
-
 import java.util.Arrays;
 import java.util.Collection;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -61,17 +59,21 @@ public class VirgilPrivateKeyExporterTest {
   private VirgilCrypto crypto;
   private VirgilPrivateKey privateKey;
 
-  @Parameter(0)
+  @Parameter()
   public VirgilPrivateKeyExporter exporter;
-  @Parameter(1)
-  public String password;
 
-  @Parameters(name = "{index}: password={1}")
+  @Parameters()
   public static Collection<Object[]> params() {
-    return Arrays.asList(new Object[][] { { new VirgilPrivateKeyExporter(), null },
-        { new VirgilPrivateKeyExporter(new VirgilCrypto()), null },
-        { new VirgilPrivateKeyExporter(new VirgilCrypto(), null), null },
-        { new VirgilPrivateKeyExporter(new VirgilCrypto(), "PASSWORD"), "PASSWORD" } });
+    return Arrays.asList(new Object[][] {
+        { new VirgilPrivateKeyExporter() },
+        { new VirgilPrivateKeyExporter(new VirgilCrypto()) }
+    });
+  }
+
+  @Before
+  public void setup() throws CryptoException {
+    this.crypto = new VirgilCrypto();
+    this.privateKey = this.crypto.generateKeyPair().getPrivateKey();
   }
 
   @Test
@@ -98,11 +100,4 @@ public class VirgilPrivateKeyExporterTest {
   public void importPrivateKey_null() throws CryptoException {
     exporter.importPrivateKey(null);
   }
-
-  @Before
-  public void setup() throws CryptoException {
-    this.crypto = new VirgilCrypto();
-    this.privateKey = this.crypto.generateKeyPair().getPrivateKey();
-  }
-
 }

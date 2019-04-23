@@ -142,7 +142,7 @@ public class VirgilPublicKey implements PublicKey, Serializable {
     if (o == null || getClass() != o.getClass()) return false;
     VirgilPublicKey that = (VirgilPublicKey) o;
     return Arrays.equals(identifier, that.identifier)
-        && publicKey.equals(that.publicKey)
+        && Arrays.equals(publicKey.exportPublicKey(), that.publicKey.exportPublicKey())
         && keyType == that.keyType;
   }
 

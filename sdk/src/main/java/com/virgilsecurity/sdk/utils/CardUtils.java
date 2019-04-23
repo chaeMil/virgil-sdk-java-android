@@ -68,7 +68,7 @@ public class CardUtils {
    */
   public static String generateCardId(CardCrypto cardCrypto, byte[] contentSnapshot)
       throws CryptoException {
-    byte[] fingerprint = Arrays.copyOfRange(cardCrypto.generateSHA512(contentSnapshot), 0, 32);
+    byte[] fingerprint = Arrays.copyOfRange(cardCrypto.computeSha512(contentSnapshot), 0, 32);
     String cardId = ConvertionUtils.toString(fingerprint, StringEncoding.HEX);
 
     return cardId;

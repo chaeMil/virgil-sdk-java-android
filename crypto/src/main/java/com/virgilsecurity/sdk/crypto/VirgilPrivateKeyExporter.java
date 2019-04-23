@@ -50,7 +50,7 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
    * {@link KeysType} - {@code FAST_EC_ED25519}.
    */
   public VirgilPrivateKeyExporter() {
-    virgilCrypto = new VirgilCrypto(KeysType.FAST_EC_ED25519);
+    virgilCrypto = new VirgilCrypto(KeyType.ED25519);
   }
 
   /**
@@ -63,7 +63,7 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
   public VirgilPrivateKeyExporter(String password) {
     this.password = password;
 
-    virgilCrypto = new VirgilCrypto(KeysType.FAST_EC_ED25519);
+    virgilCrypto = new VirgilCrypto(KeyType.ED25519);
   }
 
   /**
@@ -115,7 +115,7 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
           "VirgilAccessTokenSigner -> 'privateKey' should be of 'VirgilPrivateKey' type");
     }
 
-    return virgilCrypto.exportPrivateKey((VirgilPrivateKey) privateKey, password);
+    return virgilCrypto.exportPrivateKey((VirgilPrivateKey) privateKey);
   }
 
   /**
@@ -129,6 +129,6 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
    *           if problems occurred while importing key.
    */
   public PrivateKey importPrivateKey(byte[] data) throws CryptoException {
-    return virgilCrypto.importPrivateKey(data, password);
+    return virgilCrypto.importPrivateKey(data).getPrivateKey();
   }
 }

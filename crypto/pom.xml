@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.0.9</version>
+		<version>6.0.0-alpha-SNAPSHOT</version>
 	</parent>
 	<artifactId>crypto</artifactId>
 	<packaging>jar</packaging>
@@ -75,27 +75,15 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 		</dependency>
-		<!--<dependency>-->
-			<!--<groupId>com.virgilsecurity</groupId>-->
-			<!--<artifactId>crypto</artifactId>-->
-            <!--<version>${version.crypto}</version>-->
-            <!--<scope>system</scope>-->
-            <!--<systemPath>${project.basedir}/libs/virgil_crypto_java.jar</systemPath>-->
-		<!--</dependency>-->
 		<dependency>
 			<groupId>com.virgilsecurity.crypto</groupId>
 			<artifactId>foundation</artifactId>
-			<version>0.6.1-SNAPSHOT</version>
+			<version>0.7.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.virgilsecurity.crypto</groupId>
 			<artifactId>common</artifactId>
-			<version>0.6.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.virgilsecurity.crypto</groupId>
-			<artifactId>parent</artifactId>
-			<version>0.6.1-SNAPSHOT</version>
+			<version>0.7.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>

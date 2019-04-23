@@ -57,7 +57,7 @@ public class Generator {
     CardCrypto crypto = new VirgilCardCrypto();
 
     try {
-      return ConvertionUtils.toString(Arrays.copyOfRange(crypto.generateSHA512(fingerprint), 0, 32),
+      return ConvertionUtils.toString(Arrays.copyOfRange(crypto.computeSha512(fingerprint), 0, 32),
           StringEncoding.HEX);
     } catch (CryptoException e) {
       fail(e.getMessage());

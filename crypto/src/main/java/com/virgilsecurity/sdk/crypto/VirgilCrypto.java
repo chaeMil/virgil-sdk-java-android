@@ -109,6 +109,7 @@ public class VirgilCrypto {
     CtrDrbg rng = new CtrDrbg();
     rng.setupDefaults();
 
+    this.rng = rng;
     this.defaultKeyType = keysType;
     this.useSHA256Fingerprints = false;
   }
@@ -124,6 +125,7 @@ public class VirgilCrypto {
     CtrDrbg rng = new CtrDrbg();
     rng.setupDefaults();
 
+    this.rng = rng;
     this.defaultKeyType = keysType;
     this.useSHA256Fingerprints = useSHA256Fingerprints;
   }
@@ -940,6 +942,10 @@ public class VirgilCrypto {
    * @return hash value.
    */
   public byte[] computeHash(byte[] data, HashAlgorithm algorithm) {
+    if (data == null) {
+      throw new NullArgumentException("data");
+    }
+
     Hash hash;
 
     switch (algorithm) {

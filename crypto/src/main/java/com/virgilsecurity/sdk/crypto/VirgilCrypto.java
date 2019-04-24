@@ -318,11 +318,19 @@ public class VirgilCrypto {
 
       outputStream.write(messageInfo);
 
-      byte[] dataChunk = new byte[CHUNK_SIZE];
+      while (inputStream.available() > 0) {
+        byte[] data;
 
-      while (inputStream.read(dataChunk) != -1) {
-        cipher.processEncryption(dataChunk);
-        outputStream.write(dataChunk);
+        if (inputStream.available() >= CHUNK_SIZE) {
+          data = new byte[CHUNK_SIZE];
+          inputStream.read(data);
+        } else {
+          data = new byte[inputStream.available()];
+          inputStream.read(data);
+        }
+
+        cipher.processEncryption(data);
+        outputStream.write(data);
       }
 
       byte[] finish = cipher.finishEncryption();
@@ -460,11 +468,19 @@ public class VirgilCrypto {
                                     privateKey.getPrivateKey(),
                                     new byte[0]);
 
-      byte[] dataChunk = new byte[CHUNK_SIZE];
+      while (inputStream.available() > 0) {
+        byte[] data;
 
-      while (inputStream.read(dataChunk) != -1) {
-        cipher.processDecryption(dataChunk);
-        outputStream.write(dataChunk);
+        if (inputStream.available() >= CHUNK_SIZE) {
+          data = new byte[CHUNK_SIZE];
+          inputStream.read(data);
+        } else {
+          data = new byte[inputStream.available()];
+          inputStream.read(data);
+        }
+
+        byte[] decryptedChunk = cipher.processDecryption(data);
+        outputStream.write(decryptedChunk);
       }
 
       byte[] finish = cipher.finishDecryption();
@@ -665,10 +681,19 @@ public class VirgilCrypto {
     try (Signer signer = new Signer()) {
       signer.setHash(new Sha512());
       signer.reset();
-      byte[] dataChunk = new byte[CHUNK_SIZE];
 
-      while (stream.read(dataChunk) != -1) {
-        signer.update(dataChunk);
+      while (stream.available() > 0) {
+        byte[] data;
+
+        if (stream.available() >= CHUNK_SIZE) {
+          data = new byte[CHUNK_SIZE];
+          stream.read(data);
+        } else {
+          data = new byte[stream.available()];
+          stream.read(data);
+        }
+
+        signer.update(data);
       }
 
       return signer.sign(signHash);
@@ -754,10 +779,18 @@ public class VirgilCrypto {
     try (Verifier verifier = new Verifier()) {
       verifier.reset(signature);
 
-      byte[] dataChunk = new byte[CHUNK_SIZE]; // TODO check what will happen in situation when only 1 of 1024 bytes is left in last iteration.
+      while (stream.available() > 0) {
+        byte[] data;
 
-      while (stream.read(dataChunk) != -1) {
-        verifier.update(dataChunk);
+        if (stream.available() >= CHUNK_SIZE) {
+          data = new byte[CHUNK_SIZE];
+          stream.read(data);
+        } else {
+          data = new byte[stream.available()];
+          stream.read(data);
+        }
+
+        verifier.update(data);
       }
 
       return verifier.verify(verifyHash);

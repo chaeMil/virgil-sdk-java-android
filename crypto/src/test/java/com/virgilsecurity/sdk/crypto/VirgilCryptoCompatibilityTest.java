@@ -151,37 +151,6 @@ public class VirgilCryptoCompatibilityTest {
     }
   }
 
-//  @Test
-//  public void decryptThenVerifyMultipleSigners_generated_keys() throws CryptoException {
-//    List<VirgilKeyPair> keyPairs = new ArrayList<>();
-//    for (int i = 0; i <= 4; i++) {
-//
-//    }
-//
-//    byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
-//    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-//    byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
-//
-//    List<VirgilPublicKey> publicKeys = new ArrayList<>();
-//    for (JsonElement el : json.getAsJsonArray("public_keys")) {
-//      byte[] publicKeyData = Base64.decode(el.getAsString().getBytes());
-//      publicKeys.add(this.crypto.importPublicKey(publicKeyData));
-//    }
-//
-//    VirgilPrivateKey privateKey = this.crypto.importPrivateKey(privateKeyData).getPrivateKey();
-//
-//    boolean found = false;
-//    for (VirgilPublicKey publicKey : publicKeys) {
-//      if (publicKey.equals(this.crypto.importPrivateKey(privateKeyData).getPublicKey())) {
-//        found = true;
-//      }
-//    }
-//    assertTrue(found);
-//
-//    byte[] decryptedData = this.crypto.decryptThenVerify(cipherData, privateKey, publicKeys);
-//    assertArrayEquals(originalData, decryptedData);
-//  }
-
   @Test
   public void decryptThenVerifyMultipleSigners() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_signers");

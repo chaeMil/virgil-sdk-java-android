@@ -810,7 +810,7 @@ public class VirgilCrypto {
    */
   public byte[] exportPrivateKey(VirgilPrivateKey privateKey) throws CryptoException {
     try {
-      Pkcs8Serializer serializer = new Pkcs8Serializer();
+      Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
       serializer.setupDefaults();
 
       return serializer.serializePrivateKey(privateKey.getPrivateKey());
@@ -870,7 +870,7 @@ public class VirgilCrypto {
    */
   public byte[] exportPublicKey(VirgilPublicKey publicKey) throws CryptoException {
     try {
-      Pkcs8Serializer serializer = new Pkcs8Serializer();
+      Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
       serializer.setupDefaults();
 
       return serializer.serializePublicKey(publicKey.getPublicKey());
@@ -1004,7 +1004,8 @@ public class VirgilCrypto {
   }
 
   private byte[] computePublicKeyIdentifier(PublicKey publicKey) throws CryptoException {
-    Pkcs8Serializer serializer = new Pkcs8Serializer();
+    Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
+
     serializer.setupDefaults();
 
     byte[] publicKeyDer = serializer.serializePublicKey(publicKey);

@@ -137,16 +137,17 @@ public class VirgilCrypto {
    * @throws CryptoException if crypto operation failed
    */
   public VirgilKeyPair generateKeyPair(KeyType keyType, byte[] seed) throws CryptoException {
-    KeyMaterialRng keyMaterialRng = new KeyMaterialRng();
+    try (KeyMaterialRng keyMaterialRng = new KeyMaterialRng()) {
 
-    if (!(seed.length >= keyMaterialRng.getKeyMaterialLenMin()
-        && seed.length <= keyMaterialRng.getKeyMaterialLenMax())) {
-      throw new CryptoException("Invalid seed size");
+      if (!(seed.length >= keyMaterialRng.getKeyMaterialLenMin()
+          && seed.length <= keyMaterialRng.getKeyMaterialLenMax())) {
+        throw new CryptoException("Invalid seed size");
+      }
+
+      keyMaterialRng.resetKeyMaterial(seed);
+
+      return generateKeyPair(keyType, keyMaterialRng);
     }
-
-    keyMaterialRng.resetKeyMaterial(seed);
-
-    return generateKeyPair(keyType, keyMaterialRng);
   }
 
   /**
@@ -186,25 +187,26 @@ public class VirgilCrypto {
   }
 
   private VirgilKeyPair generateKeyPair(KeyType keyType, Random rng) throws CryptoException {
-    KeyProvider keyProvider = new KeyProvider();
+    try (KeyProvider keyProvider = new KeyProvider()) {
 
-    if (keyType.getRsaBitLen() != -1) {
-      int rsaLength = keyType.getRsaBitLen();
-      keyProvider.setRsaParams(rsaLength);
+      if (keyType.getRsaBitLen() != -1) {
+        int rsaLength = keyType.getRsaBitLen();
+        keyProvider.setRsaParams(rsaLength);
+      }
+
+      keyProvider.setRandom(rng);
+      keyProvider.setupDefaults();
+
+      AlgId algId = keyType.getAlgId();
+      PrivateKey privateKey = keyProvider.generatePrivateKey(algId);
+      PublicKey publicKey = privateKey.extractPublicKey();
+      byte[] keyId = computePublicKeyIdentifier(publicKey);
+
+      VirgilPublicKey virgilPublicKey = new VirgilPublicKey(keyId, publicKey, keyType);
+      VirgilPrivateKey virgilPrivateKey = new VirgilPrivateKey(keyId, privateKey, keyType);
+
+      return new VirgilKeyPair(virgilPublicKey, virgilPrivateKey);
     }
-
-    keyProvider.setRandom(rng);
-    keyProvider.setupDefaults();
-
-    AlgId algId = keyType.getAlgId();
-    PrivateKey privateKey = keyProvider.generatePrivateKey(algId);
-    PublicKey publicKey = privateKey.extractPublicKey();
-    byte[] keyId = computePublicKeyIdentifier(publicKey);
-
-    VirgilPublicKey virgilPublicKey = new VirgilPublicKey(keyId, publicKey, keyType);
-    VirgilPrivateKey virgilPrivateKey = new VirgilPrivateKey(keyId, privateKey, keyType);
-
-    return new VirgilKeyPair(virgilPublicKey, virgilPrivateKey);
   }
 
   /**
@@ -809,8 +811,7 @@ public class VirgilCrypto {
    * @throws CryptoException if key couldn't be exported
    */
   public byte[] exportPrivateKey(VirgilPrivateKey privateKey) throws CryptoException {
-    try {
-      Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
+    try (Pkcs8DerSerializer serializer = new Pkcs8DerSerializer()) {
       serializer.setupDefaults();
 
       return serializer.serializePrivateKey(privateKey.getPrivateKey());
@@ -833,8 +834,7 @@ public class VirgilCrypto {
       throw new NullArgumentException("data");
     }
 
-    try {
-      KeyProvider keyProvider = new KeyProvider();
+    try (KeyProvider keyProvider = new KeyProvider()) {
       keyProvider.setRandom(rng);
       keyProvider.setupDefaults();
 
@@ -869,8 +869,7 @@ public class VirgilCrypto {
    * @throws CryptoException if key couldn't be exported
    */
   public byte[] exportPublicKey(VirgilPublicKey publicKey) throws CryptoException {
-    try {
-      Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
+    try (Pkcs8DerSerializer serializer = new Pkcs8DerSerializer()) {
       serializer.setupDefaults();
 
       return serializer.serializePublicKey(publicKey.getPublicKey());
@@ -893,8 +892,7 @@ public class VirgilCrypto {
       throw new NullArgumentException("data");
     }
 
-    try {
-      KeyProvider keyProvider = new KeyProvider();
+    try (KeyProvider keyProvider = new KeyProvider()) {
       keyProvider.setRandom(rng);
       keyProvider.setupDefaults();
 
@@ -967,26 +965,32 @@ public class VirgilCrypto {
       throw new NullArgumentException("data");
     }
 
-    Hash hash;
-
+    byte[] hashData;
     switch (algorithm) {
       case SHA224:
-        hash = new Sha224();
+        try (Sha224 hash = new Sha224()) {
+          hashData = hash.hash(data);
+        }
         break;
       case SHA256:
-        hash = new Sha256();
+        try (Sha256 hash = new Sha256()) {
+          hashData = hash.hash(data);
+        }
         break;
       case SHA384:
-        hash = new Sha384();
+        try (Sha384 hash = new Sha384()) {
+          hashData = hash.hash(data);
+        }
         break;
       case SHA512:
-        hash = new Sha512();
+        try (Sha512 hash = new Sha512()) {
+          hashData = hash.hash(data);
+        }
         break;
       default:
         throw new IllegalArgumentException("Please, choose one of: SHA224, SHA256, SHA384, SHA512");
     }
-
-    return hash.hash(data);
+    return hashData;
   }
 
   /**
@@ -1004,12 +1008,10 @@ public class VirgilCrypto {
   }
 
   private byte[] computePublicKeyIdentifier(PublicKey publicKey) throws CryptoException {
-    Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
+    try (Pkcs8DerSerializer serializer = new Pkcs8DerSerializer()) {
+      serializer.setupDefaults();
 
-    serializer.setupDefaults();
-
-    byte[] publicKeyDer = serializer.serializePublicKey(publicKey);
-    try {
+      byte[] publicKeyDer = serializer.serializePublicKey(publicKey);
       byte[] hash;
       if (useSHA256Fingerprints) {
         hash = computeHash(publicKeyDer, HashAlgorithm.SHA256);

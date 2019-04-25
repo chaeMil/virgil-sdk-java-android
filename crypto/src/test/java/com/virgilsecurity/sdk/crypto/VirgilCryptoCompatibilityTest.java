@@ -41,12 +41,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.virgilsecurity.crypto.foundation.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,7 +143,7 @@ public class VirgilCryptoCompatibilityTest {
     byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
     byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
 
-    byte[] publicKeyData = keyPairs.get(0).getPublicKey().getPublicKey().exportPublicKey();
+    byte[] publicKeyData = this.crypto.exportPublicKey(keyPairs.get(0).getPublicKey());
     VirgilPublicKey publicKey = this.crypto.importPublicKey(publicKeyData);
 
     for (VirgilKeyPair keyPair : keyPairs) {

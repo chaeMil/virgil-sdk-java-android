@@ -95,7 +95,7 @@
 		<version.testng>6.14.3</version.testng>
 		<version.jsonsimple>1.1.1</version.jsonsimple>
 		<version.restassured>2.9.0</version.restassured>
-		<version.crypto>2.4.5</version.crypto>
+		<version.crypto>0.7.0-SNAPSHOT</version.crypto>
 		<gpg.keyname>empty</gpg.keyname>
 	</properties>
 

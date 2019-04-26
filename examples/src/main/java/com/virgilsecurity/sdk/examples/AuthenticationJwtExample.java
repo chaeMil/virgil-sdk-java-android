@@ -67,7 +67,7 @@ public class AuthenticationJwtExample {
 
     // import a private key
     VirgilCrypto crypto = new VirgilCrypto();
-    PrivateKey apiKey = crypto.importPrivateKey(apiKeyData);
+    PrivateKey apiKey = crypto.importPrivateKey(apiKeyData).getPrivateKey();
 
     AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 

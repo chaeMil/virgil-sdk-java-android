@@ -56,7 +56,7 @@ public class KeyStorageExample {
   public static void main(String[] args) throws CryptoException {
     // Generate some private key
     VirgilCrypto crypto = new VirgilCrypto();
-    VirgilKeyPair keyPair = crypto.generateKeys();
+    VirgilKeyPair keyPair = crypto.generateKeyPair();
     VirgilPrivateKey privateKey = keyPair.getPrivateKey();
 
     // Setup PrivateKeyStorage

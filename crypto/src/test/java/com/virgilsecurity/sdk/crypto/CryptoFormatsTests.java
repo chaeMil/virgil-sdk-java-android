@@ -40,7 +40,7 @@ import static org.junit.Assert.fail;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.virgilsecurity.crypto.foundation.Hash;
-import com.virgilsecurity.crypto.foundation.Pkcs8Serializer;
+import com.virgilsecurity.crypto.foundation.Pkcs8DerSerializer;
 import com.virgilsecurity.crypto.foundation.Sha256;
 import com.virgilsecurity.crypto.foundation.Sha512;
 import com.virgilsecurity.crypto.foundation.SignHash;
@@ -52,7 +52,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -121,7 +120,6 @@ public class CryptoFormatsTests {
   }
 
   @Test
-  @Ignore
   public void stc_31_generateMultipleKeys() {
     // STC_31
     // generate multiple key pairs
@@ -178,7 +176,7 @@ public class CryptoFormatsTests {
 
     VirgilKeyPair keyPair = this.crypto.generateKeyPair();
 
-    Pkcs8Serializer serializer = new Pkcs8Serializer();
+    Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
     serializer.setupDefaults();
 
     byte[] publicKeyDer = serializer.serializePublicKey(keyPair.getPublicKey().getPublicKey());
@@ -193,7 +191,7 @@ public class CryptoFormatsTests {
   public void stc_33_sha512() throws CryptoException {
     // STC_33
     VirgilKeyPair keyPair = this.crypto.generateKeyPair();
-    Pkcs8Serializer serializer = new Pkcs8Serializer();
+    Pkcs8DerSerializer serializer = new Pkcs8DerSerializer();
     serializer.setupDefaults();
 
     byte[] publicKeyDer = serializer.serializePublicKey(keyPair.getPublicKey().getPublicKey());

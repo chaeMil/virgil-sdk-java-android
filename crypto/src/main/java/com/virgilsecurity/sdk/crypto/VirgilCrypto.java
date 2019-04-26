@@ -33,25 +33,18 @@
 
 package com.virgilsecurity.sdk.crypto;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.virgilsecurity.crypto.foundation.Aes256Gcm;
 import com.virgilsecurity.crypto.foundation.AlgId;
 import com.virgilsecurity.crypto.foundation.CtrDrbg;
 import com.virgilsecurity.crypto.foundation.FoundationException;
+import com.virgilsecurity.crypto.foundation.KeyAsn1Deserializer;
+import com.virgilsecurity.crypto.foundation.KeyAsn1Serializer;
 import com.virgilsecurity.crypto.foundation.KeyMaterialRng;
 import com.virgilsecurity.crypto.foundation.KeyProvider;
-import com.virgilsecurity.crypto.foundation.Pkcs8DerSerializer;
 import com.virgilsecurity.crypto.foundation.PrivateKey;
 import com.virgilsecurity.crypto.foundation.PublicKey;
 import com.virgilsecurity.crypto.foundation.Random;
+import com.virgilsecurity.crypto.foundation.RawKey;
 import com.virgilsecurity.crypto.foundation.RecipientCipher;
 import com.virgilsecurity.crypto.foundation.Sha224;
 import com.virgilsecurity.crypto.foundation.Sha256;
@@ -68,6 +61,15 @@ import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The Virgil's implementation of Crypto.
@@ -828,7 +830,7 @@ public class VirgilCrypto {
    * @throws CryptoException if key couldn't be exported
    */
   public byte[] exportPrivateKey(VirgilPrivateKey privateKey) throws CryptoException {
-    try (Pkcs8DerSerializer serializer = new Pkcs8DerSerializer()) {
+    try (KeyAsn1Serializer serializer = new KeyAsn1Serializer()) {
       serializer.setupDefaults();
 
       return serializer.serializePrivateKey(privateKey.getPrivateKey());
@@ -886,7 +888,7 @@ public class VirgilCrypto {
    * @throws CryptoException if key couldn't be exported
    */
   public byte[] exportPublicKey(VirgilPublicKey publicKey) throws CryptoException {
-    try (Pkcs8DerSerializer serializer = new Pkcs8DerSerializer()) {
+    try (KeyAsn1Serializer serializer = new KeyAsn1Serializer()) {
       serializer.setupDefaults();
 
       return serializer.serializePublicKey(publicKey.getPublicKey());
@@ -909,7 +911,15 @@ public class VirgilCrypto {
       throw new NullArgumentException("data");
     }
 
-    try (KeyProvider keyProvider = new KeyProvider()) {
+    try (KeyProvider keyProvider = new KeyProvider();
+        KeyAsn1Deserializer deserializer = new KeyAsn1Deserializer()) {
+
+      deserializer.setupDefaults();
+      RawKey rawKey = deserializer.deserializePublicKey(data);
+      if (rawKey.cCtx == 0 || rawKey.algId() == AlgId.NONE) {
+        throw new CryptoException("Wrong public key format");
+      }
+
       keyProvider.setRandom(rng);
       keyProvider.setupDefaults();
 
@@ -1025,7 +1035,7 @@ public class VirgilCrypto {
   }
 
   private byte[] computePublicKeyIdentifier(PublicKey publicKey) throws CryptoException {
-    try (Pkcs8DerSerializer serializer = new Pkcs8DerSerializer()) {
+    try (KeyAsn1Serializer serializer = new KeyAsn1Serializer()) {
       serializer.setupDefaults();
 
       byte[] publicKeyDer = serializer.serializePublicKey(publicKey);

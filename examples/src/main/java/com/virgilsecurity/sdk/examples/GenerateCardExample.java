@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.examples;
 
+import java.util.concurrent.TimeUnit;
+
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
@@ -54,8 +56,6 @@ import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCa
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.Base64;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * @author Andrii Iakovenko
  *
@@ -71,7 +71,7 @@ public class GenerateCardExample {
         new VirgilCardVerifier(cardCrypto, true, false));
 
     // generate a key pair
-    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
 
     // generate card model
     RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(),
@@ -95,7 +95,7 @@ public class GenerateCardExample {
         new VirgilCardVerifier(cardCrypto));
 
     // generate a key pair
-    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
 
     // generate card model
     RawSignedModel signedModel = cardManager.generateRawCard(keyPair.getPrivateKey(),
@@ -143,7 +143,7 @@ public class GenerateCardExample {
         new VirgilCardVerifier(cardCrypto));
 
     // Generate a key pair
-    VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
+    VirgilKeyPair keyPair = virgilCrypto.generateKeys();
 
     // Publish card
     cardManager.publishCard(keyPair.getPrivateKey(), keyPair.getPublicKey(), identity);

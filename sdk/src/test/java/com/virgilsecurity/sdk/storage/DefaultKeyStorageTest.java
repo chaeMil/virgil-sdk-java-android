@@ -41,18 +41,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -61,8 +61,8 @@ import org.junit.Test;
  * Unit tests for {@code VirgilKeyStorage}.
  *
  * @author Andrii Iakovenko
- * 
- * @see JsonFileKeyStorage
+ *
+ * @see DefaultKeyStorageTest
  *
  */
 public class DefaultKeyStorageTest {
@@ -241,7 +241,7 @@ public class DefaultKeyStorageTest {
 
     entry = new TestKeyEntry();
     entry.setName(alias);
-    entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey(), null));
+    entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
     entry.getMeta().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
   }
 

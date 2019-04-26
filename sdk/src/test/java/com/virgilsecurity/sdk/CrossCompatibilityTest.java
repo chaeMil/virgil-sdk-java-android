@@ -42,6 +42,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -68,10 +72,6 @@ import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -91,10 +91,12 @@ public class CrossCompatibilityTest extends PropertyManager {
   private static final String EXTRA = "extra";
 
   private CompatibilityDataProvider dataProvider;
+  private VirgilCrypto crypto;
 
   @Before
   public void setUp() {
     dataProvider = new CompatibilityDataProvider();
+    crypto = new VirgilCrypto(true);
   }
 
   @Test
@@ -222,7 +224,6 @@ public class CrossCompatibilityTest extends PropertyManager {
     // test_data
     final String apiPublicKeyIdentifier = dataProvider.getJsonByKey(22, "api_key_id");
     VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
-    VirgilCrypto crypto = new VirgilCrypto();
     JwtVerifier jwtVerifier = new JwtVerifier(
         crypto.importPublicKey(ConvertionUtils.base64ToBytes(apiPublicKey)), apiPublicKeyIdentifier,
         accessTokenSigner);
@@ -239,10 +240,10 @@ public class CrossCompatibilityTest extends PropertyManager {
     final String apiPublicKey = dataProvider.getJsonByKey(23, "api_public_key_base64");
     final String apiPublicKeyIdentifier = dataProvider.getJsonByKey(23, "api_key_id");
     final String apiAppId = dataProvider.getJsonByKey(23, "app_id");
-    VirgilCrypto crypto = new VirgilCrypto();
 
     PrivateKey privateKey = crypto.importPrivateKey(
-        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(23, "api_private_key_base64")));
+        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(23, "api_private_key_base64")))
+                                  .getPrivateKey();
 
     VirgilAccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 
@@ -333,7 +334,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     assertEquals(card.getIdentity(), "test");
     assertArrayEquals(
         ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
-        ((VirgilPublicKey) card.getPublicKey()).getRawKey());
+        crypto.exportPublicKey((VirgilPublicKey) card.getPublicKey()));
     assertEquals(card.getVersion(), "5.0");
 
     RawSignedModel rawSignedModel = RawSignedModel.fromJson(importedFromJson);
@@ -389,7 +390,7 @@ public class CrossCompatibilityTest extends PropertyManager {
     assertEquals(card.getIdentity(), "test");
     assertArrayEquals(
         ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(4, "public_key_base64")),
-        ((VirgilPublicKey) card.getPublicKey()).getRawKey());
+        crypto.exportPublicKey((VirgilPublicKey) card.getPublicKey()));
     assertEquals(card.getVersion(), "5.0");
 
     RawSignedModel rawSignedModel = RawSignedModel.fromString(importedFromString);

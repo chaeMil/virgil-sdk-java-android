@@ -41,6 +41,13 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
@@ -66,13 +73,6 @@ import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -129,7 +129,8 @@ public class SignerAndVerifierTest extends PropertyManager {
     final Card card = Card.parse(cardCrypto, rawSignedModel);
 
     VirgilPrivateKey privateKey1 = virgilCrypto.importPrivateKey(
-        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")));
+        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")))
+                                               .getPrivateKey();
     VirgilPublicKey publicKey1 = virgilCrypto.extractPublicKey(privateKey1);
 
     VirgilKeyPair keyPair2 = this.virgilCrypto.generateKeyPair();
@@ -141,12 +142,15 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilPublicKey publicKey3 = keyPair3.getPublicKey();
 
     List<VerifierCredentials> verifierCredentialsList1 = new ArrayList<>();
-    verifierCredentialsList1.add(new VerifierCredentials("extra", publicKey1.getRawKey()));
-    verifierCredentialsList1.add(new VerifierCredentials("extra2", publicKey2.getRawKey()));
+    verifierCredentialsList1.add(new VerifierCredentials("extra",
+                                                         virgilCrypto.exportPublicKey(publicKey1)));
+    verifierCredentialsList1.add(new VerifierCredentials("extra2",
+                                                         virgilCrypto.exportPublicKey(publicKey2)));
     Whitelist whitelist1 = new Whitelist(verifierCredentialsList1);
 
     List<VerifierCredentials> verifierCredentialsList2 = new ArrayList<>();
-    verifierCredentialsList2.add(new VerifierCredentials("extra3", publicKey3.getRawKey()));
+    verifierCredentialsList2.add(new VerifierCredentials("extra3",
+                                                         virgilCrypto.exportPublicKey(publicKey3)));
     Whitelist whitelist2 = new Whitelist(verifierCredentialsList2);
 
     List<Whitelist> whitelists = new ArrayList<>();
@@ -167,13 +171,18 @@ public class SignerAndVerifierTest extends PropertyManager {
     final Card card = Card.parse(cardCrypto, rawSignedModel);
 
     VirgilPrivateKey privateKey1 = virgilCrypto.importPrivateKey(
-        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")));
+        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")))
+                                               .getPrivateKey();
     VirgilPublicKey publicKey1 = virgilCrypto.extractPublicKey(privateKey1);
     VirgilPublicKey publicKey2 = this.virgilCrypto.generateKeyPair().getPublicKey();
 
     List<VerifierCredentials> verifierCredentialsList1 = new ArrayList<>();
-    verifierCredentialsList1.add(new VerifierCredentials("extra1", publicKey1.getRawKey()));
-    verifierCredentialsList1.add(new VerifierCredentials("extra2", publicKey2.getRawKey()));
+    verifierCredentialsList1.add(new VerifierCredentials("extra1",
+                                                         publicKey1.getPublicKey()
+                                                                   .exportPublicKey()));
+    verifierCredentialsList1.add(new VerifierCredentials("extra2",
+                                                         publicKey2.getPublicKey()
+                                                                   .exportPublicKey()));
     Whitelist whitelist1 = new Whitelist(verifierCredentialsList1);
     List<Whitelist> whitelists = new ArrayList<>();
     whitelists.add(whitelist1);
@@ -311,14 +320,16 @@ public class SignerAndVerifierTest extends PropertyManager {
     Card card = Card.parse(cardCrypto, rawSignedModel);
 
     VirgilPrivateKey privateKey1 = virgilCrypto.importPrivateKey(
-        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")));
+        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(10, "private_key1_base64")))
+                                               .getPrivateKey();
     VirgilPublicKey publicKey1 = virgilCrypto.extractPublicKey(privateKey1);
 
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
         new ArrayList<Whitelist>());
 
     List<VerifierCredentials> verifierCredentialsList = new ArrayList<>();
-    verifierCredentialsList.add(new VerifierCredentials("extra", publicKey1.getRawKey()));
+    verifierCredentialsList.add(new VerifierCredentials("extra",
+                                                        virgilCrypto.exportPublicKey(publicKey1)));
     Whitelist whitelist1 = new Whitelist(verifierCredentialsList);
     virgilCardVerifier.addWhiteList(whitelist1);
 
@@ -384,7 +395,8 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilPublicKey publicKeyTwo = mocker.generatePublicKey();
     List<VerifierCredentials> verifierCredentialsList = new ArrayList<>();
     verifierCredentialsList
-        .add(new VerifierCredentials(TEST_SIGNER_TYPE, publicKeyTwo.getRawKey()));
+        .add(new VerifierCredentials(TEST_SIGNER_TYPE,
+                                     publicKeyTwo.getPublicKey().exportPublicKey()));
     Whitelist whitelistOne = new Whitelist(verifierCredentialsList);
     List<Whitelist> whitelists = new ArrayList<>();
     whitelists.add(whitelistOne);
@@ -394,7 +406,8 @@ public class SignerAndVerifierTest extends PropertyManager {
         whitelists);
     assertFalse(virgilCardVerifier.verifyCard(card));
 
-    verifierCredentialsList.add(new VerifierCredentials("extra", publicKey.getRawKey()));
+    verifierCredentialsList.add(new VerifierCredentials("extra",
+                                                        virgilCrypto.exportPublicKey(publicKey)));
 
     assertTrue(virgilCardVerifier.verifyCard(card));
   }

@@ -33,6 +33,11 @@
 
 package com.virgilsecurity.sdk.examples;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import com.virgilsecurity.sdk.crypto.KeysType;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
@@ -43,10 +48,6 @@ import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Andrii Iakovenko
@@ -115,7 +116,7 @@ public class CryptographyExample {
   private String exportPrivateKey() throws CryptoException {
     // generate a Key Pair
     VirgilCrypto crypto = new VirgilCrypto();
-    VirgilKeyPair keyPair = crypto.generateKeyPair();
+    VirgilKeyPair keyPair = crypto.generateKeys();
 
     // export a Private key
     byte[] privateKeyData = crypto.exportPrivateKey(keyPair.getPrivateKey(), "YOUR_PASSWORD");
@@ -127,7 +128,7 @@ public class CryptographyExample {
   private String exportPublicKey() throws CryptoException {
     // generate a Key Pair
     VirgilCrypto crypto = new VirgilCrypto();
-    VirgilKeyPair keyPair = crypto.generateKeyPair();
+    VirgilKeyPair keyPair = crypto.generateKeys();
 
     // export a Public key
     byte[] publicKeyData = crypto.exportPublicKey(keyPair.getPublicKey());
@@ -164,7 +165,7 @@ public class CryptographyExample {
 
   private VirgilKeyPair keyGeneration() throws CryptoException {
     VirgilCrypto crypto = new VirgilCrypto();
-    VirgilKeyPair keyPair = crypto.generateKeyPair();
+    VirgilKeyPair keyPair = crypto.generateKeys();
 
     return keyPair;
   }
@@ -175,7 +176,7 @@ public class CryptographyExample {
     VirgilCrypto crypto = new VirgilCrypto();
     List<VirgilPublicKey> receiversPublicKeys = new ArrayList<>();
     for (int i = 0; i < 3; i++) {
-      VirgilKeyPair keyPair = crypto.generateKeyPair();
+      VirgilKeyPair keyPair = crypto.generateKeys();
       receiversPublicKeys.add(keyPair.getPublicKey());
     }
 
@@ -258,7 +259,7 @@ public class CryptographyExample {
   @SuppressWarnings("unused")
   private VirgilKeyPair specificGeneration() throws CryptoException {
     VirgilCrypto crypto = new VirgilCrypto(KeysType.RSA_4096);
-    VirgilKeyPair keyPair = crypto.generateKeyPair();
+    VirgilKeyPair keyPair = crypto.generateKeys();
 
     return keyPair;
   }

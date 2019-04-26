@@ -44,6 +44,14 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
@@ -72,14 +80,6 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -403,7 +403,8 @@ public class CardsManagerTest extends PropertyManager {
 
     ModelSigner signer = new ModelSigner(cardCrypto);
     VirgilPrivateKey privateKey = crypto.importPrivateKey(
-        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "private_key_base64")));
+        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "private_key_base64")))
+                                        .getPrivateKey();
     signer.selfSign(rawSignedModelTwo, privateKey, ConvertionUtils
         .base64ToBytes(dataProvider.getJsonByKey(34, "self_signature_snapshot_base64")));
 
@@ -418,7 +419,8 @@ public class CardsManagerTest extends PropertyManager {
 
     ModelSigner signer = new ModelSigner(cardCrypto);
     VirgilPrivateKey privateKey = crypto.importPrivateKey(
-        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "private_key_base64")));
+        ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "private_key_base64")))
+                                        .getPrivateKey();
 
     RawSignedModel rawSignedModel = new RawSignedModel(
         ConvertionUtils.base64ToBytes(dataProvider.getJsonByKey(34, "content_snapshot_base64")));

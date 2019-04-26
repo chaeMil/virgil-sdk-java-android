@@ -33,6 +33,10 @@
 
 package com.virgilsecurity.sdk.examples;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
@@ -45,10 +49,6 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.storage.PrivateKeyStorage;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * @author Andrii Iakovenko
@@ -127,7 +127,7 @@ public class PublicKeyManagementExample {
     VirgilCrypto crypto = new VirgilCrypto();
 
     // generate a key pair
-    VirgilKeyPair keyPair = crypto.generateKeyPair();
+    VirgilKeyPair keyPair = crypto.generateKeys();
 
     // save a private key into key storage
     privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);

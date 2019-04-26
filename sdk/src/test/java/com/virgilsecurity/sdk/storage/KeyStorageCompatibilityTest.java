@@ -38,17 +38,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +79,7 @@ public class KeyStorageCompatibilityTest {
     // STC_5
     // Generate some data and instantiate KeyEntry1
     PrivateKey privateKey1 = this.crypto.generateKeyPair().getPrivateKey();
-    byte[] privateKeyData1 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey1, null);
+    byte[] privateKeyData1 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey1);
     Map<String, String> meta1 = generateMeta();
     KeyEntry keyEntry1 = new JsonKeyEntry(this.keyName, privateKeyData1);
     keyEntry1.setMeta(meta1);
@@ -99,7 +99,7 @@ public class KeyStorageCompatibilityTest {
     // Create KeyEntry2
     String keyName2 = UUID.randomUUID().toString();
     PrivateKey privateKey2 = this.crypto.generateKeyPair().getPrivateKey();
-    byte[] privateKeyData2 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey2, null);
+    byte[] privateKeyData2 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey2);
     Map<String, String> meta2 = generateMeta();
     KeyEntry keyEntry2 = new JsonKeyEntry(keyName2, privateKeyData2);
     keyEntry1.setMeta(meta2);
@@ -148,7 +148,7 @@ public class KeyStorageCompatibilityTest {
     // STC_6
     // Generate some data and instantiate KeyEntry1
     PrivateKey privateKey1 = this.crypto.generateKeyPair().getPrivateKey();
-    byte[] privateKeyData1 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey1, null);
+    byte[] privateKeyData1 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey1);
     Map<String, String> meta1 = generateMeta();
     KeyEntry keyEntry1 = new JsonKeyEntry(this.keyName, privateKeyData1);
     keyEntry1.setMeta(meta1);
@@ -158,7 +158,7 @@ public class KeyStorageCompatibilityTest {
 
     // Create KeyEntry2 with the same name
     PrivateKey privateKey2 = this.crypto.generateKeyPair().getPrivateKey();
-    byte[] privateKeyData2 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey2, null);
+    byte[] privateKeyData2 = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey2);
     Map<String, String> meta2 = generateMeta();
     KeyEntry keyEntry2 = new JsonKeyEntry(this.keyName, privateKeyData2);
     keyEntry1.setMeta(meta2);

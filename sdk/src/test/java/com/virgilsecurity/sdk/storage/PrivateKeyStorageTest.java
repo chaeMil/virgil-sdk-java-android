@@ -45,6 +45,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
@@ -52,13 +59,6 @@ import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.utils.Tuple;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -89,6 +89,21 @@ public class PrivateKeyStorageTest {
   @Mock
   private KeyStorage keyStorage;
   private PrivateKeyStorage storage;
+
+  @Before
+  public void setUp() throws CryptoException {
+    this.crypto = new VirgilCrypto();
+    this.privateKey = this.crypto.generateKeyPair().getPrivateKey();
+    this.keyName = UUID.randomUUID().toString();
+
+    storage = new PrivateKeyStorage(keyExporter, keyStorage);
+
+    // Configure mocks
+    byte[] privateKeyData = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey);
+    when(this.keyExporter.exportPrivateKey(privateKey)).thenReturn(privateKeyData);
+    when(this.keyExporter.importPrivateKey(privateKeyData))
+        .thenReturn(this.crypto.importPrivateKey(privateKeyData).getPrivateKey());
+  }
 
   @Test
   public void delete() {
@@ -205,21 +220,6 @@ public class PrivateKeyStorageTest {
     assertTrue(names.isEmpty());
   }
 
-  @Before
-  public void setUp() throws CryptoException {
-    this.crypto = new VirgilCrypto();
-    this.privateKey = this.crypto.generateKeyPair().getPrivateKey();
-    this.keyName = UUID.randomUUID().toString();
-
-    storage = new PrivateKeyStorage(keyExporter, keyStorage);
-
-    // Configure mocks
-    byte[] privateKeyData = ((VirgilPrivateKey) privateKey).getRawKey();
-    when(this.keyExporter.exportPrivateKey(privateKey)).thenReturn(privateKeyData);
-    when(this.keyExporter.importPrivateKey(privateKeyData))
-        .thenReturn(this.crypto.importPrivateKey(privateKeyData));
-  }
-
   @Test
   public void store() throws CryptoException {
     // when(this.keyStorage.exists(Mockito.anyString())).thenReturn(false);
@@ -237,7 +237,8 @@ public class PrivateKeyStorageTest {
     KeyEntry keyEntry = keyEntryCaptor.getValue();
     assertNotNull(keyEntry);
     assertEquals(this.keyName, keyEntry.getName());
-    assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
+    assertArrayEquals(crypto.exportPrivateKey((VirgilPrivateKey) this.privateKey),
+                      keyEntry.getValue());
     assertNotNull(keyEntry.getMeta());
     assertEquals(meta, keyEntry.getMeta());
   }
@@ -256,7 +257,8 @@ public class PrivateKeyStorageTest {
     KeyEntry keyEntry = keyEntryCaptor.getValue();
     assertNotNull(keyEntry);
     assertEquals(this.keyName, keyEntry.getName());
-    assertArrayEquals(((VirgilPrivateKey) this.privateKey).getRawKey(), keyEntry.getValue());
+    assertArrayEquals(crypto.exportPrivateKey((VirgilPrivateKey) this.privateKey),
+                      keyEntry.getValue());
     assertNotNull(keyEntry.getMeta());
     assertTrue(keyEntry.getMeta().isEmpty());
   }

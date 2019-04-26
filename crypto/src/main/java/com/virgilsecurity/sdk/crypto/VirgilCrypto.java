@@ -33,16 +33,6 @@
 
 package com.virgilsecurity.sdk.crypto;
 
-import com.virgilsecurity.crypto.foundation.PrivateKey;
-import com.virgilsecurity.crypto.foundation.PublicKey;
-import com.virgilsecurity.crypto.foundation.*;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.DecryptionException;
-import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
-import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
-import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
-import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
-import com.virgilsecurity.sdk.exception.NullArgumentException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,6 +41,33 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import com.virgilsecurity.crypto.foundation.Aes256Gcm;
+import com.virgilsecurity.crypto.foundation.AlgId;
+import com.virgilsecurity.crypto.foundation.CtrDrbg;
+import com.virgilsecurity.crypto.foundation.FoundationException;
+import com.virgilsecurity.crypto.foundation.KeyMaterialRng;
+import com.virgilsecurity.crypto.foundation.KeyProvider;
+import com.virgilsecurity.crypto.foundation.Pkcs8DerSerializer;
+import com.virgilsecurity.crypto.foundation.PrivateKey;
+import com.virgilsecurity.crypto.foundation.PublicKey;
+import com.virgilsecurity.crypto.foundation.Random;
+import com.virgilsecurity.crypto.foundation.RecipientCipher;
+import com.virgilsecurity.crypto.foundation.Sha224;
+import com.virgilsecurity.crypto.foundation.Sha256;
+import com.virgilsecurity.crypto.foundation.Sha384;
+import com.virgilsecurity.crypto.foundation.Sha512;
+import com.virgilsecurity.crypto.foundation.SignHash;
+import com.virgilsecurity.crypto.foundation.Signer;
+import com.virgilsecurity.crypto.foundation.Verifier;
+import com.virgilsecurity.crypto.foundation.VerifyHash;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.DecryptionException;
+import com.virgilsecurity.sdk.crypto.exceptions.EncryptionException;
+import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
+import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
+import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 
 /**
  * The Virgil's implementation of Crypto.
@@ -215,7 +232,7 @@ public class VirgilCrypto {
    * 1. Generates random AES-256 KEY1<p>
    * 2. Encrypts data with KEY1 using AES-256-GCM<p>
    * 3. Generates ephemeral key pair for each recipient<p>
-   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key & each
+   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key and each
    *    ephemeral private key<p>
    * 5. Computes KDF to obtain AES-256 key from shared secret for each recipient<p>
    * 6. Encrypts KEY1 with this key using AES-256-CBC for each recipient
@@ -237,7 +254,7 @@ public class VirgilCrypto {
    * 1. Generates random AES-256 KEY1<p>
    * 2. Encrypts data with KEY1 using AES-256-GCM<p>
    * 3. Generates ephemeral key pair for each recipient<p>
-   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key & each
+   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key and each
    *    ephemeral private key<p>
    * 5. Computes KDF to obtain AES-256 key from shared secret for each recipient<p>
    * 6. Encrypts KEY1 with this key using AES-256-CBC for each recipient
@@ -271,7 +288,7 @@ public class VirgilCrypto {
    * 1. Generates random AES-256 KEY1<p>
    * 2. Encrypts data with KEY1 using AES-256-GCM<p>
    * 3. Generates ephemeral key pair for each recipient<p>
-   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key & each
+   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key and each
    *    ephemeral private key<p>
    * 5. Computes KDF to obtain AES-256 key from shared secret for each recipient<p>
    * 6. Encrypts KEY1 with this key using AES-256-CBC for each recipient
@@ -293,7 +310,7 @@ public class VirgilCrypto {
    * 1. Generates random AES-256 KEY1<p>
    * 2. Encrypts data with KEY1 using AES-256-GCM<p>
    * 3. Generates ephemeral key pair for each recipient<p>
-   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key & each
+   * 4. Uses Diffie-Hellman to obtain shared secret with each recipient's public key and each
    *    ephemeral private key<p>
    * 5. Computes KDF to obtain AES-256 key from shared secret for each recipient<p>
    * 6. Encrypts KEY1 with this key using AES-256-CBC for each recipient
@@ -365,7 +382,7 @@ public class VirgilCrypto {
    * 2. Generates random AES-256 KEY1<p>
    * 3. Encrypts both data and signature with KEY1 using AES-256-GCM<p>
    * 4. Generates ephemeral key pair for each recipient<p>
-   * 5. Uses Diffie-Hellman to obtain shared secret with each recipient's public key & each ephemeral private key<p>
+   * 5. Uses Diffie-Hellman to obtain shared secret with each recipient's public key and each ephemeral private key<p>
    * 6. Computes KDF to obtain AES-256 key from shared secret for each recipient<p>
    * 7. Encrypts KEY1 with this key using AES-256-CBC for each recipient
    *
@@ -421,7 +438,7 @@ public class VirgilCrypto {
   /**
    * Decrypts data using passed PrivateKey.
    * <p><p>
-   * 1. Uses Diffie-Hellman to obtain shared secret with sender ephemeral public key & recipient's
+   * 1. Uses Diffie-Hellman to obtain shared secret with sender ephemeral public key and recipient's
    * private key<p>
    * 2. Computes KDF to obtain AES-256 KEY2 from shared secret<p>
    * 3. Decrypts KEY1 using AES-256-CBC<p>

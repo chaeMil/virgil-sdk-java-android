@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>6.0.0-alpha-SNAPSHOT</version>
+		<version>5.1.0-SNAPSHOT</version>
 	</parent>
 	<artifactId>crypto-android</artifactId>
 	<packaging>aar</packaging>
@@ -48,13 +48,32 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>snapshots-repo</id>
+			<name>Snapshots repository</name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>crypto</artifactId>
-			<type>jar</type>
 			<version>${project.version}</version>
-			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.virgilsecurity.crypto</groupId>
+			<artifactId>common-android</artifactId>
+			<version>${version.crypto}</version>
+			<type>aar</type>
+		</dependency>
+		<dependency>
+			<groupId>com.virgilsecurity.crypto</groupId>
+			<artifactId>foundation-android</artifactId>
+			<version>${version.crypto}</version>
+			<type>aar</type>
 		</dependency>
 		<dependency>
 			<groupId>com.google.android</groupId>
@@ -62,45 +81,79 @@
 		</dependency>
 	</dependencies>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.virgilsecurity.crypto</groupId>
+				<artifactId>foundation-android</artifactId>
+				<version>${version.crypto}</version>
+				<type>aar</type>
+
+				<exclusions>
+					<exclusion>
+						<groupId>com.virgilsecurity.crypto</groupId>
+						<artifactId>common-android</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>crypto</artifactId>
+				<version>${project.version}</version>
+
+                <exclusions>
+					<exclusion>
+						<groupId>com.virgilsecurity.crypto</groupId>
+						<artifactId>common</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>com.virgilsecurity.crypto</groupId>
+						<artifactId>foundation</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack-sources</id>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<classifier>sources</classifier>
-							<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
-							<outputDirectory>${project.build.directory}/generated-sources/r</outputDirectory>
-							<includeGroupIds>${project.groupId}</includeGroupIds>
-							<includeArtifactIds>crypto</includeArtifactIds>
-							<excludeTransitive>false</excludeTransitive>
-							<includes>**/*.java,**/*.properties</includes>
-						</configuration>
-					</execution>
-                    <execution>
-						<id>unpack-classes</id>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<phase>generate-sources</phase>
-						<configuration>
-							<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
-							<outputDirectory>${project.build.directory}/classes</outputDirectory>
-							<includeGroupIds>com.virgilsecurity</includeGroupIds>
-							<includeArtifactIds>crypto</includeArtifactIds>
-							<excludeTransitive>false</excludeTransitive>
-							<includes>**/*.class,**/*.properties</includes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+			<!--<plugin>-->
+				<!--<groupId>org.apache.maven.plugins</groupId>-->
+				<!--<artifactId>maven-dependency-plugin</artifactId>-->
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<id>unpack-sources</id>-->
+						<!--<goals>-->
+							<!--<goal>unpack-dependencies</goal>-->
+						<!--</goals>-->
+						<!--<phase>generate-sources</phase>-->
+						<!--<configuration>-->
+							<!--<classifier>sources</classifier>-->
+							<!--<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>-->
+							<!--<outputDirectory>${project.build.directory}/generated-sources/r</outputDirectory>-->
+							<!--<includeGroupIds>${project.groupId}</includeGroupIds>-->
+							<!--<includeArtifactIds>crypto</includeArtifactIds>-->
+							<!--<excludeTransitive>false</excludeTransitive>-->
+							<!--<includes>**/*.java,**/*.properties</includes>-->
+						<!--</configuration>-->
+					<!--</execution>-->
+                    <!--<execution>-->
+						<!--<id>unpack-classes</id>-->
+						<!--<goals>-->
+							<!--<goal>unpack-dependencies</goal>-->
+						<!--</goals>-->
+						<!--<phase>generate-sources</phase>-->
+						<!--<configuration>-->
+							<!--<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>-->
+							<!--<outputDirectory>${project.build.directory}/classes</outputDirectory>-->
+							<!--<includeGroupIds>com.virgilsecurity</includeGroupIds>-->
+							<!--<includeArtifactIds>crypto</includeArtifactIds>-->
+							<!--<excludeTransitive>false</excludeTransitive>-->
+							<!--<includes>**/*.class,**/*.properties</includes>-->
+						<!--</configuration>-->
+					<!--</execution>-->
+				<!--</executions>-->
+			<!--</plugin>-->
 			<plugin>
 				<groupId>com.simpligility.maven.plugins</groupId>
 				<artifactId>android-maven-plugin</artifactId>

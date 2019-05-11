@@ -33,6 +33,15 @@
 
 package com.virgilsecurity.sdk.crypto;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.virgilsecurity.crypto.foundation.Aes256Gcm;
 import com.virgilsecurity.crypto.foundation.AlgId;
 import com.virgilsecurity.crypto.foundation.CtrDrbg;
@@ -62,15 +71,6 @@ import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 /**
  * The Virgil's implementation of Crypto.
  *
@@ -81,16 +81,17 @@ import java.util.List;
 public class VirgilCrypto {
 
   private static final Charset UTF8_CHARSET = StandardCharsets.UTF_8;
-  private static final byte[] CUSTOM_PARAM_SIGNATURE = "VIRGIL-DATA-SIGNATURE"
-      .getBytes(UTF8_CHARSET);
-  private static final byte[] CUSTOM_PARAM_SIGNER_ID = "VIRGIL-DATA-SIGNER-ID"
-      .getBytes(UTF8_CHARSET);
   private static final int ERROR_CODE_WRONG_PRIVATE_KEY = -303;
 
   private static final int CHUNK_SIZE = 1024;
   private static final int RSA_2048_LENGTH = 1024;
   private static final int RSA_4096_LENGTH = 4096;
   private static final int RSA_8192_LENGTH = 8192;
+
+  public static final byte[] CUSTOM_PARAM_SIGNATURE = "VIRGIL-DATA-SIGNATURE"
+      .getBytes(UTF8_CHARSET);
+  public static final byte[] CUSTOM_PARAM_SIGNER_ID = "VIRGIL-DATA-SIGNER-ID"
+      .getBytes(UTF8_CHARSET);
 
   private Random rng;
   private KeyType defaultKeyType;
@@ -401,7 +402,7 @@ public class VirgilCrypto {
                                 List<VirgilPublicKey> publicKeys) throws CryptoException {
     try (RecipientCipher cipher = new RecipientCipher()) {
       byte[] signature = generateSignature(data, privateKey);
-      Aes256Gcm aesGcm = new Aes256Gcm();
+      Aes256Gcm aesGcm = new Aes256Gcm(); // TODO  do we need to close autoclosable inside other one?
       cipher.setEncryptionCipher(aesGcm);
       cipher.setRandom(rng);
 
@@ -1032,6 +1033,24 @@ public class VirgilCrypto {
    */
   public void setUseSHA256Fingerprints(boolean useSHA256Fingerprints) {
     this.useSHA256Fingerprints = useSHA256Fingerprints;
+  }
+
+  /**
+   * Gets Random Number Generator.
+   *
+   * @return the Random Number Generator (RNG).
+   */
+  public Random getRng() {
+    return rng;
+  }
+
+  /**
+   * Gets default key type.
+   *
+   * @return the default key type
+   */
+  public KeyType getDefaultKeyType() {
+    return defaultKeyType;
   }
 
   private byte[] computePublicKeyIdentifier(PublicKey publicKey) throws CryptoException {

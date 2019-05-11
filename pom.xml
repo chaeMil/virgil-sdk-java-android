@@ -35,7 +35,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.virgilsecurity.sdk</groupId>
   <artifactId>parent</artifactId>
-  <version>6.0.0-alpha-SNAPSHOT</version>
+  <version>5.1.0-SNAPSHOT</version>
   <packaging>pom</packaging>
   <name>Virgil SDK - Parent</name>
   <description>
@@ -63,6 +63,7 @@
       <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
     </repository>
   </distributionManagement>
+
   <developers>
     <developer>
       <name>Andrii Iakovenko</name>
@@ -75,6 +76,7 @@
       <organizationUrl>https://github.com/BuddahLD</organizationUrl>
     </developer>
   </developers>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -91,12 +93,14 @@
     <version.crypto>0.7.0-SNAPSHOT</version.crypto>
     <gpg.keyname>empty</gpg.keyname>
   </properties>
+
   <modules>
     <module>api</module>
     <module>crypto</module>
     <module>crypto-android</module>
     <module>sdk</module>
   </modules>
+
   <dependencyManagement>
     <dependencies>
       <dependency>

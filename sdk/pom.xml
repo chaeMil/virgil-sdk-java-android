@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.1.0-SNAPSHOT</version>
+		<version>5.1.0-alpha-SNAPSHOT</version>
 	</parent>
 	<artifactId>sdk</artifactId>
 	<packaging>jar</packaging>

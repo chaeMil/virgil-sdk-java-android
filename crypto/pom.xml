@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.1.0-alpha-SNAPSHOT</version>
+		<version>5.1.0</version>
 	</parent>
 	<artifactId>crypto</artifactId>
 	<packaging>jar</packaging>
@@ -48,14 +48,6 @@
 		Virgil is a stack of security libraries (ECIES with Crypto Agility wrapped in Virgil Cryptogram) and all the necessary infrastructure to enable seamless, end-to-end encryption for any application, platform or device.
 		Learn about Virgil Crypto Library https://virgilsecurity.com/api-docs/java-android/crypto-library
 	</description>
-
-	<repositories>
-		<repository>
-			<id>snapshots-repo</id>
-			<name>Snapshots repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>

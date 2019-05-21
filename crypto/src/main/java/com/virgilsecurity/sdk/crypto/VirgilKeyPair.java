@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.crypto;
 
+import java.util.Objects;
+
 /**
  * The key pair.
  */
@@ -72,6 +74,16 @@ public class VirgilKeyPair {
   }
 
   /**
+   * Set the Virgil private key.
+   *
+   * @param privateKey
+   *          the Virgil private key to set.
+   */
+  public void setPrivateKey(VirgilPrivateKey privateKey) {
+    this.privateKey = privateKey;
+  }
+
+  /**
    * Get the Virgil public key.
    * 
    * @return the Virgil public key
@@ -81,18 +93,8 @@ public class VirgilKeyPair {
   }
 
   /**
-   * Set the Virgil private key.
-   * 
-   * @param privateKey
-   *          the Virgil private key to set.
-   */
-  public void setPrivateKey(VirgilPrivateKey privateKey) {
-    this.privateKey = privateKey;
-  }
-
-  /**
    * Set the Virgil public key.
-   * 
+   *
    * @param publicKey
    *          the Virgil public key to set.
    */
@@ -100,4 +102,19 @@ public class VirgilKeyPair {
     this.publicKey = publicKey;
   }
 
+  @Override public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    VirgilKeyPair keyPair = (VirgilKeyPair) o;
+    return Objects.equals(publicKey, keyPair.publicKey)
+        && Objects.equals(privateKey, keyPair.privateKey);
+  }
+
+  @Override public int hashCode() {
+    return Objects.hash(publicKey, privateKey);
+  }
 }

@@ -41,18 +41,18 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
-import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
+import com.virgilsecurity.sdk.crypto.VirgilCrypto;
+import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
+import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -232,13 +232,13 @@ public class JsonFileKeyStorageTest {
         System.getProperty("java.io.tmpdir") + File.separator + UUID.randomUUID().toString());
     storage = new JsonFileKeyStorage(tmpDir.getAbsolutePath());
 
-    keyPair = crypto.generateKeys();
+    keyPair = crypto.generateKeyPair();
 
     alias = UUID.randomUUID().toString();
 
     entry = new TestKeyEntry();
     entry.setName(alias);
-    entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey(), null));
+    entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
     entry.getMeta().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
   }
 

@@ -40,7 +40,6 @@ import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
 import org.apache.commons.lang.StringUtils;
 
 public class PropertyManager {
@@ -76,7 +75,8 @@ public class PropertyManager {
     if (this.apiPrivateKey == null) {
       try {
         this.apiPrivateKey = this.crypto
-            .importPrivateKey(ConvertionUtils.base64ToBytes(getPropertyByName("API_PRIVATE_KEY")));
+            .importPrivateKey(ConvertionUtils.base64ToBytes(getPropertyByName("API_PRIVATE_KEY")))
+            .getPrivateKey();
       } catch (CryptoException e) {
         fail("API Private Key is not defined");
       }

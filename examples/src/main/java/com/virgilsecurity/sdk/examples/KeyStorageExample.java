@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.examples;
 
+import java.util.Map;
+
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
@@ -44,8 +46,6 @@ import com.virgilsecurity.sdk.storage.KeyStorage;
 import com.virgilsecurity.sdk.storage.PrivateKeyStorage;
 import com.virgilsecurity.sdk.utils.Tuple;
 
-import java.util.Map;
-
 /**
  * @author Andrii Iakovenko
  *
@@ -56,7 +56,7 @@ public class KeyStorageExample {
   public static void main(String[] args) throws CryptoException {
     // Generate some private key
     VirgilCrypto crypto = new VirgilCrypto();
-    VirgilKeyPair keyPair = crypto.generateKeys();
+    VirgilKeyPair keyPair = crypto.generateKeyPair();
     VirgilPrivateKey privateKey = keyPair.getPrivateKey();
 
     // Setup PrivateKeyStorage

@@ -39,23 +39,26 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.virgilsecurity.crypto.VirgilHash;
-import com.virgilsecurity.crypto.VirgilHash.Algorithm;
-import com.virgilsecurity.crypto.VirgilSigner;
+import com.virgilsecurity.crypto.foundation.Hash;
+import com.virgilsecurity.crypto.foundation.KeyAsn1Serializer;
+import com.virgilsecurity.crypto.foundation.Sha256;
+import com.virgilsecurity.crypto.foundation.Sha512;
+import com.virgilsecurity.crypto.foundation.SignHash;
+import com.virgilsecurity.crypto.foundation.Signer;
 import com.virgilsecurity.crypto.utils.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * Unit tests which verify cross-platform compatibility.
- * 
+ *
  * @author Andrii Iakovenko
  *
  */
@@ -68,23 +71,32 @@ public class CryptoFormatsTests {
   public void setup() {
     this.crypto = new VirgilCrypto();
     sampleJson = (JsonObject) new JsonParser()
-        .parse(new InputStreamReader(this.getClass().getClassLoader()
-            .getResourceAsStream("com/virgilsecurity/sdk/crypto/crypto_formats_data.json")));
+        .parse(new InputStreamReader(
+            Objects.requireNonNull(
+                this.getClass().getClassLoader().getResourceAsStream(
+                    "com/virgilsecurity/sdk/crypto/crypto_formats_data.json"))));
   }
 
   @Test
   public void stc_30() throws CryptoException {
     // STC_30
     byte[] data = sampleJson.get("STC-30").getAsString().getBytes(StandardCharsets.UTF_8);
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
 
     // Sign with Virgil Crypto
     byte[] signature = this.crypto.generateSignature(data, keyPair.getPrivateKey());
     assertNotNull(signature);
 
     // Sign with Crypto
-    try (VirgilSigner signer = new VirgilSigner(VirgilHash.Algorithm.SHA512)) {
-      byte[] signature2 = signer.sign(data, keyPair.getPrivateKey().getRawKey());
+    try (Signer signer = new Signer()) {
+      signer.setHash(new Sha512());
+
+      signer.reset();
+      signer.update(data);
+
+      SignHash signHash = (SignHash) keyPair.getPrivateKey().getPrivateKey();
+      byte[] signature2 = signer.sign(signHash);
+
       assertArrayEquals(signature2, signature);
     }
   }
@@ -93,17 +105,16 @@ public class CryptoFormatsTests {
   public void stc_31_generateKeys() throws CryptoException {
     // STC_31
     // Generate keypair
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
     assertNotNull(keyPair);
     assertNotNull(keyPair.getPublicKey());
     assertNotNull(keyPair.getPrivateKey());
 
     // Export key
-    byte[] exportedPrivateKey = this.crypto.exportPrivateKey(keyPair.getPrivateKey(), null);
+    byte[] exportedPrivateKey = this.crypto.exportPrivateKey(keyPair.getPrivateKey());
     assertNotNull(exportedPrivateKey);
 
-    byte[] exportedPrivateKeyWithPassword = this.crypto.exportPrivateKey(keyPair.getPrivateKey(),
-        "qwerty");
+    byte[] exportedPrivateKeyWithPassword = this.crypto.exportPrivateKey(keyPair.getPrivateKey());
     assertNotNull(exportedPrivateKeyWithPassword);
 
     byte[] exportedPublicKey = this.crypto.exportPublicKey(keyPair.getPublicKey());
@@ -111,23 +122,22 @@ public class CryptoFormatsTests {
   }
 
   @Test
-  @Ignore
-  public void stc_31_generateMultipleKeys() throws CryptoException {
+  public void stc_31_generateMultipleKeys() {
     // STC_31
     // generate multiple key pairs
-    for (KeysType keyType : KeysType.values()) {
+    for (KeyType keyType : KeyType.values()) {
       try {
-        VirgilKeyPair keyPair = this.crypto.generateKeys(keyType);
+        VirgilKeyPair keyPair = this.crypto.generateKeyPair(keyType);
         assertNotNull(keyPair);
         assertNotNull(keyPair.getPublicKey());
         assertNotNull(keyPair.getPrivateKey());
 
         // Export key
-        byte[] exportedPrivateKey = this.crypto.exportPrivateKey(keyPair.getPrivateKey(), null);
+        byte[] exportedPrivateKey = this.crypto.exportPrivateKey(keyPair.getPrivateKey());
         assertNotNull(exportedPrivateKey);
 
         byte[] exportedPrivateKeyWithPassword = this.crypto
-            .exportPrivateKey(keyPair.getPrivateKey(), "qwerty");
+            .exportPrivateKey(keyPair.getPrivateKey());
         assertNotNull(exportedPrivateKeyWithPassword);
 
         byte[] exportedPublicKey = this.crypto.exportPublicKey(keyPair.getPublicKey());
@@ -143,24 +153,10 @@ public class CryptoFormatsTests {
     // STC_31
     JsonObject json = sampleJson.getAsJsonObject("STC-31");
     byte[] keyData = Base64.decode(json.get("private_key1").getAsString());
-    PrivateKey privateKey = this.crypto.importPrivateKey(keyData);
-    assertNotNull(privateKey);
+    VirgilKeyPair keyPair = this.crypto.importPrivateKey(keyData);
+    assertNotNull(keyPair.getPrivateKey());
 
-    byte[] exportedPrivateKey = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey, null);
-    assertNotNull(exportedPrivateKey);
-  }
-
-  @Test
-  public void stc_31_importPrivateKeyWithPassword() throws CryptoException {
-    // STC_31
-    JsonObject json = sampleJson.getAsJsonObject("STC-31");
-    byte[] keyData = Base64.decode(json.get("private_key2").getAsString());
-    String password = json.get("private_key2_password").getAsString();
-    PrivateKey privateKey = this.crypto.importPrivateKey(keyData, password);
-    assertNotNull(privateKey);
-
-    byte[] exportedPrivateKey = this.crypto.exportPrivateKey((VirgilPrivateKey) privateKey,
-        password);
+    byte[] exportedPrivateKey = this.crypto.exportPrivateKey(keyPair.getPrivateKey());
     assertNotNull(exportedPrivateKey);
   }
 
@@ -168,10 +164,10 @@ public class CryptoFormatsTests {
   public void stc_32() throws CryptoException {
     // STC_32
     byte[] keyData = Base64.decode(sampleJson.get("STC-32").getAsString());
-    PublicKey publicKey = this.crypto.importPublicKey(keyData);
+    VirgilPublicKey publicKey = this.crypto.importPublicKey(keyData);
     assertNotNull(publicKey);
 
-    byte[] exportedPublicKey = this.crypto.exportPublicKey((VirgilPublicKey) publicKey);
+    byte[] exportedPublicKey = this.crypto.exportPublicKey(publicKey);
     assertNotNull(exportedPublicKey);
   }
 
@@ -180,28 +176,33 @@ public class CryptoFormatsTests {
     // STC_33
     this.crypto.setUseSHA256Fingerprints(true);
 
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
-    VirgilPublicKey publicKey = keyPair.getPublicKey();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
 
-    try (VirgilHash hasher = new VirgilHash(Algorithm.SHA256)) {
-      byte[] id = hasher.hash(publicKey.getRawKey());
+    KeyAsn1Serializer serializer = new KeyAsn1Serializer();
+    serializer.setupDefaults();
 
-      assertArrayEquals(id, publicKey.getIdentifier());
-    }
+    byte[] publicKeyDer = serializer.serializePublicKey(keyPair.getPublicKey().getPublicKey());
+
+    Hash hash = new Sha256();
+    byte[] id = hash.hash(publicKeyDer);
+
+    assertArrayEquals(id, keyPair.getPublicKey().getIdentifier());
   }
 
   @Test
   public void stc_33_sha512() throws CryptoException {
     // STC_33
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
-    VirgilPublicKey publicKey = keyPair.getPublicKey();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
+    KeyAsn1Serializer serializer = new KeyAsn1Serializer();
+    serializer.setupDefaults();
 
-    try (VirgilHash hasher = new VirgilHash(Algorithm.SHA512)) {
-      byte[] hash = hasher.hash(publicKey.getRawKey());
-      byte[] id = Arrays.copyOf(hash, 8);
+    byte[] publicKeyDer = serializer.serializePublicKey(keyPair.getPublicKey().getPublicKey());
 
-      assertArrayEquals(id, publicKey.getIdentifier());
-    }
+    Hash hasher = new Sha512();
+    byte[] hash = hasher.hash(publicKeyDer);
+    byte[] id = Arrays.copyOf(hash, 8);
+
+    assertArrayEquals(id, keyPair.getPublicKey().getIdentifier());
   }
 
 }

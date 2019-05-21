@@ -35,13 +35,10 @@ package com.virgilsecurity.sdk.crypto;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * A public key.
- * 
- * @see VirgilCrypto
- * @see PublicKey
- * 
  */
 public class VirgilPublicKey implements PublicKey, Serializable {
 
@@ -55,10 +52,17 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * The Public key rawKey.
    */
-  private byte[] rawKey;
+  private com.virgilsecurity.crypto.foundation.PublicKey publicKey;
 
   /**
-   * Create a new instance of {@code VirgilPublicKey}.
+   * The Public key type.
+   */
+  private KeyType keyType;
+
+  /**
+   * For serialization only!
+   * <p>
+   * Do NOT create object with this constructor.
    */
   public VirgilPublicKey() {
   }
@@ -66,81 +70,85 @@ public class VirgilPublicKey implements PublicKey, Serializable {
   /**
    * Create a new instance of {@code VirgilPublicKey}.
    *
-   * @param identifier
-   *          the public key identifier.
-   * @param rawKey
-   *          the public key raw data.
+   * @param identifier the public key identifier.
+   * @param publicKey the public key.
+   * @param keyType the public key type.
    */
-  public VirgilPublicKey(byte[] identifier, byte[] rawKey) {
+  public VirgilPublicKey(byte[] identifier,
+                         com.virgilsecurity.crypto.foundation.PublicKey publicKey,
+                         KeyType keyType) {
     this.identifier = identifier;
-    this.rawKey = rawKey;
+    this.publicKey = publicKey;
+    this.keyType = keyType;
   }
 
-  /*
-   * (non-Javadoc)
+
+  /**
+   * Get identifier byte [ ].
    *
-   * @see java.lang.Object#equals(java.lang.Object)
-   */
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    VirgilPublicKey publicKey = (VirgilPublicKey) o;
-    return Arrays.equals(identifier, publicKey.identifier)
-        && Arrays.equals(rawKey, publicKey.rawKey);
-  }
-
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.virgilsecurity.sdk.crypto.PublicKey#getIdentifier()
+   * @return the byte [ ]
    */
   public byte[] getIdentifier() {
     return identifier;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see com.virgilsecurity.sdk.crypto.PublicKey#getRawKey()
-   */
-  public byte[] getRawKey() {
-    return rawKey;
-  }
-
-  /*
-   * (non-Javadoc)
-   *
-   * @see java.lang.Object#hashCode()
-   */
-  @Override
-  public int hashCode() {
-    int result = Arrays.hashCode(identifier);
-    result = 31 * result + Arrays.hashCode(rawKey);
-    return result;
-  }
-
   /**
    * Set the Public key hash.
    *
-   * @param identifier
-   *          the Id to set
+   * @param identifier the Id to set.
    */
   public void setIdentifier(byte[] identifier) {
     this.identifier = identifier;
   }
 
   /**
-   * Set the Public key rawKey.
+   * Gets public key.
    *
-   * @param rawKey
-   *          the rawKey to set
+   * @return the public key.
    */
-  public void setRawKey(byte[] rawKey) {
-    this.rawKey = rawKey;
+  public com.virgilsecurity.crypto.foundation.PublicKey getPublicKey() {
+    return publicKey;
+  }
+
+  /**
+   * Sets public key.
+   *
+   * @param publicKey the public key.
+   */
+  public void setPublicKey(com.virgilsecurity.crypto.foundation.PublicKey publicKey) {
+    this.publicKey = publicKey;
+  }
+
+  /**
+   * Gets key type.
+   *
+   * @return the key type.
+   */
+  public KeyType getKeyType() {
+    return keyType;
+  }
+
+  /**
+   * Sets key type.
+   *
+   * @param keyType the key type.
+   */
+  public void setKeyType(KeyType keyType) {
+    this.keyType = keyType;
+  }
+
+  @Override public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    VirgilPublicKey that = (VirgilPublicKey) o;
+    return Arrays.equals(identifier, that.identifier)
+        && Arrays.equals(publicKey.exportPublicKey(), that.publicKey.exportPublicKey())
+        && keyType == that.keyType;
+  }
+
+  @Override public int hashCode() {
+    int result = Objects.hash(publicKey, keyType);
+    result = 31 * result + Arrays.hashCode(identifier);
+    return result;
   }
 }

@@ -62,4 +62,13 @@ public class DecryptionException extends CryptoException {
     super(cause);
   }
 
+  /**
+   * Create a new instance of {@code DecryptionException}.
+   *
+   * @param message the error message(A {@code null} value is permitted, and indicates that the
+   *                message is nonexistent or unknown.)
+   */
+  public DecryptionException(String message) {
+    super(message);
+  }
 }

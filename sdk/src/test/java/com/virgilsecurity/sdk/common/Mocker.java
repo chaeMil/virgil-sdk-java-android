@@ -38,19 +38,12 @@ import static org.junit.Assert.fail;
 import com.virgilsecurity.sdk.cards.ModelSigner;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
-import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.jwt.JwtGenerator;
 import com.virgilsecurity.sdk.jwt.JwtVerifier;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -75,7 +68,7 @@ public class Mocker extends PropertyManager {
 
     try {
       privateKeyFake = crypto
-          .importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64));
+          .importPrivateKey(ConvertionUtils.base64ToBytes(FAKE_PRIVATE_KEY_BASE64)).getPrivateKey();
     } catch (CryptoException e) {
       fail("Mocker -> 'FAKE_PRIVATE_KEY_BASE64' seems to has wrong format");
     }
@@ -107,7 +100,7 @@ public class Mocker extends PropertyManager {
     calendar.set(Calendar.DAY_OF_MONTH, 6);
     calendar.set(Calendar.HOUR_OF_DAY, 10);
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
     VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
@@ -131,7 +124,7 @@ public class Mocker extends PropertyManager {
     calendar.set(Calendar.HOUR_OF_DAY, 10);
     calendar.clear(Calendar.MILLISECOND);
 
-    VirgilKeyPair keyPairVirgiled = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiled = crypto.generateKeyPair();
     VirgilPublicKey publicKey = keyPairVirgiled.getPublicKey();
     VirgilPrivateKey privateKey = keyPairVirgiled.getPrivateKey();
 
@@ -173,7 +166,7 @@ public class Mocker extends PropertyManager {
 
   public VirgilPrivateKey generatePrivateKey() {
     try {
-      return crypto.generateKeys().getPrivateKey();
+      return crypto.generateKeyPair().getPrivateKey();
     } catch (CryptoException e) {
       fail(e.getMessage());
       return null;
@@ -182,7 +175,7 @@ public class Mocker extends PropertyManager {
 
   public VirgilPublicKey generatePublicKey() {
     try {
-      return crypto.generateKeys().getPublicKey();
+      return crypto.generateKeyPair().getPublicKey();
     } catch (CryptoException e) {
       fail(e.getMessage());
       return null;

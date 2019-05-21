@@ -38,6 +38,10 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.File;
+import java.util.Map;
+import java.util.UUID;
+
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.PrivateKeyExporter;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
@@ -46,10 +50,6 @@ import com.virgilsecurity.sdk.crypto.VirgilPrivateKeyExporter;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.utils.Tuple;
-
-import java.io.File;
-import java.util.Map;
-import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -81,7 +81,7 @@ public class PrivateKeyStorageCompatibilityTest {
   public void stc_7() throws CryptoException {
     // STC_7
     // Generate PrivateKey
-    PrivateKey privateKey = this.crypto.generateKeys().getPrivateKey();
+    PrivateKey privateKey = this.crypto.generateKeyPair().getPrivateKey();
 
     // Store PrivateKey
     this.privateKeyStorage.store(privateKey, this.keyName, null);
@@ -95,7 +95,8 @@ public class PrivateKeyStorageCompatibilityTest {
     VirgilPrivateKey virgilPrivateKey = (VirgilPrivateKey) privateKey;
     VirgilPrivateKey loadedVirgilPrivateKey = (VirgilPrivateKey) privateKeyInfo.getLeft();
     assertArrayEquals(virgilPrivateKey.getIdentifier(), loadedVirgilPrivateKey.getIdentifier());
-    assertArrayEquals(virgilPrivateKey.getRawKey(), loadedVirgilPrivateKey.getRawKey());
+    assertArrayEquals(virgilPrivateKey.getPrivateKey().exportPrivateKey(),
+                      loadedVirgilPrivateKey.getPrivateKey().exportPrivateKey());
     assertTrue(privateKeyInfo.getRight().isEmpty());
 
     // Delete PrivateKey

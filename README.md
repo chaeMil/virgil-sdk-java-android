@@ -1,7 +1,7 @@
 # Virgil Security SDK and Crypto stack Java/Android
 
-[![Build Status](https://travis-ci.com/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.com/VirgilSecurity/virgil-sdk-java-android)
-[![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)
+[![Build Status](https://api.travis-ci.org/VirgilSecurity/virgil-sdk-java-android.svg?branch=master)](https://travis-ci.org/VirgilSecurity/virgil-sdk-java-android)
+[![Maven](https://img.shields.io/maven-central/v/com.virgilsecurity.sdk/sdk.svg)](https://search.maven.org/artifact/com.virgilsecurity.sdk/sdk)
 [![GitHub license](https://img.shields.io/badge/license-BSD%203--Clause-blue.svg)](https://github.com/VirgilSecurity/virgil/blob/master/LICENSE)
 
 [Introduction](#introduction) | [SDK Features](#sdk-features) | [Library purposes](#library-purposes) | [Installation](#installation) | [Usage Examples](#usage-examples) | [Docs](#docs) | [Support](#support)
@@ -84,7 +84,7 @@ The **\<latest-version>** of the SDK can be found in the [Maven Central Reposito
 
 ## Usage Examples
 
-Before start practicing with the usage examples be sure that the SDK is configured. Check out our [SDK configuration guides][_configure_sdk] for more information.
+Before starting practicing with the usage examples, make sure that the SDK is configured. Check out our [SDK configuration guides][_configure_sdk] for more information.
 
 #### Generate and publish user's Cards with Public Keys inside on Cards Service
 Use the following lines of code to create and publish a user's Card with Public Key inside on Virgil Cards Service:
@@ -95,7 +95,7 @@ import com.virgilsecurity.crypto.VirgilCrypto;
 VirgilCrypto crypto = new VirgilCrypto();
 
 // generate a key pair
-VirgilKeyPair keyPair = crypto.generateKeys();
+VirgilKeyPair keyPair = crypto.generateKeyPair();
 
 // save a private key into key storage
 privateKeyStorage.store(keyPair.getPrivateKey(), "Alice", null);

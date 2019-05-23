@@ -345,14 +345,13 @@ public class VirgilCrypto {
 
         if (inputStream.available() >= CHUNK_SIZE) {
           data = new byte[CHUNK_SIZE];
-          inputStream.read(data);
         } else {
           data = new byte[inputStream.available()];
-          inputStream.read(data);
         }
+        inputStream.read(data);
 
-        cipher.processEncryption(data);
-        outputStream.write(data);
+        byte[] encryptedData = cipher.processEncryption(data);
+        outputStream.write(encryptedData);
       }
 
       byte[] finish = cipher.finishEncryption();

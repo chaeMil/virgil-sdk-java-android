@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.examples;
 
+import java.util.concurrent.TimeUnit;
+
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.PrivateKey;
@@ -46,8 +48,6 @@ import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author Andrii Iakovenko
@@ -67,7 +67,7 @@ public class AuthenticationJwtExample {
 
     // import a private key
     VirgilCrypto crypto = new VirgilCrypto();
-    PrivateKey apiKey = crypto.importPrivateKey(apiKeyData);
+    PrivateKey apiKey = crypto.importPrivateKey(apiKeyData).getPrivateKey();
 
     AccessTokenSigner accessTokenSigner = new VirgilAccessTokenSigner();
 

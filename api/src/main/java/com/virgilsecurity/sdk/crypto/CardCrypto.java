@@ -61,7 +61,7 @@ public interface CardCrypto {
    * @throws CryptoException
    *           if problems occurred while generating hash
    */
-  byte[] generateSHA512(byte[] data) throws CryptoException;
+  byte[] computeSha512(byte[] data) throws CryptoException;
 
   /**
    * Generates the digital signature for the specified {@code data} using the specified

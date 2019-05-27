@@ -40,10 +40,6 @@ package com.virgilsecurity.sdk.crypto;
  *
  */
 public enum HashAlgorithm {
-  /** MD5 algorithm. */
-  MD5,
-  /** SHA1 algorithm. */
-  SHA1,
   /** SHA224 algorithm. */
   SHA224,
   /** SHA256 algorithm. */

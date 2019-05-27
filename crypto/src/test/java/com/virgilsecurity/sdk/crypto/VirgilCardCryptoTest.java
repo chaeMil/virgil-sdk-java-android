@@ -40,14 +40,11 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
-import com.virgilsecurity.crypto.VirgilBase64;
+import com.virgilsecurity.crypto.foundation.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
-
 import java.nio.charset.StandardCharsets;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -84,19 +81,19 @@ public class VirgilCardCryptoTest {
   }
 
   @Test
-  @Ignore
   public void generateSha512() throws CryptoException {
-    byte[] hash = this.cardCrypto.generateSHA512(TEST_DATA);
+    byte[] hash = this.cardCrypto.computeSha512(TEST_DATA);
     assertNotNull(hash);
     assertArrayEquals(
-        VirgilBase64.decode(
-            "UVRFAY8h/41lGy4Jm82uLcbhseXLS852XZ2rE7kH8wJvSneUkpu04NmFqwhtWuz78P+T63xMhxEW0wXP0B21dA=="),
+        Base64.decode(
+            "sjkkPe4LyXDsOl7R9K57Zeu4X3beeV9JmwOvaBUFLMWKeKeMkv25r3YhPS/mQF6d2TWjNGGMxQnH9szJolYZGg=="
+                .getBytes()),
         hash);
   }
 
   @Test(expected = NullArgumentException.class)
   public void generateSha512_null() throws CryptoException {
-    this.cardCrypto.generateSHA512(null);
+    this.cardCrypto.computeSha512(null);
   }
 
   @Test
@@ -152,7 +149,7 @@ public class VirgilCardCryptoTest {
   public void setup() throws CryptoException {
     this.cardCrypto = new VirgilCardCrypto();
 
-    VirgilKeyPair keyPair = this.cardCrypto.getVirgilCrypto().generateKeys();
+    VirgilKeyPair keyPair = this.cardCrypto.getVirgilCrypto().generateKeyPair();
     this.privateKey = keyPair.getPrivateKey();
     this.publicKey = keyPair.getPublicKey();
   }

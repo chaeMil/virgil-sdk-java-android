@@ -76,7 +76,7 @@ public class FakeDataFactory {
         .toHex(ConvertionUtils.toBytes(UUID.randomUUID().toString()));
     this.identity = "IDENTITY_" + this.applicationId;
 
-    VirgilKeyPair keyPair = this.crypto.generateKeys();
+    VirgilKeyPair keyPair = this.crypto.generateKeyPair();
     this.apiPrivateKey = keyPair.getPrivateKey();
     this.apiPublicKey = keyPair.getPublicKey();
     this.apiPublicKeyId = ConvertionUtils.toHex(this.crypto.exportPublicKey(apiPublicKey));

@@ -39,7 +39,7 @@
 	<parent>
 		<groupId>com.virgilsecurity.sdk</groupId>
 		<artifactId>parent</artifactId>
-		<version>5.0.9</version>
+		<version>5.1.0</version>
 	</parent>
 	<artifactId>crypto</artifactId>
 	<packaging>jar</packaging>
@@ -68,11 +68,9 @@
 			<artifactId>junit</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.virgilsecurity</groupId>
-			<artifactId>crypto</artifactId>
-            <version>${version.crypto}</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/virgil_crypto_java.jar</systemPath>
+			<groupId>com.virgilsecurity.crypto</groupId>
+			<artifactId>foundation</artifactId>
+			<version>${version.crypto}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -80,34 +78,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>unpack-dependencies</id>
-						<goals>
-							<goal>unpack-dependencies</goal>
-						</goals>
-						<phase>process-classes</phase>
-						<configuration>
-							<failOnMissingClassifierArtifact>false</failOnMissingClassifierArtifact>
-							<outputDirectory>${project.build.directory}/classes</outputDirectory>
-							<includeGroupIds>com.virgilsecurity</includeGroupIds>
-							<includeArtifactIds>crypto</includeArtifactIds>
-							<excludeTransitive>false</excludeTransitive>
-							<includes>**/*.class</includes>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
 </project>

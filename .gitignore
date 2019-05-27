@@ -172,7 +172,6 @@ crashlytics-build.properties
 fabric.properties
 
 # Project-specific
-!crypto/libs/virgil_crypto_java.jar
 testsDev.sh
 testsStg.sh
 testsProd.sh

@@ -31,38 +31,63 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.crypto;
+package com.virgilsecurity.sdk.crypto;
 
-import static org.junit.Assert.assertEquals;
-
-import org.junit.Test;
+import com.virgilsecurity.crypto.foundation.AlgId;
 
 /**
- * Unit tests for {@link VirgilVersion}.
- * 
- * @author Andrii Iakovenko
- *
+ * KeyType class with key types supported by Crypto.
  */
-public class VirgilVersionTest {
+public enum KeyType {
 
-  @Test
-  public void asString() {
-    assertEquals("2.4.5", VirgilVersion.asString());
+  /**
+   * Diffie–Hellman X25519.
+   */
+  CURVE25519(AlgId.CURVE25519),
+  /**
+   * EdDSA Ed25519.
+   */
+  ED25519(AlgId.ED25519),
+  /**
+   * RSA 2048 bit.
+   */
+  RSA_2048(2048),
+  /**
+   * RSA 4096 bit.
+   */
+  RSA_4096(4096),
+  /**
+   * RSA 8192 bit.
+   */
+  RSA_8192(8192);
+
+  private AlgId algId;
+  private int rsaBitLen;
+
+  KeyType(AlgId algId) {
+    this.algId = algId;
   }
 
-  @Test
-  public void majorVersion() {
-    assertEquals(2, VirgilVersion.majorVersion());
+  KeyType(int rsaBitLen) {
+    this.algId = AlgId.RSA;
+    this.rsaBitLen = rsaBitLen;
   }
 
-  @Test
-  public void minorVersion() {
-    assertEquals(4, VirgilVersion.minorVersion());
+  public AlgId getAlgId() {
+    return algId;
   }
 
-  @Test
-  public void patchVersion() {
-    assertEquals(5, VirgilVersion.patchVersion());
+  public int getRsaBitLen() {
+    switch (this) {
+      case RSA_2048:
+      case RSA_4096:
+      case RSA_8192:
+        return rsaBitLen;
+      case CURVE25519:
+      case ED25519:
+        return -1;
+      default:
+        return -1;
+    }
   }
-
 }

@@ -33,7 +33,6 @@
 
 package com.virgilsecurity.sdk.client;
 
-import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -53,6 +52,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * The {@link VirgilCardClient} class represents a Virgil Security service client and contains all
@@ -288,17 +289,15 @@ public class VirgilCardClient implements CardClient {
    *
    * @throws VirgilServiceException if an error occurred while deleting Card.
    */
-  public RawSignedModel deleteCard(RawSignedModel rawCard, String token)
-      throws VirgilServiceException {
+  public void revokeCard(String cardId, String token) throws VirgilServiceException {
     try {
-      URL url = new URL(serviceUrl, Endpoints.ACTIONS_DELETE.path);
-      String body = rawCard.exportAsJson();
+      URL url = new URL(serviceUrl, Endpoints.ACTIONS_DELETE.path + "/" + cardId);
 
-      return httpClient.execute(url,
-                                "POST",
-                                token,
-                                new ByteArrayInputStream(ConvertionUtils.toBytes(body)),
-                                RawSignedModel.class);
+      httpClient.execute(url,
+                         "DELETE",
+                         token,
+                         null,
+                         RawSignedModel.class);
     } catch (VirgilServiceException e) {
       LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
       throw e;

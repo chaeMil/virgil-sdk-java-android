@@ -489,7 +489,7 @@ public class CardsManagerTest extends PropertyManager {
     assertNotNull(searchedCards);
     assertEquals(1, searchedCards.size());
 
-    Card deletedCard = cardManager.deleteCard(publishedCardOne.getIdentifier());
+    Card deletedCard = cardManager.revokeCard(publishedCardOne.getIdentifier());
     assertNotNull(deletedCard);
 
     Card receivedCardAfterDelete = cardManager.getCard(publishedCardOne.getIdentifier());
@@ -535,7 +535,7 @@ public class CardsManagerTest extends PropertyManager {
     assertEquals(1, searchedCards.size());
 
     // Delete cards chain
-    Card deletedCard = cardManager.deleteCard(publishedCardThree.getIdentifier());
+    Card deletedCard = cardManager.revokeCard(publishedCardThree.getIdentifier());
     assertNotNull(deletedCard);
 
     // Check that cards still exist
@@ -593,7 +593,7 @@ public class CardsManagerTest extends PropertyManager {
 
     boolean failed = false;
     try {
-      Card deletedCard = cardManager.deleteCard(publishedCardTwo.getIdentifier());
+      Card deletedCard = cardManager.revokeCard(publishedCardTwo.getIdentifier());
       assertNotNull(deletedCard);
     } catch (VirgilServiceException e) {
       failed = true;

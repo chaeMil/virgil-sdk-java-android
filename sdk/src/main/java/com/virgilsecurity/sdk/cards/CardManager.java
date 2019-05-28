@@ -55,8 +55,15 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 import com.virgilsecurity.sdk.utils.Validator;
+
 import java.net.HttpURLConnection;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -82,6 +89,7 @@ public class CardManager {
 
   private static final Logger LOGGER = Logger.getLogger(CardManager.class.getName());
   private static final String CURRENT_CARD_VERSION = "5.0";
+  private static final String TOKEN_CONTEXT_OPERATION_DELETE = "delete";
   private static final String TOKEN_CONTEXT_OPERATION_PUBLISH = "publish";
   private static final String TOKEN_CONTEXT_OPERATION_GET = "get";
   private static final String TOKEN_CONTEXT_OPERATION_SEARCH = "search";
@@ -419,13 +427,9 @@ public class CardManager {
   private RawSignedModel generateRawSignedModel(PublicKey publicKey,
                                                 String identity,
                                                 String previousCardId) throws CryptoException {
-    String publicKeyB64;
 
-    if (publicKey != null) {
-      publicKeyB64 = ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey));
-    } else {
-      publicKeyB64 = ""; // For card deletion
-    }
+    String publicKeyB64 = ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey));
+
     RawCardContent cardContent = new RawCardContent(identity,
                                                     publicKeyB64,
                                                     CURRENT_CARD_VERSION,
@@ -847,28 +851,50 @@ public class CardManager {
    * You can use {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry
    * request with new token on {@code unauthorized} http error.
    *
-   * @param previousCardId identifier of last Card in chain that is to delete
+   * @param cardId identifier of last Card in chain that is to delete
    *
-   * @throws CryptoException        if issue occurred during get generating token or verifying card
-   *                                that was received from the Virgil Cards service
+   * @throws CryptoException if issue occurred during get generating token or verifying card
+   *                         that was received from the Virgil Cards service
    * @throws VirgilServiceException if card was not created by a service
    * @throws VirgilCardVerificationException if any of signatures wasn't valid
    */
-  public void deleteCard(String previousCardId)
+  public void revokeCard(String cardId)
       throws CryptoException, VirgilServiceException {
-    if (StringUtils.isBlank(previousCardId)) {
+    if (StringUtils.isBlank(cardId)) {
       throw new IllegalArgumentException("'previousCardId' should not be empty");
     }
 
-    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH,
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_DELETE,
                                                  false,
                                                  TOKEN_CONTEXT_SERVICE);
 
     AccessToken token = accessTokenProvider.getToken(tokenContext);
 
-    RawSignedModel cardModel = generateRawSignedModel(null, token.getIdentity(), previousCardId);
-
-    deleteRawSignedModel(cardModel, tokenContext, token);
+    try {
+      cardClient.revokeCard(cardId, token.stringRepresentation());
+    } catch (VirgilServiceException exceptionOuter) {
+      if (exceptionOuter.getHttpError() != null
+          && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
+          && retryOnUnauthorized) {
+        LOGGER.fine("Token is expired, trying to reload...");
+        token = accessTokenProvider.getToken(tokenContext);
+        try {
+          cardClient.revokeCard(cardId, token.stringRepresentation());
+        } catch (VirgilServiceException exceptionInner) {
+          LOGGER.log(Level.SEVERE, "An error occurred while revoking a card", exceptionOuter);
+          throw exceptionInner;
+        }
+      } else {
+        if (exceptionOuter.getHttpError() != null) {
+          LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
+                     exceptionOuter);
+        } else {
+          LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(),
+                     exceptionOuter);
+        }
+        throw exceptionOuter;
+      }
+    }
   }
 
   private Card publishRawSignedModel(RawSignedModel cardModel,
@@ -896,7 +922,7 @@ public class CardManager {
           cardModelPublished = cardClient.publishCard(cardModel,
               initialToken.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while publishing a card", exceptionOuter);
+          LOGGER.log(Level.SEVERE, "An error occurred while publishing a card", exceptionOuter);
           throw exceptionInner;
         }
       } else {
@@ -976,7 +1002,7 @@ public class CardManager {
         try {
           cardModels = cardClient.searchCards(identity, token.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while searching for cards", exceptionOuter);
+          LOGGER.log(Level.SEVERE, "An error occurred while searching for cards", exceptionOuter);
           throw exceptionInner;
         }
       } else {
@@ -1034,7 +1060,7 @@ public class CardManager {
         try {
           cardModels = cardClient.searchCards(identities, token.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while searching for cards", exceptionOuter);
+          LOGGER.log(Level.SEVERE, "An error occurred while searching for cards", exceptionOuter);
           throw exceptionInner;
         }
       } else {
@@ -1058,71 +1084,6 @@ public class CardManager {
     }
 
     return result;
-  }
-
-  /**
-   * This method deletes {@code Card} from Virgil Cards service using provided
-   * {@code RawSignedModel} and verifies signatures
-   *
-   * @param cardModel    card model to be deleted
-   * @param tokenContext context for JWT token
-   * @param initialToken token to start with to avoid odd initial refreshes
-   *
-   * @throws CryptoException        in case of crypto errors (verification, etc)
-   * @throws VirgilServiceException if any error on Virgil's Service happened
-   * @throws VirgilCardVerificationException  if any of signatures wasn't valid
-   */
-  private void deleteRawSignedModel(RawSignedModel cardModel,
-                                    TokenContext tokenContext,
-                                    AccessToken initialToken)
-      throws CryptoException, VirgilServiceException {
-
-    RawSignedModel cardModelDeleted;
-
-    if (signCallback != null) {
-      cardModel = signCallback.onSign(cardModel);
-      LOGGER.fine("Card model was signed with signCallback");
-    } else {
-      LOGGER.fine("Card model was NOT signed with signCallback");
-    }
-
-    try {
-      cardModelDeleted = cardClient.deleteCard(cardModel, initialToken.stringRepresentation());
-    } catch (VirgilServiceException exceptionOuter) {
-      if (exceptionOuter.getHttpError() != null
-          && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
-          && retryOnUnauthorized) {
-        LOGGER.fine("Token is expired, trying to reload...");
-        initialToken = accessTokenProvider.getToken(tokenContext);
-        try {
-          cardModelDeleted = cardClient.deleteCard(cardModel, initialToken.stringRepresentation());
-        } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while publishing a card", exceptionOuter);
-          throw exceptionInner;
-        }
-      } else {
-        if (exceptionOuter.getHttpError() != null) {
-          LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
-                     exceptionOuter);
-        } else {
-          LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(),
-                     exceptionOuter);
-        }
-        throw exceptionOuter;
-      }
-    }
-
-    // Be sure that a card received from service is the same card we deleted
-    if (!Arrays.equals(cardModel.getContentSnapshot(), cardModelDeleted.getContentSnapshot())) {
-      LOGGER.warning("Card that is received from the Cards Service (during publishing) "
-                         + "is not equal to the published one");
-      throw new VirgilCardServiceException("Server returned a wrong card");
-    }
-
-    // Check signatures
-    if (!deletedCardVerifier.verifySignatures(cardModel)) {
-      throw new VirgilCardVerificationException();
-    }
   }
 
   /**

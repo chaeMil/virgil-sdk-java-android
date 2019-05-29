@@ -35,17 +35,21 @@ package com.virgilsecurity.sdk.client;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.common.PropertyManager;
+import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
+import com.virgilsecurity.sdk.utils.Tuple;
 
 import java.net.HttpURLConnection;
 import java.util.Arrays;
@@ -175,4 +179,33 @@ public class VirgilCardClientTest extends PropertyManager {
     TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
   }
 
+  @Test
+  public void revoke_card() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    RawSignedModel cardModelBeforePublish = mocker.generateCardModel(identity);
+    assertNotNull(cardModelBeforePublish);
+
+    RawSignedModel cardModelAfterPublish =
+        cardClient.publishCard(cardModelBeforePublish,
+                               mocker.generateAccessToken(identity).stringRepresentation());
+    assertNotNull(cardModelAfterPublish);
+    TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
+
+    Card publishedCard = Card.parse(new VirgilCardCrypto(), cardModelAfterPublish);
+    assertNotNull(publishedCard);
+
+    cardClient.revokeCard(publishedCard.getIdentifier(),
+                          mocker.generateAccessToken(identity).stringRepresentation());
+
+    Tuple<RawSignedModel, Boolean> revokedTuple =
+        cardClient.getCard(publishedCard.getIdentifier(),
+                           mocker.generateAccessToken(identity).stringRepresentation());
+
+    assertTrue(revokedTuple.getRight());
+
+    List<RawSignedModel> searchedModels =
+        cardClient.searchCards(identity,
+                               mocker.generateAccessToken(identity).stringRepresentation());
+    assertEquals(searchedModels.size(), 0);
+  }
 }

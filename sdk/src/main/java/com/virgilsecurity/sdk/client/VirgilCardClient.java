@@ -279,11 +279,11 @@ public class VirgilCardClient implements CardClient {
     }
   }
 
-  /**
+  /** // TODO review docs for deletion
    * Deletes card in Virgil Cards service.
    *
-   * @param rawCard raw signed model of card to be deleted.
-   * @param token   token to authorize the request.
+   * @param cardId id of card to be deleted.
+   * @param token token to authorize the request.
    *
    * @return the {@link RawSignedModel} of the Card that is deleted from Virgil Cards service.
    *
@@ -294,7 +294,7 @@ public class VirgilCardClient implements CardClient {
       URL url = new URL(serviceUrl, Endpoints.ACTIONS_DELETE.path + "/" + cardId);
 
       httpClient.execute(url,
-                         "DELETE",
+                         "POST",
                          token,
                          null,
                          RawSignedModel.class);
@@ -335,7 +335,7 @@ public class VirgilCardClient implements CardClient {
   }
 
   private enum Endpoints {
-    ACTIONS_DELETE("actions/delete"),
+    ACTIONS_DELETE("actions/revoke"),
     ACTIONS_SEARCH("actions/search");
 
     private final String path;

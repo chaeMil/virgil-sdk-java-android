@@ -37,8 +37,6 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignature;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
-import com.virgilsecurity.sdk.cards.validation.DeletedCardVerifier;
-import com.virgilsecurity.sdk.cards.validation.VirgilDeletedCardVerifier;
 import com.virgilsecurity.sdk.client.VirgilCardClient;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
@@ -99,7 +97,6 @@ public class CardManager {
   private CardCrypto crypto;
   private AccessTokenProvider accessTokenProvider;
   private CardVerifier cardVerifier;
-  private DeletedCardVerifier deletedCardVerifier;
   private VirgilCardClient cardClient;
   private SignCallback signCallback;
 
@@ -125,7 +122,6 @@ public class CardManager {
 
     cardClient = new VirgilCardClient();
     modelSigner = new ModelSigner(crypto);
-    deletedCardVerifier = new VirgilDeletedCardVerifier();
   }
 
   /**
@@ -134,49 +130,19 @@ public class CardManager {
    * @param crypto              the crypto
    * @param accessTokenProvider the access token provider
    * @param cardVerifier        the card verifier
-   * @param deletedCardVerifier the deleted card signatures verifier
-   */
-  public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier) {
-    Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
-    Validator.checkNullAgrument(accessTokenProvider,
-        "CardManager -> 'accessTokenProvider' should not be null");
-    Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
-    Validator.checkNullAgrument(deletedCardVerifier,
-                                "CardManager -> 'deletedCardVerifier' should not be null");
-
-    this.crypto = crypto;
-    this.accessTokenProvider = accessTokenProvider;
-    this.cardVerifier = cardVerifier;
-    this.deletedCardVerifier = deletedCardVerifier;
-
-    modelSigner = new ModelSigner(crypto);
-  }
-
-  /**
-   * Instantiates a new Card manager.
-   *
-   * @param crypto              the crypto
-   * @param accessTokenProvider the access token provider
-   * @param cardVerifier        the card verifier
-   * @param deletedCardVerifier the deleted card signatures verifier
    * @param cardClient          the card client
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier,
-                     VirgilCardClient cardClient) {
+                     CardVerifier cardVerifier, VirgilCardClient cardClient) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
                                 "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
-    Validator.checkNullAgrument(deletedCardVerifier,
-                                "CardManager -> 'deletedCardVerifier' should not be null");
     Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
 
     this.crypto = crypto;
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
-    this.deletedCardVerifier = deletedCardVerifier;
     this.cardClient = cardClient;
 
     modelSigner = new ModelSigner(crypto);
@@ -189,28 +155,23 @@ public class CardManager {
    * @param accessTokenProvider the access token provider
    * @param cardClient          the card client
    * @param cardVerifier        the card verifier
-   * @param deletedCardVerifier the deleted card signatures verifier
    * @param signCallback        the sign callback
    * @param retryOnUnauthorized whether card manager should retry request with new token on
    *                            unauthorized http error
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier,
-                     VirgilCardClient cardClient, SignCallback signCallback,
-                     boolean retryOnUnauthorized) {
+                     CardVerifier cardVerifier, VirgilCardClient cardClient,
+                     SignCallback signCallback, boolean retryOnUnauthorized) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
-    Validator.checkNullAgrument(deletedCardVerifier,
-                                "CardManager -> 'deletedCardVerifier' should not be null");
     Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
     Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
 
     this.crypto = crypto;
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
-    this.deletedCardVerifier = deletedCardVerifier;
     this.cardClient = cardClient;
     this.signCallback = signCallback;
     this.retryOnUnauthorized = retryOnUnauthorized;
@@ -228,20 +189,16 @@ public class CardManager {
    * @param signCallback        the sign callback
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-                     CardVerifier cardVerifier, DeletedCardVerifier deletedCardVerifier,
-                     SignCallback signCallback) {
+                     CardVerifier cardVerifier, SignCallback signCallback) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
-    Validator.checkNullAgrument(deletedCardVerifier,
-                                "CardManager -> 'deletedCardVerifier' should not be null");
     Validator.checkNullAgrument(signCallback, "CardManager -> 'signCallback' should not be null");
 
     this.crypto = crypto;
     this.accessTokenProvider = accessTokenProvider;
     this.cardVerifier = cardVerifier;
-    this.deletedCardVerifier = deletedCardVerifier;
 
     cardClient = new VirgilCardClient();
     modelSigner = new ModelSigner(crypto);

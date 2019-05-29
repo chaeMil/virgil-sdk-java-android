@@ -44,14 +44,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
@@ -80,6 +72,14 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -474,7 +474,7 @@ public class CardsManagerTest extends PropertyManager {
     String identity = Generator.identity();
     initCardManager(identity);
 
-    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
     RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
                                                               keyPairVirgiledOne.getPublicKey(),
                                                               identity);
@@ -489,8 +489,7 @@ public class CardsManagerTest extends PropertyManager {
     assertNotNull(searchedCards);
     assertEquals(1, searchedCards.size());
 
-    Card deletedCard = cardManager.revokeCard(publishedCardOne.getIdentifier());
-    assertNotNull(deletedCard);
+    cardManager.revokeCard(publishedCardOne.getIdentifier());
 
     Card receivedCardAfterDelete = cardManager.getCard(publishedCardOne.getIdentifier());
     assertNotNull(receivedCardAfterDelete);
@@ -507,14 +506,14 @@ public class CardsManagerTest extends PropertyManager {
     initCardManager(identity);
 
     // Publish 3 cards chain
-    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
     RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
                                                               keyPairVirgiledOne.getPublicKey(),
                                                               identity);
     Card publishedCardOne = cardManager.publishCard(cardModelOne);
     assertNotNull(publishedCardOne);
 
-    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeyPair();
     RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
                                                               keyPairVirgiledTwo.getPublicKey(),
                                                               identity,
@@ -522,7 +521,7 @@ public class CardsManagerTest extends PropertyManager {
     Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
     assertNotNull(publishedCardTwo);
 
-    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeyPair();
     RawSignedModel cardModelThree = cardManager.generateRawCard(keyPairVirgiledThree.getPrivateKey(),
                                                                 keyPairVirgiledThree.getPublicKey(),
                                                                 identity,
@@ -535,8 +534,7 @@ public class CardsManagerTest extends PropertyManager {
     assertEquals(1, searchedCards.size());
 
     // Delete cards chain
-    Card deletedCard = cardManager.revokeCard(publishedCardThree.getIdentifier());
-    assertNotNull(deletedCard);
+    cardManager.revokeCard(publishedCardThree.getIdentifier());
 
     // Check that cards still exist
     Card receivedCardAfterDeleteOne = cardManager.getCard(publishedCardOne.getIdentifier());
@@ -564,14 +562,14 @@ public class CardsManagerTest extends PropertyManager {
     initCardManager(identity);
 
     // Publish 3 cards chain
-    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
     RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
                                                               keyPairVirgiledOne.getPublicKey(),
                                                               identity);
     Card publishedCardOne = cardManager.publishCard(cardModelOne);
     assertNotNull(publishedCardOne);
 
-    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeyPair();
     RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
                                                               keyPairVirgiledTwo.getPublicKey(),
                                                               identity,
@@ -579,7 +577,7 @@ public class CardsManagerTest extends PropertyManager {
     Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
     assertNotNull(publishedCardTwo);
 
-    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeys();
+    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeyPair();
     RawSignedModel cardModelThree = cardManager.generateRawCard(keyPairVirgiledThree.getPrivateKey(),
                                                                 keyPairVirgiledThree.getPublicKey(),
                                                                 identity,
@@ -593,8 +591,7 @@ public class CardsManagerTest extends PropertyManager {
 
     boolean failed = false;
     try {
-      Card deletedCard = cardManager.revokeCard(publishedCardTwo.getIdentifier());
-      assertNotNull(deletedCard);
+      cardManager.revokeCard(publishedCardTwo.getIdentifier());
     } catch (VirgilServiceException e) {
       failed = true;
     }

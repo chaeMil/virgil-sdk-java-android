@@ -501,7 +501,7 @@ public class CardsManagerTest extends PropertyManager {
   }
 
   @Test
-  public void delete_card_from_chain() throws CryptoException, VirgilServiceException { // TODO try to delete middle card
+  public void delete_card_from_chain() throws CryptoException, VirgilServiceException {
     String identity = Generator.identity();
     initCardManager(identity);
 
@@ -557,7 +557,7 @@ public class CardsManagerTest extends PropertyManager {
   }
 
   @Test
-  public void delete_card_from_middle_chain() throws CryptoException, VirgilServiceException { // TODO try to delete middle card
+  public void delete_card_from_middle_chain() throws CryptoException, VirgilServiceException {
     String identity = Generator.identity();
     initCardManager(identity);
 
@@ -596,6 +596,28 @@ public class CardsManagerTest extends PropertyManager {
       failed = true;
     }
     assertTrue(failed);
+  }
+
+  @Test
+  public void revoke_card() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    VirgilKeyPair keyPairOne = crypto.generateKeyPair();
+    RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairOne.getPrivateKey(),
+                                                              keyPairOne.getPublicKey(),
+                                                              identity);
+    Card publishedCard = cardManager.publishCard(cardModelOne);
+    assertNotNull(publishedCard);
+    TestUtils.assertCardModelsEquals(cardModelOne, publishedCard.getRawCard());
+
+    cardManager.revokeCard(publishedCard.getIdentifier());
+
+    Card revokedCard = cardManager.getCard(publishedCard.getIdentifier());
+    assertTrue(revokedCard.isOutdated());
+
+    List<Card> searchedModels = cardManager.searchCards(identity);
+    assertEquals(searchedModels.size(), 0);
   }
 
   private CardManager init_stc_13() throws CryptoException, VirgilServiceException {

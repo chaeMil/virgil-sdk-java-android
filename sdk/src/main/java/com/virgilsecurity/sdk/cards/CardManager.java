@@ -801,19 +801,18 @@ public class CardManager {
   }
 
   /**
-   * Deletes card from Virgil Cards service. You should provide not empty {@code previousCardId}
-   * of last card in chain that you want to delete. Actually card is not deleted, but one more
-   * Card is published with empty public key that indicates that Card is deleted.
+   * Revokes card from Virgil Cards service. You should provide not empty {@code cardId}
+   * of last card in chain that you want to revoke.
    *
    * You can use {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry
    * request with new token on {@code unauthorized} http error.
    *
-   * @param cardId identifier of last Card in chain that is to delete
+   * @param cardId identifier of last Card in chain that is to revoke.
    *
    * @throws CryptoException if issue occurred during get generating token or verifying card
-   *                         that was received from the Virgil Cards service
-   * @throws VirgilServiceException if card was not created by a service
-   * @throws VirgilCardVerificationException if any of signatures wasn't valid
+   *                         that was received from the Virgil Cards service.
+   * @throws VirgilServiceException if card was not created by a service.
+   * @throws VirgilCardVerificationException if any of signatures wasn't valid.
    */
   public void revokeCard(String cardId)
       throws CryptoException, VirgilServiceException {

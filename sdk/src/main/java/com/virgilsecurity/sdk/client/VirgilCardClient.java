@@ -279,13 +279,12 @@ public class VirgilCardClient implements CardClient {
     }
   }
 
-  /** // TODO review docs for deletion
-   * Deletes card in Virgil Cards service.
+  /**
+   * Revokes card. Revoked card gets isOutdated flag to be set to true.
+   * Also, such cards could be obtained using get query, but will be absent in search query result.
    *
-   * @param cardId id of card to be deleted.
+   * @param cardId identifier of card to revoke.
    * @param token token to authorize the request.
-   *
-   * @return the {@link RawSignedModel} of the Card that is deleted from Virgil Cards service.
    *
    * @throws VirgilServiceException if an error occurred while deleting Card.
    */

@@ -42,6 +42,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,6 +54,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -158,9 +160,10 @@ public class VirgilCryptoTest {
       recipients.add(keyPair.getPublicKey());
     }
     byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients);
-    try (InputStream is = new ByteArrayInputStream(encrypted);
-        ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      for (VirgilPrivateKey privateKey : privateKeys) {
+    for (VirgilPrivateKey privateKey : privateKeys) {
+      try (InputStream is = new ByteArrayInputStream(encrypted);
+           ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+
         crypto.decrypt(is, os, privateKey);
 
         byte[] decrypted = os.toByteArray();
@@ -181,15 +184,16 @@ public class VirgilCryptoTest {
       recipients.add(keyPair.getPublicKey());
     }
 
-    try (ByteArrayOutputStream osOuter = new ByteArrayOutputStream()) {
-      crypto.encrypt(new ByteArrayInputStream(TEXT.getBytes()), osOuter, recipients);
+    for (VirgilPrivateKey privateKey : privateKeys) {
+      try (ByteArrayOutputStream osOuter = new ByteArrayOutputStream();
+           ByteArrayInputStream isOuter = new ByteArrayInputStream(TEXT.getBytes())) {
+        crypto.encrypt(isOuter, osOuter, recipients);
 
-      byte[] encrypted = osOuter.toByteArray();
+        byte[] encrypted = osOuter.toByteArray();
 
-      for (VirgilPrivateKey privateKey : privateKeys) {
-        try (InputStream is = new ByteArrayInputStream(encrypted);
+        try (InputStream isInner = new ByteArrayInputStream(encrypted);
             ByteArrayOutputStream osInner = new ByteArrayOutputStream()) {
-          crypto.decrypt(is, osInner, privateKey);
+          crypto.decrypt(isInner, osInner, privateKey);
 
           byte[] decrypted = osInner.toByteArray();
 

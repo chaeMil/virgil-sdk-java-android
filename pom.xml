@@ -77,6 +77,13 @@
     </developer>
   </developers>
 
+  <repositories>
+    <repository>
+      <id>snapshots</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+  </repositories>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>1.7</maven.compiler.source>
@@ -90,7 +97,7 @@
     <version.testng>6.14.3</version.testng>
     <version.jsonsimple>1.1.1</version.jsonsimple>
     <version.restassured>2.9.0</version.restassured>
-    <version.crypto>0.7.0</version.crypto>
+    <version.crypto>0.8.0-SNAPSHOT</version.crypto>
     <gpg.keyname>empty</gpg.keyname>
   </properties>
 

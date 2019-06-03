@@ -817,7 +817,7 @@ public class CardManager {
   public void revokeCard(String cardId)
       throws CryptoException, VirgilServiceException {
     if (StringUtils.isBlank(cardId)) {
-      throw new IllegalArgumentException("'previousCardId' should not be empty");
+      throw new IllegalArgumentException("'cardId' should not be empty");
     }
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_DELETE,

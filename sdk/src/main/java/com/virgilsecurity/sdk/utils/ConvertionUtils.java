@@ -33,6 +33,17 @@
 
 package com.virgilsecurity.sdk.utils;
 
+import com.virgilsecurity.sdk.common.StringEncoding;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Scanner;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -48,16 +59,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import com.virgilsecurity.sdk.common.StringEncoding;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.reflect.Type;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Scanner;
 
 /**
  * Utilities class for data conversion.
@@ -301,12 +302,6 @@ public class ConvertionUtils {
     return Base64.encode(bytes);
   }
 
-  // TODO remove
-  // public static <T> T parseSnapshot(byte[] snapshot, Charset stringEncoding, Class<T> objectType)
-  // {
-  // return getGson().fromJson(new String(snapshot, stringEncoding), objectType);
-  // }
-
   /**
    * Encode string to Base64 string.
    *
@@ -318,11 +313,6 @@ public class ConvertionUtils {
     byte[] bytes = value.getBytes(UTF8_CHARSET);
     return Base64.encode(bytes);
   }
-
-  // TODO remove
-  // public static <T> T parseSnapshot(byte[] snapshot, TypeToken<T> objectType) {
-  // return getGson().fromJson(new String(snapshot, StandardCharsets.UTF_8), objectType.getType());
-  // }
 
   /**
    * Convert {@code String} to byte array.

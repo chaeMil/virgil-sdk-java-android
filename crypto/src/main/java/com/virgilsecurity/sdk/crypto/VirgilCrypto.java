@@ -33,15 +33,6 @@
 
 package com.virgilsecurity.sdk.crypto;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import com.virgilsecurity.crypto.foundation.Aes256Gcm;
 import com.virgilsecurity.crypto.foundation.AlgId;
 import com.virgilsecurity.crypto.foundation.CtrDrbg;
@@ -70,6 +61,15 @@ import com.virgilsecurity.sdk.crypto.exceptions.SignatureIsNotValidException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VerificationException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * The Virgil's implementation of Crypto.
@@ -270,8 +270,8 @@ public class VirgilCrypto {
    * @throws EncryptionException If encryption failed.
    */
   public byte[] encrypt(byte[] data, List<VirgilPublicKey> publicKeys) throws EncryptionException {
-    try (RecipientCipher cipher = new RecipientCipher()) {
-      Aes256Gcm aesGcm = new Aes256Gcm();
+    try (RecipientCipher cipher = new RecipientCipher();
+         Aes256Gcm aesGcm = new Aes256Gcm()) {
       cipher.setEncryptionCipher(aesGcm);
       cipher.setRandom(this.rng);
 
@@ -326,8 +326,8 @@ public class VirgilCrypto {
    */
   public void encrypt(InputStream inputStream, OutputStream outputStream,
                       List<VirgilPublicKey> publicKeys) throws EncryptionException {
-    try (RecipientCipher cipher = new RecipientCipher()) {
-      Aes256Gcm aesGcm = new Aes256Gcm();
+    try (RecipientCipher cipher = new RecipientCipher();
+         Aes256Gcm aesGcm = new Aes256Gcm()) {
       cipher.setEncryptionCipher(aesGcm);
       cipher.setRandom(rng);
 
@@ -345,14 +345,13 @@ public class VirgilCrypto {
 
         if (inputStream.available() >= CHUNK_SIZE) {
           data = new byte[CHUNK_SIZE];
-          inputStream.read(data);
         } else {
           data = new byte[inputStream.available()];
-          inputStream.read(data);
         }
+        inputStream.read(data);
 
-        cipher.processEncryption(data);
-        outputStream.write(data);
+        byte[] encryptedData = cipher.processEncryption(data);
+        outputStream.write(encryptedData);
       }
 
       byte[] finish = cipher.finishEncryption();
@@ -400,10 +399,10 @@ public class VirgilCrypto {
   public byte[] signThenEncrypt(byte[] data,
                                 VirgilPrivateKey privateKey,
                                 List<VirgilPublicKey> publicKeys) throws CryptoException {
-    try (RecipientCipher cipher = new RecipientCipher()) {
+    try (RecipientCipher cipher = new RecipientCipher();
+         Aes256Gcm aesGcm = new Aes256Gcm()) {
       byte[] signature = generateSignature(data, privateKey);
-      Aes256Gcm aesGcm = new Aes256Gcm(); // TODO  do we need to close autoclosable inside other one?
-      cipher.setEncryptionCipher(aesGcm);
+            cipher.setEncryptionCipher(aesGcm);
       cipher.setRandom(rng);
 
       for (VirgilPublicKey publicKey : publicKeys) {
@@ -950,7 +949,7 @@ public class VirgilCrypto {
    */
   public VirgilPublicKey extractPublicKey(VirgilPrivateKey privateKey) {
     if (privateKey == null) {
-      throw new NullArgumentException("privateKey"); // TODO check all null arguments
+      throw new NullArgumentException("privateKey");
     }
 
     return new VirgilPublicKey(privateKey.getIdentifier(),

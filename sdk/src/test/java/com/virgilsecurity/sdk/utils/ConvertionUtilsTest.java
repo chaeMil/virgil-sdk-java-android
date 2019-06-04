@@ -58,8 +58,6 @@ public class ConvertionUtilsTest {
 
   @Test
   public void autoByteToBase64StringSerialization() {
-    // FIXME: 1/29/18 Check where we can change String with byte[]
-    // in models - gson automatically will transform it
     ClassForSerialization classForSerialization = new ClassForSerialization("Petro",
         "Grigorovych".getBytes());
 

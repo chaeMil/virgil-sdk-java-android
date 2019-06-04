@@ -42,6 +42,7 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
 import com.virgilsecurity.sdk.exception.NullArgumentException;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,6 +54,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,6 +76,7 @@ public class VirgilCryptoTest {
       76, -34, -53, -96, -70, 85, 80, 0, 88, 77, 48, 9, -100, 81, 39, -51, -125, -102, -107, -108,
       14, -88, 7, 2, 32, 13, -71, -99, 8, -69, -77, 30, 98, 20, -25, 60, 125, -19, 67, 12, -30, 65,
       93, -29, -92, -58, -91, 91, 50, -111, -79, 50, -123, -39, 36, 48, -20 };
+  private static final int RECIPIENTS_NUMBER = 100;
 
   @org.junit.Rule
   public org.junit.rules.ExpectedException expectedException = org.junit.rules.ExpectedException.none();
@@ -122,7 +125,7 @@ public class VirgilCryptoTest {
   public void decrypt() throws VirgilException {
     List<VirgilPrivateKey> privateKeys = new ArrayList<>();
     List<VirgilPublicKey> recipients = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < RECIPIENTS_NUMBER; i++) {
       VirgilKeyPair keyPair = crypto.generateKeyPair();
       privateKeys.add(keyPair.getPrivateKey());
       recipients.add(keyPair.getPublicKey());
@@ -152,15 +155,16 @@ public class VirgilCryptoTest {
   public void decrypt_stream() throws IOException, VirgilException {
     List<VirgilPrivateKey> privateKeys = new ArrayList<>();
     List<VirgilPublicKey> recipients = new ArrayList<>();
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < RECIPIENTS_NUMBER; i++) {
       VirgilKeyPair keyPair = crypto.generateKeyPair();
       privateKeys.add(keyPair.getPrivateKey());
       recipients.add(keyPair.getPublicKey());
     }
     byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients);
-    try (InputStream is = new ByteArrayInputStream(encrypted);
-        ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-      for (VirgilPrivateKey privateKey : privateKeys) {
+    for (VirgilPrivateKey privateKey : privateKeys) {
+      try (InputStream is = new ByteArrayInputStream(encrypted);
+           ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+
         crypto.decrypt(is, os, privateKey);
 
         byte[] decrypted = os.toByteArray();
@@ -171,9 +175,39 @@ public class VirgilCryptoTest {
   }
 
   @Test
+  public void encrypt_decrypt_stream() throws IOException, CryptoException {
+    List<VirgilPrivateKey> privateKeys = new ArrayList<>();
+    List<VirgilPublicKey> recipients = new ArrayList<>();
+    for (int i = 0; i < RECIPIENTS_NUMBER; i++) {
+      VirgilKeyPair keyPair = crypto.generateKeyPair();
+
+      privateKeys.add(keyPair.getPrivateKey());
+      recipients.add(keyPair.getPublicKey());
+    }
+
+    for (VirgilPrivateKey privateKey : privateKeys) {
+      try (ByteArrayOutputStream osOuter = new ByteArrayOutputStream();
+           ByteArrayInputStream isOuter = new ByteArrayInputStream(TEXT.getBytes())) {
+        crypto.encrypt(isOuter, osOuter, recipients);
+
+        byte[] encrypted = osOuter.toByteArray();
+
+        try (InputStream isInner = new ByteArrayInputStream(encrypted);
+            ByteArrayOutputStream osInner = new ByteArrayOutputStream()) {
+          crypto.decrypt(isInner, osInner, privateKey);
+
+          byte[] decrypted = osInner.toByteArray();
+
+          assertArrayEquals(TEXT.getBytes(), decrypted);
+        }
+      }
+    }
+  }
+
+  @Test
   public void encrypt() throws VirgilException {
     List<VirgilPublicKey> recipients = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < RECIPIENTS_NUMBER; i++) {
       recipients.add(crypto.generateKeyPair().getPublicKey());
     }
     byte[] encrypted = crypto.encrypt(TEXT.getBytes(), recipients);
@@ -192,7 +226,7 @@ public class VirgilCryptoTest {
   @Test
   public void encrypt_stream() throws IOException, CryptoException {
     List<VirgilPublicKey> recipients = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < RECIPIENTS_NUMBER; i++) {
       recipients.add(crypto.generateKeyPair().getPublicKey());
     }
     try (OutputStream os = new ByteArrayOutputStream()) {

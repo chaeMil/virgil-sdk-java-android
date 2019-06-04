@@ -77,8 +77,8 @@ public class CardManager {
     /**
      * On sign raw signed model callback than will be called when raw card is about to be generated.
      *
-     * @param rawSignedModel
-     *          the raw signed model
+     * @param rawSignedModel the raw signed model
+     *
      * @return the raw signed model
      * @see #generateRawCard(PrivateKey, PublicKey, String, String, Map)
      */
@@ -87,6 +87,7 @@ public class CardManager {
 
   private static final Logger LOGGER = Logger.getLogger(CardManager.class.getName());
   private static final String CURRENT_CARD_VERSION = "5.0";
+  private static final String TOKEN_CONTEXT_OPERATION_DELETE = "delete";
   private static final String TOKEN_CONTEXT_OPERATION_PUBLISH = "publish";
   private static final String TOKEN_CONTEXT_OPERATION_GET = "get";
   private static final String TOKEN_CONTEXT_OPERATION_SEARCH = "search";
@@ -104,12 +105,9 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardVerifier
-   *          the card verifier
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
       CardVerifier cardVerifier) {
@@ -129,20 +127,16 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardVerifier
-   *          the card verifier
-   * @param cardClient
-   *          the card client
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
+   * @param cardClient          the card client
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, VirgilCardClient cardClient) {
+                     CardVerifier cardVerifier, VirgilCardClient cardClient) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
-        "CardManager -> 'accessTokenProvider' should not be null");
+                                "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
     Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
 
@@ -157,22 +151,17 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardClient
-   *          the card client
-   * @param cardVerifier
-   *          the card verifier
-   * @param signCallback
-   *          the sign callback
-   * @param retryOnUnauthorized
-   *          whether card manager should retry request with new token on unauthorized http error
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardClient          the card client
+   * @param cardVerifier        the card verifier
+   * @param signCallback        the sign callback
+   * @param retryOnUnauthorized whether card manager should retry request with new token on
+   *                            unauthorized http error
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, VirgilCardClient cardClient, SignCallback signCallback,
-      boolean retryOnUnauthorized) {
+                     CardVerifier cardVerifier, VirgilCardClient cardClient,
+                     SignCallback signCallback, boolean retryOnUnauthorized) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
@@ -193,17 +182,14 @@ public class CardManager {
   /**
    * Instantiates a new Card manager.
    *
-   * @param crypto
-   *          the crypto
-   * @param accessTokenProvider
-   *          the access token provider
-   * @param cardVerifier
-   *          the card verifier
-   * @param signCallback
-   *          the sign callback
+   * @param crypto              the crypto
+   * @param accessTokenProvider the access token provider
+   * @param cardVerifier        the card verifier
+   * @param deletedCardVerifier the deleted card signatures verifier
+   * @param signCallback        the sign callback
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier, SignCallback signCallback) {
+                     CardVerifier cardVerifier, SignCallback signCallback) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
@@ -269,12 +255,7 @@ public class CardManager {
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity)
       throws CryptoException {
 
-    RawCardContent cardContent = new RawCardContent(identity,
-        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION,
-        new Date());
-
-    byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
-    RawSignedModel cardModel = new RawSignedModel(snapshot);
+    RawSignedModel cardModel = generateRawSignedModel(publicKey, identity);
     modelSigner.selfSign(cardModel, privateKey);
 
     return cardModel;
@@ -298,23 +279,19 @@ public class CardManager {
    *           if issue occurred during exporting public key or self sign operation
    */
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-      Map<String, String> additionalData) throws CryptoException {
+                                        Map<String, String> additionalData) throws CryptoException {
 
-    RawCardContent cardContent = new RawCardContent(identity,
-        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION,
-        new Date());
-
-    byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
-    RawSignedModel cardModel = new RawSignedModel(snapshot);
+    RawSignedModel cardModel = generateRawSignedModel(publicKey, identity);
     modelSigner.selfSign(cardModel, privateKey, ConvertionUtils.captureSnapshot(additionalData));
 
     return cardModel;
   }
 
   /**
-   * Generates a new {@link RawSignedModel} in order to apply for a card registration. It contains
-   * the public key for which the card should be registered, identity information (such as a user
-   * name) and integrity protection in form of digital self signature.
+   * Generates a new {@link RawSignedModel} in order to apply for a card registration or deletion.
+   * It contains the public key for which the card should be registered or *null* to delete
+   * the card, identity information (such as a user name) and integrity protection in form of
+   * digital self signature.
    *
    * @param privateKey
    *          the private key that used to generate self signature
@@ -331,12 +308,8 @@ public class CardManager {
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
       String previousCardId) throws CryptoException {
 
-    RawCardContent cardContent = new RawCardContent(identity,
-        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION,
-        new Date(), previousCardId);
+    RawSignedModel cardModel = generateRawSignedModel(publicKey, identity, previousCardId);
 
-    byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
-    RawSignedModel cardModel = new RawSignedModel(snapshot);
     modelSigner.selfSign(cardModel, privateKey);
 
     return cardModel;
@@ -364,15 +337,65 @@ public class CardManager {
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
       String previousCardId, Map<String, String> additionalData) throws CryptoException {
 
-    RawCardContent cardContent = new RawCardContent(identity,
-        ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)), CURRENT_CARD_VERSION,
-        new Date(), previousCardId);
-
-    byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
-    RawSignedModel cardModel = new RawSignedModel(snapshot);
+    RawSignedModel cardModel = generateRawSignedModel(publicKey, identity, previousCardId);
     modelSigner.selfSign(cardModel, privateKey, ConvertionUtils.captureSnapshot(additionalData));
 
     return cardModel;
+  }
+
+  /**
+   * Generates a new {@link RawSignedModel} in order to apply for a card registration.
+   * It contains the public key for which the card should be registered, identity information
+   * (such as a user name).
+   *
+   * @param publicKey the public key to register card
+   * @param identity  the unique identity value
+   *
+   * @return a new instance of {@link RawSignedModel}
+   *
+   * @throws CryptoException if issue occurred during exporting public key or self sign operation
+   */
+  private RawSignedModel generateRawSignedModel(PublicKey publicKey,
+                                                String identity) throws CryptoException {
+    RawCardContent cardContent =
+        new RawCardContent(identity,
+                           ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+                           CURRENT_CARD_VERSION,
+                           new Date());
+
+    byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
+
+    return new RawSignedModel(snapshot);
+  }
+
+  /**
+   * Generates a new {@link RawSignedModel} in order to apply for a card registration or deletion.
+   * It contains the public key for which the card should be registered or *null* to delete
+   * the card, identity information (such as a user name).
+   *
+   * @param publicKey      the public key to register card or *null* to delete card
+   * @param identity       the unique identity value
+   * @param previousCardId the previous card id that current card is used to override
+   *
+   * @return a new instance of {@link RawSignedModel}
+   *
+   * @throws CryptoException if issue occurred during exporting public key or self sign operation
+   */
+  private RawSignedModel generateRawSignedModel(PublicKey publicKey,
+                                                String identity,
+                                                String previousCardId) throws CryptoException {
+
+    String publicKeyB64 = ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey));
+
+    RawCardContent cardContent = new RawCardContent(identity,
+                                                    publicKeyB64,
+                                                    CURRENT_CARD_VERSION,
+                                                    new Date(),
+                                                    previousCardId);
+
+    byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
+
+    return new RawSignedModel(snapshot);
   }
 
   /**
@@ -759,34 +782,80 @@ public class CardManager {
     Validator.checkNullAgrument(cardModel, "CardManager -> 'cardModel' should not be null");
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
-        TOKEN_CONTEXT_SERVICE);
+                                                 TOKEN_CONTEXT_SERVICE);
 
     AccessToken token = accessTokenProvider.getToken(tokenContext);
 
     String cardModelIdentity = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()))
-        .getIdentity();
+                                             .getIdentity();
 
-    if (!cardModelIdentity.equals(token.getIdentity()))
+    // Possibly move this and bottom lines to Logs
+    if (!cardModelIdentity.equals(token.getIdentity())) {
       throw new IllegalArgumentException(
           "Identity in provided RawSignedModel and in JWT must be equal."
-              + "Identity specified in provided RawSignedModel: " + cardModelIdentity + ". " + // Possibly
-                                                                                               // move
-                                                                                               // this
-                                                                                               // and
-                                                                                               // bottom
-                                                                                               // lines
-                                                                                               // to
-                                                                                               // Logs
-              "Identity specified in JWT: " + token.getIdentity() + ".");
+              + "Identity specified in provided RawSignedModel: " + cardModelIdentity + ". "
+              + "Identity specified in JWT: " + token.getIdentity() + ".");
+    }
 
     return publishRawSignedModel(cardModel, tokenContext, token);
   }
 
-  private Card publishRawSignedModel(RawSignedModel cardModel, TokenContext tokenContext,
-      AccessToken initialToken) throws CryptoException, VirgilServiceException { // Initial token is
-                                                                                 // intended for not
-                                                                                 // to call getToken
-                                                                                 // twice
+  /**
+   * Revokes card from Virgil Cards service. You should provide not empty {@code cardId}
+   * of last card in chain that you want to revoke.
+   *
+   * You can use {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry
+   * request with new token on {@code unauthorized} http error.
+   *
+   * @param cardId identifier of last Card in chain that is to revoke.
+   *
+   * @throws CryptoException if issue occurred during get generating token or verifying card
+   *                         that was received from the Virgil Cards service.
+   * @throws VirgilServiceException if card was not created by a service.
+   * @throws VirgilCardVerificationException if any of signatures wasn't valid.
+   */
+  public void revokeCard(String cardId)
+      throws CryptoException, VirgilServiceException {
+    if (StringUtils.isBlank(cardId)) {
+      throw new IllegalArgumentException("'cardId' should not be empty");
+    }
+
+    TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_DELETE,
+                                                 false,
+                                                 TOKEN_CONTEXT_SERVICE);
+
+    AccessToken token = accessTokenProvider.getToken(tokenContext);
+
+    try {
+      cardClient.revokeCard(cardId, token.stringRepresentation());
+    } catch (VirgilServiceException exceptionOuter) {
+      if (exceptionOuter.getHttpError() != null
+          && exceptionOuter.getHttpError().getCode() == HttpURLConnection.HTTP_UNAUTHORIZED
+          && retryOnUnauthorized) {
+        LOGGER.fine("Token is expired, trying to reload...");
+        token = accessTokenProvider.getToken(tokenContext);
+        try {
+          cardClient.revokeCard(cardId, token.stringRepresentation());
+        } catch (VirgilServiceException exceptionInner) {
+          LOGGER.log(Level.SEVERE, "An error occurred while revoking a card", exceptionOuter);
+          throw exceptionInner;
+        }
+      } else {
+        if (exceptionOuter.getHttpError() != null) {
+          LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
+                     exceptionOuter);
+        } else {
+          LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(),
+                     exceptionOuter);
+        }
+        throw exceptionOuter;
+      }
+    }
+  }
+
+  private Card publishRawSignedModel(RawSignedModel cardModel,
+                                     TokenContext tokenContext,
+                                     AccessToken initialToken) throws CryptoException, VirgilServiceException {
 
     RawSignedModel cardModelPublished;
 
@@ -809,7 +878,7 @@ public class CardManager {
           cardModelPublished = cardClient.publishCard(cardModel,
               initialToken.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while publishing a card", exceptionOuter);
+          LOGGER.log(Level.SEVERE, "An error occurred while publishing a card", exceptionOuter);
           throw exceptionInner;
         }
       } else {
@@ -889,7 +958,7 @@ public class CardManager {
         try {
           cardModels = cardClient.searchCards(identity, token.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while searching for cards", exceptionOuter);
+          LOGGER.log(Level.SEVERE, "An error occurred while searching for cards", exceptionOuter);
           throw exceptionInner;
         }
       } else {
@@ -947,16 +1016,16 @@ public class CardManager {
         try {
           cardModels = cardClient.searchCards(identities, token.stringRepresentation());
         } catch (VirgilServiceException exceptionInner) {
-          LOGGER.log(Level.SEVERE, "An error ocurred while searching for cards", exceptionOuter);
+          LOGGER.log(Level.SEVERE, "An error occurred while searching for cards", exceptionOuter);
           throw exceptionInner;
         }
       } else {
         if (exceptionOuter.getHttpError() != null) {
           LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
-              exceptionOuter);
+                     exceptionOuter);
         } else {
           LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(),
-              exceptionOuter);
+                     exceptionOuter);
         }
         throw exceptionOuter;
       }

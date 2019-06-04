@@ -44,14 +44,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.model.RawCardContent;
@@ -80,6 +72,14 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -467,6 +467,157 @@ public class CardsManagerTest extends PropertyManager {
     Card i2CardFound = TestUtils.getCardByIdentity(cards, identity2);
     assertNotNull(i2CardFound);
     TestUtils.assertCardsEquals(i2Card, i2CardFound);
+  }
+
+  @Test
+  public void delete_card() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
+    RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
+                                                              keyPairVirgiledOne.getPublicKey(),
+                                                              identity);
+    Card publishedCardOne = cardManager.publishCard(cardModelOne);
+    assertNotNull(publishedCardOne);
+
+    Card receivedCard = cardManager.getCard(publishedCardOne.getIdentifier());
+    assertNotNull(receivedCard);
+    assertCardsEquals(publishedCardOne, receivedCard);
+
+    List<Card> searchedCards = cardManager.searchCards(identity);
+    assertNotNull(searchedCards);
+    assertEquals(1, searchedCards.size());
+
+    cardManager.revokeCard(publishedCardOne.getIdentifier());
+
+    Card receivedCardAfterDelete = cardManager.getCard(publishedCardOne.getIdentifier());
+    assertNotNull(receivedCardAfterDelete);
+    assertCardModelsEquals(publishedCardOne.getRawCard(), receivedCardAfterDelete.getRawCard());
+
+    List<Card> searchedCardsAfterDelete = cardManager.searchCards(identity);
+    assertNotNull(searchedCardsAfterDelete);
+    assertEquals(0, searchedCardsAfterDelete.size());
+  }
+
+  @Test
+  public void delete_card_from_chain() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    // Publish 3 cards chain
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
+    RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
+                                                              keyPairVirgiledOne.getPublicKey(),
+                                                              identity);
+    Card publishedCardOne = cardManager.publishCard(cardModelOne);
+    assertNotNull(publishedCardOne);
+
+    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeyPair();
+    RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
+                                                              keyPairVirgiledTwo.getPublicKey(),
+                                                              identity,
+                                                              publishedCardOne.getIdentifier());
+    Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
+    assertNotNull(publishedCardTwo);
+
+    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeyPair();
+    RawSignedModel cardModelThree = cardManager.generateRawCard(keyPairVirgiledThree.getPrivateKey(),
+                                                                keyPairVirgiledThree.getPublicKey(),
+                                                                identity,
+                                                                publishedCardTwo.getIdentifier());
+    Card publishedCardThree = cardManager.publishCard(cardModelThree);
+    assertNotNull(publishedCardThree);
+
+    List<Card> searchedCards = cardManager.searchCards(identity);
+    assertNotNull(searchedCards);
+    assertEquals(1, searchedCards.size());
+
+    // Delete cards chain
+    cardManager.revokeCard(publishedCardThree.getIdentifier());
+
+    // Check that cards still exist
+    Card receivedCardAfterDeleteOne = cardManager.getCard(publishedCardOne.getIdentifier());
+    assertNotNull(receivedCardAfterDeleteOne);
+    assertCardModelsEquals(publishedCardOne.getRawCard(), receivedCardAfterDeleteOne.getRawCard());
+
+    Card receivedCardAfterDeleteTwo = cardManager.getCard(publishedCardTwo.getIdentifier());
+    assertNotNull(receivedCardAfterDeleteTwo);
+    assertCardModelsEquals(publishedCardTwo.getRawCard(), receivedCardAfterDeleteTwo.getRawCard());
+
+    Card receivedCardAfterDeleteThree = cardManager.getCard(publishedCardThree.getIdentifier());
+    assertNotNull(receivedCardAfterDeleteThree);
+    assertCardModelsEquals(publishedCardThree.getRawCard(),
+                           receivedCardAfterDeleteThree.getRawCard());
+
+    // Cards chain deleted - nothing will appear in search
+    List<Card> searchedCardsAfterDelete = cardManager.searchCards(identity);
+    assertNotNull(searchedCardsAfterDelete);
+    assertEquals(0, searchedCardsAfterDelete.size());
+  }
+
+  @Test
+  public void delete_card_from_middle_chain() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    // Publish 3 cards chain
+    VirgilKeyPair keyPairVirgiledOne = crypto.generateKeyPair();
+    RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairVirgiledOne.getPrivateKey(),
+                                                              keyPairVirgiledOne.getPublicKey(),
+                                                              identity);
+    Card publishedCardOne = cardManager.publishCard(cardModelOne);
+    assertNotNull(publishedCardOne);
+
+    VirgilKeyPair keyPairVirgiledTwo = crypto.generateKeyPair();
+    RawSignedModel cardModelTwo = cardManager.generateRawCard(keyPairVirgiledTwo.getPrivateKey(),
+                                                              keyPairVirgiledTwo.getPublicKey(),
+                                                              identity,
+                                                              publishedCardOne.getIdentifier());
+    Card publishedCardTwo = cardManager.publishCard(cardModelTwo);
+    assertNotNull(publishedCardTwo);
+
+    VirgilKeyPair keyPairVirgiledThree = crypto.generateKeyPair();
+    RawSignedModel cardModelThree = cardManager.generateRawCard(keyPairVirgiledThree.getPrivateKey(),
+                                                                keyPairVirgiledThree.getPublicKey(),
+                                                                identity,
+                                                                publishedCardTwo.getIdentifier());
+    Card publishedCardThree = cardManager.publishCard(cardModelThree);
+    assertNotNull(publishedCardThree);
+
+    List<Card> searchedCards = cardManager.searchCards(identity);
+    assertNotNull(searchedCards);
+    assertEquals(1, searchedCards.size());
+
+    boolean failed = false;
+    try {
+      cardManager.revokeCard(publishedCardTwo.getIdentifier());
+    } catch (VirgilServiceException e) {
+      failed = true;
+    }
+    assertTrue(failed);
+  }
+
+  @Test
+  public void revoke_card() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    VirgilKeyPair keyPairOne = crypto.generateKeyPair();
+    RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairOne.getPrivateKey(),
+                                                              keyPairOne.getPublicKey(),
+                                                              identity);
+    Card publishedCard = cardManager.publishCard(cardModelOne);
+    assertNotNull(publishedCard);
+    TestUtils.assertCardModelsEquals(cardModelOne, publishedCard.getRawCard());
+
+    cardManager.revokeCard(publishedCard.getIdentifier());
+
+    Card revokedCard = cardManager.getCard(publishedCard.getIdentifier());
+    assertTrue(revokedCard.isOutdated());
+
+    List<Card> searchedModels = cardManager.searchCards(identity);
+    assertEquals(searchedModels.size(), 0);
   }
 
   private CardManager init_stc_13() throws CryptoException, VirgilServiceException {

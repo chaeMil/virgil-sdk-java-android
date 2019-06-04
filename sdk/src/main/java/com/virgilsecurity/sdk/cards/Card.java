@@ -44,7 +44,6 @@ import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.utils.CardUtils;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Validator;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -94,8 +93,9 @@ public class Card {
         .deserializeFromJson(new String(cardModel.getContentSnapshot()), RawCardContent.class);
 
     String cardId = CardUtils.generateCardId(cardCrypto, cardModel.getContentSnapshot());
-    PublicKey publicKey = cardCrypto
-        .importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
+
+    PublicKey publicKey =
+          cardCrypto.importPublicKey(ConvertionUtils.base64ToBytes(rawCardContent.getPublicKey()));
 
     // Converting RawSignatures to CardSignatures
     List<CardSignature> cardSignatures = new ArrayList<>();

@@ -33,7 +33,6 @@
 
 package com.virgilsecurity.sdk.client;
 
-import com.google.gson.annotations.SerializedName;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardIsOutdatedException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilCardServiceException;
@@ -53,6 +52,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.google.gson.annotations.SerializedName;
 
 /**
  * The {@link VirgilCardClient} class represents a Virgil Security service client and contains all
@@ -236,7 +237,7 @@ public class VirgilCardClient implements CardClient {
       throw new EmptyArgumentException("CardClient -> 'identity' should not be empty");
     }
 
-    return searchCards(Arrays.asList(identity), token);
+    return searchCards(Collections.singletonList(identity), token);
   }
 
   /**
@@ -261,7 +262,7 @@ public class VirgilCardClient implements CardClient {
     }
 
     try {
-      URL url = new URL(serviceUrl, "actions/search");
+      URL url = new URL(serviceUrl, Endpoints.ACTIONS_SEARCH.path);
       SearchCardsRequestData requestData = new SearchCardsRequestData(identities);
       String body = ConvertionUtils.getGson().toJson(requestData);
 
@@ -269,6 +270,33 @@ public class VirgilCardClient implements CardClient {
           new ByteArrayInputStream(ConvertionUtils.toBytes(body)), RawSignedModel[].class);
 
       return Arrays.asList(cardModels);
+    } catch (VirgilServiceException e) {
+      LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
+      throw e;
+    } catch (Exception e) {
+      LOGGER.log(Level.SEVERE, "Some issue occurred during request executing", e);
+      throw new VirgilCardServiceException(e);
+    }
+  }
+
+  /**
+   * Revokes card. Revoked card gets isOutdated flag to be set to true.
+   * Also, such cards could be obtained using get query, but will be absent in search query result.
+   *
+   * @param cardId identifier of card to revoke.
+   * @param token token to authorize the request.
+   *
+   * @throws VirgilServiceException if an error occurred while deleting Card.
+   */
+  public void revokeCard(String cardId, String token) throws VirgilServiceException {
+    try {
+      URL url = new URL(serviceUrl, Endpoints.ACTIONS_DELETE.path + "/" + cardId);
+
+      httpClient.execute(url,
+                         "POST",
+                         token,
+                         null,
+                         RawSignedModel.class);
     } catch (VirgilServiceException e) {
       LOGGER.log(Level.SEVERE, "Some service issue occurred during request executing", e);
       throw e;
@@ -302,6 +330,17 @@ public class VirgilCardClient implements CardClient {
 
     public List<String> getIdentities() {
       return identities;
+    }
+  }
+
+  private enum Endpoints {
+    ACTIONS_DELETE("actions/revoke"),
+    ACTIONS_SEARCH("actions/search");
+
+    private final String path;
+
+    Endpoints(String path) {
+      this.path = path;
     }
   }
 }

@@ -73,6 +73,7 @@ import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
@@ -618,6 +619,33 @@ public class CardsManagerTest extends PropertyManager {
 
     List<Card> searchedModels = cardManager.searchCards(identity);
     assertEquals(searchedModels.size(), 0);
+  }
+
+  @Test
+  public void revoke_other_unauthorized_id() throws CryptoException, VirgilServiceException {
+    String identity = Generator.identity();
+    initCardManager(identity);
+
+    VirgilKeyPair keyPairOne = crypto.generateKeyPair();
+    RawSignedModel cardModelOne = cardManager.generateRawCard(keyPairOne.getPrivateKey(),
+                                                              keyPairOne.getPublicKey(),
+                                                              identity);
+    Card publishedCard = cardManager.publishCard(cardModelOne);
+    assertNotNull(publishedCard);
+    TestUtils.assertCardModelsEquals(cardModelOne, publishedCard.getRawCard());
+
+    String identityTwo = Generator.identity();
+    initCardManager(identityTwo);
+
+    try {
+      cardManager.revokeCard(publishedCard.getIdentifier());
+    } catch (Throwable throwable) {
+      assertTrue(throwable instanceof VirgilCardServiceException);
+      assertEquals(HttpURLConnection.HTTP_BAD_REQUEST,
+                   ((VirgilCardServiceException)throwable).getHttpError().getCode());
+      assertEquals(40032,
+                   ((VirgilCardServiceException)throwable).getErrorCode());
+    }
   }
 
   private CardManager init_stc_13() throws CryptoException, VirgilServiceException {

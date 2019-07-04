@@ -39,11 +39,13 @@ import static org.junit.Assert.fail;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.virgilsecurity.crypto.foundation.Hash;
+import com.virgilsecurity.crypto.foundation.CtrDrbg;
+import com.virgilsecurity.crypto.foundation.KeyAlg;
+import com.virgilsecurity.crypto.foundation.KeyAlgFactory;
 import com.virgilsecurity.crypto.foundation.KeyAsn1Serializer;
+import com.virgilsecurity.crypto.foundation.RawPublicKey;
 import com.virgilsecurity.crypto.foundation.Sha256;
 import com.virgilsecurity.crypto.foundation.Sha512;
-import com.virgilsecurity.crypto.foundation.SignHash;
 import com.virgilsecurity.crypto.foundation.Signer;
 import com.virgilsecurity.crypto.utils.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -65,16 +67,18 @@ import org.junit.Test;
 public class CryptoFormatsTests {
 
   private VirgilCrypto crypto;
+  private CtrDrbg random;
   private JsonObject sampleJson;
 
   @Before
   public void setup() {
     this.crypto = new VirgilCrypto();
+    this.random = new CtrDrbg();
+    this.random.setupDefaults();
+
     sampleJson = (JsonObject) new JsonParser()
-        .parse(new InputStreamReader(
-            Objects.requireNonNull(
-                this.getClass().getClassLoader().getResourceAsStream(
-                    "com/virgilsecurity/sdk/crypto/crypto_formats_data.json"))));
+        .parse(new InputStreamReader(Objects.requireNonNull(this.getClass().getClassLoader()
+            .getResourceAsStream("com/virgilsecurity/sdk/crypto/crypto_formats_data.json"))));
   }
 
   @Test
@@ -92,10 +96,9 @@ public class CryptoFormatsTests {
       signer.setHash(new Sha512());
 
       signer.reset();
-      signer.update(data);
+      signer.appendData(data);
 
-      SignHash signHash = (SignHash) keyPair.getPrivateKey().getPrivateKey();
-      byte[] signature2 = signer.sign(signHash);
+      byte[] signature2 = signer.sign(keyPair.getPrivateKey().getPrivateKey());
 
       assertArrayEquals(signature2, signature);
     }
@@ -178,31 +181,38 @@ public class CryptoFormatsTests {
 
     VirgilKeyPair keyPair = this.crypto.generateKeyPair();
 
-    KeyAsn1Serializer serializer = new KeyAsn1Serializer();
-    serializer.setupDefaults();
+    try (KeyAsn1Serializer serializer = new KeyAsn1Serializer(); Sha256 hash = new Sha256();) {
+      serializer.setupDefaults();
 
-    byte[] publicKeyDer = serializer.serializePublicKey(keyPair.getPublicKey().getPublicKey());
+      KeyAlg keyAlg = KeyAlgFactory.createFromKey(keyPair.getPublicKey().getPublicKey(),
+          this.random);
+      RawPublicKey rawPublicKey = keyAlg.exportPublicKey(keyPair.getPublicKey().getPublicKey());
 
-    Hash hash = new Sha256();
-    byte[] id = hash.hash(publicKeyDer);
+      byte[] publicKeyDer = serializer.serializePublicKey(rawPublicKey);
+      byte[] id = hash.hash(publicKeyDer);
 
-    assertArrayEquals(id, keyPair.getPublicKey().getIdentifier());
+      assertArrayEquals(id, keyPair.getPublicKey().getIdentifier());
+    }
   }
 
   @Test
   public void stc_33_sha512() throws CryptoException {
     // STC_33
     VirgilKeyPair keyPair = this.crypto.generateKeyPair();
-    KeyAsn1Serializer serializer = new KeyAsn1Serializer();
-    serializer.setupDefaults();
+    try (KeyAsn1Serializer serializer = new KeyAsn1Serializer(); Sha512 hasher = new Sha512()) {
+      serializer.setupDefaults();
 
-    byte[] publicKeyDer = serializer.serializePublicKey(keyPair.getPublicKey().getPublicKey());
+      KeyAlg keyAlg = KeyAlgFactory.createFromKey(keyPair.getPublicKey().getPublicKey(),
+          this.random);
+      RawPublicKey rawPublicKey = keyAlg.exportPublicKey(keyPair.getPublicKey().getPublicKey());
 
-    Hash hasher = new Sha512();
-    byte[] hash = hasher.hash(publicKeyDer);
-    byte[] id = Arrays.copyOf(hash, 8);
+      byte[] publicKeyDer = serializer.serializePublicKey(rawPublicKey);
 
-    assertArrayEquals(id, keyPair.getPublicKey().getIdentifier());
+      byte[] hash = hasher.hash(publicKeyDer);
+      byte[] id = Arrays.copyOf(hash, 8);
+
+      assertArrayEquals(id, keyPair.getPublicKey().getIdentifier());
+    }
   }
 
 }

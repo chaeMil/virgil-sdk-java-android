@@ -185,7 +185,6 @@ public class CardManager {
    * @param crypto              the crypto
    * @param accessTokenProvider the access token provider
    * @param cardVerifier        the card verifier
-   * @param deletedCardVerifier the deleted card signatures verifier
    * @param signCallback        the sign callback
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,

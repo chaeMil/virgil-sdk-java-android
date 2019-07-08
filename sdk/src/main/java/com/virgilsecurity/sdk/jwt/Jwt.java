@@ -106,6 +106,10 @@ public class Jwt implements AccessToken {
    *          body. (ex. "***.***", where "***" is base64 encoded string)
    */
   public Jwt(String jwtToken) {
+    if (jwtToken == null) {
+      throw new IllegalArgumentException("'jwtToken' cannot be null");
+    }
+    
     String[] jwtParts = jwtToken.split("[.]");
 
     if (jwtParts.length < 2 || jwtParts.length > 3) {

@@ -38,6 +38,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import com.virgilsecurity.crypto.foundation.KeyProvider;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.SigningException;
 import com.virgilsecurity.sdk.crypto.exceptions.VirgilException;
@@ -262,12 +263,12 @@ public class VirgilCryptoTest {
     VirgilPublicKey publicKey = keyPair.getPublicKey();
     assertNotNull(publicKey);
     assertNotNull(publicKey.getIdentifier());
-    assertNotNull(publicKey.getPublicKey().exportPublicKey());
+    assertTrue(publicKey.getPublicKey().isValid());
 
     VirgilPrivateKey privateKey = keyPair.getPrivateKey();
     assertNotNull(privateKey);
     assertNotNull(privateKey.getIdentifier());
-    assertNotNull(privateKey.getPrivateKey().exportPrivateKey());
+    assertTrue(privateKey.getPrivateKey().isValid());
   }
 
   @Test
@@ -327,10 +328,16 @@ public class VirgilCryptoTest {
 
     assertNotNull(importedKey);
     assertNotNull(importedKey.getIdentifier());
-    assertNotNull(importedKey.getPrivateKey().exportPrivateKey());
+    assertTrue(importedKey.getPrivateKey().isValid());
     assertArrayEquals(keyPair.getPrivateKey().getIdentifier(), importedKey.getIdentifier());
-    assertArrayEquals(keyPair.getPrivateKey().getPrivateKey().exportPrivateKey(),
-                      importedKey.getPrivateKey().exportPrivateKey());
+    
+    try (KeyProvider keyProvider = new KeyProvider()) {
+      keyProvider.setupDefaults();
+      
+      byte[] originKeyData = keyProvider.exportPrivateKey(keyPair.getPrivateKey().getPrivateKey());
+      byte[] importedKeyData = keyProvider.exportPrivateKey(importedKey.getPrivateKey());
+      assertArrayEquals(originKeyData, importedKeyData);
+    }
   }
 
   @Test
@@ -342,10 +349,16 @@ public class VirgilCryptoTest {
 
     assertNotNull(publicKey);
     assertNotNull(publicKey.getIdentifier());
-    assertNotNull(publicKey.getPublicKey().exportPublicKey());
+    assertTrue(publicKey.getPublicKey().isValid());
     assertArrayEquals(keyPair.getPublicKey().getIdentifier(), publicKey.getIdentifier());
-    assertArrayEquals(keyPair.getPublicKey().getPublicKey().exportPublicKey(),
-                      publicKey.getPublicKey().exportPublicKey());
+    
+    try (KeyProvider keyProvider = new KeyProvider()) {
+      keyProvider.setupDefaults();
+      
+      byte[] originKeyData = keyProvider.exportPublicKey(keyPair.getPublicKey().getPublicKey());
+      byte[] importedKeyData = keyProvider.exportPublicKey(publicKey.getPublicKey());
+      assertArrayEquals(originKeyData, importedKeyData);
+    }
   }
 
   @Test

@@ -139,7 +139,6 @@ public class VirgilPrivateKey implements PrivateKey, Serializable {
     if (o == null || getClass() != o.getClass()) return false;
     VirgilPrivateKey that = (VirgilPrivateKey) o;
     return Arrays.equals(identifier, that.identifier)
-        && Arrays.equals(privateKey.exportPrivateKey(), that.privateKey.exportPrivateKey())
         && keyType == that.keyType;
   }
 

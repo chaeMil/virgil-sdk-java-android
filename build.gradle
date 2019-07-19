@@ -33,11 +33,20 @@
 
 buildscript {
     ext.versions = [
+
+            // Virgil
             virgilCrypto      : '0.8.0',
 
-            commons_lang      : '3.9',
-            commons_io        : '2.6',
+            // Common
+            commonsLang       : '3.9',
+            commonsIo         : '2.6',
             gson              : '2.8.5',
+
+            // Gradle
+            gradle            : '3.4.2',
+            
+            // Android
+            appCompat       : '28.0.0',
 
             // Tests
             testsRunner       : '1.0.2',
@@ -46,7 +55,10 @@ buildscript {
             junitPlugin       : '1.0.0',
             jsonsimple        : '1.5.1',
             mockito           : '3.0.0',
-            mockito_junit     : '3.0.0',
+            mockitoJunit      : '3.0.0',
+
+            // Android Tests
+            junitAndroid      : '4.12',
 
             // Publish
             mavenPublishPlugin: '3.6.2',
@@ -56,6 +68,10 @@ buildscript {
     repositories {
         google()
         jcenter()
+    }
+
+    dependencies {
+        classpath "com.android.tools.build:gradle:$versions.gradle"
     }
 }
 
@@ -77,23 +93,9 @@ allprojects {
 
 subprojects {
     group 'com.virgilsecurity.sdk'
-    version '6.0-SNAPSHOT'
+    version '6.0.0-SNAPSHOT'
 
-    apply plugin: 'java-library'
     apply plugin: 'checkstyle'
-
-    sourceCompatibility = 1.8
-
-    dependencies {
-        testImplementation("org.junit.jupiter:junit-jupiter:${versions.junit}")
-    }
-
-    test {
-        useJUnitPlatform()
-        testLogging {
-            events "passed", "skipped", "failed"
-        }
-    }
 
     checkstyle {
         toolVersion '7.8.1'

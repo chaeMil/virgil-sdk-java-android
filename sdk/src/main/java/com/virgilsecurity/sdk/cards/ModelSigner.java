@@ -56,8 +56,7 @@ public class ModelSigner {
   /**
    * Instantiates a new Model signer.
    *
-   * @param crypto
-   *          the crypto
+   * @param crypto the crypto
    */
   public ModelSigner(CardCrypto crypto) {
     this.crypto = crypto;
@@ -67,12 +66,9 @@ public class ModelSigner {
    * Signing {@link RawSignedModel} using specified signer parameters and private key with self
    * signature type.
    *
-   * @param cardModel
-   *          the card model to be signed
-   * @param privateKey
-   *          the private key for signing
-   * @throws CryptoException
-   *           if signing issue occurred
+   * @param cardModel  the card model to be signed
+   * @param privateKey the private key for signing
+   * @throws CryptoException if signing issue occurred
    * @see #sign(RawSignedModel, String, PrivateKey)
    */
   public void selfSign(RawSignedModel cardModel, PrivateKey privateKey) throws CryptoException {
@@ -83,15 +79,10 @@ public class ModelSigner {
    * Signing {@link RawSignedModel} using specified signer parameters and private key with self
    * signature type.
    *
-   * @param cardModel
-   *          the card model to be signed
-   * 
-   * @param privateKey
-   *          the private key for signing
-   * @param additionalData
-   *          the additional data to be stored in the signature
-   * @throws CryptoException
-   *           if signing issue occurred
+   * @param cardModel      the card model to be signed
+   * @param privateKey     the private key for signing
+   * @param additionalData the additional data to be stored in the signature
+   * @throws CryptoException if signing issue occurred
    * @see #sign(RawSignedModel, String, PrivateKey, byte[])
    */
   public void selfSign(RawSignedModel cardModel, PrivateKey privateKey, byte[] additionalData)
@@ -103,19 +94,14 @@ public class ModelSigner {
    * Signing {@link RawSignedModel} using specified signer parameters and private key with self
    * signature type.
    *
-   * @param cardModel
-   *          the card model to be signed
-   * @param privateKey
-   *          the private key for signing
-   * @param extraFields
-   *          the extra fields to be stored in the signature
-   * 
-   * @throws CryptoException
-   *           if signing issue occurred
+   * @param cardModel   the card model to be signed
+   * @param privateKey  the private key for signing
+   * @param extraFields the extra fields to be stored in the signature
+   * @throws CryptoException if signing issue occurred
    * @see #sign(RawSignedModel, String, PrivateKey, byte[])
    */
   public void selfSign(RawSignedModel cardModel, PrivateKey privateKey,
-      Map<String, String> extraFields) throws CryptoException {
+                       Map<String, String> extraFields) throws CryptoException {
     byte[] additionalData = ConvertionUtils.captureSnapshot(extraFields);
     selfSign(cardModel, privateKey, additionalData);
   }
@@ -123,14 +109,10 @@ public class ModelSigner {
   /**
    * Signs the {@link RawSignedModel} using specified signer parameters and private key.
    *
-   * @param cardModel
-   *          the card model to be signed
-   * @param signer
-   *          the type of sign
-   * @param privateKey
-   *          the private key for signing
-   * @throws CryptoException
-   *           if signing issue occurred
+   * @param cardModel  the card model to be signed
+   * @param signer     the type of sign
+   * @param privateKey the private key for signing
+   * @throws CryptoException if signing issue occurred
    */
   public void sign(RawSignedModel cardModel, String signer, PrivateKey privateKey)
       throws CryptoException {
@@ -145,20 +127,14 @@ public class ModelSigner {
   /**
    * Signs the {@link RawSignedModel} using specified signer parameters and private key.
    *
-   * @param cardModel
-   *          the card model to be signed
-   * @param signer
-   *          the type of sign
-   * @param privateKey
-   *          the private key for signing
-   * @param additionalData
-   *          the additional data to be stored in the signature
-   * 
-   * @throws CryptoException
-   *           if signing issue occurred
+   * @param cardModel      the card model to be signed
+   * @param signer         the type of sign
+   * @param privateKey     the private key for signing
+   * @param additionalData the additional data to be stored in the signature
+   * @throws CryptoException if signing issue occurred
    */
   public void sign(RawSignedModel cardModel, String signer, PrivateKey privateKey,
-      byte[] additionalData) throws CryptoException {
+                   byte[] additionalData) throws CryptoException {
 
     byte[] combinedSnapshot = ConvertionUtils.concatenate(cardModel.getContentSnapshot(),
         additionalData);
@@ -173,20 +149,14 @@ public class ModelSigner {
   /**
    * Signs the {@link RawSignedModel} using specified signer parameters and private key.
    *
-   * @param cardModel
-   *          the card model to be signed
-   * @param signer
-   *          the type of sign
-   * @param privateKey
-   *          the private key for signing
-   * @param extraFields
-   *          the extra fields to be stored in the signature
-   * 
-   * @throws CryptoException
-   *           if signing issue occurred
+   * @param cardModel   the card model to be signed
+   * @param signer      the type of sign
+   * @param privateKey  the private key for signing
+   * @param extraFields the extra fields to be stored in the signature
+   * @throws CryptoException if signing issue occurred
    */
   public void sign(RawSignedModel cardModel, String signer, PrivateKey privateKey,
-      Map<String, String> extraFields) throws CryptoException {
+                   Map<String, String> extraFields) throws CryptoException {
     byte[] additionalData = ConvertionUtils.captureSnapshot(extraFields);
     sign(cardModel, signer, privateKey, additionalData);
   }

@@ -2,10 +2,23 @@ dependencies {
     api project(":api")
     api "com.google.code.gson:gson:$versions.gson"
 
+    // Virgil
     implementation "com.virgilsecurity.crypto:common:$versions.virgilCrypto"
     implementation "com.virgilsecurity.crypto:foundation:$versions.virgilCrypto"
-    implementation "com.virgilsecurity.crypto:ratchet:$versions.virgilCrypto"
 
+    // Tests
     testCompile "org.apache.commons:commons-lang3:$versions.commons_lang"
 
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Virgil SDK - Crypto'
+            }
+            artifactId = "crypto"
+        }
+    }
 }

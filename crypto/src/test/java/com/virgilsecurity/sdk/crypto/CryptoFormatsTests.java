@@ -52,7 +52,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests which verify cross-platform compatibility.
  *
  * @author Andrii Iakovenko
- *
  */
 public class CryptoFormatsTests {
 

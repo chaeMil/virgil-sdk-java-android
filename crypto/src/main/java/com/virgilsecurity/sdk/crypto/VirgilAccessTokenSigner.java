@@ -58,9 +58,8 @@ public class VirgilAccessTokenSigner implements AccessTokenSigner {
 
   /**
    * Instantiates a new Virgil access token signer.
-   * 
-   * @param virgilCrypto
-   *          the Virgil Crypto.
+   *
+   * @param virgilCrypto the Virgil Crypto.
    */
   public VirgilAccessTokenSigner(VirgilCrypto virgilCrypto) {
     this.virgilCrypto = virgilCrypto;

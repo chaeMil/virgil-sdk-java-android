@@ -22,3 +22,15 @@ task generateVirgilInfo(type: Copy) {
 }
 
 compileJava.dependsOn(generateVirgilInfo)
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Virgil SDK'
+            }
+            artifactId = "sdk"
+        }
+    }
+}

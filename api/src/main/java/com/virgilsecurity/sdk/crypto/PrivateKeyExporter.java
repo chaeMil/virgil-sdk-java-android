@@ -44,22 +44,18 @@ public interface PrivateKeyExporter {
   /**
    * Exports the {@code privateKey} into material representation.
    *
-   * @param privateKey
-   *          The private key.
+   * @param privateKey The private key.
    * @return Private key in material representation of {@code byte[]}.
-   * @throws CryptoException
-   *           if problems occurred while exporting key.
+   * @throws CryptoException if problems occurred while exporting key.
    */
   byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException;
 
   /**
    * Imports the private key from its material representation.
    *
-   * @param data
-   *          The private key material representation bytes.
+   * @param data The private key material representation bytes.
    * @return The instance of {@link PrivateKey} imported.
-   * @throws CryptoException
-   *           if problems occurred while importing key.
+   * @throws CryptoException if problems occurred while importing key.
    */
   PrivateKey importPrivateKey(byte[] data) throws CryptoException;
 }

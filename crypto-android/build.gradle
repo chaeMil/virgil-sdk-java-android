@@ -1,0 +1,93 @@
+apply plugin: 'com.android.library'
+apply plugin: "de.mannodermaus.android-junit5"
+apply plugin: 'digital.wup.android-maven-publish'
+
+android {
+    compileSdkVersion 28
+
+
+    defaultConfig {
+        minSdkVersion 21
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+
+//        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder"
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+
+        packagingOptions {
+            exclude "META-INF/LICENSE*"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+
+    // Virgil
+    api(project(":crypto")) {
+        exclude group: "com.virgilsecurity.crypto"
+    }
+    implementation "com.virgilsecurity.crypto:common-android:$versions.virgilCrypto"
+    implementation "com.virgilsecurity.crypto:foundation-android:$versions.virgilCrypto"
+
+    // Tests
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
+
+    // Instrumented tests
+    androidTestImplementation "androidx.test:runner:$versions.androidx"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-params:$versions.junit"
+    androidTestImplementation "de.mannodermaus.junit5:android-test-core:$versions.mannodermaus_junit5"
+    androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:$versions.mannodermaus_junit5"
+
+    androidTestImplementation "com.google.code.gson:gson:$versions.gson"
+    androidTestImplementation "org.apache.commons:commons-lang3:$versions.commons_lang"
+}
+
+task androidJavadocs(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    exclude '**/R.html', '**/R.*.html', '**/index.html'
+}
+
+task androidJavadocsJar(type: Jar, dependsOn: androidJavadocs) {
+    classifier = 'javadoc'
+    from androidJavadocs.destinationDir
+}
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.android
+            artifact androidJavadocsJar
+            artifact androidSourcesJar
+
+            pom {
+                name = 'Virgil Crypto for Android'
+            }
+            artifactId = "crypto-android"
+        }
+    }
+}

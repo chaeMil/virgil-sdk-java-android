@@ -58,19 +58,14 @@ public class JwtGenerator {
   /**
    * Instantiates a new Jwt generator.
    *
-   * @param appId
-   *          the application identifier
-   * @param apiKey
-   *          the api private key
-   * @param apiPublicKeyIdentifier
-   *          the api public key identifier
-   * @param ttl
-   *          the lifetime of token - when it expires at
-   * @param accessTokenSigner
-   *          the access token signer
+   * @param appId                  the application identifier
+   * @param apiKey                 the api private key
+   * @param apiPublicKeyIdentifier the api public key identifier
+   * @param ttl                    the lifetime of token - when it expires at
+   * @param accessTokenSigner      the access token signer
    */
   public JwtGenerator(String appId, PrivateKey apiKey, String apiPublicKeyIdentifier, TimeSpan ttl,
-      AccessTokenSigner accessTokenSigner) {
+                      AccessTokenSigner accessTokenSigner) {
     this.appId = appId;
     this.apiKey = apiKey;
     this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
@@ -81,11 +76,9 @@ public class JwtGenerator {
   /**
    * Generate token jwt.
    *
-   * @param identity
-   *          the identity
+   * @param identity the identity
    * @return the generated Jwt
-   * @throws CryptoException
-   *           if issue occurred while generating token signature
+   * @throws CryptoException if issue occurred while generating token signature
    */
   public Jwt generateToken(String identity) throws CryptoException {
     JwtHeaderContent jwtHeaderContent = new JwtHeaderContent(apiPublicKeyIdentifier);
@@ -100,13 +93,10 @@ public class JwtGenerator {
   /**
    * Generate token jwt.
    *
-   * @param identity
-   *          the identity
-   * @param additionalData
-   *          the additional data associated with token
+   * @param identity       the identity
+   * @param additionalData the additional data associated with token
    * @return the generated Jwt
-   * @throws CryptoException
-   *           if issue occurred while generating token signature
+   * @throws CryptoException if issue occurred while generating token signature
    */
   public Jwt generateToken(String identity, Map<String, String> additionalData)
       throws CryptoException {

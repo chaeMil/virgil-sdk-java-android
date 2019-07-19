@@ -33,8 +33,6 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,12 +40,13 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 
 /**
  * Unit tests for {@link Jwt}.
- * 
- * @author Andrii Iakovenko
  *
+ * @author Andrii Iakovenko
  */
 public class JwtTest {
   private static final long FUTURE_TIME_EXPIRATION = 6 * 1000; // 6 sec

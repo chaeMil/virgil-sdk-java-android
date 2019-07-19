@@ -45,9 +45,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for {@link VirgilAccessTokenSigner}.
- * 
- * @author Andrii Iakovenko
  *
+ * @author Andrii Iakovenko
  */
 public class VirgilAccessTokenSignerTest {
 

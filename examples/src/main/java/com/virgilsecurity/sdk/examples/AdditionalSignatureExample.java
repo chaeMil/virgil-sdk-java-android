@@ -33,8 +33,6 @@
 
 package com.virgilsecurity.sdk.examples;
 
-import java.util.Date;
-
 import com.virgilsecurity.sdk.cards.CardManager;
 import com.virgilsecurity.sdk.cards.CardManager.SignCallback;
 import com.virgilsecurity.sdk.cards.ModelSigner;
@@ -42,11 +40,7 @@ import com.virgilsecurity.sdk.cards.model.RawCardContent;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.cards.validation.CardVerifier;
 import com.virgilsecurity.sdk.cards.validation.VirgilCardVerifier;
-import com.virgilsecurity.sdk.crypto.CardCrypto;
-import com.virgilsecurity.sdk.crypto.PrivateKey;
-import com.virgilsecurity.sdk.crypto.VirgilCardCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilCrypto;
-import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
+import com.virgilsecurity.sdk.crypto.*;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
@@ -54,9 +48,10 @@ import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
 
+import java.util.Date;
+
 /**
  * @author Andrii Iakovenko
- *
  */
 public class AdditionalSignatureExample {
 
@@ -70,7 +65,7 @@ public class AdditionalSignatureExample {
 
   /**
    * Create new instance of {@link AdditionalSignatureExample}.
-   * 
+   *
    * @throws CryptoException
    */
   public AdditionalSignatureExample() throws CryptoException {

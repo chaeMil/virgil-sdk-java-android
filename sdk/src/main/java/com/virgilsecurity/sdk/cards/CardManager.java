@@ -48,20 +48,10 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
-import com.virgilsecurity.sdk.utils.CardUtils;
-import com.virgilsecurity.sdk.utils.ConvertionUtils;
-import com.virgilsecurity.sdk.utils.StringUtils;
-import com.virgilsecurity.sdk.utils.Tuple;
-import com.virgilsecurity.sdk.utils.Validator;
+import com.virgilsecurity.sdk.utils.*;
 
 import java.net.HttpURLConnection;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -78,7 +68,6 @@ public class CardManager {
      * On sign raw signed model callback than will be called when raw card is about to be generated.
      *
      * @param rawSignedModel the raw signed model
-     *
      * @return the raw signed model
      * @see #generateRawCard(PrivateKey, PublicKey, String, String, Map)
      */
@@ -110,7 +99,7 @@ public class CardManager {
    * @param cardVerifier        the card verifier
    */
   public CardManager(CardCrypto crypto, AccessTokenProvider accessTokenProvider,
-      CardVerifier cardVerifier) {
+                     CardVerifier cardVerifier) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
         "CardManager -> 'accessTokenProvider' should not be null");
@@ -136,7 +125,7 @@ public class CardManager {
                      CardVerifier cardVerifier, VirgilCardClient cardClient) {
     Validator.checkNullAgrument(crypto, "CardManager -> 'crypto' should not be null");
     Validator.checkNullAgrument(accessTokenProvider,
-                                "CardManager -> 'accessTokenProvider' should not be null");
+        "CardManager -> 'accessTokenProvider' should not be null");
     Validator.checkNullAgrument(cardVerifier, "CardManager -> 'cardVerifier' should not be null");
     Validator.checkNullAgrument(cardClient, "CardManager -> 'cardClient' should not be null");
 
@@ -206,8 +195,7 @@ public class CardManager {
   /**
    * Export Card's raw signed model as json in string format.
    *
-   * @param card
-   *          the card
+   * @param card the card
    * @return the string
    */
   public String exportCardAsJson(Card card) {
@@ -217,8 +205,7 @@ public class CardManager {
   /**
    * Export raw signed model from the provided card.
    *
-   * @param card
-   *          the card
+   * @param card the card
    * @return the raw signed model
    */
   public RawSignedModel exportCardAsRawModel(Card card) {
@@ -228,8 +215,7 @@ public class CardManager {
   /**
    * Export Card's raw signed model as base64 string.
    *
-   * @param card
-   *          the card
+   * @param card the card
    * @return Base64 String from exported card
    */
   public String exportCardAsString(Card card) {
@@ -241,15 +227,11 @@ public class CardManager {
    * the public key for which the card should be registered, identity information (such as a user
    * name) and integrity protection in form of digital self signature.
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
+   * @param privateKey the private key that used to generate self signature
+   * @param publicKey  the public key
+   * @param identity   the unique identity value
    * @return a new instance of {@link RawSignedModel}
-   * @throws CryptoException
-   *           if issue occurred during exporting public key or self sign operation
+   * @throws CryptoException if issue occurred during exporting public key or self sign operation
    */
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity)
       throws CryptoException {
@@ -265,17 +247,12 @@ public class CardManager {
    * the public key for which the card should be registered, identity information (such as a user
    * name) and integrity protection in form of digital self signature.
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
-   * @param additionalData
-   *          the additional data associated with the card
+   * @param privateKey     the private key that used to generate self signature
+   * @param publicKey      the public key
+   * @param identity       the unique identity value
+   * @param additionalData the additional data associated with the card
    * @return a new instance of {@link RawSignedModel}
-   * @throws CryptoException
-   *           if issue occurred during exporting public key or self sign operation
+   * @throws CryptoException if issue occurred during exporting public key or self sign operation
    */
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
                                         Map<String, String> additionalData) throws CryptoException {
@@ -292,20 +269,15 @@ public class CardManager {
    * the card, identity information (such as a user name) and integrity protection in form of
    * digital self signature.
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
-   * @param previousCardId
-   *          the previous card id that current card is used to override
+   * @param privateKey     the private key that used to generate self signature
+   * @param publicKey      the public key
+   * @param identity       the unique identity value
+   * @param previousCardId the previous card id that current card is used to override
    * @return a new instance of {@link RawSignedModel}
-   * @throws CryptoException
-   *           if issue occurred during exporting public key or self sign operation
+   * @throws CryptoException if issue occurred during exporting public key or self sign operation
    */
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-      String previousCardId) throws CryptoException {
+                                        String previousCardId) throws CryptoException {
 
     RawSignedModel cardModel = generateRawSignedModel(publicKey, identity, previousCardId);
 
@@ -319,22 +291,16 @@ public class CardManager {
    * the public key for which the card should be registered, identity information (such as a user
    * name) and integrity protection in form of digital self signature.
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
-   * @param previousCardId
-   *          the previous card id that current card is used to override
-   * @param additionalData
-   *          the additional data associated with the card
+   * @param privateKey     the private key that used to generate self signature
+   * @param publicKey      the public key
+   * @param identity       the unique identity value
+   * @param previousCardId the previous card id that current card is used to override
+   * @param additionalData the additional data associated with the card
    * @return a new instance of {@link RawSignedModel}
-   * @throws CryptoException
-   *           if issue occurred during exporting public key or self sign operation
+   * @throws CryptoException if issue occurred during exporting public key or self sign operation
    */
   public RawSignedModel generateRawCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-      String previousCardId, Map<String, String> additionalData) throws CryptoException {
+                                        String previousCardId, Map<String, String> additionalData) throws CryptoException {
 
     RawSignedModel cardModel = generateRawSignedModel(publicKey, identity, previousCardId);
     modelSigner.selfSign(cardModel, privateKey, ConvertionUtils.captureSnapshot(additionalData));
@@ -349,18 +315,16 @@ public class CardManager {
    *
    * @param publicKey the public key to register card
    * @param identity  the unique identity value
-   *
    * @return a new instance of {@link RawSignedModel}
-   *
    * @throws CryptoException if issue occurred during exporting public key or self sign operation
    */
   private RawSignedModel generateRawSignedModel(PublicKey publicKey,
                                                 String identity) throws CryptoException {
     RawCardContent cardContent =
         new RawCardContent(identity,
-                           ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
-                           CURRENT_CARD_VERSION,
-                           new Date());
+            ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey)),
+            CURRENT_CARD_VERSION,
+            new Date());
 
     byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
 
@@ -375,9 +339,7 @@ public class CardManager {
    * @param publicKey      the public key to register card or *null* to delete card
    * @param identity       the unique identity value
    * @param previousCardId the previous card id that current card is used to override
-   *
    * @return a new instance of {@link RawSignedModel}
-   *
    * @throws CryptoException if issue occurred during exporting public key or self sign operation
    */
   private RawSignedModel generateRawSignedModel(PublicKey publicKey,
@@ -387,10 +349,10 @@ public class CardManager {
     String publicKeyB64 = ConvertionUtils.toBase64String(crypto.exportPublicKey(publicKey));
 
     RawCardContent cardContent = new RawCardContent(identity,
-                                                    publicKeyB64,
-                                                    CURRENT_CARD_VERSION,
-                                                    new Date(),
-                                                    previousCardId);
+        publicKeyB64,
+        CURRENT_CARD_VERSION,
+        new Date(),
+        previousCardId);
 
     byte[] snapshot = ConvertionUtils.captureSnapshot(cardContent);
 
@@ -410,14 +372,11 @@ public class CardManager {
    * Gets the card by specified identifier. You can use {@link #setRetryOnUnauthorized(boolean)}
    * method passing {@code true} to retry request with new token on {@code unauthorized} http error.
    *
-   * @param cardId
-   *          the card identifier
+   * @param cardId the card identifier
    * @return card from the Virgil Cards service
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if service call failed
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if service call failed
    */
   public Card getCard(String cardId) throws CryptoException, VirgilServiceException {
     AccessToken token = accessTokenProvider
@@ -517,11 +476,9 @@ public class CardManager {
   /**
    * Import card from json in string format.
    *
-   * @param cardAsJson
-   *          the card
+   * @param cardAsJson the card
    * @return the card
-   * @throws CryptoException
-   *           if card importing failed
+   * @throws CryptoException if card importing failed
    */
   public Card importCardAsJson(String cardAsJson) throws CryptoException {
     RawSignedModel cardModel = RawSignedModel.fromJson(cardAsJson);
@@ -535,11 +492,9 @@ public class CardManager {
   /**
    * Import Card's raw signed model from raw signed model.
    *
-   * @param cardModel
-   *          the card model
+   * @param cardModel the card model
    * @return the card
-   * @throws CryptoException
-   *           if any crypto operation failed
+   * @throws CryptoException if any crypto operation failed
    */
   public Card importCardAsRawModel(RawSignedModel cardModel) throws CryptoException {
     Card card = Card.parse(crypto, cardModel);
@@ -552,11 +507,9 @@ public class CardManager {
   /**
    * Import card from base64 string .
    *
-   * @param cardAsString
-   *          the card
+   * @param cardAsString the card
    * @return imported card from Base64 String
-   * @throws CryptoException
-   *           if card importing failed
+   * @throws CryptoException if card importing failed
    */
   public Card importCardAsString(String cardAsString) throws CryptoException {
     RawSignedModel cardModel = RawSignedModel.fromString(cardAsString);
@@ -585,16 +538,12 @@ public class CardManager {
    * published via {@link #publishCard(RawSignedModel)} method
    * </p>
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
+   * @param privateKey the private key that used to generate self signature
+   * @param publicKey  the public key
    * @return the card that is returned from the Virgil Cards service after successful publishing
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if card was not created by a service
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if card was not created by a service
    */
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey)
       throws CryptoException, VirgilServiceException {
@@ -618,18 +567,13 @@ public class CardManager {
    * published via {@link #publishCard(RawSignedModel)} method
    * </p>
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
+   * @param privateKey the private key that used to generate self signature
+   * @param publicKey  the public key
+   * @param identity   the unique identity value
    * @return the card that is returned from the Virgil Cards service after successful publishing
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if card was not created by a service
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if card was not created by a service
    */
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity)
       throws CryptoException, VirgilServiceException {
@@ -653,23 +597,17 @@ public class CardManager {
    * published via {@link #publishCard(RawSignedModel)} method
    * </p>
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
-   * @param additionalData
-   *          the additional data associated with the card
+   * @param privateKey     the private key that used to generate self signature
+   * @param publicKey      the public key
+   * @param identity       the unique identity value
+   * @param additionalData the additional data associated with the card
    * @return the card that is returned from the Virgil Cards service after successful publishing
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if card was not created by a service
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if card was not created by a service
    */
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-      Map<String, String> additionalData) throws CryptoException, VirgilServiceException {
+                          Map<String, String> additionalData) throws CryptoException, VirgilServiceException {
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
         TOKEN_CONTEXT_SERVICE);
@@ -691,23 +629,17 @@ public class CardManager {
    * be published via {@link #publishCard(RawSignedModel)} method
    * </p>
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
-   * @param previousCardId
-   *          the previous card id that current card is used to override
+   * @param privateKey     the private key that used to generate self signature
+   * @param publicKey      the public key
+   * @param identity       the unique identity value
+   * @param previousCardId the previous card id that current card is used to override
    * @return the card that is returned from the Virgil Cards service after successful publishing
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if card was not created by a service
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if card was not created by a service
    */
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-      String previousCardId) throws CryptoException, VirgilServiceException {
+                          String previousCardId) throws CryptoException, VirgilServiceException {
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
         TOKEN_CONTEXT_SERVICE);
@@ -729,25 +661,18 @@ public class CardManager {
    * be published via {@link #publishCard(RawSignedModel)} method
    * </p>
    *
-   * @param privateKey
-   *          the private key that used to generate self signature
-   * @param publicKey
-   *          the public key
-   * @param identity
-   *          the unique identity value
-   * @param previousCardId
-   *          the previous card id that current card is used to override
-   * @param additionalData
-   *          the additional data associated with the card
+   * @param privateKey     the private key that used to generate self signature
+   * @param publicKey      the public key
+   * @param identity       the unique identity value
+   * @param previousCardId the previous card id that current card is used to override
+   * @param additionalData the additional data associated with the card
    * @return the card that is returned from the Virgil Cards service after successful publishing
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if card was not created by a service
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if card was not created by a service
    */
   public Card publishCard(PrivateKey privateKey, PublicKey publicKey, String identity,
-      String previousCardId, Map<String, String> additionalData)
+                          String previousCardId, Map<String, String> additionalData)
       throws CryptoException, VirgilServiceException {
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
@@ -767,26 +692,23 @@ public class CardManager {
    * You can use {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry
    * request with new token on {@code unauthorized} http error.
    *
-   * @param cardModel
-   *          the card model to publish
+   * @param cardModel the card model to publish
    * @return the card that is returned from the Virgil Cards service after successful publishing
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if card was not created by a service
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if card was not created by a service
    * @see #generateRawCard(PrivateKey, PublicKey, String)
    */
   public Card publishCard(RawSignedModel cardModel) throws CryptoException, VirgilServiceException {
     Validator.checkNullAgrument(cardModel, "CardManager -> 'cardModel' should not be null");
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_PUBLISH, false,
-                                                 TOKEN_CONTEXT_SERVICE);
+        TOKEN_CONTEXT_SERVICE);
 
     AccessToken token = accessTokenProvider.getToken(tokenContext);
 
     String cardModelIdentity = RawCardContent.fromJson(new String(cardModel.getContentSnapshot()))
-                                             .getIdentity();
+        .getIdentity();
 
     // Possibly move this and bottom lines to Logs
     if (!cardModelIdentity.equals(token.getIdentity())) {
@@ -802,15 +724,14 @@ public class CardManager {
   /**
    * Revokes card from Virgil Cards service. You should provide not empty {@code cardId}
    * of last card in chain that you want to revoke.
-   *
+   * <p>
    * You can use {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry
    * request with new token on {@code unauthorized} http error.
    *
    * @param cardId identifier of last Card in chain that is to revoke.
-   *
-   * @throws CryptoException if issue occurred during get generating token or verifying card
-   *                         that was received from the Virgil Cards service.
-   * @throws VirgilServiceException if card was not created by a service.
+   * @throws CryptoException                 if issue occurred during get generating token or verifying card
+   *                                         that was received from the Virgil Cards service.
+   * @throws VirgilServiceException          if card was not created by a service.
    * @throws VirgilCardVerificationException if any of signatures wasn't valid.
    */
   public void revokeCard(String cardId)
@@ -820,8 +741,8 @@ public class CardManager {
     }
 
     TokenContext tokenContext = new TokenContext(TOKEN_CONTEXT_OPERATION_DELETE,
-                                                 false,
-                                                 TOKEN_CONTEXT_SERVICE);
+        false,
+        TOKEN_CONTEXT_SERVICE);
 
     AccessToken token = accessTokenProvider.getToken(tokenContext);
 
@@ -842,10 +763,10 @@ public class CardManager {
       } else {
         if (exceptionOuter.getHttpError() != null) {
           LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
-                     exceptionOuter);
+              exceptionOuter);
         } else {
           LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(),
-                     exceptionOuter);
+              exceptionOuter);
         }
         throw exceptionOuter;
       }
@@ -931,14 +852,11 @@ public class CardManager {
    * {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry request with new
    * token on {@code unauthorized} http error.
    *
-   * @param identity
-   *          the identity to search cards for
+   * @param identity the identity to search cards for
    * @return list of cards that corresponds to provided identity
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if service call failed
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if service call failed
    */
   public List<Card> searchCards(String identity) throws CryptoException, VirgilServiceException {
     AccessToken token = accessTokenProvider
@@ -988,14 +906,11 @@ public class CardManager {
    * {@link #setRetryOnUnauthorized(boolean)} method passing {@code true} to retry request with new
    * token on {@code unauthorized} http error.
    *
-   * @param identities
-   *          identities to search cards for
+   * @param identities identities to search cards for
    * @return list of cards that corresponds to provided identity
-   * @throws CryptoException
-   *           if issue occurred during get generating token or verifying card that was received
-   *           from the Virgil Cards service
-   * @throws VirgilServiceException
-   *           if service call failed
+   * @throws CryptoException        if issue occurred during get generating token or verifying card that was received
+   *                                from the Virgil Cards service
+   * @throws VirgilServiceException if service call failed
    */
   public List<Card> searchCards(Collection<String> identities)
       throws CryptoException, VirgilServiceException {
@@ -1021,10 +936,10 @@ public class CardManager {
       } else {
         if (exceptionOuter.getHttpError() != null) {
           LOGGER.log(Level.SEVERE, "Http error code: " + exceptionOuter.getHttpError().getCode(),
-                     exceptionOuter);
+              exceptionOuter);
         } else {
           LOGGER.log(Level.SEVERE, "Virgil Service error: " + exceptionOuter.getErrorCode(),
-                     exceptionOuter);
+              exceptionOuter);
         }
         throw exceptionOuter;
       }
@@ -1045,8 +960,7 @@ public class CardManager {
    * Sets if the card manager should retry request with new token on {@code unauthorized} http
    * error.
    *
-   * @param retryOnUnauthorized
-   *          pass {@code true} to enable retry, {@code false} to disable retry.
+   * @param retryOnUnauthorized pass {@code true} to enable retry, {@code false} to disable retry.
    */
   public void setRetryOnUnauthorized(boolean retryOnUnauthorized) {
     this.retryOnUnauthorized = retryOnUnauthorized;
@@ -1067,10 +981,8 @@ public class CardManager {
   /**
    * Verifies whether provided {@link Card} is valid with provided {@link CardVerifier}.
    *
-   * @param card
-   *          to verify
-   * @throws CryptoException
-   *           if verification of card issue occurred
+   * @param card to verify
+   * @throws CryptoException if verification of card issue occurred
    */
   private void verifyCard(Card card) throws CryptoException {
     if (!cardVerifier.verifyCard(card)) {

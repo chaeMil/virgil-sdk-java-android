@@ -55,16 +55,15 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for {@link VirgilCrypto}.
  *
  * @author Andrii Iakovenko
- *
  */
 public class VirgilCryptoTest {
 
   private static final String TEXT = "This text is used for unit tests";
-  private static final byte[] INVALID_SIGNATURE = new byte[] { 48, 88, 48, 13, 6, 9, 96, -122, 72,
+  private static final byte[] INVALID_SIGNATURE = new byte[] {48, 88, 48, 13, 6, 9, 96, -122, 72,
       1, 101, 3, 4, 2, 2, 5, 0, 4, 71, 48, 69, 2, 33, 0, -108, -6, -82, 29, -38, 103, -13, 42, 101,
       76, -34, -53, -96, -70, 85, 80, 0, 88, 77, 48, 9, -100, 81, 39, -51, -125, -102, -107, -108,
       14, -88, 7, 2, 32, 13, -71, -99, 8, -69, -77, 30, 98, 20, -25, 60, 125, -19, 67, 12, -30, 65,
-      93, -29, -92, -58, -91, 91, 50, -111, -79, 50, -123, -39, 36, 48, -20 };
+      93, -29, -92, -58, -91, 91, 50, -111, -79, 50, -123, -39, 36, 48, -20};
   private static final int RECIPIENTS_NUMBER = 100;
 
   private static Stream<Arguments> allCryptos() {
@@ -74,7 +73,7 @@ public class VirgilCryptoTest {
     values.remove(KeyType.RSA_4096);
     values.remove(KeyType.RSA_8192);
 
-    return values.stream().map(key-> Arguments.of(new VirgilCrypto(key)));
+    return values.stream().map(key -> Arguments.of(new VirgilCrypto(key)));
   }
 
   private static Stream<Arguments> signVerifyCryptos() {
@@ -84,18 +83,20 @@ public class VirgilCryptoTest {
     values.remove(KeyType.RSA_4096);
     values.remove(KeyType.RSA_8192);
 
-    return values.stream().map(key-> Arguments.of(new VirgilCrypto(key)));
+    return values.stream().map(key -> Arguments.of(new VirgilCrypto(key)));
   }
 
   @Retention(RetentionPolicy.RUNTIME)
   @ParameterizedTest
   @MethodSource("allCryptos")
-  public @interface CryptoTest {}
+  public @interface CryptoTest {
+  }
 
   @Retention(RetentionPolicy.RUNTIME)
   @ParameterizedTest
   @MethodSource("signVerifyCryptos")
-  public @interface SignCryptoTest {}
+  public @interface SignCryptoTest {
+  }
 
   @CryptoTest
   public void computeHash(VirgilCrypto crypto) {
@@ -141,7 +142,7 @@ public class VirgilCryptoTest {
     assertEquals(assertThrows(DecryptionException.class, () -> {
       crypto.decrypt(encrypted, keyPairWrong.getPrivateKey());
     }).getMessage(), "Given Private key does not corresponds to any of " +
-            "Public keys that were used for encryption.");
+        "Public keys that were used for encryption.");
   }
 
   @CryptoTest
@@ -186,7 +187,7 @@ public class VirgilCryptoTest {
         byte[] encrypted = osOuter.toByteArray();
 
         try (InputStream isInner = new ByteArrayInputStream(encrypted);
-            ByteArrayOutputStream osInner = new ByteArrayOutputStream()) {
+             ByteArrayOutputStream osInner = new ByteArrayOutputStream()) {
           crypto.decrypt(isInner, osInner, privateKey);
 
           byte[] decrypted = osInner.toByteArray();
@@ -322,10 +323,10 @@ public class VirgilCryptoTest {
     assertNotNull(importedKey.getIdentifier());
     assertTrue(importedKey.getPrivateKey().isValid());
     assertArrayEquals(keyPair.getPrivateKey().getIdentifier(), importedKey.getIdentifier());
-    
+
     try (KeyProvider keyProvider = new KeyProvider()) {
       keyProvider.setupDefaults();
-      
+
       byte[] originKeyData = keyProvider.exportPrivateKey(keyPair.getPrivateKey().getPrivateKey());
       byte[] importedKeyData = keyProvider.exportPrivateKey(importedKey.getPrivateKey());
       assertArrayEquals(originKeyData, importedKeyData);
@@ -343,10 +344,10 @@ public class VirgilCryptoTest {
     assertNotNull(publicKey.getIdentifier());
     assertTrue(publicKey.getPublicKey().isValid());
     assertArrayEquals(keyPair.getPublicKey().getIdentifier(), publicKey.getIdentifier());
-    
+
     try (KeyProvider keyProvider = new KeyProvider()) {
       keyProvider.setupDefaults();
-      
+
       byte[] originKeyData = keyProvider.exportPublicKey(keyPair.getPublicKey().getPublicKey());
       byte[] importedKeyData = keyProvider.exportPublicKey(publicKey.getPublicKey());
       assertArrayEquals(originKeyData, importedKeyData);

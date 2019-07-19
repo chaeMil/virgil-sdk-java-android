@@ -1,4 +1,6 @@
 rootProject.name = 'parent'
 include ':api'
 include ':crypto'
+include ':crypto-android'
 include ':sdk'
+include ':examples'

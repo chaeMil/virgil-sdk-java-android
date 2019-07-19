@@ -33,13 +33,6 @@
 
 package com.virgilsecurity.sdk.storage;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
 import com.virgilsecurity.sdk.crypto.PrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
@@ -49,11 +42,17 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for {@link KeyStorage} which verify cross-platform compatibility.
- * 
- * @author Andrii Iakovenko
  *
+ * @author Andrii Iakovenko
  */
 public class KeyStorageCompatibilityTest {
 

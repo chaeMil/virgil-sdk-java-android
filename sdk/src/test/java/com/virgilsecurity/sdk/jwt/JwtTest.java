@@ -33,18 +33,15 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
-import org.junit.Before;
-import org.junit.Test;
 
 /**
  * Unit tests for {@link Jwt}.
@@ -90,7 +87,7 @@ public class JwtTest {
     assertEquals(jwt.stringRepresentation(), importedJwt.stringRepresentation());
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws CryptoException {
     this.fake = new FakeDataFactory();
     this.identity = "IDENTITY_" + fake.getApplicationId();

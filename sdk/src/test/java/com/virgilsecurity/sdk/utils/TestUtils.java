@@ -33,6 +33,8 @@
 
 package com.virgilsecurity.sdk.utils;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.virgilsecurity.crypto.foundation.CtrDrbg;
 import com.virgilsecurity.crypto.foundation.KeyAlg;
 import com.virgilsecurity.crypto.foundation.KeyAlgFactory;
@@ -51,14 +53,12 @@ import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import java.util.List;
 import java.util.Objects;
 
-import org.junit.Assert;
-
 public class TestUtils {
 
   public static void assertCardContentsEquals(RawCardContent expectedCardContent,
       RawCardContent actualCardContent) {
     if (!cardContentsEqualsSelfSignOnly(expectedCardContent, actualCardContent)) {
-      Assert.fail("\nExpected card:\n" + expectedCardContent.toString() + "\n\nActual card:\n"
+      fail("\nExpected card:\n" + expectedCardContent.toString() + "\n\nActual card:\n"
           + actualCardContent.toString());
     }
   }
@@ -66,14 +66,14 @@ public class TestUtils {
   public static void assertCardModelsEquals(RawSignedModel expectedCardModel,
       RawSignedModel actualCardModel) {
     if (!cardModelsEqualsSelfSignOnly(expectedCardModel, actualCardModel)) {
-      Assert.fail("\nExpected card:\n" + expectedCardModel.toString() + "\n\nActual card:\n"
+      fail("\nExpected card:\n" + expectedCardModel.toString() + "\n\nActual card:\n"
           + actualCardModel.toString());
     }
   }
 
   public static void assertCardsEquals(Card expectedCard, Card actualCard) {
     if (!cardsEqualsSelfSignOnly(expectedCard, actualCard)) {
-      Assert.fail("\nExpected card:\n" + ConvertionUtils.getGson().toJson(expectedCard)
+      fail("\nExpected card:\n" + ConvertionUtils.getGson().toJson(expectedCard)
           + "\n\nActual card:\n" + ConvertionUtils.getGson().toJson(actualCard));
     }
   }

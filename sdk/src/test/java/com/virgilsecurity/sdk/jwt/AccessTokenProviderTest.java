@@ -33,24 +33,22 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
 
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.jwt.accessProviders.CachingJwtProvider;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for {@link AccessTokenProvider}.
@@ -215,7 +213,7 @@ public class AccessTokenProviderTest {
     assertEquals(1, counter[0]);
   }
 
-  @Before
+  @BeforeEach
   public void setUp() {
     mocker = new Mocker();
   }

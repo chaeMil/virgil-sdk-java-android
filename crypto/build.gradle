@@ -1,0 +1,11 @@
+dependencies {
+    api project(":api")
+    api "com.google.code.gson:gson:$versions.gson"
+
+    implementation "com.virgilsecurity.crypto:common:$versions.virgilCrypto"
+    implementation "com.virgilsecurity.crypto:foundation:$versions.virgilCrypto"
+    implementation "com.virgilsecurity.crypto:ratchet:$versions.virgilCrypto"
+
+    testCompile "org.apache.commons:commons-lang3:$versions.commons_lang"
+
+}

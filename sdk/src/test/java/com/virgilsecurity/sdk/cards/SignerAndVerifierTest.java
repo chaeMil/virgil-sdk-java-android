@@ -34,11 +34,7 @@
 package com.virgilsecurity.sdk.cards;
 
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 import com.virgilsecurity.crypto.foundation.CtrDrbg;
@@ -67,6 +63,7 @@ import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.VirgilPrivateKey;
 import com.virgilsecurity.sdk.crypto.VirgilPublicKey;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
+import com.virgilsecurity.sdk.exception.NullArgumentException;
 import com.virgilsecurity.sdk.jwt.TokenContext;
 import com.virgilsecurity.sdk.jwt.contract.AccessToken;
 import com.virgilsecurity.sdk.jwt.contract.AccessTokenProvider;
@@ -81,10 +78,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class SignerAndVerifierTest extends PropertyManager {
@@ -95,8 +90,6 @@ public class SignerAndVerifierTest extends PropertyManager {
   private static final String TEST_VALUE_ONE = "TEST_VALUE_ONE";
   private static final String TEST_KEY_TWO = "TEST_KEY_TWO";
   private static final String TEST_VALUE_TWO = "TEST_VALUE_TWO";
-  @Rule
-  public final ExpectedException exception = ExpectedException.none();
 
   private VirgilCrypto virgilCrypto;
   private VirgilCardCrypto cardCrypto;
@@ -105,7 +98,7 @@ public class SignerAndVerifierTest extends PropertyManager {
   private CompatibilityDataProvider dataProvider;
   private CtrDrbg random;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     virgilCrypto = new VirgilCrypto();
     this.random = new CtrDrbg();
@@ -126,7 +119,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
         new ArrayList<Whitelist>());
 
-    assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
+    assertTrue(virgilCardVerifier.verifyCard(card), "Card should be verified");
   }
 
   @SuppressWarnings("unused")
@@ -170,7 +163,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
         whitelists);
 
-    assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
+    assertTrue(virgilCardVerifier.verifyCard(card), "Card should be verified");
   }
 
   @Test
@@ -199,7 +192,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
         whitelists);
 
-    assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
+    assertFalse(virgilCardVerifier.verifyCard(card), "Card should NOT be verified");
   }
 
   @Test
@@ -220,7 +213,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false,
         whitelists);
 
-    assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
+    assertFalse(virgilCardVerifier.verifyCard(card), "Card should NOT be verified");
   }
 
   @Test
@@ -236,7 +229,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, false,
         whitelists);
 
-    assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
+    assertFalse(virgilCardVerifier.verifyCard(card), "Card should NOT be verified");
   }
 
   @Test
@@ -259,7 +252,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false,
         whitelists);
 
-    assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
+    assertFalse(virgilCardVerifier.verifyCard(card), "Card should NOT be verified");
   }
 
   @Test
@@ -282,7 +275,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, true,
         whitelists);
 
-    assertFalse("Card should NOT be verified", virgilCardVerifier.verifyCard(card));
+    assertFalse(virgilCardVerifier.verifyCard(card), "Card should NOT be verified");
   }
 
   @Test
@@ -295,7 +288,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, true,
         new ArrayList<Whitelist>());
 
-    assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
+    assertTrue(virgilCardVerifier.verifyCard(card), "Card should be verified");
   }
 
   @Test
@@ -308,7 +301,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, true, false,
         new ArrayList<Whitelist>());
 
-    assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
+    assertTrue(virgilCardVerifier.verifyCard(card), "Card should be verified");
   }
 
   @Test
@@ -321,7 +314,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     VirgilCardVerifier virgilCardVerifier = new VirgilCardVerifier(cardCrypto, false, true,
         new ArrayList<Whitelist>());
 
-    assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
+    assertTrue(virgilCardVerifier.verifyCard(card), "Card should be verified");
   }
 
   @Test
@@ -346,7 +339,7 @@ public class SignerAndVerifierTest extends PropertyManager {
     Whitelist whitelist1 = new Whitelist(verifierCredentialsList);
     virgilCardVerifier.addWhiteList(whitelist1);
 
-    assertTrue("Card should be verified", virgilCardVerifier.verifyCard(card));
+    assertTrue(virgilCardVerifier.verifyCard(card), "Card should be verified");
   }
 
   @Test
@@ -483,7 +476,7 @@ public class SignerAndVerifierTest extends PropertyManager {
             cardModel.getContentSnapshot(), keyPair2.getPublicKey()));
   }
 
-  @Test(expected = SignatureNotUniqueException.class)
+  @Test
   public void stc_8_secondExtraSign_should_throwException() throws CryptoException {
     // STC-8
     VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
@@ -491,10 +484,12 @@ public class SignerAndVerifierTest extends PropertyManager {
 
     VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey());
-    modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey());
+    assertThrows(SignatureNotUniqueException.class, () -> {
+      modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey());
+    });
   }
 
-  @Test(expected = SignatureNotUniqueException.class)
+  @Test
   public void stc_8_secondSelfSign_should_throwException() throws CryptoException {
     // STC-8
     VirgilKeyPair keyPair = virgilCrypto.generateKeyPair();
@@ -502,7 +497,9 @@ public class SignerAndVerifierTest extends PropertyManager {
     assertTrue(cardModel.getSignatures().isEmpty());
 
     modelSigner.selfSign(cardModel, keyPair.getPrivateKey());
-    modelSigner.selfSign(cardModel, keyPair.getPrivateKey());
+    assertThrows(SignatureNotUniqueException.class, () -> {
+      modelSigner.selfSign(cardModel, keyPair.getPrivateKey());
+    });
   }
 
   @Test
@@ -603,7 +600,7 @@ public class SignerAndVerifierTest extends PropertyManager {
             extendedSnapshot, keyPair2.getPublicKey()));
   }
 
-  @Test(expected = SignatureNotUniqueException.class)
+  @Test
   public void stc_9_secondExtraSignWithSignatureSnapshot_should_throwException()
       throws CryptoException {
     // STC-9
@@ -615,7 +612,9 @@ public class SignerAndVerifierTest extends PropertyManager {
 
     VirgilKeyPair keyPair2 = virgilCrypto.generateKeyPair();
     modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), signatureSnapshot);
-    modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), signatureSnapshot);
+    assertThrows(SignatureNotUniqueException.class, () -> {
+      modelSigner.sign(cardModel, "test_id", keyPair2.getPrivateKey(), signatureSnapshot);
+    });
   }
 
   @Test

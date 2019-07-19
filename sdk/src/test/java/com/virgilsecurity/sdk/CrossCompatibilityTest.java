@@ -35,12 +35,7 @@ package com.virgilsecurity.sdk;
 
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.JSON;
 import static com.virgilsecurity.sdk.CompatibilityDataProvider.STRING;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.CardManager;
@@ -73,8 +68,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 public class CrossCompatibilityTest extends PropertyManager {
@@ -94,7 +89,7 @@ public class CrossCompatibilityTest extends PropertyManager {
   private CompatibilityDataProvider dataProvider;
   private VirgilCrypto crypto;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     dataProvider = new CompatibilityDataProvider();
     crypto = new VirgilCrypto(true);

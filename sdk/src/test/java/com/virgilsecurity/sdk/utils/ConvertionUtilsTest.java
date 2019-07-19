@@ -33,17 +33,15 @@
 
 package com.virgilsecurity.sdk.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
 import com.virgilsecurity.sdk.common.ClassForSerialization;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.junit.Assert;
-import org.junit.Test;
 
 /**
  * Unit tests for {@linkplain ConvertionUtils}.
@@ -116,7 +114,7 @@ public class ConvertionUtilsTest {
     String rawJson = "{ \"id\": \"12345\", \"content_snapshot\":\"AQIDBAU=\" }";
     RawSignedModel cardModel = ConvertionUtils.deserializeFromJson(rawJson, RawSignedModel.class);
 
-    Assert.assertTrue(
+    assertTrue(
         Arrays.equals(cardModel.getContentSnapshot(), ConvertionUtils.base64ToBytes("AQIDBAU=")));
   }
 

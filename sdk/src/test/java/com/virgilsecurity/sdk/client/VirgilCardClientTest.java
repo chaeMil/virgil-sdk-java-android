@@ -33,13 +33,11 @@
 
 package com.virgilsecurity.sdk.client;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
+import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
@@ -55,9 +53,8 @@ import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class VirgilCardClientTest extends PropertyManager {
 
@@ -66,7 +63,7 @@ public class VirgilCardClientTest extends PropertyManager {
   private CardClient cardClient;
   private Mocker mocker;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     String url = getCardsServiceUrl();
     if (StringUtils.isBlank(url)) {
@@ -164,7 +161,7 @@ public class VirgilCardClientTest extends PropertyManager {
   @Test
   public void tokenVerification() throws CryptoException {
     Jwt accessToken = mocker.generateAccessToken(IDENTITY);
-    Assert.assertTrue(mocker.getVerifier().verifyToken(accessToken));
+    assertTrue(mocker.getVerifier().verifyToken(accessToken));
   }
 
   @Test

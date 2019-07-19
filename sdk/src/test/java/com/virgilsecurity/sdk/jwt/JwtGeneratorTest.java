@@ -33,11 +33,7 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.common.TimeSpan;
@@ -49,8 +45,8 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 
 import java.util.concurrent.TimeUnit;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link JwtGenerator}.
@@ -108,7 +104,7 @@ public class JwtGeneratorTest {
         ConvertionUtils.toBytes(jwt.unsigned()), fake.getApiPublicKey()));
   }
 
-  @Before
+  @BeforeEach
   public void setup() throws CryptoException {
     this.fake = new FakeDataFactory();
     this.signer = new VirgilAccessTokenSigner();

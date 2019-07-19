@@ -33,10 +33,7 @@
 
 package com.virgilsecurity.sdk.storage;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.File;
 import java.util.Map;
@@ -51,9 +48,8 @@ import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link PrivateKeyStorage} which verify cross-platform compatibility.
@@ -67,7 +63,7 @@ public class PrivateKeyStorageCompatibilityTest {
   private String keyName;
   private PrivateKeyStorage privateKeyStorage;
 
-  @Before
+  @BeforeEach
   public void setUp() throws CryptoException {
     this.crypto = new VirgilCrypto();
     this.keyName = UUID.randomUUID().toString();

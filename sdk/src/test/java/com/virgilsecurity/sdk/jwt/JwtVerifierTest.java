@@ -33,7 +33,7 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.FakeDataFactory;
@@ -43,9 +43,8 @@ import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit tests for {@link JwtVerifier}.
@@ -59,7 +58,7 @@ public class JwtVerifierTest {
   private FakeDataFactory fake;
   private JwtVerifier verifier;
 
-  @Before
+  @BeforeEach
   public void setup() throws CryptoException {
     this.dataProvider = new CompatibilityDataProvider();
     this.fake = new FakeDataFactory();

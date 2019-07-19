@@ -41,6 +41,6 @@ public class VirgilInfo {
   
   public static final String PRODUCT = "sdk";
   public static final String FAMILY = "jvm";
-  public static final String VERSION = "${project.version}";
+  public static final String VERSION = "${version}";
 
 }

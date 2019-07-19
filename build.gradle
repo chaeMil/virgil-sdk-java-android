@@ -31,67 +31,78 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package com.virgilsecurity.sdk.crypto;
+buildscript {
+    ext.versions = [
+            virgilCrypto      : '0.8.0',
 
-import com.virgilsecurity.crypto.foundation.AlgId;
+            commons_lang      : '3.9',
+            commons_io        : '2.6',
+            gson              : '2.8.5',
 
-/**
- * KeyType class with key types supported by Crypto.
- */
-public enum KeyType {
+            // Tests
+            testsRunner       : '1.0.2',
+            espresso          : '3.0.2',
+            junit             : '5.5.0',
+            junitPlugin       : '1.0.0',
+            jsonsimple        : '1.5.1',
+            mockito           : '3.0.0',
+            mockito_junit     : '3.0.0',
 
-  /**
-   * Diffie–Hellman X25519.
-   */
-  CURVE25519(AlgId.CURVE25519),
-  /**
-   * EdDSA Ed25519.
-   */
-  ED25519(AlgId.ED25519),
-  /**
-   * RSA 2048 bit.
-   */
-  RSA_2048(2048),
-  /**
-   * RSA 4096 bit.
-   */
-  RSA_4096(4096),
-  /**
-   * RSA 8192 bit.
-   */
-  RSA_8192(8192);
+            // Publish
+            mavenPublishPlugin: '3.6.2',
+            dokka             : '0.9.17'
+    ]
 
-  private AlgId algId;
-  private int rsaBitLen;
-
-  KeyType(AlgId algId) {
-    this.algId = algId;
-  }
-
-  KeyType(int rsaBitLen) {
-    this.algId = AlgId.RSA;
-    this.rsaBitLen = rsaBitLen;
-  }
-
-  public AlgId getAlgId() {
-    return algId;
-  }
-
-  /**
-   * Get key len.
-   * @return Key length in bits if key of RSA, -1 otherwise.
-   */
-  public int getRsaBitLen() {
-    switch (this) {
-      case RSA_2048:
-      case RSA_4096:
-      case RSA_8192:
-        return rsaBitLen;
-      case CURVE25519:
-      case ED25519:
-        return -1;
-      default:
-        return -1;
+    repositories {
+        google()
+        jcenter()
     }
-  }
+}
+
+plugins {
+    id 'checkstyle'
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url 'https://oss.sonatype.org/content/repositories/snapshots'
+        }
+        google()
+        jcenter()
+    }
+}
+
+subprojects {
+    group 'com.virgilsecurity.sdk'
+    version '6.0-SNAPSHOT'
+
+    apply plugin: 'java-library'
+    apply plugin: 'checkstyle'
+
+    sourceCompatibility = 1.8
+
+    dependencies {
+        testImplementation("org.junit.jupiter:junit-jupiter:${versions.junit}")
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
+    }
+
+    checkstyle {
+        toolVersion '7.8.1'
+        configFile rootProject.file('config/checkstyle/checkstyle.xml')
+        configProperties = [
+                'checkstyle.header.file' : rootProject.file('config/checkstyle/java.header'),
+                'checkstyle.javadoc.severity' : 'error'
+        ]
+        ignoreFailures true
+    }
+
 }

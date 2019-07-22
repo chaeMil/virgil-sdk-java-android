@@ -1,7 +1,10 @@
 package com.virgilsecurity.sdk.androidutils;
 
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
+import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,7 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
 import java.security.cert.CertificateException;
-import java.util.Collections;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -23,24 +26,39 @@ public class AndroidCipherTest {
 
     private static final String TEXT = "This is the best text ever";
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
-    private static final String ANDROID_KEY_STORE_ALIAS = "AndroidKeyStoreTestAlias";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
+
+    private String androidKeyStoreAlias = "AndroidKeyStoreTestAliasAuth4";
+    private KeyguardManager keyguardManager;
 
     @Before
     public void setup() throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
+        androidKeyStoreAlias = UUID.randomUUID().toString().substring(0, 12);
+
         // Initial key generation
         final KeyGenerator keyGenerator = KeyGenerator
                 .getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEY_STORE);
 
-        final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(ANDROID_KEY_STORE_ALIAS,
+        final KeyGenParameterSpec keyGenParameterSpec = new KeyGenParameterSpec.Builder(androidKeyStoreAlias,
                 KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
-//                .setUserAuthenticationRequired(true) // TODO test how authentication works
+//                .setUnlockedDeviceRequired(true) // TODO check on device
+                .setUserAuthenticationValidityDurationSeconds(120) // TODO do we need at lease one fingerprint?
+                .setUserAuthenticationRequired(true)
                 .build();
 
         keyGenerator.init(keyGenParameterSpec);
         keyGenerator.generateKey();
+
+        keyguardManager = (KeyguardManager) InstrumentationRegistry.getContext().getSystemService(Context.KEYGUARD_SERVICE);
+
+        assertTrue(keyguardManager.isDeviceSecure());
+
+//        FingerprintManagerCompat fingerprintManager =
+//                FingerprintManagerCompat.from(InstrumentationRegistry.getContext());
+//
+//        assertTrue(fingerprintManager.hasEnrolledFingerprints());
     }
 
     @Test
@@ -52,10 +70,10 @@ public class AndroidCipherTest {
         // Load secret key
         KeyStore keyStore = KeyStore.getInstance(ANDROID_KEY_STORE);
         keyStore.load(null);
-        assertTrue(keyStore.containsAlias(ANDROID_KEY_STORE_ALIAS));
+        assertTrue(keyStore.containsAlias(androidKeyStoreAlias));
 
         final KeyStore.SecretKeyEntry secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore
-                .getEntry(ANDROID_KEY_STORE_ALIAS, null);
+                .getEntry(androidKeyStoreAlias, null);
 
         final SecretKey secretKey = secretKeyEntry.getSecretKey();
 
@@ -69,7 +87,6 @@ public class AndroidCipherTest {
 
 
         // Decryption
-
         final GCMParameterSpec spec = new GCMParameterSpec(128, encryptionIv);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
 

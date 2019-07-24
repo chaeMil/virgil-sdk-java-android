@@ -33,15 +33,9 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.virgilsecurity.sdk.FakeDataFactory;
-import com.virgilsecurity.sdk.client.exceptions.SignatureNotUniqueException;
 import com.virgilsecurity.sdk.common.TimeSpan;
 import com.virgilsecurity.sdk.crypto.VirgilAccessTokenSigner;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -49,23 +43,24 @@ import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider;
 import com.virgilsecurity.sdk.jwt.accessProviders.CallbackJwtProvider.GetTokenCallback;
 import com.virgilsecurity.sdk.jwt.accessProviders.ConstAccessTokenProvider;
 import com.virgilsecurity.sdk.utils.ConvertionUtils;
-
-import java.io.InputStreamReader;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
+import java.io.InputStreamReader;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 /**
  * Unit tests for {@link Jwt} which verify cross-platform compatibility.
- * 
+ *
  * @author Andrii Iakovenko
  */
 @ExtendWith(MockitoExtension.class)

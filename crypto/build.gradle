@@ -1,23 +1,26 @@
-apply plugin: 'java-library'
-
 dependencies {
     api project(":api")
     api "com.google.code.gson:gson:$versions.gson"
 
+    // Virgil
     implementation "com.virgilsecurity.crypto:common:$versions.virgilCrypto"
     implementation "com.virgilsecurity.crypto:foundation:$versions.virgilCrypto"
-    implementation "com.virgilsecurity.crypto:ratchet:$versions.virgilCrypto"
 
+    // Tests
     testImplementation "org.junit.jupiter:junit-jupiter:$versions.junit"
     testCompile "org.apache.commons:commons-lang3:$versions.commonsLang"
+}
 
 }
 
-sourceCompatibility = 1.8
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Virgil SDK - Crypto'
+            }
+            artifactId = "crypto"
+        }
     }
 }

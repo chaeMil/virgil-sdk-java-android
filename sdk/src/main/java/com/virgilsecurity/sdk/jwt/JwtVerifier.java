@@ -54,15 +54,12 @@ public class JwtVerifier {
   /**
    * Instantiates a new Jwt verifier.
    *
-   * @param apiPublicKey
-   *          the api public key
-   * @param apiPublicKeyIdentifier
-   *          the api public key identifier
-   * @param accessTokenSigner
-   *          the access token signer
+   * @param apiPublicKey           the api public key
+   * @param apiPublicKeyIdentifier the api public key identifier
+   * @param accessTokenSigner      the access token signer
    */
   public JwtVerifier(PublicKey apiPublicKey, String apiPublicKeyIdentifier,
-      AccessTokenSigner accessTokenSigner) {
+                     AccessTokenSigner accessTokenSigner) {
     this.apiPublicKey = apiPublicKey;
     this.apiPublicKeyIdentifier = apiPublicKeyIdentifier;
     this.accessTokenSigner = accessTokenSigner;
@@ -71,11 +68,9 @@ public class JwtVerifier {
   /**
    * Checks whether the token's signature is valid.
    *
-   * @param jwtToken
-   *          the jwt token
+   * @param jwtToken the jwt token
    * @return {@code true} if the token's signature is valid, otherwise {@code false}
-   * @throws CryptoException
-   *           if issue occurred during token's signature verification
+   * @throws CryptoException if issue occurred during token's signature verification
    */
   public boolean verifyToken(Jwt jwtToken) throws CryptoException {
     if (jwtToken == null) {

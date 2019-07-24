@@ -33,11 +33,8 @@
 
 package com.virgilsecurity.sdk.client;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.virgilsecurity.sdk.cards.Card;
 import com.virgilsecurity.sdk.cards.model.RawSignedModel;
-import com.virgilsecurity.sdk.client.exceptions.VirgilCardVerificationException;
 import com.virgilsecurity.sdk.client.exceptions.VirgilServiceException;
 import com.virgilsecurity.sdk.common.Generator;
 import com.virgilsecurity.sdk.common.Mocker;
@@ -48,13 +45,14 @@ import com.virgilsecurity.sdk.jwt.Jwt;
 import com.virgilsecurity.sdk.utils.StringUtils;
 import com.virgilsecurity.sdk.utils.TestUtils;
 import com.virgilsecurity.sdk.utils.Tuple;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VirgilCardClientTest extends PropertyManager {
 
@@ -184,7 +182,7 @@ public class VirgilCardClientTest extends PropertyManager {
 
     RawSignedModel cardModelAfterPublish =
         cardClient.publishCard(cardModelBeforePublish,
-                               mocker.generateAccessToken(identity).stringRepresentation());
+            mocker.generateAccessToken(identity).stringRepresentation());
     assertNotNull(cardModelAfterPublish);
     TestUtils.assertCardModelsEquals(cardModelBeforePublish, cardModelAfterPublish);
 
@@ -192,17 +190,17 @@ public class VirgilCardClientTest extends PropertyManager {
     assertNotNull(publishedCard);
 
     cardClient.revokeCard(publishedCard.getIdentifier(),
-                          mocker.generateAccessToken(identity).stringRepresentation());
+        mocker.generateAccessToken(identity).stringRepresentation());
 
     Tuple<RawSignedModel, Boolean> revokedTuple =
         cardClient.getCard(publishedCard.getIdentifier(),
-                           mocker.generateAccessToken(identity).stringRepresentation());
+            mocker.generateAccessToken(identity).stringRepresentation());
 
     assertTrue(revokedTuple.getRight());
 
     List<RawSignedModel> searchedModels =
         cardClient.searchCards(identity,
-                               mocker.generateAccessToken(identity).stringRepresentation());
+            mocker.generateAccessToken(identity).stringRepresentation());
     assertEquals(searchedModels.size(), 0);
   }
 }

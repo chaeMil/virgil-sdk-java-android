@@ -48,7 +48,6 @@ import java.util.Set;
  * Virgil implementation of a storage facility for cryptographic keys.
  *
  * @author Andrii Iakovenko
- *
  */
 public class PrivateKeyStorage {
 
@@ -62,11 +61,9 @@ public class PrivateKeyStorage {
 
     /**
      * Create new instance of {@link PrivateKeyEntry}.
-     * 
-     * @param name
-     *          the entry name.
-     * @param value
-     *          the entry value.
+     *
+     * @param name  the entry name.
+     * @param value the entry value.
      */
     public PrivateKeyEntry(String name, byte[] value) {
       super();
@@ -78,7 +75,7 @@ public class PrivateKeyStorage {
 
     /**
      * Get the entry metadata.
-     * 
+     *
      * @return the metadata
      */
     public Map<String, String> getMeta() {
@@ -87,7 +84,7 @@ public class PrivateKeyStorage {
 
     /**
      * Get the entry name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -96,7 +93,7 @@ public class PrivateKeyStorage {
 
     /**
      * Get the entry value.
-     * 
+     *
      * @return the value
      */
     public byte[] getValue() {
@@ -105,9 +102,8 @@ public class PrivateKeyStorage {
 
     /**
      * Set the entry metadata.
-     * 
-     * @param meta
-     *          the meta to set
+     *
+     * @param meta the meta to set
      */
     public void setMeta(Map<String, String> meta) {
       this.meta = meta;
@@ -115,9 +111,8 @@ public class PrivateKeyStorage {
 
     /**
      * Set the entry name.
-     * 
-     * @param name
-     *          the name to set
+     *
+     * @param name the name to set
      */
     public void setName(String name) {
       this.name = name;
@@ -125,9 +120,8 @@ public class PrivateKeyStorage {
 
     /**
      * Set the entry value.
-     * 
-     * @param value
-     *          the value to set
+     *
+     * @param value the value to set
      */
     public void setValue(byte[] value) {
       this.value = value;
@@ -135,7 +129,7 @@ public class PrivateKeyStorage {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#getCreatedAt()
      */
     public Date getCreatedAt() {
@@ -144,7 +138,7 @@ public class PrivateKeyStorage {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#setCreatedAt(java.util.Date)
      */
     public void setCreatedAt(Date createdAt) {
@@ -153,7 +147,7 @@ public class PrivateKeyStorage {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#getModifiedAt()
      */
     public Date getModifiedAt() {
@@ -162,7 +156,7 @@ public class PrivateKeyStorage {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#setModifiedAt(java.util.Date)
      */
     public void setModifiedAt(Date modifiedAt) {
@@ -177,11 +171,9 @@ public class PrivateKeyStorage {
 
   /**
    * Create new instance of {@link PrivateKeyStorage}.
-   * 
-   * @param keyExporter
-   *          the {@link PrivateKeyExporter}
-   * @param keyStorage
-   *          the {@link KeyStorage}
+   *
+   * @param keyExporter the {@link PrivateKeyExporter}
+   * @param keyStorage  the {@link KeyStorage}
    */
   public PrivateKeyStorage(PrivateKeyExporter keyExporter, KeyStorage keyStorage) {
     super();
@@ -197,9 +189,8 @@ public class PrivateKeyStorage {
 
   /**
    * Remove key from key storage.
-   * 
-   * @param keyName
-   *          The alias which identifies stored key.
+   *
+   * @param keyName The alias which identifies stored key.
    */
   public void delete(String keyName) {
     this.keyStorage.delete(keyName);
@@ -207,9 +198,8 @@ public class PrivateKeyStorage {
 
   /**
    * Check if key stored in key store.
-   * 
-   * @param keyName
-   *          The alias which identifies stored key.
+   *
+   * @param keyName The alias which identifies stored key.
    * @return {@code true} if key exists, {@code false} otherwise.
    */
   public boolean exists(String keyName) {
@@ -218,12 +208,10 @@ public class PrivateKeyStorage {
 
   /**
    * Load private key from key storage.
-   * 
-   * @param keyName
-   *          The alias which identifies stored key.
+   *
+   * @param keyName The alias which identifies stored key.
    * @return The pair of private key and key meta data.
-   * @throws CryptoException
-   *           if private key couldn't be imported
+   * @throws CryptoException if private key couldn't be imported
    */
   public Tuple<PrivateKey, Map<String, String>> load(String keyName) throws CryptoException {
     KeyEntry keyEntry = this.keyStorage.load(keyName);
@@ -238,7 +226,7 @@ public class PrivateKeyStorage {
 
   /**
    * List name of all keys stored in key storage.
-   * 
+   *
    * @return The keys names as a list.
    */
   public Set<String> names() {
@@ -247,15 +235,11 @@ public class PrivateKeyStorage {
 
   /**
    * Store private key in key storage.
-   * 
-   * @param privateKey
-   *          The private key to store.
-   * @param name
-   *          The alias which identifies stored key.
-   * @param meta
-   *          The key meta data.
-   * @throws CryptoException
-   *           if private couldn't be exported
+   *
+   * @param privateKey The private key to store.
+   * @param name       The alias which identifies stored key.
+   * @param meta       The key meta data.
+   * @throws CryptoException if private couldn't be exported
    */
   public void store(PrivateKey privateKey, String name, Map<String, String> meta)
       throws CryptoException {

@@ -35,15 +35,15 @@ package com.virgilsecurity.sdk.utils;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.util.Random;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Unit tests for {@link Base64Url}.
- * 
- * @author Andrii Iakovenko
  *
+ * @author Andrii Iakovenko
  */
 public class Base64UrlTest {
 

@@ -71,9 +71,7 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
    * instantiated with {@code password} then it will be used to export private key.
    *
    * @param privateKey The private key.
-   *
    * @return Private key in material representation of {@code byte[]}.
-   *
    * @throws CryptoException If problems occurred while exporting key.
    */
   public byte[] exportPrivateKey(PrivateKey privateKey) throws CryptoException {
@@ -89,11 +87,9 @@ public class VirgilPrivateKeyExporter implements PrivateKeyExporter {
    * Imports the private key from its material representation. If {@link VirgilCrypto} was
    * instantiated with {@code password} then it will be used to import private key.
    *
-   * @param data
-   *          The private key material representation bytes.
+   * @param data The private key material representation bytes.
    * @return The instance of {@link PrivateKey} imported.
-   * @throws CryptoException
-   *           if problems occurred while importing key.
+   * @throws CryptoException if problems occurred while importing key.
    */
   public PrivateKey importPrivateKey(byte[] data) throws CryptoException {
     return virgilCrypto.importPrivateKey(data).getPrivateKey();

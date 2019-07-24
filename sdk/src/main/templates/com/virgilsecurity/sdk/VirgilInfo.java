@@ -35,10 +35,9 @@ package com.virgilsecurity.sdk;
 
 /**
  * @author Andrii Iakovenko
- *
  */
 public class VirgilInfo {
-  
+
   public static final String PRODUCT = "sdk";
   public static final String FAMILY = "jvm";
   public static final String VERSION = "${version}";

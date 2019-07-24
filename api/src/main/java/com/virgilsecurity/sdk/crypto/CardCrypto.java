@@ -44,22 +44,18 @@ public interface CardCrypto {
   /**
    * Exports the {@code publicKey} into material representation.
    *
-   * @param publicKey
-   *          The public key.
+   * @param publicKey The public key.
    * @return Public key in material representation of {@code byte[]}.
-   * @throws CryptoException
-   *           if problems occurred while exporting key
+   * @throws CryptoException if problems occurred while exporting key
    */
   byte[] exportPublicKey(PublicKey publicKey) throws CryptoException;
 
   /**
    * Generates the fingerprint(512-bit hash) for the specified {@code data}.
    *
-   * @param data
-   *          The input data for which to compute the fingerprint.
+   * @param data The input data for which to compute the fingerprint.
    * @return The fingerprint for specified data.
-   * @throws CryptoException
-   *           if problems occurred while generating hash
+   * @throws CryptoException if problems occurred while generating hash
    */
   byte[] computeSha512(byte[] data) throws CryptoException;
 
@@ -67,24 +63,19 @@ public interface CardCrypto {
    * Generates the digital signature for the specified {@code data} using the specified
    * {@link PrivateKey}
    *
-   * @param data
-   *          The input data for which to compute the signature.
-   * @param privateKey
-   *          The private key.
+   * @param data       The input data for which to compute the signature.
+   * @param privateKey The private key.
    * @return The digital signature for the specified data.
-   * @throws CryptoException
-   *           if problems occurred while generating signature.
+   * @throws CryptoException if problems occurred while generating signature.
    */
   byte[] generateSignature(byte[] data, PrivateKey privateKey) throws CryptoException;
 
   /**
    * Imports the public key from its material representation.
    *
-   * @param data
-   *          The public key material representation bytes.
+   * @param data The public key material representation bytes.
    * @return The instance of {@link PublicKey} imported.
-   * @throws CryptoException
-   *           if problems occurred while importing key
+   * @throws CryptoException if problems occurred while importing key
    */
   PublicKey importPublicKey(byte[] data) throws CryptoException;
 
@@ -92,15 +83,11 @@ public interface CardCrypto {
    * Verifies that a digital signature is valid by checking the {@code signature}, with provided
    * {@code publicKey} and {@code data}.
    *
-   * @param signature
-   *          The digital signature for the {@code data}.
-   * @param data
-   *          The input data for which the {@code signature} has been generated.
-   * @param publicKey
-   *          The {@link PublicKey}.
+   * @param signature The digital signature for the {@code data}.
+   * @param data      The input data for which the {@code signature} has been generated.
+   * @param publicKey The {@link PublicKey}.
    * @return {@code true} if signature is valid, {@code false} otherwise.
-   * @throws CryptoException
-   *           if problems occurred while verifying signature.
+   * @throws CryptoException if problems occurred while verifying signature.
    */
   boolean verifySignature(byte[] signature, byte[] data, PublicKey publicKey)
       throws CryptoException;

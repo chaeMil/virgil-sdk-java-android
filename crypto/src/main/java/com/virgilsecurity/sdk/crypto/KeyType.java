@@ -79,6 +79,7 @@ public enum KeyType {
 
   /**
    * Get key len.
+   *
    * @return Key length in bits if key of RSA, -1 otherwise.
    */
   public int getRsaBitLen() {

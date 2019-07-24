@@ -48,23 +48,19 @@ import java.util.logging.Logger;
 
 /**
  * This is utils class which implements Card-specific functionality.
- * 
- * @author Andrii Iakovenko.
  *
+ * @author Andrii Iakovenko.
  */
 public class CardUtils {
   private static final Logger LOGGER = Logger.getLogger(CardUtils.class.getName());
 
   /**
    * Generate Virgil Card identifier by card content snapshot.
-   * 
-   * @param cardCrypto
-   *          the {@link CardCrypto}
-   * @param contentSnapshot
-   *          the card content snapshot.
+   *
+   * @param cardCrypto      the {@link CardCrypto}
+   * @param contentSnapshot the card content snapshot.
    * @return the generated Virgil Card identifier.
-   * @throws CryptoException
-   *           if card identifier couldn't be generated
+   * @throws CryptoException if card identifier couldn't be generated
    */
   public static String generateCardId(CardCrypto cardCrypto, byte[] contentSnapshot)
       throws CryptoException {
@@ -76,14 +72,11 @@ public class CardUtils {
 
   /**
    * Parse Card models into Cards.
-   * 
-   * @param crypto
-   *          the {@linkplain CardCrypto}.
-   * @param cardModels
-   *          card models.
+   *
+   * @param crypto     the {@linkplain CardCrypto}.
+   * @param cardModels card models.
    * @return list of {@linkplain Card}s.
-   * @throws CryptoException
-   *           if parsing failed.
+   * @throws CryptoException if parsing failed.
    */
   public static List<Card> parseCards(CardCrypto crypto, List<RawSignedModel> cardModels)
       throws CryptoException {
@@ -96,15 +89,13 @@ public class CardUtils {
 
   /**
    * Check if identities provided for search are equals to Cards identities.
-   * 
-   * @param cards
-   *          the {@linkplain Card}s.
-   * @param identities
-   *          the identites.
+   *
+   * @param cards      the {@linkplain Card}s.
+   * @param identities the identites.
    * @throws VirgilCardServiceException
    */
   public static void validateCardsWithIdentities(Collection<Card> cards,
-      Collection<String> identities) throws VirgilCardServiceException {
+                                                 Collection<String> identities) throws VirgilCardServiceException {
     for (Card card : cards) {
       boolean found = false;
       for (String identity : identities) {

@@ -33,15 +33,6 @@
 
 package com.virgilsecurity.sdk.storage;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -50,13 +41,20 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.*;
+
 /**
  * Unit tests for {@code VirgilKeyStorage}.
  *
  * @author Andrii Iakovenko
- * 
  * @see JsonFileKeyStorage
- *
  */
 public class JsonFileKeyStorageTest {
   private class TestKeyEntry implements KeyEntry {
@@ -70,7 +68,7 @@ public class JsonFileKeyStorageTest {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.crypto.KeyEntry#getMeta()
      */
     @Override
@@ -80,7 +78,7 @@ public class JsonFileKeyStorageTest {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.crypto.KeyEntry#getName()
      */
     @Override
@@ -90,7 +88,7 @@ public class JsonFileKeyStorageTest {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#getValue()
      */
     @Override
@@ -100,7 +98,7 @@ public class JsonFileKeyStorageTest {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#setMeta(java.util.Map)
      */
     @Override
@@ -110,7 +108,7 @@ public class JsonFileKeyStorageTest {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.crypto.KeyEntry#setName(java.lang.String)
      */
     @Override
@@ -120,7 +118,7 @@ public class JsonFileKeyStorageTest {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.virgilsecurity.sdk.storage.KeyEntry#setValue(byte[])
      */
     @Override

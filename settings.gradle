@@ -1,2 +1,2 @@
 rootProject.name = 'parent'
-include ':api', ':sdk', ':crypto', ':androidutils'
+include ':api', ':sdk', ':crypto', ':crypto-android', ':androidutils', 'examples'

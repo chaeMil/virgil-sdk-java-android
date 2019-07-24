@@ -62,143 +62,143 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 public class VirgilCryptoCompatibilityTest {
 
-    private JsonObject sampleJson;
+  private JsonObject sampleJson;
 
-    private static Stream<Arguments> allCryptos() {
-        VirgilCrypto crypto = new VirgilCrypto();
-        crypto.setUseSHA256Fingerprints(true);
-        return Stream.of(Arguments.of(crypto),
-                Arguments.of(new VirgilCrypto(true)));
+  private static Stream<Arguments> allCryptos() {
+    VirgilCrypto crypto = new VirgilCrypto();
+    crypto.setUseSHA256Fingerprints(true);
+    return Stream.of(Arguments.of(crypto),
+        Arguments.of(new VirgilCrypto(true)));
+  }
+
+  @Retention(RetentionPolicy.RUNTIME)
+  @ParameterizedTest
+  @MethodSource("allCryptos")
+  public @interface CryptoTest {
+  }
+
+  @BeforeEach
+  public void setup() {
+    sampleJson = (JsonObject) new JsonParser()
+        .parse(new InputStreamReader(Objects.requireNonNull(
+            this.getClass().getClassLoader()
+                .getResourceAsStream(
+                    "com/virgilsecurity/sdk/crypto/crypto_compatibility_data.json"))));
+  }
+
+  @CryptoTest
+  public void decryptFromMultipleRecipients(VirgilCrypto crypto) throws CryptoException {
+    JsonObject json = sampleJson.getAsJsonObject("encrypt_multiple_recipients");
+
+    List<VirgilPrivateKey> privateKeys = new ArrayList<>();
+    for (JsonElement el : json.getAsJsonArray("private_keys")) {
+      byte[] privateKeyData = Base64.decode(el.getAsString().getBytes());
+      privateKeys.add(crypto.importPrivateKey(privateKeyData).getPrivateKey());
+    }
+    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
+    byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
+
+    for (VirgilPrivateKey privateKey : privateKeys) {
+      byte[] decryptedData = crypto.decrypt(cipherData, privateKey);
+      assertArrayEquals(originalData, decryptedData);
+    }
+  }
+
+  @CryptoTest
+  public void decryptFromSingleRecipient(VirgilCrypto crypto) throws CryptoException {
+    JsonObject json = sampleJson.getAsJsonObject("encrypt_single_recipient");
+
+    byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
+    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
+    byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
+
+    VirgilPrivateKey privateKey = crypto.importPrivateKey(privateKeyData).getPrivateKey();
+    byte[] decryptedData = crypto.decrypt(cipherData, privateKey);
+
+    assertArrayEquals(originalData, decryptedData);
+  }
+
+  @CryptoTest
+  public void decryptThenVerifyMultipleRecipients(VirgilCrypto crypto) throws CryptoException {
+    JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_recipients");
+
+    List<VirgilKeyPair> keyPairs = new ArrayList<>();
+    for (JsonElement el : json.getAsJsonArray("private_keys")) {
+      byte[] privateKeyData = Base64.decode(el.getAsString().getBytes());
+      keyPairs.add(crypto.importPrivateKey(privateKeyData));
+    }
+    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
+    byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
+
+    byte[] publicKeyData = crypto.exportPublicKey(keyPairs.get(0).getPublicKey());
+    VirgilPublicKey publicKey = crypto.importPublicKey(publicKeyData);
+
+    for (VirgilKeyPair keyPair : keyPairs) {
+      byte[] decryptedData = crypto.decryptThenVerify(cipherData, keyPair.getPrivateKey(),
+          Collections.singletonList(publicKey));
+      assertArrayEquals(originalData, decryptedData);
+    }
+  }
+
+  @CryptoTest
+  public void decryptThenVerifyMultipleSigners(VirgilCrypto crypto) throws CryptoException {
+    JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_signers");
+
+    byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
+    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
+    byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
+
+    List<VirgilPublicKey> publicKeys = new ArrayList<>();
+    for (JsonElement el : json.getAsJsonArray("public_keys")) {
+      byte[] publicKeyData = Base64.decode(el.getAsString().getBytes());
+      publicKeys.add(crypto.importPublicKey(publicKeyData));
     }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @ParameterizedTest
-    @MethodSource("allCryptos")
-    public @interface CryptoTest {
+    VirgilPrivateKey privateKey = crypto.importPrivateKey(privateKeyData).getPrivateKey();
+
+    boolean found = false;
+    for (VirgilPublicKey publicKey : publicKeys) {
+      if (publicKey.equals(crypto.importPrivateKey(privateKeyData).getPublicKey())) {
+        found = true;
+      }
     }
+    assertTrue(found);
 
-    @BeforeEach
-    public void setup() {
-        sampleJson = (JsonObject) new JsonParser()
-                .parse(new InputStreamReader(Objects.requireNonNull(
-                        this.getClass().getClassLoader()
-                                .getResourceAsStream(
-                                        "com/virgilsecurity/sdk/crypto/crypto_compatibility_data.json"))));
-    }
+    byte[] decryptedData = crypto.decryptThenVerify(cipherData, privateKey, publicKeys);
+    assertArrayEquals(originalData, decryptedData);
+  }
 
-    @CryptoTest
-    public void decryptFromMultipleRecipients(VirgilCrypto crypto) throws CryptoException {
-        JsonObject json = sampleJson.getAsJsonObject("encrypt_multiple_recipients");
+  @CryptoTest
+  public void decryptThenVerifySingleRecipient(VirgilCrypto crypto) throws CryptoException {
+    JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_single_recipient");
 
-        List<VirgilPrivateKey> privateKeys = new ArrayList<>();
-        for (JsonElement el : json.getAsJsonArray("private_keys")) {
-            byte[] privateKeyData = Base64.decode(el.getAsString().getBytes());
-            privateKeys.add(crypto.importPrivateKey(privateKeyData).getPrivateKey());
-        }
-        byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-        byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
+    byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
+    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
+    byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
 
-        for (VirgilPrivateKey privateKey : privateKeys) {
-            byte[] decryptedData = crypto.decrypt(cipherData, privateKey);
-            assertArrayEquals(originalData, decryptedData);
-        }
-    }
+    VirgilKeyPair keyPair = crypto.importPrivateKey(privateKeyData);
+    VirgilPublicKey publicKey = keyPair.getPublicKey();
 
-    @CryptoTest
-    public void decryptFromSingleRecipient(VirgilCrypto crypto) throws CryptoException {
-        JsonObject json = sampleJson.getAsJsonObject("encrypt_single_recipient");
+    byte[] decryptedData = crypto.decryptThenVerify(cipherData, keyPair.getPrivateKey(),
+        Collections.singletonList(publicKey));
+    assertArrayEquals(originalData, decryptedData);
+  }
 
-        byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
-        byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-        byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
+  @CryptoTest
+  public void generateSignature(VirgilCrypto crypto) throws CryptoException {
+    JsonObject json = sampleJson.getAsJsonObject("generate_signature");
 
-        VirgilPrivateKey privateKey = crypto.importPrivateKey(privateKeyData).getPrivateKey();
-        byte[] decryptedData = crypto.decrypt(cipherData, privateKey);
+    byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
+    byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
+    byte[] signature = Base64.decode(json.get("signature").getAsString().getBytes());
 
-        assertArrayEquals(originalData, decryptedData);
-    }
+    VirgilKeyPair keyPair = crypto.importPrivateKey(privateKeyData);
+    byte[] generatedSignature = crypto.generateSignature(originalData,
+        keyPair.getPrivateKey());
 
-    @CryptoTest
-    public void decryptThenVerifyMultipleRecipients(VirgilCrypto crypto) throws CryptoException {
-        JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_recipients");
+    assertArrayEquals(signature, generatedSignature);
 
-        List<VirgilKeyPair> keyPairs = new ArrayList<>();
-        for (JsonElement el : json.getAsJsonArray("private_keys")) {
-            byte[] privateKeyData = Base64.decode(el.getAsString().getBytes());
-            keyPairs.add(crypto.importPrivateKey(privateKeyData));
-        }
-        byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-        byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
-
-        byte[] publicKeyData = crypto.exportPublicKey(keyPairs.get(0).getPublicKey());
-        VirgilPublicKey publicKey = crypto.importPublicKey(publicKeyData);
-
-        for (VirgilKeyPair keyPair : keyPairs) {
-            byte[] decryptedData = crypto.decryptThenVerify(cipherData, keyPair.getPrivateKey(),
-                    Collections.singletonList(publicKey));
-            assertArrayEquals(originalData, decryptedData);
-        }
-    }
-
-    @CryptoTest
-    public void decryptThenVerifyMultipleSigners(VirgilCrypto crypto) throws CryptoException {
-        JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_signers");
-
-        byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
-        byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-        byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
-
-        List<VirgilPublicKey> publicKeys = new ArrayList<>();
-        for (JsonElement el : json.getAsJsonArray("public_keys")) {
-            byte[] publicKeyData = Base64.decode(el.getAsString().getBytes());
-            publicKeys.add(crypto.importPublicKey(publicKeyData));
-        }
-
-        VirgilPrivateKey privateKey = crypto.importPrivateKey(privateKeyData).getPrivateKey();
-
-        boolean found = false;
-        for (VirgilPublicKey publicKey : publicKeys) {
-            if (publicKey.equals(crypto.importPrivateKey(privateKeyData).getPublicKey())) {
-                found = true;
-            }
-        }
-        assertTrue(found);
-
-        byte[] decryptedData = crypto.decryptThenVerify(cipherData, privateKey, publicKeys);
-        assertArrayEquals(originalData, decryptedData);
-    }
-
-    @CryptoTest
-    public void decryptThenVerifySingleRecipient(VirgilCrypto crypto) throws CryptoException {
-        JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_single_recipient");
-
-        byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
-        byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-        byte[] cipherData = Base64.decode(json.get("cipher_data").getAsString().getBytes());
-
-        VirgilKeyPair keyPair = crypto.importPrivateKey(privateKeyData);
-        VirgilPublicKey publicKey = keyPair.getPublicKey();
-
-        byte[] decryptedData = crypto.decryptThenVerify(cipherData, keyPair.getPrivateKey(),
-                Collections.singletonList(publicKey));
-        assertArrayEquals(originalData, decryptedData);
-    }
-
-    @CryptoTest
-    public void generateSignature(VirgilCrypto crypto) throws CryptoException {
-        JsonObject json = sampleJson.getAsJsonObject("generate_signature");
-
-        byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
-        byte[] originalData = Base64.decode(json.get("original_data").getAsString().getBytes());
-        byte[] signature = Base64.decode(json.get("signature").getAsString().getBytes());
-
-        VirgilKeyPair keyPair = crypto.importPrivateKey(privateKeyData);
-        byte[] generatedSignature = crypto.generateSignature(originalData,
-                keyPair.getPrivateKey());
-
-        assertArrayEquals(signature, generatedSignature);
-
-        VirgilPublicKey publicKey = keyPair.getPublicKey();
-        assertTrue(crypto.verifySignature(signature, originalData, publicKey));
-    }
+    VirgilPublicKey publicKey = keyPair.getPublicKey();
+    assertTrue(crypto.verifySignature(signature, originalData, publicKey));
+  }
 }

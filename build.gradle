@@ -47,16 +47,18 @@ buildscript {
 
             // Android
             appCompat         : '28.0.0',
+            androidx          : '1.1.1',
 
             // Tests
             testsRunner       : '1.0.2',
             espresso          : '3.0.2',
-            espressoIntents   : '3.0.1',
             junit             : '5.5.0',
             junitPlugin       : '1.0.0',
             jsonsimple        : '1.5.1',
             mockito           : '3.0.0',
             mockitoJunit      : '3.0.0',
+            mannodermaus      : '1.5.0.0',
+            mannodermausJunit5:'1.1.0',
 
             // Android Tests
             junitAndroid      : '4.12',
@@ -69,10 +71,13 @@ buildscript {
     repositories {
         google()
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$versions.gradle"
+        classpath "de.mannodermaus.gradle.plugins:android-junit5:$versions.mannodermaus"
+        classpath "digital.wup:android-maven-publish:$versions.mavenPublishPlugin"
     }
 }
 
@@ -94,9 +99,100 @@ allprojects {
 
 subprojects {
     group 'com.virgilsecurity.sdk'
-    version '6.0.0-SNAPSHOT'
+    version '6.0-SNAPSHOT'
 
+    apply plugin: 'maven-publish'
     apply plugin: 'checkstyle'
+
+    if (it.name != 'crypto-android') {
+        apply plugin: 'java-library'
+
+        sourceCompatibility = 1.8
+
+        dependencies {
+            testImplementation("org.junit.jupiter:junit-jupiter:${versions.junit}")
+        }
+
+        test {
+            useJUnitPlatform()
+            testLogging {
+                events "passed", "skipped", "failed"
+            }
+        }
+    }
+
+    // Don't publish examples subproject
+    if (it.name != 'examples') {
+        def isAndroid = it.name == 'crypto-android'
+
+        if (!isAndroid) {
+            task sourcesJar(type: Jar) {
+                from sourceSets.main.allJava
+                archiveClassifier = 'sources'
+            }
+
+            task javadocJar(type: Jar) {
+                from javadoc
+                archiveClassifier = 'javadoc'
+            }
+        }
+
+        def authentication_username = hasProperty('authentication_username') ? authentication_username : System.getenv('authentication_username')
+        def authentication_password = hasProperty('authentication_password') ? authentication_password : System.getenv('authentication_password')
+
+        publishing {
+            publications {
+                mavenJava(MavenPublication) {
+                    if (!isAndroid) {
+                        artifact sourcesJar
+                        artifact javadocJar
+                    }
+                    pom {
+                        description = 'Virgil is a stack of security libraries (ECIES with Crypto Agility wrapped in Virgil Cryptogram) and all the necessary infrastructure to enable seamless, end-to-end encryption for any application, platform or device.\n' +
+                                'Learn about Virgil Java/Android SDK https://virgilsecurity.com/api-docs/java-android/quickstart'
+                        url = 'https://www.virgilsecurity.com/'
+                        licenses {
+                            license {
+                                name = 'Virgil Security, Inc. license'
+                                url = 'https://github.com/VirgilSecurity/virgil-sdk-java-android/blob/master/LICENSE.md'
+                            }
+                        }
+                        developers {
+                            developer {
+                                id = 'BuddahLD'
+                                name = 'Danylo Oliinyk'
+                                email = 'doliinyk@virgilsecurity.com'
+                                organizationUrl = 'https://github.com/BuddahLD'
+                            }
+                            developer {
+                                id = 'andrii-iakovenko'
+                                name = 'Andrii Iakovenko'
+                                email = 'andrii-iakovenko@gmail.com'
+                                organizationUrl = 'https://github.com/andrii-iakovenko'
+                            }
+                        }
+                        scm {
+                            connection = 'scm:git:https://github.com/VirgilSecurity/virgil-sdk-java.git'
+                            developerConnection = 'scm:git:git@github.com:VirgilSecurity/virgil-sdk-java.git'
+                            url = 'https://github.com/VirgilSecurity/virgil-sdk-java-android'
+                        }
+                    }
+                }
+            }
+
+            repositories {
+                maven {
+                    def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+                    def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+                    url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                    credentials {
+                        username "${authentication_username}"
+                        password "${authentication_password}"
+                    }
+                }
+            }
+        }
+    }
 
     checkstyle {
         toolVersion '7.8.1'

@@ -59,8 +59,7 @@ public class VirgilCardCrypto implements CardCrypto {
   /**
    * Create new instance of {@link VirgilCardCrypto}.
    *
-   * @param virgilCrypto
-   *          The Virgil Crypto.
+   * @param virgilCrypto The Virgil Crypto.
    */
   public VirgilCardCrypto(VirgilCrypto virgilCrypto) {
     this.virgilCrypto = virgilCrypto;
@@ -68,7 +67,7 @@ public class VirgilCardCrypto implements CardCrypto {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.virgilsecurity.sdk.crypto.CardCrypto#exportPublicKey(com.virgilsecurity.sdk.crypto.
    * PublicKey)
    */
@@ -86,7 +85,7 @@ public class VirgilCardCrypto implements CardCrypto {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.virgilsecurity.sdk.crypto.CardCrypto#computeSha512(byte[])
    */
   @Override
@@ -96,7 +95,7 @@ public class VirgilCardCrypto implements CardCrypto {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.virgilsecurity.sdk.crypto.CardCrypto#generateSignature(byte[],
    * com.virgilsecurity.sdk.crypto.PrivateKey)
    */
@@ -124,7 +123,7 @@ public class VirgilCardCrypto implements CardCrypto {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.virgilsecurity.sdk.crypto.CardCrypto#importPublicKey(byte[])
    */
   @Override
@@ -134,7 +133,7 @@ public class VirgilCardCrypto implements CardCrypto {
 
   /*
    * (non-Javadoc)
-   * 
+   *
    * @see com.virgilsecurity.sdk.crypto.CardCrypto#verifySignature(byte[], byte[],
    * com.virgilsecurity.sdk.crypto.PublicKey)
    */

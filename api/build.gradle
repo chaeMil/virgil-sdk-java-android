@@ -1,14 +1,11 @@
-apply plugin: 'java-library'
-
-sourceCompatibility = 1.8
-
-dependencies {
-    testImplementation "org.junit.jupiter:junit-jupiter:$versions.junit"
-}
-
-test {
-    useJUnitPlatform()
-    testLogging {
-        events "passed", "skipped", "failed"
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Virgil SDK - API'
+            }
+            artifactId = "api"
+        }
     }
 }

@@ -33,8 +33,6 @@
 
 package com.virgilsecurity.sdk.jwt;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.virgilsecurity.sdk.CompatibilityDataProvider;
 import com.virgilsecurity.sdk.FakeDataFactory;
 import com.virgilsecurity.sdk.crypto.AccessTokenSigner;
@@ -46,11 +44,12 @@ import com.virgilsecurity.sdk.utils.ConvertionUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * Unit tests for {@link JwtVerifier}.
- * 
- * @author Andrii Iakovenko
  *
+ * @author Andrii Iakovenko
  */
 public class JwtVerifierTest {
 

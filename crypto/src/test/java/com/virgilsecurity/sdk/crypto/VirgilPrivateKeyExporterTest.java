@@ -50,7 +50,6 @@ import static org.junit.jupiter.api.Assertions.*;
  * Unit tests for {@link VirgilPrivateKeyExporter}.
  *
  * @author Andrii Iakovenko
- *
  */
 public class VirgilPrivateKeyExporterTest {
 
@@ -59,14 +58,14 @@ public class VirgilPrivateKeyExporterTest {
 
   private static Stream<Arguments> exporters() {
     return Stream.of(Arguments.of(new VirgilPrivateKeyExporter()),
-            Arguments.of(new VirgilPrivateKeyExporter(new VirgilCrypto())));
+        Arguments.of(new VirgilPrivateKeyExporter(new VirgilCrypto())));
   }
 
-    @Retention(RetentionPolicy.RUNTIME)
-    @ParameterizedTest
-    @MethodSource("exporters")
-    public @interface ExporterTest {
-    }
+  @Retention(RetentionPolicy.RUNTIME)
+  @ParameterizedTest
+  @MethodSource("exporters")
+  public @interface ExporterTest {
+  }
 
   @BeforeEach
   public void setup() throws CryptoException {

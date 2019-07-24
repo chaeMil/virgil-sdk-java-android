@@ -104,13 +104,14 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'checkstyle'
 
-    if (it.name != 'crypto-android') {
+    if (it.name != 'crypto-android' && it.name != 'androidutils') {
+        println(it.name)
         apply plugin: 'java-library'
 
         sourceCompatibility = 1.8
 
         dependencies {
-            testImplementation("org.junit.jupiter:junit-jupiter:${versions.junit}")
+            testImplementation "org.junit.jupiter:junit-jupiter:$versions.junit"
         }
 
         test {
@@ -123,7 +124,7 @@ subprojects {
 
     // Don't publish examples subproject
     if (it.name != 'examples') {
-        def isAndroid = it.name == 'crypto-android'
+        def isAndroid = (it.name == 'crypto-android' || it.name == 'androidutils') 
 
         if (!isAndroid) {
             task sourcesJar(type: Jar) {

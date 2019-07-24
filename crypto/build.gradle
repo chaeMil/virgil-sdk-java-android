@@ -11,8 +11,6 @@ dependencies {
     testCompile "org.apache.commons:commons-lang3:$versions.commonsLang"
 }
 
-}
-
 publishing {
     publications {
         mavenJava(MavenPublication) {

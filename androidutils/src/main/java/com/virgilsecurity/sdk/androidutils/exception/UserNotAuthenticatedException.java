@@ -31,35 +31,37 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-apply plugin: 'com.android.library'
+package com.virgilsecurity.sdk.androidutils.exception;
 
-android {
-    compileSdkVersion 28
-    
-    defaultConfig {
-        minSdkVersion 23
-        targetSdkVersion 28
-        versionCode 1
-        versionName "1.0"
+/**
+ * UserNotAuthenticatedException class.
+ */
+public class UserNotAuthenticatedException extends RuntimeException {
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    /**
+     * Create a new instance of {@code UserNotAuthenticatedException}.
+     */
+    public UserNotAuthenticatedException() {
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
+    /**
+     * Create a new instance of {@code UserNotAuthenticatedException} with the specified detail message.
+     *
+     * @param message the detail message. The detail message is saved for later retrieval by the
+     *                {@link #getMessage()} method.
+     */
+    public UserNotAuthenticatedException(String message) {
+        super(message);
     }
 
-}
-
-dependencies {
-    implementation project(":api")
-    implementation project(":crypto-android")
-
-    implementation "com.android.support:appcompat-v7:$versions.appCompat"
-    testImplementation "junit:junit:$versions.junitAndroid"
-    androidTestImplementation "com.android.support.test:runner:$versions.testsRunner"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$versions.espresso"
+    /**
+     * Create a new instance of {@code UserNotAuthenticatedException}.
+     *
+     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
+     *              {@code null} value is permitted, and indicates that the cause is nonexistent or
+     *              unknown.)
+     */
+    public UserNotAuthenticatedException(Throwable cause) {
+        super(cause);
+    }
 }

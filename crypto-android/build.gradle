@@ -35,8 +35,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation "com.android.support:appcompat-v7:$versions.appCompat"
 
     // Virgil
     api(project(":crypto")) {
@@ -53,11 +52,11 @@ dependencies {
     androidTestImplementation "androidx.test:runner:$versions.androidx"
     androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
     androidTestImplementation "org.junit.jupiter:junit-jupiter-params:$versions.junit"
-    androidTestImplementation "de.mannodermaus.junit5:android-test-core:$versions.mannodermaus_junit5"
-    androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:$versions.mannodermaus_junit5"
+    androidTestImplementation "de.mannodermaus.junit5:android-test-core:$versions.mannodermausJunit5"
+    androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:$versions.mannodermausJunit5"
 
     androidTestImplementation "com.google.code.gson:gson:$versions.gson"
-    androidTestImplementation "org.apache.commons:commons-lang3:$versions.commons_lang"
+    androidTestImplementation "org.apache.commons:commons-lang3:$versions.commonsLang"
 }
 
 task androidJavadocs(type: Javadoc) {

@@ -58,21 +58,27 @@ android {
 }
 
 dependencies {
-    implementation project(":api")
+    api project(":api")
     implementation project(":crypto-android")
 
     // Support
     implementation "com.android.support:appcompat-v7:$versions.appCompat"
-    
+
+    // Gson
+    implementation "com.google.code.gson:gson:$versions.gson"
+
     // Test
     testImplementation "junit:junit:$versions.junitAndroid"
     androidTestImplementation "com.android.support.test:runner:$versions.testsRunner"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$versions.espresso"
 }
 
-task androidJavadocs(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
+task androidJavadocs(type: Javadoc, dependsOn: 'assembleRelease') {
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    android.libraryVariants.all { variant ->
+        owner.classpath += variant.javaCompile.classpath
+    }
+    source = android.sourceSets.main.java.srcDirs
     exclude '**/R.html', '**/R.*.html', '**/index.html'
 }
 

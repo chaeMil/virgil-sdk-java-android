@@ -235,4 +235,5 @@ public class StorageTest {
     }
 
     // TODO test fingerprint/pattern change
+    // TODO test not authenticated symmetric key generation
 }

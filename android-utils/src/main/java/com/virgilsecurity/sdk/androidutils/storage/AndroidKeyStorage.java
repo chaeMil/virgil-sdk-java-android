@@ -91,6 +91,8 @@ public class AndroidKeyStorage implements KeyStorage {
      *                               please, see {@link KeyGenParameterSpec.Builder#setUserAuthenticationRequired} docs.
      * @param rootPath               path which will be used to store keys.
      *
+     * @return AndroidKeyStorage instance.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -111,6 +113,8 @@ public class AndroidKeyStorage implements KeyStorage {
      *                            You can set requirement that every key usage will need authentication, for details
      *                            please, see {@link KeyGenParameterSpec.Builder#setUserAuthenticationRequired} docs.
      *
+     * @return AndroidKeyStorage instance.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -129,6 +133,8 @@ public class AndroidKeyStorage implements KeyStorage {
      * @param alias    is an alias with which current keystore will be saved.
      * @param rootPath path which will be used to store keys.
      *
+     * @return AndroidKeyStorage instance.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -146,6 +152,8 @@ public class AndroidKeyStorage implements KeyStorage {
      * @param alias                  is an alias with which current keystore will be saved.
      * @param authenticationRequired is {@code true} by default. You can set it to {@code false} so the key storage
      *                               won't require user to be authenticated to use it.
+     *
+     * @return AndroidKeyStorage instance.
      *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
@@ -167,6 +175,8 @@ public class AndroidKeyStorage implements KeyStorage {
      *                               won't require user to be authenticated to use it.
      * @param rootPath               path which will be used to store keys.
      *
+     * @return AndroidKeyStorage instance.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -182,6 +192,8 @@ public class AndroidKeyStorage implements KeyStorage {
      * is 5 minutes.
      *
      * @param alias is an alias with which current keystore will be saved.
+     *
+     * @return AndroidKeyStorage instance.
      *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
@@ -326,14 +338,15 @@ public class AndroidKeyStorage implements KeyStorage {
         final VirgilKeyPair virgilKeyPair = virgilCrypto.generateKeyPair();
 
         final byte[] publicKeyData = virgilCrypto.exportPublicKey(virgilKeyPair.getPublicKey());
-        final AndroidKeyEntry publicKeyEntry = new AndroidKeyEntry(VIRGIL_PUBLIC_KEY, publicKeyData);
+        final AndroidKeyEntry publicKeyEntry =
+                new AndroidKeyEntry(VIRGIL_PUBLIC_KEY + androidKeyStoreAlias, publicKeyData);
         storeKey(publicKeyEntry, false, keystoreKeysPath);
 
         final SecretKey secretKey = loadSymmetricKey();
         final byte[] privateKeyData = virgilCrypto.exportPrivateKey(virgilKeyPair.getPrivateKey());
         byte[] encryptedPrivateKeyData = encryptWithSymmetricKey(secretKey, privateKeyData);
         final AndroidKeyEntry encryptedPrivateKeyEntry =
-                new AndroidKeyEntry(VIRGIL_PRIVATE_KEY_ENCRYPTED, encryptedPrivateKeyData);
+                new AndroidKeyEntry(VIRGIL_PRIVATE_KEY_ENCRYPTED + androidKeyStoreAlias, encryptedPrivateKeyData);
         storeKey(encryptedPrivateKeyEntry, false, keystoreKeysPath);
     }
 
@@ -357,8 +370,8 @@ public class AndroidKeyStorage implements KeyStorage {
     }
 
     private byte[] encryptWithVirgilKey(byte[] data) throws CryptoException {
-        final AndroidKeyEntry publicKeyEntry = (AndroidKeyEntry) loadKey(VIRGIL_PUBLIC_KEY, false,
-                keystoreKeysPath);
+        final AndroidKeyEntry publicKeyEntry =
+                (AndroidKeyEntry) loadKey(VIRGIL_PUBLIC_KEY + androidKeyStoreAlias, false, keystoreKeysPath);
         final VirgilPublicKey publicKey = virgilCrypto.importPublicKey(publicKeyEntry.getValue());
 
         return virgilCrypto.encrypt(data, publicKey);
@@ -369,8 +382,8 @@ public class AndroidKeyStorage implements KeyStorage {
             IOException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, BadPaddingException,
             InvalidAlgorithmParameterException, CryptoException {
 
-        final AndroidKeyEntry encryptedPrivateKeyEntry = (AndroidKeyEntry) loadKey(VIRGIL_PRIVATE_KEY_ENCRYPTED, false,
-                keystoreKeysPath);
+        final AndroidKeyEntry encryptedPrivateKeyEntry =
+                (AndroidKeyEntry) loadKey(VIRGIL_PRIVATE_KEY_ENCRYPTED + androidKeyStoreAlias, false, keystoreKeysPath);
         final byte[] encryptedPrivateKeyData = encryptedPrivateKeyEntry.getValue();
         final SecretKey secretKey = loadSymmetricKey();
         final byte[] privateKeyData = decryptWithSymmetricKey(secretKey, encryptedPrivateKeyData);
@@ -526,5 +539,5 @@ public class AndroidKeyStorage implements KeyStorage {
         } catch (Throwable throwable) {
             throw new KeyStorageException("Cannot reset symmetric key.");
         }
-    }
+    } // TODO add resetKeys(deleteKeys) method?
 }

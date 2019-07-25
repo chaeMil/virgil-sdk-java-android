@@ -104,8 +104,7 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'checkstyle'
 
-    if (it.name != 'crypto-android' && it.name != 'androidutils') {
-        println(it.name)
+    if (it.name != 'crypto-android' && it.name != 'android-utils') {
         apply plugin: 'java-library'
 
         sourceCompatibility = 1.8
@@ -124,7 +123,7 @@ subprojects {
 
     // Don't publish examples subproject
     if (it.name != 'examples') {
-        def isAndroid = (it.name == 'crypto-android' || it.name == 'androidutils') 
+        def isAndroid = (it.name == 'crypto-android' || it.name == 'android-utils')
 
         if (!isAndroid) {
             task sourcesJar(type: Jar) {

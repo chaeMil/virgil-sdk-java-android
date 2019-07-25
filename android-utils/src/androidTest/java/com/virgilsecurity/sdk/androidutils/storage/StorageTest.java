@@ -35,6 +35,7 @@ package com.virgilsecurity.sdk.androidutils.storage;
 
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
+import com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
@@ -70,7 +71,7 @@ public class StorageTest {
         tmpDir = new File(InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + UUID.randomUUID().toString());
         keyStoreAlias = UUID.randomUUID().toString();
-        storage = AndroidKeyStorage.getInstance(keyStoreAlias, tmpDir.getAbsolutePath());
+        storage = AndroidKeyStorage.getInstance(keyStoreAlias, false, tmpDir.getAbsolutePath());
 
         VirgilKeyPair keyPair = crypto.generateKeyPair();
 
@@ -81,11 +82,6 @@ public class StorageTest {
         entry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
         entry.getMeta().put(UUID.randomUUID().toString(), UUID.randomUUID().toString());
     }
-
-//    @Test
-//    public void persistence_of_keys() {
-//        AndroidKeyStorage androidKeyStorageOne = new AndroidKeyStorage()
-//    }
 
     @Test
     public void delete() {
@@ -186,4 +182,57 @@ public class StorageTest {
         // Should fail
         storage.store(entry);
     }
+
+    @Ignore("Hard to reproduce on emulator, run manually")
+    @Test(expected = UserNotAuthenticatedException.class)
+    public void validity_duration_expired() throws CryptoException, InterruptedException {
+        String keyStorageAlias = UUID.randomUUID().toString();
+        String path = new File(InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + UUID.randomUUID().toString()).getAbsolutePath();
+        AndroidKeyStorage androidKeyStorage = AndroidKeyStorage.getInstance(keyStorageAlias, 20, path);
+
+        // Generate entry
+        VirgilCrypto crypto = new VirgilCrypto();
+        VirgilKeyPair keyPair = crypto.generateKeyPair();
+        String keyAliasOne = UUID.randomUUID().toString();
+
+        AndroidKeyEntry keyEntry = new AndroidKeyEntry();
+        keyEntry.setName(keyAliasOne);
+        keyEntry.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
+
+        androidKeyStorage.store(keyEntry);
+        KeyEntry keyEntryLoaded = androidKeyStorage.load(keyAliasOne);
+        assertNotNull(keyEntryLoaded);
+
+        Thread.sleep(20 * 1000); // 10 sec
+
+        androidKeyStorage.load(keyAliasOne);
+        fail("UserNotAuthenticatedException should be thrown.");
+    }
+
+    @Test
+    public void update_key() throws CryptoException {
+        storage.store(entry);
+
+        KeyEntry loadedEntry = storage.load(keyAlias);
+        assertNotNull(loadedEntry);
+
+        // Generate entry
+        VirgilCrypto crypto = new VirgilCrypto();
+        VirgilKeyPair keyPair = crypto.generateKeyPair();
+
+        AndroidKeyEntry entryNew = new AndroidKeyEntry();
+        entryNew.setName(entry.getName());
+        entryNew.setValue(crypto.exportPrivateKey(keyPair.getPrivateKey()));
+
+        storage.update(entryNew);
+        KeyEntry loadedEntryNew = storage.load(entry.getName());
+        assertNotNull(loadedEntryNew);
+        assertTrue(loadedEntryNew instanceof AndroidKeyEntry);
+        assertEquals(entryNew.getName(), loadedEntryNew.getName());
+        assertArrayEquals(entryNew.getValue(), loadedEntryNew.getValue());
+        assertEquals(entryNew.getMeta(), loadedEntryNew.getMeta());
+    }
+
+    // TODO test fingerprint/pattern change
 }

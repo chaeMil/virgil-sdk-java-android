@@ -77,7 +77,7 @@ public class AndroidCipherTest {
                 .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
 //                .setUnlockedDeviceRequired(true) // TODO check on device
-                .setUserAuthenticationValidityDurationSeconds(120) // TODO do we need at lease one fingerprint?
+                .setUserAuthenticationValidityDurationSeconds(5 * 60) // 5 minutes
                 .setUserAuthenticationRequired(true)
                 .build();
 
@@ -87,11 +87,6 @@ public class AndroidCipherTest {
         keyguardManager = (KeyguardManager) InstrumentationRegistry.getContext().getSystemService(Context.KEYGUARD_SERVICE);
 
         assertTrue(keyguardManager.isDeviceSecure());
-
-//        FingerprintManagerCompat fingerprintManager =
-//                FingerprintManagerCompat.from(InstrumentationRegistry.getContext());
-//
-//        assertTrue(fingerprintManager.hasEnrolledFingerprints());
     }
 
     @Test

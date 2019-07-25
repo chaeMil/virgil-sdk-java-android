@@ -61,8 +61,9 @@ import java.util.Set;
 
 /**
  * AndroidKeyStorage class uses AndroidKeyStore to generate symmetric key with which it encrypts Virgil private key,
- * while Virgil private key is used to encrypt KeyStorage itself. So to load key entry user has to be authenticated
- * on Android device. User authentication is up to developer.
+ * while Virgil private key is used to encrypt KeyStorage itself. Hence, to store/load key entry user has to be
+ * authenticated on Android device. User authentication is up to developer, please see:
+ * https://developer.android.com/training/articles/keystore#UserAuthentication
  */
 public class AndroidKeyStorage implements KeyStorage {
 
@@ -74,47 +75,30 @@ public class AndroidKeyStorage implements KeyStorage {
     private static final String ANDROID_KEY_STORE_ALIAS = "VirgilAndroidKeyStore";
     private static final int KEY_VALIDITY_DURATION = 5 * 60; // 5 min
 
-    private String keystorePath;
-    private String keystoreKeysPath;
+    private String keystorePath; // Where keys are saved
+    private String keystoreKeysPath; // Where Virgil key pair is saved (to encrypt/decrypt key storage)
     private VirgilCrypto virgilCrypto;
     private String androidKeyStoreAlias;
 
     /**
-     * Instantiates AndroidKeyStorage class.
+     * Instantiates AndroidKeyStorage class. {@code authenticationRequired} is automatically true, because in other case
+     * {@code keyValidityDuration} makes no sense.
      *
      * @param alias                  is an alias with which current keystore will be saved.
-     * @param authenticationRequired is {@code true} by default. You can set it to {@code false} so the key storage
-     *                               won't require user to be authenticated to use it.
      * @param keyValidityDuration    default duration is 5 minutes. You can specify other duration of key validity in
-     *                               seconds. After the time specified expired user has to be re-authenticated.
+     *                               seconds. After the time specified has expired user has to be re-authenticated.
+     *                               You can set requirement that every key usage will need authentication, for details
+     *                               please, see {@link KeyGenParameterSpec.Builder#setUserAuthenticationRequired} docs.
      * @param rootPath               path which will be used to store keys.
-     * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
-     * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
-     * You have to re-authenticate user, please see the link:
-     * https://developer.android.com/training/articles/keystore#UserAuthentication
-     * @throws KeyStorageException when some error occurred while initializing AndroidKeyStorage.
-     */
-    public static AndroidKeyStorage getInstance(String alias, boolean authenticationRequired, int keyValidityDuration,
-                                                String rootPath) {
-        return new AndroidKeyStorage(alias, authenticationRequired, keyValidityDuration, rootPath);
-    }
-
-    /**
-     * Instantiates AndroidKeyStorage class. Default key validity time (after which user has to be re-authenticated)
-     * is 5 minutes.
      *
-     * @param alias                  is an alias with which current keystore will be saved.
-     * @param authenticationRequired is {@code true} by default. You can set it to {@code false} so the key storage
-     *                               won't require user to be authenticated to use it.
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
      * https://developer.android.com/training/articles/keystore#UserAuthentication
      * @throws KeyStorageException when some error occurred while initializing AndroidKeyStorage.
      */
-    public static AndroidKeyStorage getInstance(String alias, boolean authenticationRequired) {
-        return new AndroidKeyStorage(alias, authenticationRequired, KEY_VALIDITY_DURATION,
-                System.getProperty("user.home"));
+    public static AndroidKeyStorage getInstance(String alias, int keyValidityDuration, String rootPath) {
+        return new AndroidKeyStorage(alias, true, keyValidityDuration, rootPath);
     }
 
     /**
@@ -123,7 +107,10 @@ public class AndroidKeyStorage implements KeyStorage {
      *
      * @param alias               is an alias with which current keystore will be saved.
      * @param keyValidityDuration default duration is 5 minutes. You can specify other duration of key validity in
-     *                            seconds. After the time specified expired user has to be re-authenticated.
+     *                            seconds. After the time specified has expired user has to be re-authenticated.
+     *                            You can set requirement that every key usage will need authentication, for details
+     *                            please, see {@link KeyGenParameterSpec.Builder#setUserAuthenticationRequired} docs.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -141,6 +128,7 @@ public class AndroidKeyStorage implements KeyStorage {
      *
      * @param alias    is an alias with which current keystore will be saved.
      * @param rootPath path which will be used to store keys.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -155,7 +143,46 @@ public class AndroidKeyStorage implements KeyStorage {
      * Instantiates AndroidKeyStorage class. Default key validity time (after which user has to be re-authenticated)
      * is 5 minutes.
      *
+     * @param alias                  is an alias with which current keystore will be saved.
+     * @param authenticationRequired is {@code true} by default. You can set it to {@code false} so the key storage
+     *                               won't require user to be authenticated to use it.
+     *
+     * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
+     * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
+     * You have to re-authenticate user, please see the link:
+     * https://developer.android.com/training/articles/keystore#UserAuthentication
+     * @throws KeyStorageException when some error occurred while initializing AndroidKeyStorage.
+     */
+    public static AndroidKeyStorage getInstance(String alias, boolean authenticationRequired) {
+        return new AndroidKeyStorage(alias, authenticationRequired, KEY_VALIDITY_DURATION,
+                System.getProperty("user.home"));
+    }
+
+    /**
+     * Instantiates AndroidKeyStorage class. Default key validity time (after which user has to be re-authenticated)
+     * is 5 minutes.
+     *
+     * @param alias                  is an alias with which current keystore will be saved.
+     * @param authenticationRequired is {@code true} by default. You can set it to {@code false} so the key storage
+     *                               won't require user to be authenticated to use it.
+     * @param rootPath               path which will be used to store keys.
+     *
+     * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
+     * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
+     * You have to re-authenticate user, please see the link:
+     * https://developer.android.com/training/articles/keystore#UserAuthentication
+     * @throws KeyStorageException when some error occurred while initializing AndroidKeyStorage.
+     */
+    public static AndroidKeyStorage getInstance(String alias, boolean authenticationRequired, String rootPath) {
+        return new AndroidKeyStorage(alias, authenticationRequired, KEY_VALIDITY_DURATION, rootPath);
+    }
+
+    /**
+     * Instantiates AndroidKeyStorage class. Default key validity time (after which user has to be re-authenticated)
+     * is 5 minutes.
+     *
      * @param alias is an alias with which current keystore will be saved.
+     *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
      * You have to re-authenticate user, please see the link:
@@ -170,12 +197,14 @@ public class AndroidKeyStorage implements KeyStorage {
     /**
      * Instantiates AndroidKeyStorage class.
      *
-     * @param alias is an alias with which current keystore will be saved.
+     * @param alias                  is an alias with which current keystore will be saved.
      * @param authenticationRequired is {@code true} by default. You can set it to {@code false} so the key storage
      *                               won't require user to be authenticated to use it.
-     * @param keyValidityDuration default duration is 5 minutes. You can specify other duration of key validity in
-     *                            seconds. After the time specified expired user has to be re-authenticated.
-     * @param rootPath path which will be used to store keys.
+     * @param keyValidityDuration    default duration is 5 minutes. You can specify other duration of key validity in
+     *                               seconds. After the time specified has expired user has to be re-authenticated.
+     *                               You can set requirement that every key usage will need authentication, for details
+     *                               please, see {@link KeyGenParameterSpec.Builder#setUserAuthenticationRequired} docs.
+     * @param rootPath               path which will be used to store keys.
      *
      * @throws com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException
      * when {@code authenticationRequired} is {@code true} and key validity duration has been expired.
@@ -222,11 +251,9 @@ public class AndroidKeyStorage implements KeyStorage {
 
     @Override
     public void delete(String keyName) {
-        if (!exists(keyName)) {
+        if (!existsKey(keyName, keystorePath)) {
             throw new KeyEntryNotFoundException();
         }
-
-        // TODO check whether user is authenticated
 
         final File file = new File(keystorePath, keyName.toLowerCase());
         final boolean isDeleted = file.delete();
@@ -241,7 +268,6 @@ public class AndroidKeyStorage implements KeyStorage {
         return existsKey(keyName, keystorePath);
     }
 
-    // TODO check when UserNotAuthenticatedException is thrown
     /**
      * Loads the private key associated with the given alias.
      *
@@ -262,9 +288,6 @@ public class AndroidKeyStorage implements KeyStorage {
 
     @Override
     public Set<String> names() {
-
-        // TODO check whether user is authenticated
-
         final File dir = new File(keystorePath);
         final Set<String> names = new HashSet<>();
         if (dir.exists() && dir.isDirectory()) {
@@ -286,9 +309,9 @@ public class AndroidKeyStorage implements KeyStorage {
     }
 
     @Override
-    public void update(final KeyEntry keyEntry) {
+    public void update(KeyEntry keyEntry) {
         final String keyName = keyEntry.getName();
-        if (!exists(keyName)) {
+        if (!existsKey(keyName, keystorePath)) {
             throw new KeyEntryNotFoundException();
         }
         delete(keyName);
@@ -330,7 +353,7 @@ public class AndroidKeyStorage implements KeyStorage {
                         .build();
 
         keyGenerator.init(keyGenParameterSpec);
-        keyGenerator.generateKey();
+        keyGenerator.generateKey(); // Generates and saves key
     }
 
     private byte[] encryptWithVirgilKey(byte[] data) throws CryptoException {
@@ -367,6 +390,7 @@ public class AndroidKeyStorage implements KeyStorage {
         final byte[] encryptedData = cipher.doFinal(data);
         final byte[] ivAndEncryptedData = new byte[12 + encryptedData.length];
 
+        // Put initialization vector in first 12 bytes of encrypted key data (needed later for decryption)
         System.arraycopy(encryptionIv, 0, ivAndEncryptedData, 0, 12);
         System.arraycopy(encryptedData, 0, ivAndEncryptedData, 12, encryptedData.length);
 
@@ -397,7 +421,7 @@ public class AndroidKeyStorage implements KeyStorage {
         }
 
         final KeyStore.SecretKeyEntry secretKeyEntry = (KeyStore.SecretKeyEntry) keyStore
-                .getEntry(androidKeyStoreAlias, null); // TODO test when fingerprint/pattern has been changed
+                .getEntry(androidKeyStoreAlias, null);
 
         return secretKeyEntry.getSecretKey();
     }
@@ -488,8 +512,6 @@ public class AndroidKeyStorage implements KeyStorage {
         if (keyName == null) {
             return false;
         }
-
-        // TODO check whether user is authenticated
 
         final File file = new File(path, keyName.toLowerCase());
         return file.exists();

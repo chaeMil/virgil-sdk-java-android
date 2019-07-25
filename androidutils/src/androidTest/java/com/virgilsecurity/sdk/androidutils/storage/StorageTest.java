@@ -134,7 +134,6 @@ public class StorageTest {
         assertFalse(storage.exists(UUID.randomUUID().toString()));
     }
 
-    @Ignore("Check why is it blocks")
     @Test
     public void load() {
         storage.store(entry);

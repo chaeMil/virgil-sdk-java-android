@@ -37,11 +37,9 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import androidx.test.core.app.ApplicationProvider;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
@@ -54,7 +52,6 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-@RunWith(AndroidJUnit4.class)
 public class AndroidCipherTest {
 
     private static final String TEXT = "This is the best text ever";
@@ -64,7 +61,7 @@ public class AndroidCipherTest {
     private String androidKeyStoreAlias = "AndroidKeyStoreTestAliasAuth4";
     private KeyguardManager keyguardManager;
 
-    @Before
+    @BeforeEach
     public void setup() throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
         androidKeyStoreAlias = UUID.randomUUID().toString().substring(0, 12);
 
@@ -84,7 +81,8 @@ public class AndroidCipherTest {
         keyGenerator.init(keyGenParameterSpec);
         keyGenerator.generateKey();
 
-        keyguardManager = (KeyguardManager) InstrumentationRegistry.getContext().getSystemService(Context.KEYGUARD_SERVICE);
+        keyguardManager = (KeyguardManager)
+                ApplicationProvider.getApplicationContext().getSystemService(Context.KEYGUARD_SERVICE);
 
         assertTrue(keyguardManager.isDeviceSecure());
     }

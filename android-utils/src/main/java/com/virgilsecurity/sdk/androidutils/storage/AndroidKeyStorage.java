@@ -52,6 +52,7 @@ import com.virgilsecurity.sdk.storage.KeyStorage;
 
 import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.security.*;
@@ -72,8 +73,12 @@ public class AndroidKeyStorage implements KeyStorage {
     private static final String KEY_STORE_KEYS_SUFFIX = "KEY_STORE_KEYS_SUFFIX";
     private static final String ANDROID_KEY_STORE = "AndroidKeyStore";
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
-    private static final String ANDROID_KEY_STORE_ALIAS = "VirgilAndroidKeyStore";
+    private static final String ANDROID_KEY_STORE_ALIAS = "VirgilAndroidKeyStore-";
+    private static final String VIRGIL_SECURITY = "VirgilSecurity";
+    private static final String KEYS = "Keys";
     private static final int KEY_VALIDITY_DURATION = 5 * 60; // 5 min
+    private static final int INIT_VECTOR_LENGTH = 12; // 12 bytes
+    private static final int AUTH_TAG_LENGTH = 128; // 128 bit
 
     private String keystorePath; // Where keys are saved
     private String keystoreKeysPath; // Where Virgil key pair is saved (to encrypt/decrypt key storage)
@@ -232,9 +237,9 @@ public class AndroidKeyStorage implements KeyStorage {
             throw new EmptyArgumentException("alias");
         }
 
-        this.keystorePath = rootPath + File.separator + "VirgilSecurity" + File.separator + "Keys"
+        this.keystorePath = rootPath + File.separator + VIRGIL_SECURITY + File.separator + KEYS
                 + File.separator + alias;
-        this.keystoreKeysPath = rootPath + File.separator + "VirgilSecurity" + File.separator + "Keys"
+        this.keystoreKeysPath = rootPath + File.separator + VIRGIL_SECURITY + File.separator + KEYS
                 + File.separator + KEY_STORE_KEYS_SUFFIX;
         this.virgilCrypto = new VirgilCrypto();
         this.androidKeyStoreAlias = ANDROID_KEY_STORE_ALIAS + alias;
@@ -255,8 +260,9 @@ public class AndroidKeyStorage implements KeyStorage {
             } else if (throwable instanceof CryptoException) {
                 throw new KeyStorageException("Error occurred while generating Virgil keys");
             } else {
-                throw new KeyStorageException(throwable.getMessage() == null ? throwable.getMessage()
-                        : "Error occurred while initializing android key storage.");
+                throw new KeyStorageException(throwable.getMessage() == null
+                        ? "Error occurred while initializing android key storage."
+                        : throwable.getMessage());
             }
         }
     }
@@ -333,7 +339,7 @@ public class AndroidKeyStorage implements KeyStorage {
     private void generateAndSaveVirgilKeys()
             throws CertificateException, UnrecoverableEntryException, NoSuchAlgorithmException, KeyStoreException,
             IOException, CryptoException, IllegalBlockSizeException, BadPaddingException, NoSuchPaddingException,
-            InvalidKeyException {
+            InvalidKeyException, InvalidAlgorithmParameterException {
 
         final VirgilKeyPair virgilKeyPair = virgilCrypto.generateKeyPair();
 
@@ -394,18 +400,20 @@ public class AndroidKeyStorage implements KeyStorage {
 
     private byte[] encryptWithSymmetricKey(SecretKey secretKey, byte[] data)
             throws InvalidKeyException, BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException,
-            NoSuchAlgorithmException {
+            NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 
         final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
-        final byte[] encryptionIv = cipher.getIV();
+        byte[] initVector = virgilCrypto.generateRandomData(INIT_VECTOR_LENGTH);
+
+//        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(initVector));
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(AUTH_TAG_LENGTH, initVector));
 
         final byte[] encryptedData = cipher.doFinal(data);
         final byte[] ivAndEncryptedData = new byte[12 + encryptedData.length];
 
-        // Put initialization vector in first 12 bytes of encrypted key data (needed later for decryption)
-        System.arraycopy(encryptionIv, 0, ivAndEncryptedData, 0, 12);
-        System.arraycopy(encryptedData, 0, ivAndEncryptedData, 12, encryptedData.length);
+        // Put init vector in first INIT_VECTOR_LENGTH bytes of encrypted key data (needed later for decryption)
+        System.arraycopy(initVector, 0, ivAndEncryptedData, 0, INIT_VECTOR_LENGTH);
+        System.arraycopy(encryptedData, 0, ivAndEncryptedData, INIT_VECTOR_LENGTH, encryptedData.length);
 
         return ivAndEncryptedData;
     }
@@ -415,10 +423,10 @@ public class AndroidKeyStorage implements KeyStorage {
             InvalidKeyException, InvalidAlgorithmParameterException {
 
         final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        final GCMParameterSpec spec = new GCMParameterSpec(128, data, 0, 12);
+        final GCMParameterSpec spec = new GCMParameterSpec(AUTH_TAG_LENGTH, data, 0, 12);
         cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
 
-        return cipher.doFinal(data, 12, data.length - 12);
+        return cipher.doFinal(data, INIT_VECTOR_LENGTH, data.length - INIT_VECTOR_LENGTH);
     }
 
     private SecretKey loadSymmetricKey()

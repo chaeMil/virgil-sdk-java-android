@@ -33,6 +33,7 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'digital.wup.android-maven-publish'
+apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
     compileSdkVersion 28
@@ -43,6 +44,7 @@ android {
         targetSdkVersion 28
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunnerArgument "runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder"
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
@@ -67,10 +69,15 @@ dependencies {
     // Gson
     implementation "com.google.code.gson:gson:$versions.gson"
 
-    // Test
-    testImplementation "junit:junit:$versions.junitAndroid"
-    androidTestImplementation "com.android.support.test:runner:$versions.testsRunner"
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$versions.espresso"
+    // Tests
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
+
+    // Instrumented tests
+    androidTestImplementation "androidx.test:runner:$versions.androidx"
+    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
+    androidTestImplementation "de.mannodermaus.junit5:android-test-core:$versions.mannodermausJunit5"
+    androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:$versions.mannodermausJunit5"
 }
 
 task androidJavadocs(type: Javadoc, dependsOn: 'assembleRelease') {

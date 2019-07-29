@@ -412,13 +412,11 @@ public class AndroidKeyStorage implements KeyStorage {
 
         final byte[] encryptedData = cipher.doFinal(data);
 
-        final ByteBuffer byteBuffer = ByteBuffer.allocate(4 + initVector.length + encryptedData.length);
-        byteBuffer.putInt(initVector.length);
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(INIT_VECTOR_LENGTH + encryptedData.length);
         byteBuffer.put(initVector);
         byteBuffer.put(encryptedData);
-        final byte[] ivAndEncryptedData = byteBuffer.array();
 
-        return ivAndEncryptedData;
+        return byteBuffer.array();
     }
 
     private byte[] decryptWithSymmetricKey(SecretKey secretKey, byte[] data)
@@ -426,12 +424,7 @@ public class AndroidKeyStorage implements KeyStorage {
             InvalidKeyException, InvalidAlgorithmParameterException {
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(data);
-        int initVectorLength = byteBuffer.getInt();
-        if (initVectorLength != 12) {
-            // So attacker cannot overflow length
-            throw new IllegalArgumentException("invalid init vector length");
-        }
-        byte[] initVector = new byte[initVectorLength];
+        byte[] initVector = new byte[INIT_VECTOR_LENGTH];
         byteBuffer.get(initVector);
         byte[] encryptedData = new byte[byteBuffer.remaining()];
         byteBuffer.get(encryptedData);

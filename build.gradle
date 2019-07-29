@@ -87,7 +87,6 @@ plugins {
 
 allprojects {
     repositories {
-        mavenLocal()
         mavenCentral()
         maven {
             url 'https://oss.sonatype.org/content/repositories/snapshots'
@@ -104,7 +103,6 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'checkstyle'
 
-    println(it.name + " " + project.file('isAndroidVar'))
     if (it.name != 'crypto-android' && it.name != 'android-utils') {
         apply plugin: 'java-library'
 

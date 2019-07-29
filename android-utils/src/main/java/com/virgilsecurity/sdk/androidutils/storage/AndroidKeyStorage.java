@@ -54,6 +54,7 @@ import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -367,6 +368,7 @@ public class AndroidKeyStorage implements KeyStorage {
                         KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
                         .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
                         .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                        .setRandomizedEncryptionRequired(false)
                         .setUserAuthenticationValidityDurationSeconds(keyValidityDuration)
                         .setUserAuthenticationRequired(authenticationRequired)
                         .build();
@@ -403,17 +405,18 @@ public class AndroidKeyStorage implements KeyStorage {
             NoSuchAlgorithmException, InvalidAlgorithmParameterException {
 
         final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        byte[] initVector = virgilCrypto.generateRandomData(INIT_VECTOR_LENGTH);
+        final byte[] initVector = virgilCrypto.generateRandomData(INIT_VECTOR_LENGTH);
 
-//        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new IvParameterSpec(initVector));
-        cipher.init(Cipher.ENCRYPT_MODE, secretKey, new GCMParameterSpec(AUTH_TAG_LENGTH, initVector));
+        final GCMParameterSpec parameterSpec = new GCMParameterSpec(AUTH_TAG_LENGTH, initVector);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, parameterSpec);
 
         final byte[] encryptedData = cipher.doFinal(data);
-        final byte[] ivAndEncryptedData = new byte[12 + encryptedData.length];
 
-        // Put init vector in first INIT_VECTOR_LENGTH bytes of encrypted key data (needed later for decryption)
-        System.arraycopy(initVector, 0, ivAndEncryptedData, 0, INIT_VECTOR_LENGTH);
-        System.arraycopy(encryptedData, 0, ivAndEncryptedData, INIT_VECTOR_LENGTH, encryptedData.length);
+        final ByteBuffer byteBuffer = ByteBuffer.allocate(4 + initVector.length + encryptedData.length);
+        byteBuffer.putInt(initVector.length);
+        byteBuffer.put(initVector);
+        byteBuffer.put(encryptedData);
+        final byte[] ivAndEncryptedData = byteBuffer.array();
 
         return ivAndEncryptedData;
     }
@@ -422,11 +425,22 @@ public class AndroidKeyStorage implements KeyStorage {
             throws BadPaddingException, IllegalBlockSizeException, NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException, InvalidAlgorithmParameterException {
 
-        final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
-        final GCMParameterSpec spec = new GCMParameterSpec(AUTH_TAG_LENGTH, data, 0, 12);
-        cipher.init(Cipher.DECRYPT_MODE, secretKey, spec);
+        ByteBuffer byteBuffer = ByteBuffer.wrap(data);
+        int initVectorLength = byteBuffer.getInt();
+        if (initVectorLength != 12) {
+            // So attacker cannot overflow length
+            throw new IllegalArgumentException("invalid init vector length");
+        }
+        byte[] initVector = new byte[initVectorLength];
+        byteBuffer.get(initVector);
+        byte[] encryptedData = new byte[byteBuffer.remaining()];
+        byteBuffer.get(encryptedData);
 
-        return cipher.doFinal(data, INIT_VECTOR_LENGTH, data.length - INIT_VECTOR_LENGTH);
+        final Cipher cipher = Cipher.getInstance(TRANSFORMATION);
+        final GCMParameterSpec parameterSpec = new GCMParameterSpec(AUTH_TAG_LENGTH, initVector);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, parameterSpec);
+
+        return cipher.doFinal(encryptedData);
     }
 
     private SecretKey loadSymmetricKey()

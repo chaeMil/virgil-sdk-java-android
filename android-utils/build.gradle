@@ -33,7 +33,6 @@
 
 apply plugin: 'com.android.library'
 apply plugin: 'digital.wup.android-maven-publish'
-apply plugin: 'de.mannodermaus.android-junit5'
 
 android {
     compileSdkVersion 28
@@ -69,8 +68,6 @@ dependencies {
 
     // Tests
     testImplementation "junit:junit:$versions.junitAndroid"
-
-    // Instrumented tests
     androidTestImplementation "com.android.support.test:runner:$versions.testsRunner"
 }
 

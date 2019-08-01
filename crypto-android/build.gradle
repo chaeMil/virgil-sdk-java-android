@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: "de.mannodermaus.android-junit5"
 apply plugin: 'digital.wup.android-maven-publish'
 
 android {
@@ -10,8 +9,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 28
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArgument "runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
@@ -35,15 +33,8 @@ dependencies {
     implementation "com.virgilsecurity.crypto:foundation-android:$versions.virgilCrypto"
 
     // Tests
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
-
-    // Instrumented tests
-    androidTestImplementation "androidx.test:runner:$versions.androidx"
-    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
-    androidTestImplementation "org.junit.jupiter:junit-jupiter-params:$versions.junit"
-    androidTestImplementation "de.mannodermaus.junit5:android-test-core:$versions.mannodermausJunit5"
-    androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:$versions.mannodermausJunit5"
+    testImplementation "junit:junit:$versions.junitAndroid"
+    androidTestImplementation "com.android.support.test:runner:$versions.testsRunner"
 
     androidTestImplementation "com.google.code.gson:gson:$versions.gson"
     androidTestImplementation "org.apache.commons:commons-lang3:$versions.commonsLang"

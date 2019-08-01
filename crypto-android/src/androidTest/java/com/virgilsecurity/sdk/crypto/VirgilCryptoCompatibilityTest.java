@@ -34,53 +34,49 @@
 package com.virgilsecurity.sdk.crypto;
 
 import android.content.Context;
-import androidx.test.platform.app.InstrumentationRegistry;
+import android.support.test.InstrumentationRegistry;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.virgilsecurity.crypto.foundation.Base64;
 import com.virgilsecurity.sdk.crypto.exceptions.CryptoException;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for {@link VirgilCrypto} which tests cross-platform compatibility.
  *
  * @author Andrii Iakovenko
  */
+@RunWith(Parameterized.class)
 public class VirgilCryptoCompatibilityTest {
 
   private JsonObject sampleJson;
+  private VirgilCrypto crypto;
 
-  private static Stream<Arguments> allCryptos() {
+  @Parameterized.Parameters
+  public static Collection<Object[]> cryptos() {
     VirgilCrypto crypto = new VirgilCrypto();
     crypto.setUseSHA256Fingerprints(true);
-    return Stream.of(Arguments.of(crypto),
-        Arguments.of(new VirgilCrypto(true)));
+    return Arrays.asList(new Object[][]{
+            {crypto}, {new VirgilCrypto(true)}
+    });
   }
 
-  @Retention(RetentionPolicy.RUNTIME)
-  @ParameterizedTest
-  @MethodSource("allCryptos")
-  public @interface CryptoTest {
+  public VirgilCryptoCompatibilityTest(VirgilCrypto crypto) {
+    this.crypto = crypto;
   }
 
-  @BeforeEach
+  @Before
   public void setup() throws IOException {
     Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
     InputStream sampleAsset = appContext.getAssets().open("crypto_compatibility_data.json");
@@ -92,8 +88,8 @@ public class VirgilCryptoCompatibilityTest {
     assertEquals(1, 1);
   }
 
-  @CryptoTest
-  public void decryptFromMultipleRecipients(VirgilCrypto crypto) throws CryptoException {
+  @Test
+  public void decryptFromMultipleRecipients() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("encrypt_multiple_recipients");
 
     List<VirgilPrivateKey> privateKeys = new ArrayList<>();
@@ -110,8 +106,8 @@ public class VirgilCryptoCompatibilityTest {
     }
   }
 
-  @CryptoTest
-  public void decryptFromSingleRecipient(VirgilCrypto crypto) throws CryptoException {
+  @Test
+  public void decryptFromSingleRecipient() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("encrypt_single_recipient");
 
     byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
@@ -124,8 +120,8 @@ public class VirgilCryptoCompatibilityTest {
     assertArrayEquals(originalData, decryptedData);
   }
 
-  @CryptoTest
-  public void decryptThenVerifyMultipleRecipients(VirgilCrypto crypto) throws CryptoException {
+  @Test
+  public void decryptThenVerifyMultipleRecipients() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_recipients");
 
     List<VirgilKeyPair> keyPairs = new ArrayList<>();
@@ -146,8 +142,8 @@ public class VirgilCryptoCompatibilityTest {
     }
   }
 
-  @CryptoTest
-  public void decryptThenVerifyMultipleSigners(VirgilCrypto crypto) throws CryptoException {
+  @Test
+  public void decryptThenVerifyMultipleSigners() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_multiple_signers");
 
     byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
@@ -174,8 +170,8 @@ public class VirgilCryptoCompatibilityTest {
     assertArrayEquals(originalData, decryptedData);
   }
 
-  @CryptoTest
-  public void decryptThenVerifySingleRecipient(VirgilCrypto crypto) throws CryptoException {
+  @Test
+  public void decryptThenVerifySingleRecipient() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("sign_then_encrypt_single_recipient");
 
     byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());
@@ -190,8 +186,8 @@ public class VirgilCryptoCompatibilityTest {
     assertArrayEquals(originalData, decryptedData);
   }
 
-  @CryptoTest
-  public void generateSignature(VirgilCrypto crypto) throws CryptoException {
+  @Test
+  public void generateSignature() throws CryptoException {
     JsonObject json = sampleJson.getAsJsonObject("generate_signature");
 
     byte[] privateKeyData = Base64.decode(json.get("private_key").getAsString().getBytes());

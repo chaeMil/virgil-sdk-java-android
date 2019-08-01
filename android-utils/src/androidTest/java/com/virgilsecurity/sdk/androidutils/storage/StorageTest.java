@@ -68,7 +68,7 @@ public class StorageTest {
         tmpDir = new File(ApplicationProvider.getApplicationContext().getFilesDir().getAbsolutePath()
                 + File.separator + UUID.randomUUID().toString());
         keyStoreAlias = UUID.randomUUID().toString();
-        storage = AndroidKeyStorage.getInstance(keyStoreAlias, true, tmpDir.getAbsolutePath());
+        storage = new AndroidKeyStorage.Builder(keyStoreAlias).onPath(tmpDir.getAbsolutePath()).build();
 
         VirgilKeyPair keyPair = crypto.generateKeyPair();
 
@@ -185,7 +185,8 @@ public class StorageTest {
         String keyStorageAlias = UUID.randomUUID().toString();
         String path = new File(ApplicationProvider.getApplicationContext().getFilesDir().getAbsolutePath()
                 + File.separator + UUID.randomUUID().toString()).getAbsolutePath();
-        AndroidKeyStorage androidKeyStorage = AndroidKeyStorage.getInstance(keyStorageAlias, 20, path);
+        AndroidKeyStorage androidKeyStorage =
+                new AndroidKeyStorage.Builder(keyStorageAlias).withKeyValidityDuration(20).onPath(path).build();
 
         // Generate entry
         VirgilCrypto crypto = new VirgilCrypto();

@@ -42,8 +42,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 28
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        testInstrumentationRunnerArgument "runnerBuilder", "de.mannodermaus.junit5.AndroidJUnit5Builder"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
@@ -69,14 +68,10 @@ dependencies {
     implementation "com.google.code.gson:gson:$versions.gson"
 
     // Tests
-    testImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$versions.junit"
+    testImplementation "junit:junit:$versions.junitAndroid"
 
     // Instrumented tests
-    androidTestImplementation "androidx.test:runner:$versions.androidx"
-    androidTestImplementation "org.junit.jupiter:junit-jupiter-api:$versions.junit"
-    androidTestImplementation "de.mannodermaus.junit5:android-test-core:$versions.mannodermausJunit5"
-    androidTestRuntimeOnly "de.mannodermaus.junit5:android-test-runner:$versions.mannodermausJunit5"
+    androidTestImplementation "com.android.support.test:runner:$versions.testsRunner"
 }
 
 task androidJavadocs(type: Javadoc, dependsOn: 'assembleRelease') {

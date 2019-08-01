@@ -114,7 +114,7 @@ public class AndroidKeyStorage implements KeyStorage {
          *
          * @return Builder object to continue setting up AndroidKeyStorage instance.
          */
-        public Builder withKeyValidityDuration(int keyValidityDuration) { // TODO test negative numbers, zero
+        public Builder withKeyValidityDuration(int keyValidityDuration) {
             this.keyValidityDuration = keyValidityDuration;
 
             return this;
@@ -527,5 +527,5 @@ public class AndroidKeyStorage implements KeyStorage {
         } catch (Throwable throwable) {
             throw new KeyStorageException("Cannot reset symmetric key.");
         }
-    } // TODO add resetKeys(deleteKeys) method?
+    }
 }

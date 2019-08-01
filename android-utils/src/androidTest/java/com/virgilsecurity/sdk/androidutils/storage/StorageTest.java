@@ -33,7 +33,8 @@
 
 package com.virgilsecurity.sdk.androidutils.storage;
 
-import androidx.test.core.app.ApplicationProvider;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import com.virgilsecurity.sdk.androidutils.exception.UserNotAuthenticatedException;
 import com.virgilsecurity.sdk.crypto.VirgilCrypto;
 import com.virgilsecurity.sdk.crypto.VirgilKeyPair;
@@ -42,18 +43,25 @@ import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryAlreadyExistsException;
 import com.virgilsecurity.sdk.crypto.exceptions.KeyEntryNotFoundException;
 import com.virgilsecurity.sdk.storage.KeyEntry;
 import com.virgilsecurity.sdk.storage.KeyStorage;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
+@RunWith(AndroidJUnit4.class)
 public class StorageTest {
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private KeyStorage storage;
     private KeyEntry entry;
@@ -61,11 +69,11 @@ public class StorageTest {
     private String keyAlias;
     private String keyStoreAlias;
 
-    @BeforeEach
+    @Before
     public void setUp() throws CryptoException {
         VirgilCrypto crypto = new VirgilCrypto();
 
-        tmpDir = new File(ApplicationProvider.getApplicationContext().getFilesDir().getAbsolutePath()
+        tmpDir = new File(InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + UUID.randomUUID().toString());
         keyStoreAlias = UUID.randomUUID().toString();
         storage = new AndroidKeyStorage.Builder(keyStoreAlias).onPath(tmpDir.getAbsolutePath()).build();
@@ -88,14 +96,14 @@ public class StorageTest {
         assertFalse(storage.exists(keyAlias));
     }
 
-    @Test
+    @Test(expected = KeyEntryNotFoundException.class)
     public void delete_nonExisting() {
-        assertThrows(KeyEntryNotFoundException.class, () -> storage.delete(keyAlias));
+        storage.delete(keyAlias);
     }
 
-    @Test
+    @Test(expected = KeyEntryNotFoundException.class)
     public void delete_nullName() {
-        assertThrows(KeyEntryNotFoundException.class, () -> storage.delete(null));
+        storage.delete(null);
     }
 
     @Test
@@ -139,14 +147,14 @@ public class StorageTest {
         assertEquals(entry.getMeta(), loadedEntry.getMeta());
     }
 
-    @Test
+    @Test(expected = KeyEntryNotFoundException.class)
     public void load_nonExisting() {
-        assertThrows(KeyEntryNotFoundException.class, () -> storage.load(keyAlias));
+        storage.load(keyAlias);
     }
 
-    @Test
+    @Test(expected = KeyEntryNotFoundException.class)
     public void load_nullName() {
-        assertThrows(KeyEntryNotFoundException.class, () -> storage.load(keyAlias));
+        storage.load(keyAlias);
     }
 
     @Test
@@ -172,18 +180,19 @@ public class StorageTest {
         assertTrue(storage.exists(keyAlias));
     }
 
-    @Test
+    @Test(expected = KeyEntryAlreadyExistsException.class)
     public void store_duplicated() {
         storage.store(entry);
 
-        assertThrows(KeyEntryAlreadyExistsException.class, () -> storage.store(entry));
+        // Should fail
+        storage.store(entry);
     }
 
-    @Disabled("Hard to reproduce on emulator, run manually")
+    @Ignore("Hard to reproduce on emulator, run manually")
     @Test()
     public void validity_duration_expired() throws CryptoException, InterruptedException {
         String keyStorageAlias = UUID.randomUUID().toString();
-        String path = new File(ApplicationProvider.getApplicationContext().getFilesDir().getAbsolutePath()
+        String path = new File(InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + UUID.randomUUID().toString()).getAbsolutePath();
         AndroidKeyStorage androidKeyStorage =
                 new AndroidKeyStorage.Builder(keyStorageAlias).withKeyValidityDuration(20).onPath(path).build();
@@ -203,7 +212,8 @@ public class StorageTest {
 
         Thread.sleep(20 * 1000); // 10 sec
 
-        assertThrows(UserNotAuthenticatedException.class, () -> androidKeyStorage.load(keyAliasOne));
+        expectedException.expect(UserNotAuthenticatedException.class);
+        androidKeyStorage.load(keyAliasOne);
     }
 
     @Test

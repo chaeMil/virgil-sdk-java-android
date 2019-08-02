@@ -78,7 +78,7 @@ public class AndroidCipherTest {
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
 //                .setUnlockedDeviceRequired(true) // TODO check on device
                 .setUserAuthenticationValidityDurationSeconds(5 * 60) // 5 minutes
-                .setUserAuthenticationRequired(true)
+                .setUserAuthenticationRequired(false)
                 .build();
 
         keyGenerator.init(keyGenParameterSpec);

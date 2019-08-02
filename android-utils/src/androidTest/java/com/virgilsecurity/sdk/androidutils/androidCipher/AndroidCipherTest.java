@@ -40,6 +40,7 @@ import android.security.keystore.KeyProperties;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -62,7 +63,6 @@ public class AndroidCipherTest {
     private static final String TRANSFORMATION = "AES/GCM/NoPadding";
 
     private String androidKeyStoreAlias = "AndroidKeyStoreTestAliasAuth4";
-    private KeyguardManager keyguardManager;
 
     @Before
     public void setup() throws NoSuchProviderException, NoSuchAlgorithmException, InvalidAlgorithmParameterException {
@@ -78,13 +78,17 @@ public class AndroidCipherTest {
                 .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
 //                .setUnlockedDeviceRequired(true) // TODO check on device
                 .setUserAuthenticationValidityDurationSeconds(5 * 60) // 5 minutes
-                .setUserAuthenticationRequired(true)
+                .setUserAuthenticationRequired(false)
                 .build();
 
         keyGenerator.init(keyGenParameterSpec);
         keyGenerator.generateKey();
+    }
 
-        keyguardManager = (KeyguardManager)
+    @Ignore("Test manually on pattern-locked device. Hard to reproduce on emulator without UI.")
+    @Test
+    public void is_device_secure() {
+        KeyguardManager keyguardManager = (KeyguardManager)
                 InstrumentationRegistry.getContext().getSystemService(Context.KEYGUARD_SERVICE);
 
         assertTrue(keyguardManager.isDeviceSecure());

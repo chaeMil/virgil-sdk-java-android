@@ -57,6 +57,7 @@ android {
 }
 
 dependencies {
+    // Internal dependencies
     api project(":api")
     implementation project(":crypto-android")
 

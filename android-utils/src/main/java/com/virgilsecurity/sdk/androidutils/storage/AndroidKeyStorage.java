@@ -242,7 +242,7 @@ public class AndroidKeyStorage implements KeyStorage {
     }
 
     @Override
-    public void delete(String keyName) {
+    public synchronized void delete(String keyName) {
         if (!existsKey(keyName, keystorePath)) {
             throw new KeyEntryNotFoundException();
         }
@@ -256,7 +256,7 @@ public class AndroidKeyStorage implements KeyStorage {
     }
 
     @Override
-    public boolean exists(String keyName) {
+    public synchronized boolean exists(String keyName) {
         return existsKey(keyName, keystorePath);
     }
 
@@ -274,12 +274,12 @@ public class AndroidKeyStorage implements KeyStorage {
      * https://developer.android.com/training/articles/keystore#UserAuthentication
      */
     @Override
-    public KeyEntry load(String keyName) {
+    public synchronized KeyEntry load(String keyName) {
         return loadKey(keyName, true, keystorePath);
     }
 
     @Override
-    public Set<String> names() {
+    public synchronized Set<String> names() {
         final File dir = new File(keystorePath);
         final Set<String> names = new HashSet<>();
         if (dir.exists() && dir.isDirectory()) {
@@ -291,7 +291,7 @@ public class AndroidKeyStorage implements KeyStorage {
     }
 
     @Override
-    public void store(KeyEntry keyEntry) {
+    public synchronized void store(KeyEntry keyEntry) {
         storeKey(keyEntry, true, keystorePath);
     }
 
@@ -301,7 +301,7 @@ public class AndroidKeyStorage implements KeyStorage {
     }
 
     @Override
-    public void update(KeyEntry keyEntry) {
+    public synchronized void update(KeyEntry keyEntry) {
         final String keyName = keyEntry.getName();
         if (!existsKey(keyName, keystorePath)) {
             throw new KeyEntryNotFoundException();

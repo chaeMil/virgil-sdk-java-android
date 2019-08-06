@@ -49,6 +49,10 @@ public enum KeyType {
    */
   ED25519(AlgId.ED25519),
   /**
+   * SECP256R1 (NIST P-256).
+   */
+  SECP256R1(AlgId.ED25519),
+  /**
    * RSA 2048 bit.
    */
   RSA_2048(2048),
@@ -90,6 +94,7 @@ public enum KeyType {
         return rsaBitLen;
       case CURVE25519:
       case ED25519:
+      case SECP256R1:
         return -1;
       default:
         return -1;

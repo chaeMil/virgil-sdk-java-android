@@ -58,7 +58,7 @@ import java.util.UUID;
 import static org.junit.Assert.*;
 
 @RunWith(AndroidJUnit4.class)
-public class StorageTest {
+public class AndroidStorageTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -76,7 +76,7 @@ public class StorageTest {
         tmpDir = new File(InstrumentationRegistry.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + UUID.randomUUID().toString());
         keyStoreAlias = UUID.randomUUID().toString();
-        storage = new AndroidKeyStorage.Builder(keyStoreAlias).isAuthenticationRequired(false)
+        storage = new AndroidKeyStorage.Builder(keyStoreAlias).isAuthenticationRequired(true)
                 .onPath(tmpDir.getAbsolutePath()).build();
 
         VirgilKeyPair keyPair = crypto.generateKeyPair();
@@ -240,7 +240,4 @@ public class StorageTest {
         assertArrayEquals(entryNew.getValue(), loadedEntryNew.getValue());
         assertEquals(entryNew.getMeta(), loadedEntryNew.getMeta());
     }
-
-    // TODO test fingerprint/pattern change
-    // TODO test not authenticated symmetric key generation
 }

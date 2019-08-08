@@ -1030,6 +1030,8 @@ public class VirgilCrypto {
         return KeyType.ED25519;
       case CURVE25519:
         return KeyType.CURVE25519;
+      case SECP256R1:
+        return KeyType.SECP256R1;
       case RSA:
         switch (key.bitlen()) {
           case RSA_2048_LENGTH:

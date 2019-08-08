@@ -51,7 +51,7 @@ public enum KeyType {
   /**
    * SECP256R1 (NIST P-256).
    */
-  SECP256R1(AlgId.ED25519),
+  SECP256R1(AlgId.SECP256R1),
   /**
    * RSA 2048 bit.
    */

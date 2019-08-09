@@ -60,6 +60,9 @@ buildscript {
             mannodermaus      : '1.5.0.0',
             mannodermausJunit5:'1.1.0',
 
+            // Kotlin
+            kotlin            : '1.3.41',
+
             // Android Tests
             junitAndroid      : '4.12',
 
@@ -78,6 +81,7 @@ buildscript {
         classpath "com.android.tools.build:gradle:$versions.gradle"
         classpath "de.mannodermaus.gradle.plugins:android-junit5:$versions.mannodermaus"
         classpath "digital.wup:android-maven-publish:$versions.mavenPublishPlugin"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$versions.dokka"
     }
 }
 

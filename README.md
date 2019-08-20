@@ -76,7 +76,7 @@ repositories {
 Use this packages for Android projects:
 
 ```
-    implementation "com.virgilsecurity.sdk:crypto-android:<latest-version>@aar'
+    implementation "com.virgilsecurity.sdk:crypto-android:<latest-version>@aar"
     implementation "com.virgilsecurity.sdk:sdk:<latest-version>"
 ```
 
